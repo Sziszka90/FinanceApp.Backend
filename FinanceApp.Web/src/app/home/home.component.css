@@ -1,0 +1,50 @@
+.home {
+    padding: 100px;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  header h1 {
+    font-size: 3em;
+    color: #BCDEE8;
+  }
+  
+  header p {
+    font-size: 1.2em;
+    color: #666;
+  }
+  
+  .features {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+  
+  .feature {
+    background-color: #f4f4f4;
+    padding: 20px;
+    width: 30%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .feature h3 {
+    color: #3f51b5;
+  }
+  
+  footer {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 1em;
+    color: #999;
+  }
+
+  .picture-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  

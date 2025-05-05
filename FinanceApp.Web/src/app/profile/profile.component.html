@@ -1,0 +1,39 @@
+<div class="profile-container">
+    <div>
+        <h1>User Profile</h1>
+    </div>
+    <form class="profile-form" [formGroup]="updateUserForm" (ngSubmit)="onSubmit()">
+      <mat-form-field class="input-field" appearance="fill">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="userName" />
+        <mat-error *ngIf="updateUserForm.get('userName')?.hasError('required')">
+          First name is required
+        </mat-error>
+        <mat-error *ngIf="updateUserForm.get('userName')?.hasError('minlength')">
+          Minimum 2 characters required
+        </mat-error>
+      </mat-form-field>
+  
+      <mat-form-field appearance="fill">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" type="password" />
+        <mat-error *ngIf="updateUserForm.get('password')?.hasError('required')">
+          Password is required
+        </mat-error>
+        <mat-error *ngIf="updateUserForm.get('password')?.hasError('minlength')">
+          Minimum 8 characters required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Currency</mat-label>
+        <mat-select formControlName="currency">
+          <mat-option *ngFor="let option of currencyOptions" [value]="option">
+            {{ option }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <button mat-raised-button color="primary" type="submit">Update</button>
+    </form>
+</div>
