@@ -11,12 +11,12 @@ import { CreateUserDto } from '../models/RegisterDtos/CreateUserDto';
 })
 export class UserApiService {
 
-   // API base URL
-   private apiUrl = environment.apiUrl;
+  // API base URL
+  private apiUrl = environment.apiUrl;
 
-   constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }
 
-   register(createUserDto: CreateUserDto): Observable<GetUserDto> {
+  register(createUserDto: CreateUserDto): Observable<GetUserDto> {
     return this.http.post<GetUserDto>(`${this.apiUrl}/users`, createUserDto);
   }
  

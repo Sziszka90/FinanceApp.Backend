@@ -18,7 +18,7 @@ import { AuthenticationService } from '../../services/authentication.service';
         RouterLink
     ],
     templateUrl: './nav-bar.component.html',
-    styleUrl: './nav-bar.component.scss',
+    styleUrl: './nav-bar.component.css',
     standalone: true
 })
 export class NavBarComponent {

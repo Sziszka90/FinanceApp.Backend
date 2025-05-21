@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Subscription, take } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { CurrencyEnum } from '../../models/IncomeTransactionDtos/Money';
+import { CurrencyEnum } from '../../models/Money/Money';
 import { UserApiService } from '../../services/user.api.service';
 
 @Component({
@@ -45,7 +45,7 @@ export class RegistrationComponent implements OnDestroy {
   ) {
     this.registrationForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(2)]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.pattern("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$"), Validators.minLength(8)]],
       currency: ['', [Validators.required]],
     });
   }

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { IncomeTransactionComponent } from './income-transaction/income-transaction.component';
+import { TransactionComponent } from './transaction/transaction.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
@@ -13,6 +13,6 @@ export const routes: Routes = [
   { path: 'logged-in', component: LoggedInComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'registration', component: RegistrationComponent },
-  { path: 'incometransactions', component: IncomeTransactionComponent },
+  { path: 'transactions', component: TransactionComponent },
   { path: '**', component: NotFoundComponent }, // Redirect to Home for invalid paths
 ];

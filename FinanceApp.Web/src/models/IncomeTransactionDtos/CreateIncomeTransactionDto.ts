@@ -1,4 +1,4 @@
-import { Money } from "./Money";
+import { Money } from "../Money/Money";
 
 export interface CreateIncomeTransactionDto {
     name: string,

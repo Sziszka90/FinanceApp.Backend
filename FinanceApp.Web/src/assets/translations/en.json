@@ -3,6 +3,7 @@
     "MENU": {
         "TITLE": "Menu",
         "HOME": "Home",
+        "TRANSACTIONS": "Transactions",
         "INCOME_TRANSACTIONS": "Income Transactions",
         "INCOME_TRANSACTION_GROUPS": "Income Transaction Groups",
         "EXPENSE_TRANSACTIONS": "Expense Transactions",

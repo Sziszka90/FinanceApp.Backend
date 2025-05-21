@@ -1,6 +1,7 @@
 import { Money } from "../Money/Money";
 
-export interface UpdateIncomeTransactionDto {
+
+export interface UpdateExpenseTransactionDto {
     id: string,
     name: string,
     description: string,

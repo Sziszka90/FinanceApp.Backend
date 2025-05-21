@@ -21,10 +21,10 @@ import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
-import { IncomeTransactionApiService } from '../../services/inccome-transactions.api.service';
+import { TransactionApiService } from '../../services/transactions.api.service';
 import { take } from 'rxjs';
 import { GetIncomeTransactionGroupDto } from '../../models/IncomeTransactionDtos/GetIncomeTransactionGroupDto';
-import { CurrencyEnum } from '../../models/IncomeTransactionDtos/Money';
+import { CurrencyEnum } from '../../models/Money/Money';
 
 @Component({
   selector: 'app-income-transaction-modal',
@@ -57,7 +57,7 @@ export class UpdateIncomeTransactionModalComponent implements OnInit {
     private dialogRef: MatDialogRef<UpdateIncomeTransactionModalComponent>,
     private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private apiService: IncomeTransactionApiService
+    private transactionApiService: TransactionApiService
   ) {
     this.transactionForm = this.fb.group({
       name: new FormControl(this.data.name, Validators.required),
@@ -78,7 +78,7 @@ export class UpdateIncomeTransactionModalComponent implements OnInit {
     this.transactionForm.get('group')?.setValue(this.data.transactionGroup);
     this.transactionForm.get('currency')?.setValue(this.data.value.currency);
 
-    this.apiService
+    this.transactionApiService
       .getAllIncomeTransactionGroups()
       .pipe(take(1))
       .subscribe((data) => {
@@ -97,7 +97,7 @@ export class UpdateIncomeTransactionModalComponent implements OnInit {
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
-      this.apiService
+      this.transactionApiService
         .updateIncomeTransaction(this.data.id, {
           id: this.data.id,
           name: this.transactionForm.get('name')?.value,

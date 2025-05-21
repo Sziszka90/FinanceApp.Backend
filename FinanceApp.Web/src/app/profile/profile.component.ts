@@ -1,9 +1,9 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { UserApiService } from '../../services/user.api.service';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CurrencyEnum } from '../../models/IncomeTransactionDtos/Money';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CurrencyEnum } from '../../models/Money/Money';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription, take } from 'rxjs';
 import { Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { GetUserDto } from '../../models/RegisterDtos/GetUserDto';
 import { AuthenticationService } from '../../services/authentication.service';
+import { UserFormModel } from 'src/models/Profile/UserFormModel';
 
 @Component({
   selector: 'app-profile',
@@ -19,11 +20,22 @@ import { AuthenticationService } from '../../services/authentication.service';
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnDestroy {
-  updateUserForm : FormGroup =  this.fb.group({
-    userName: ['', [Validators.required, Validators.minLength(2)]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    currency: ['', [Validators.required]],
-  });
+  constructor(private userApiService: UserApiService, private fb: FormBuilder, private router: Router, private authService: AuthenticationService) {
+    this.updateUserForm = this.fb.group<UserFormModel>({
+        userName: new FormControl('', [Validators.required, Validators.minLength(2)]),
+        password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+        currency: new FormControl(CurrencyEnum.Unknown, [Validators.required]),
+      });
+    
+    const subscription = this.userApiService.getActiveUser().pipe(take(1)).subscribe((user) => {
+      this.user = user;
+      this.updateUserForm.get('userName')?.setValue(user.userName);
+      this.updateUserForm.get('currency')?.setValue(user.baseCurrency);
+    })
+    this.subscriptions?.add(subscription);
+  }
+
+  updateUserForm : FormGroup<UserFormModel>;
 
   user!: GetUserDto;
 
@@ -32,19 +44,6 @@ export class ProfileComponent implements OnDestroy {
 
   subscriptions: Subscription | undefined;
 
-  constructor(private userApiService: UserApiService, private fb: FormBuilder, private router: Router, private authService: AuthenticationService) {
-    const subscription = this.userApiService.getActiveUser().pipe(take(1)).subscribe((user) => {
-      this.user = user;
-      this.updateUserForm = this.fb.group({
-        userName: [user.userName, [Validators.required, Validators.minLength(2)]],
-        password: ['', [Validators.required, Validators.minLength(8)]],
-        currency: [user.baseCurrency, [Validators.required]],
-      });
-      this.updateUserForm.get('userName')?.setValue(user.userName);
-      this.updateUserForm.get('currency')?.setValue(user.baseCurrency);
-    })
-    this.subscriptions?.add(subscription);
-  }
   ngOnDestroy(): void {
     this.subscriptions?.unsubscribe();
   }
@@ -58,9 +57,9 @@ export class ProfileComponent implements OnDestroy {
     const subscription = this.userApiService
     .updateUser({
       id: this.user?.id,
-      userName: this.updateUserForm.get('userName')?.value,
-      password: this.updateUserForm.get('password')?.value,
-      baseCurrency: this.updateUserForm.get('currency')?.value,
+      userName: this.updateUserForm.get('userName')?.value ?? "",
+      password: this.updateUserForm.get('password')?.value ?? "",
+      baseCurrency: this.updateUserForm.get('currency')?.value ?? CurrencyEnum.Unknown,
     }).pipe(take(1))
     .subscribe(() => {
       this.authService.logout();

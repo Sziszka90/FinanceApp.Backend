@@ -1,10 +1,10 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { IncomeTransactionApiService } from './inccome-transactions.api.service';
 import { LoginRequestDto } from '../models/LoginDtos/LoginRequestDto';
 import { Observable } from 'rxjs';
 import { LoginResponseDto } from '../models/LoginDtos/LoginResponseDto';
 import { isPlatformBrowser } from '@angular/common';
-import jwt_decode, { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
+import { AuthenticationApiService } from './authentication.api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +13,7 @@ export class AuthenticationService {
   private readonly tokenKey: string = 'authToken'; // Define the key for local storage
 
   constructor(
-    private apiService: IncomeTransactionApiService,
+    private authApiService: AuthenticationApiService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -40,7 +40,7 @@ export class AuthenticationService {
   }
 
   login(loginRequestDto: LoginRequestDto): Observable<LoginResponseDto> {
-    return this.apiService.login(loginRequestDto);
+    return this.authApiService.login(loginRequestDto);
   }
 
   // Check if the token exists in localStorage

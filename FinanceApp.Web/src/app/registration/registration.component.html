@@ -1,10 +1,10 @@
 <div class="registration-container">
     <form class="registration-form" [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="fill">
-        <mat-label>First Name</mat-label>
+        <mat-label>User Name</mat-label>
         <input matInput formControlName="userName" />
         <mat-error *ngIf="registrationForm.get('userName')?.hasError('required')">
-          First name is required
+          User name is required
         </mat-error>
         <mat-error *ngIf="registrationForm.get('userName')?.hasError('minlength')">
           Minimum 2 characters required
@@ -19,6 +19,9 @@
         </mat-error>
         <mat-error *ngIf="registrationForm.get('password')?.hasError('minlength')">
           Minimum 8 characters required
+        </mat-error>
+        <mat-error *ngIf="registrationForm.get('password')?.hasError('pattern')">
+          Include uppercase letter, number, and special character
         </mat-error>
       </mat-form-field>
 

@@ -1,0 +1,10 @@
+<div>
+  <button mat-fab (click)="createTransaction()" ><mat-icon>add</mat-icon></button>
+  <app-transaction-column [transactions]="allIncomes$"></app-transaction-column>
+   <app-transaction-column [transactions]="allExpenses$"></app-transaction-column>
+  <div *ngIf="allIncomesSummary$ | async as allIncomesSummary" class="value-container">
+    <div class="title">Sum of Income</div>
+    <div class="value" id="value">{{ allIncomesSummary.amount }}</div>
+    <div class="currency" id="currency">{{ allIncomesSummary.currency }}</div>
+  </div>
+</div>
