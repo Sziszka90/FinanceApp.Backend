@@ -10,15 +10,15 @@ using FinanceApp.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionQueries;
+namespace FinanceApp.Application.ExpenseTransaction.ExpenseTransactionQueries;
 
-public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<Money>>
+public class GetExpenseSumQueryHandler : IQueryHandler<GetExpenseSumQuery, Result<Money>>
 {
   #region Members
 
   private readonly IMapper _mapper;
   private readonly IExchangeRateHttpClient _exchangeRateHttpClient;
-  private readonly IRepository<Domain.Entities.IncomeTransaction> _incomeTransactionRepository;
+  private readonly IRepository<Domain.Entities.ExpenseTransaction> _expenseTransactionRepository;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly IOptions<ExchangeRateSettings> _exchangeRateOptions;
   private readonly IHttpContextAccessor _httpContextAccessor;
@@ -27,9 +27,9 @@ public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<
 
   #region Constructors
 
-  public GetIncomeSumQueryHandler(
+  public GetExpenseSumQueryHandler(
     IMapper mapper,
-    IRepository<Domain.Entities.IncomeTransaction> incomeTransactionRepository,
+    IRepository<Domain.Entities.ExpenseTransaction> expenseTransactionRepository,
     IRepository<Domain.Entities.User> userRepository,
     IExchangeRateHttpClient exchangeRateHttpClient,
     IOptions<ExchangeRateSettings> exchangeRateOptions,
@@ -37,7 +37,7 @@ public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<
   {
     _mapper = mapper;
     _exchangeRateHttpClient = exchangeRateHttpClient;
-    _incomeTransactionRepository = incomeTransactionRepository;
+    _expenseTransactionRepository = expenseTransactionRepository;
     _userRepository = userRepository;
     _exchangeRateOptions = exchangeRateOptions;
     _httpContextAccessor = httpContextAccessor;
@@ -47,11 +47,11 @@ public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<
 
   #region Methods
 
-  public async Task<Result<Money>> Handle(GetIncomeSumQuery request, CancellationToken cancellationToken)
+  public async Task<Result<Money>> Handle(GetExpenseSumQuery request, CancellationToken cancellationToken)
   {
     var httpContext = _httpContextAccessor.HttpContext;
 
-    var allIncomes = await _incomeTransactionRepository.GetAllAsync(false, cancellationToken);
+    var allExpenses = await _expenseTransactionRepository.GetAllAsync(false, cancellationToken);
 
     var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
@@ -71,22 +71,22 @@ public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<
       Amount = 0
     };
 
-    foreach (var income in allIncomes)
+    foreach (var expense in allExpenses)
     {
-      if (income.Value.Currency != targetCurrency)
+      if (expense.Value.Currency != targetCurrency)
       {
-        var exchangeRates = await _exchangeRateHttpClient.GetDataAsync(income.Value.Currency.ToString(), targetCurrency.ToString());
+        var exchangeRates = await _exchangeRateHttpClient.GetDataAsync(expense.Value.Currency.ToString(), targetCurrency.ToString());
 
         if (exchangeRates is null)
         {
           return Result.Failure<Money>(ApplicationError.DefaultError("Exchange not found"));
         }
 
-        summAmount.Amount = summAmount.Amount + (income.Value.Amount * (exchangeRates.Rates[targetCurrency.ToString()] / exchangeRates.Rates[income.Value.Currency.ToString()]));
+        summAmount.Amount = summAmount.Amount + (expense.Value.Amount * (exchangeRates.Rates[targetCurrency.ToString()] / exchangeRates.Rates[expense.Value.Currency.ToString()]));
       }
       else
       {
-        summAmount.Amount += income.Value.Amount;
+        summAmount.Amount += expense.Value.Amount;
       }
     }
 

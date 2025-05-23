@@ -113,6 +113,21 @@ public class ExpenseTransactionApi : TestBase
   }
 
   [Fact]
+  public async Task GetAllExpenseSummary_ReturnsAllExpenseSummary()
+  {
+    // Arrange
+    await InitializeAsync();
+    var incomes = await CreateMultipleExpenseAsync();
+
+    // Act
+    var response = await Client.GetAsync(EXPENSE_TRANSACTIONS_SUMMARY);
+    var sum = await GetContentAsync<Money>(response);
+
+    // Assert
+    Assert.True(sum!.Amount < incomes[0].Value.Amount);
+  }
+
+  [Fact]
   public async Task GetExpenseById_ReturnsValidExpense()
   {
     // Arrange

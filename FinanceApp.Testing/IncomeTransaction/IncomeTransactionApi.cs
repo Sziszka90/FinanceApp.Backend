@@ -127,7 +127,7 @@ public class IncomeTransactionApi : TestBase
     var sum = await GetContentAsync<Money>(response);
 
     // Assert
-    Assert.True(sum!.Amount > incomes[0].Value.Amount);
+    Assert.True(sum!.Amount < incomes[0].Value.Amount);
   }
 
   [Fact]

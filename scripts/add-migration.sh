@@ -16,11 +16,11 @@ fi
 
 # Configure values based on provider
 if [ "$PROVIDER" == "mssql" ]; then
-  CONTEXT="FinanceDbContext"
-  PROJECT="FinanceApp.EntityFramework.Mssql"
+  CONTEXT="FinanceAppMssqlDbContext"
+  PROJECT="FinanceApp.Infrastructure.EntityFramework.Mssql"
 elif [ "$PROVIDER" == "sqlite" ]; then
-  CONTEXT="FinanceSqliteDbContext"
-  PROJECT="FinanceApp.EntityFramework.Sqlite"
+  CONTEXT="FinanceAppSqliteDbContext"
+  PROJECT="FinanceApp.Infrastructure.EntityFramework.Sqlite"
 else
   echo "❌ Unknown provider: $PROVIDER"
   echo "Supported providers: mssql, sqlite"
@@ -31,5 +31,5 @@ echo "✅ Adding migration '$MIGRATION_NAME' for $PROVIDER..."
 
 dotnet ef migrations add "$MIGRATION_NAME" \
   --project "$PROJECT" \
-  --startup-project FinanceApp.WebApi \
+  --startup-project FinanceApp.Presentation.WebApi \
   --context "$CONTEXT"

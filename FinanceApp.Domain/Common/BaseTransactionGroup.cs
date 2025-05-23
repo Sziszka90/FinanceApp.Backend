@@ -1,4 +1,6 @@
-﻿namespace FinanceApp.Domain.Common;
+﻿using FinanceApp.Domain.Entities;
+
+namespace FinanceApp.Domain.Common;
 
 public abstract class BaseTransactionGroup : BaseEntity
 {
@@ -19,15 +21,21 @@ public abstract class BaseTransactionGroup : BaseEntity
   /// </summary>
   public string? Icon { get; set; }
 
+  /// <summary>
+  /// User
+  /// </summary>
+  public User User { get; set; }
+
   #endregion
 
   #region Constructors
 
-  protected BaseTransactionGroup(string name, string? description, string? icon)
+  protected BaseTransactionGroup(string name, string? description, string? icon, User user)
   {
     Name = name;
     Description = description;
     Icon = icon;
+    User = user;
   }
 
   protected BaseTransactionGroup() { }

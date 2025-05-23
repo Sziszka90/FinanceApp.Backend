@@ -4,6 +4,7 @@ import { MatTableModule } from '@angular/material/table';
 import { Observable } from 'rxjs';
 import { GetIncomeTransactionDto } from 'src/models/IncomeTransactionDtos/GetIncomeTransactionDto';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { GetExpenseTransactionDto } from 'src/models/ExpenseTransactionDtos/GetExpenseTransactionDto';
 
 @Component({
   selector: 'app-transaction-column',
@@ -12,8 +13,8 @@ import { toObservable } from '@angular/core/rxjs-interop';
   styleUrl: './transaction-column.component.css'
 })
 export class TransactionColumnComponent {
-  public transactions = input<Observable<GetIncomeTransactionDto[]>>();
-  transactions$ = toObservable(this.transactions);
+  public incomeTransactions = input<Observable<GetIncomeTransactionDto[]>>();
+  incomeTransactions$ = toObservable(this.incomeTransactions);
 
   displayedColumns: string[] = [
     'name',

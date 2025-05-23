@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Infrastructure.EntityFramework.Context;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Context;
@@ -9,7 +11,9 @@ public class FinanceAppMssqlDbContext : FinanceAppDbContext
   #region Constructors
 
   /// <inheritdoc />
-  public FinanceAppMssqlDbContext(DbContextOptions<FinanceAppMssqlDbContext> options) : base(options) { }
+  public FinanceAppMssqlDbContext(
+    DbContextOptions<FinanceAppMssqlDbContext> options,
+    ICurrentUserService currentUserService) : base(options, currentUserService) { }
 
   #endregion
 

@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.IncomeTransactionDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
@@ -17,6 +19,8 @@ public class CreateIncomeCommandHandler : ICommandHandler<CreateIncomeCommand, R
   private readonly IRepository<Domain.Entities.IncomeTransaction> _incomeTransactionRepository;
   private readonly IRepository<Domain.Entities.IncomeTransactionGroup> _incomeTransactionGroupRepository;
   private readonly ILogger<CreateIncomeCommandHandler> _logger;
+  private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IUserRepository _userRepository;
 
   #endregion
 
@@ -26,13 +30,17 @@ public class CreateIncomeCommandHandler : ICommandHandler<CreateIncomeCommand, R
                                     IUnitOfWork unitOfWork,
                                     IRepository<Domain.Entities.IncomeTransaction> incomeTransactionRepository,
                                     IRepository<Domain.Entities.IncomeTransactionGroup> incomeTransactionGroupRepository,
-                                    ILogger<CreateIncomeCommandHandler> logger)
+                                    ILogger<CreateIncomeCommandHandler> logger,
+                                    IHttpContextAccessor httpContextAccessor,
+                                    IUserRepository userRepository)
   {
     _mapper = mapper;
     _unitOfWork = unitOfWork;
     _incomeTransactionRepository = incomeTransactionRepository;
     _incomeTransactionGroupRepository = incomeTransactionGroupRepository;
     _logger = logger;
+    _userRepository = userRepository;
+    _httpContextAccessor = httpContextAccessor;
   }
 
   #endregion
@@ -66,12 +74,26 @@ public class CreateIncomeCommandHandler : ICommandHandler<CreateIncomeCommand, R
       return Result.Failure<GetIncomeTransactionDto>(ApplicationError.NameAlreadyExistsError(request.CreateIncomeTransactionDto.Name));
     }
 
+    var httpContext = _httpContextAccessor.HttpContext;
+
+    var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
+                                      ?.Value;
+
+   if (currentUserName is null)
+    {
+      _logger.LogError("User is not logged in");
+      return Result.Failure<GetIncomeTransactionDto>(ApplicationError.UserNotFoundError());
+    }
+
+    var user = await _userRepository.GetByUserNameAsync(currentUserName!);
+
     var income = await _incomeTransactionRepository.CreateAsync(new Domain.Entities.IncomeTransaction(
                                                                   request.CreateIncomeTransactionDto.Name,
                                                                   request.CreateIncomeTransactionDto.Description,
                                                                   request.CreateIncomeTransactionDto.Value,
                                                                   request.CreateIncomeTransactionDto.DueDate,
-                                                                  transactionGroup), cancellationToken);
+                                                                  transactionGroup,
+                                                                  user!), cancellationToken);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

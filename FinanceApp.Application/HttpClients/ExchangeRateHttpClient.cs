@@ -30,7 +30,7 @@ public class ExchangeRateHttpClient : IExchangeRateHttpClient
 
   #region Methods
 
-  public async Task<Dictionary<string, decimal>?> GetDataAsync(string fromCurrency, string toCurrency)
+  public async Task<ExchangeRateResponseDto?> GetDataAsync(string fromCurrency, string toCurrency)
   {
     var options = new JsonSerializerOptions
     {
@@ -41,23 +41,15 @@ public class ExchangeRateHttpClient : IExchangeRateHttpClient
     options.Converters.Add(new DecimalConverter());
     options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 
-    var query = new GetExchangeRateQueryDto
-    {
-      Source = fromCurrency,
-      Targets = [toCurrency]
-    };
+    var endpoint = _exchangeRateSettings.Endpoint.Replace("API_KEY", _exchangeRateSettings.ApiKey);
 
-    var httpContent = ConvertObjectToHttpContent(query);
-
-    _httpClient.DefaultRequestHeaders.Add("apy-token", _exchangeRateSettings.ApiKey);
-
-    var response = await _httpClient.PostAsync(_exchangeRateSettings.Endpoint, httpContent);
+    var response = await _httpClient.GetAsync(endpoint);
     var content = await response.Content.ReadAsStringAsync();
-    var dto = JsonSerializer.Deserialize<Dictionary<string, decimal>>(content, options);
+    var dto = JsonSerializer.Deserialize<ExchangeRateResponseDto>(content, options);
     return dto;
   }
 
-  private HttpContent ConvertObjectToHttpContent(GetExchangeRateQueryDto obj)
+  private HttpContent ConvertObjectToHttpContent(ExchangeRateResponseDto obj)
   {
     // Serialize object to JSON string
     var jsonString = JsonSerializer.Serialize(obj);

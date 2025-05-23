@@ -1,54 +1,56 @@
-<ng-container *ngIf="transactions$ | async as transactions">
-    <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
+<div class="container">
+    <ng-container *ngIf="transactions$ | async as transactions">
+        <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
 
-        <!--- Note that these columns can be defined in any order.
-            The actual rendered columns are set as a property on the row definition" -->
-    
-        <!-- Name Column -->
-        <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-        </ng-container>
-    
-        <!-- Weight Column -->
-        <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef> Description </th>
-        <td mat-cell *matCellDef="let element"> {{element.description}} </td>
-        </ng-container>
-    
-        <ng-container matColumnDef="value">
-        <th mat-header-cell *matHeaderCellDef> Value </th>
-        <td mat-cell *matCellDef="let element"> {{element.value.amount}} </td>
-        </ng-container>
+            <!--- Note that these columns can be defined in any order.
+                The actual rendered columns are set as a property on the row definition" -->
+        
+            <!-- Name Column -->
+            <ng-container class="column" matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
+        
+            <!-- Weight Column -->
+            <ng-container class="column" matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef> Description </th>
+            <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+            </ng-container>
+        
+            <ng-container class="column" matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef> Value </th>
+            <td mat-cell *matCellDef="let element"> {{element.value.amount}} </td>
+            </ng-container>
 
-        <ng-container matColumnDef="currency">
-            <th mat-header-cell *matHeaderCellDef> Currency </th>
-            <td mat-cell *matCellDef="let element"> {{element.value.currency}} </td>
-        </ng-container>
+            <ng-container class="column" matColumnDef="currency">
+                <th mat-header-cell *matHeaderCellDef> Currency </th>
+                <td mat-cell *matCellDef="let element"> {{element.value.currency}} </td>
+            </ng-container>
 
-        <ng-container matColumnDef="dueDate">
-            <th mat-header-cell *matHeaderCellDef> Due Date </th>
-            <td mat-cell *matCellDef="let element"> {{element.dueDate}} </td>
-        </ng-container>
+            <ng-container class="column" matColumnDef="dueDate">
+                <th mat-header-cell *matHeaderCellDef> Due Date </th>
+                <td mat-cell *matCellDef="let element"> {{element.dueDate | date:'short'}} </td>
+            </ng-container>
 
-        <ng-container matColumnDef="group">
-            <th mat-header-cell *matHeaderCellDef> Group </th>
-            <td mat-cell *matCellDef="let element"> {{element.transactionGroup != undefined ? element.transactionGroup.name : ""}} </td>
-        </ng-container>
+            <ng-container class="column" matColumnDef="group">
+                <th mat-header-cell *matHeaderCellDef> Group </th>
+                <td mat-cell *matCellDef="let element"> {{element.transactionGroup != undefined ? element.transactionGroup.name : ""}} </td>
+            </ng-container>
 
-        <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Actions </th>
-        <td mat-cell *matCellDef="let row">
-            <button mat-fab (click)="deleteTransaction(row)">
-            <mat-icon>delete</mat-icon>
-            </button>
-            <button mat-fab (click)="editTransaction(row)">
-            <mat-icon>edit</mat-icon>
-            </button>
-        </td>
-        </ng-container>
-    
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-  </ng-container>
+            <ng-container class="column" matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <td class="content" mat-cell *matCellDef="let row">
+                <button mat-fab (click)="deleteTransaction(row)">
+                <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-fab (click)="editTransaction(row)">
+                <mat-icon>edit</mat-icon>
+                </button>
+            </td>
+            </ng-container>
+        
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </ng-container>
+</div>

@@ -12,7 +12,8 @@ public class IncomeTransaction : BaseTransaction
     string? description,
     Money value,
     DateTimeOffset? dueDate,
-    IncomeTransactionGroup? group) : base(name, description, value, dueDate, group) { }
+    IncomeTransactionGroup? group,
+    User user) : base(name, description, value, dueDate, group, user) { }
 
   private IncomeTransaction() { }
 

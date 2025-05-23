@@ -20,7 +20,8 @@ public class ExpenseTransactionGroup : BaseTransactionGroup
     string name,
     string? description,
     string? icon,
-    Money? limit) : base(name, description, icon)
+    Money? limit,
+    User user) : base(name, description, icon, user)
   {
     Limit = limit;
   }

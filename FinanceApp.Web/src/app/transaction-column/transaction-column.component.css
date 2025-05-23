@@ -1,0 +1,14 @@
+.container {
+    width: 100%;
+}
+
+.mat-mdc-header-cell {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.content {
+    padding: 0;
+    margin: 0;
+}

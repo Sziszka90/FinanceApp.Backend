@@ -22,8 +22,9 @@ public class ExpenseTransaction : BaseTransaction
     Money value,
     DateTimeOffset? dueDate,
     ExpenseTransactionGroup? transactionGroup,
-    int? priority) :
-    base(name, description, value, dueDate, transactionGroup)
+    int? priority,
+    User user) :
+    base(name, description, value, dueDate, transactionGroup, user)
   {
     Priority = priority;
   }

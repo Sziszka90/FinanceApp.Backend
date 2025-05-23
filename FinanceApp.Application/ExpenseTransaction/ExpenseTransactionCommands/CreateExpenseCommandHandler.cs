@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.ExpenseTransactionDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.ExpenseTransaction.ExpenseTransactionCommands;
@@ -13,9 +15,11 @@ public class CreateExpenseCommandHandler : ICommandHandler<CreateExpenseCommand,
   #region Members
 
   private readonly ILogger<CreateExpenseCommandHandler> _logger;
+  private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.ExpenseTransaction> _expenseTransactionRepository;
+  private readonly IUserRepository _userRepository;
   private readonly IRepository<Domain.Entities.ExpenseTransactionGroup> _expenseTransactionGroupRepository;
 
   #endregion
@@ -23,15 +27,19 @@ public class CreateExpenseCommandHandler : ICommandHandler<CreateExpenseCommand,
   #region Constructors
 
   public CreateExpenseCommandHandler(ILogger<CreateExpenseCommandHandler> logger,
+                                     IHttpContextAccessor httpContextAccessor,
                                      IMapper mapper,
                                      IUnitOfWork unitOfWork,
                                      IRepository<Domain.Entities.ExpenseTransaction> expenseTransactionRepository,
+                                     IUserRepository userRepository,
                                      IRepository<Domain.Entities.ExpenseTransactionGroup> expenseTransactionGroupRepository)
   {
     _logger = logger;
+    _httpContextAccessor = httpContextAccessor;
     _mapper = mapper;
     _unitOfWork = unitOfWork;
     _expenseTransactionRepository = expenseTransactionRepository;
+    _userRepository = userRepository;
     _expenseTransactionGroupRepository = expenseTransactionGroupRepository;
   }
 
@@ -65,13 +73,27 @@ public class CreateExpenseCommandHandler : ICommandHandler<CreateExpenseCommand,
       return Result.Failure<GetExpenseTransactionDto>(ApplicationError.NameAlreadyExistsError(request.CreateExpenseTransactionDto.Name));
     }
 
+    var httpContext = _httpContextAccessor.HttpContext;
+
+    var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
+                                      ?.Value;
+
+   if (currentUserName is null)
+    {
+      _logger.LogError("User is not logged in");
+      return Result.Failure<GetExpenseTransactionDto>(ApplicationError.UserNotFoundError());
+    }
+
+    var user = await _userRepository.GetByUserNameAsync(currentUserName!);
+
     var expense = await _expenseTransactionRepository.CreateAsync(new Domain.Entities.ExpenseTransaction(
                                                                     request.CreateExpenseTransactionDto.Name,
                                                                     request.CreateExpenseTransactionDto.Description,
                                                                     request.CreateExpenseTransactionDto.Value,
                                                                     request.CreateExpenseTransactionDto.DueDate,
                                                                     transactionGroup,
-                                                                    request.CreateExpenseTransactionDto.Priority), cancellationToken);
+                                                                    request.CreateExpenseTransactionDto.Priority,
+                                                                    user!), cancellationToken);
 
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);

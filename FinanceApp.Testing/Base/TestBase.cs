@@ -14,6 +14,7 @@ using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Domain.Entities;
 using FinanceApp.Domain.Enums;
 using FinanceApp.Infrastructure.EntityFramework.Context;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApp.Testing.Base;
@@ -22,12 +23,13 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 {
   #region Constants
 
-  protected const string INCOME_TRANSACTIONS = "/api/incometransactions/";
-  protected const string INCOME_TRANSACTIONS_SUMMARY = "/api/incometransactions/summary";
-  protected const string INCOME_TRANSACTION_GROUPS = "/api/incometransactiongroups/";
+  protected const string INCOME_TRANSACTIONS = "/api/transactions/income/";
+  protected const string INCOME_TRANSACTIONS_SUMMARY = "/api/transactions/income/summary";
+  protected const string EXPENSE_TRANSACTIONS_SUMMARY = "/api/transactions/expense/summary";
+  protected const string INCOME_TRANSACTION_GROUPS = "/api/transactiongroups/income/";
 
-  protected const string EXPENSE_TRANSACTIONS = "/api/expensetransactions/";
-  protected const string EXPENSE_TRANSACTION_GROUPS = "/api/expensetransactiongroups/";
+  protected const string EXPENSE_TRANSACTIONS = "/api/transactions/expense/";
+  protected const string EXPENSE_TRANSACTION_GROUPS = "/api/transactiongroups/expense/";
 
   protected const string INVESTMENTS = "/api/investments/";
 
@@ -46,7 +48,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected HttpClient Client { get; }
   protected Guid CreatedUserId { get; set; }
-
+  
   #endregion
 
   #region Constructors
@@ -302,6 +304,58 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     inComeList.Add((await GetContentAsync<GetIncomeTransactionDto>(await Client.PostAsync(INCOME_TRANSACTIONS, incomeContentGbp)))!);
 
     return inComeList;
+  }
+
+  
+  protected async Task<List<GetExpenseTransactionDto>> CreateMultipleExpenseAsync()
+  {
+    var expenseGroupContent = CreateContent(new CreateExpenseTransactionGroupDto
+    {
+      Name = "ExpenseGroup",
+      Description = "Expense group",
+      Icon = "icon",
+      Limit = new Money
+      {
+        Amount = 10000000,
+        Currency = CurrencyEnum.GBP
+      },
+    });
+
+    var expenseGroup = await GetContentAsync<GetExpenseTransactionGroupDto>(await Client.PostAsync(EXPENSE_TRANSACTION_GROUPS, expenseGroupContent));
+
+    var expenseList = new List<GetExpenseTransactionDto>();
+
+    var expenseContentHuf = CreateContent(new CreateExpenseTransactionDto
+    {
+      Name = "TestExpense1",
+      Description = "Test Expense",
+      Value = new Money
+      {
+        Amount = 1000000,
+        Currency = CurrencyEnum.HUF
+      },
+      DueDate = new DateTimeOffset(),
+      TransactionGroupId = expenseGroup!.Id
+    });
+
+    expenseList.Add((await GetContentAsync<GetExpenseTransactionDto>(await Client.PostAsync(EXPENSE_TRANSACTIONS, expenseContentHuf)))!);
+
+    var expenseContentGbp = CreateContent(new CreateExpenseTransactionDto
+    {
+      Name = "TestExpense2",
+      Description = "Test Expense",
+      Value = new Money
+      {
+        Amount = 10,
+        Currency = CurrencyEnum.GBP
+      },
+      DueDate = new DateTimeOffset(),
+      TransactionGroupId = expenseGroup!.Id
+    });
+
+    expenseList.Add((await GetContentAsync<GetExpenseTransactionDto>(await Client.PostAsync(EXPENSE_TRANSACTIONS, expenseContentGbp)))!);
+
+    return expenseList;
   }
 
   protected async Task<T?> GetContentAsync<T>(HttpResponseMessage message)

@@ -1,10 +1,12 @@
-﻿namespace FinanceApp.Application.Abstraction.HttpClients;
+﻿using FinanceApp.Application.Dtos.ExchangeRateDtos;
+
+namespace FinanceApp.Application.Abstraction.HttpClients;
 
 public interface IExchangeRateHttpClient
 {
   #region Methods
 
-  public Task<Dictionary<string, decimal>?> GetDataAsync(string fromCurrency, string toCurrency);
+  public Task<ExchangeRateResponseDto?> GetDataAsync(string fromCurrency, string toCurrency);
 
   #endregion
 }

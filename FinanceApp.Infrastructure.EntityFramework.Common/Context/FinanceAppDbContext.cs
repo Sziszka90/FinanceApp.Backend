@@ -1,11 +1,17 @@
 ﻿using System.Reflection;
+using System.Security.Claims;
+using FinanceApp.Application.Abstraction.Services;
+using FinanceApp.Domain.Common;
 using FinanceApp.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Context;
 
 public abstract class FinanceAppDbContext : DbContext
 {
+  private readonly ICurrentUserService _currentUserService;
+
   #region Properties
 
   public DbSet<IncomeTransaction> IncomeTransaction => Set<IncomeTransaction>();
@@ -18,7 +24,12 @@ public abstract class FinanceAppDbContext : DbContext
 
   #region Constructors
 
-  protected FinanceAppDbContext(DbContextOptions options) : base(options) { }
+  protected FinanceAppDbContext(
+    DbContextOptions options,
+    ICurrentUserService currentUserService) : base(options)
+  { 
+    _currentUserService = currentUserService;
+  }
 
   #endregion
 
@@ -26,6 +37,20 @@ public abstract class FinanceAppDbContext : DbContext
   {
     modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     OnModelCreatingProviderSpecific(modelBuilder);
+    SetupGlobalFilters(modelBuilder);
+  }
+
+  /// <summary>
+  /// Setup global query filter
+  /// </summary>
+  private void SetupGlobalFilters(ModelBuilder modelBuilder)
+  {
+    modelBuilder.Entity<BaseTransaction>()
+      .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
+
+    modelBuilder.Entity<BaseTransactionGroup>()
+      .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
+
   }
 
   /// <summary>
@@ -35,6 +60,7 @@ public abstract class FinanceAppDbContext : DbContext
   protected virtual void OnModelCreatingProviderSpecific(ModelBuilder modelBuilder)
   {
     // Enables provider-specific model creation setups while keeping Seeding in a central spot 
+    // Global filter for Product
   }
 
   /// <inheritdoc />

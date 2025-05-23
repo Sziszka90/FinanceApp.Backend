@@ -31,6 +31,11 @@ public abstract class BaseTransaction : BaseEntity
   /// </summary>
   public BaseTransactionGroup? TransactionGroup { get; set; }
 
+  /// <summary>
+  /// User
+  /// </summary>
+  public User User { get; set; }
+
   #endregion
 
   #region Constructors
@@ -41,13 +46,15 @@ public abstract class BaseTransaction : BaseEntity
     string? description,
     Money value,
     DateTimeOffset? dueDate,
-    BaseTransactionGroup? transactionGroup)
+    BaseTransactionGroup? transactionGroup,
+    User user)
   {
     Name = name;
     Description = description;
     Value = value;
     DueDate = dueDate;
     TransactionGroup = transactionGroup;
+    User = user;
   }
 
   protected BaseTransaction() { }

@@ -7,7 +7,10 @@ public class IncomeTransactionGroup : BaseTransactionGroup
   #region Constructors
 
   /// <inheritdoc />
-  public IncomeTransactionGroup(string name, string? description, string? icon) : base(name, description, icon) { }
+  public IncomeTransactionGroup(
+    string name,
+    string? description,
+    string? icon, User user) : base(name, description, icon, user) { }
 
   private IncomeTransactionGroup() { }
 
