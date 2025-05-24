@@ -9,7 +9,7 @@ public class IncomeTransactionGroupConfiguration : IEntityTypeConfiguration<Inco
   #region Methods
 
   /// <inheritdoc />
-  public void Configure(EntityTypeBuilder<IncomeTransactionGroup> entity) { }
+  public void Configure(EntityTypeBuilder<IncomeTransactionGroup> builder) { }
 
   #endregion
 }

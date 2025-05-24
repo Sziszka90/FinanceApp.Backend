@@ -7,9 +7,13 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Configurations;
 public class IncomeTransactionConfiguration : BaseEntityTypeConfiguration<IncomeTransaction>
 {
   /// <inheritdoc />
-  protected override void ConfigureSpecificProperties(EntityTypeBuilder<IncomeTransaction> entity)
+  protected override void ConfigureSpecificProperties(EntityTypeBuilder<IncomeTransaction> builder)
   {
-    entity.ToTable(nameof(IncomeTransaction));
-    entity.ComplexProperty(y => y.Value, y => { y.IsRequired(); });
+    builder.ToTable(nameof(IncomeTransaction));
+    builder.OwnsOne(e => e.Value, owned =>
+        {
+          owned.Property(v => v.Amount).HasColumnName("Amount");
+          owned.Property(v => v.Currency).HasColumnName("Currency");
+        });
   }
 }

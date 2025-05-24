@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
@@ -12,18 +12,12 @@ namespace FinanceApp.Application.IncomeTransactionGroup.IncomeTransactionGroupCo
 
 public class CreateIncomeGroupCommandHandler : ICommandHandler<CreateIncomeGroupCommand, Result<GetIncomeTransactionGroupDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.IncomeTransactionGroup> _incomeTransactionGroupRepository;
   private readonly ILogger<CreateIncomeGroupCommandHandler> _logger;
   private readonly IUserRepository _userRepository;
   private readonly IHttpContextAccessor _httpContextAccessor;
-
-  #endregion
-
-  #region Constructors
 
   public CreateIncomeGroupCommandHandler(IMapper mapper,
                                          IUnitOfWork unitOfWork,
@@ -39,10 +33,6 @@ public class CreateIncomeGroupCommandHandler : ICommandHandler<CreateIncomeGroup
     _userRepository = userRepository;
     _httpContextAccessor = httpContextAccessor;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetIncomeTransactionGroupDto>> Handle(CreateIncomeGroupCommand request, CancellationToken cancellationToken)
@@ -80,6 +70,4 @@ public class CreateIncomeGroupCommandHandler : ICommandHandler<CreateIncomeGroup
     _logger.LogInformation("Income Transaction Group created with ID:{Id}", incomeGroup.Id);
     return Result.Success(_mapper.Map<GetIncomeTransactionGroupDto>(incomeGroup));
   }
-
-  #endregion
 }

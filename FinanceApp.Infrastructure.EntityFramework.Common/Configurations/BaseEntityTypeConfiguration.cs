@@ -17,5 +17,5 @@ public abstract class BaseEntityTypeConfiguration<TDerived> : IEntityTypeConfigu
 
   #endregion
 
-  protected abstract void ConfigureSpecificProperties(EntityTypeBuilder<TDerived> entity);
+  protected abstract void ConfigureSpecificProperties(EntityTypeBuilder<TDerived> builder);
 }

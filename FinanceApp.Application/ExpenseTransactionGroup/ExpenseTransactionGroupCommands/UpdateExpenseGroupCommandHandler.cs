@@ -10,16 +10,10 @@ namespace FinanceApp.Application.ExpenseTransactionGroup.ExpenseTransactionGroup
 
 public class UpdateExpenseGroupCommandHandler : ICommandHandler<UpdateExpenseGroupCommand, Result<GetExpenseTransactionGroupDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.ExpenseTransactionGroup> _expenseTransactionGroupRepository;
   private readonly ILogger<UpdateExpenseGroupCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public UpdateExpenseGroupCommandHandler(IMapper mapper,
                                           IUnitOfWork unitOfWork,
@@ -31,10 +25,6 @@ public class UpdateExpenseGroupCommandHandler : ICommandHandler<UpdateExpenseGro
     _expenseTransactionGroupRepository = expenseTransactionGroupRepository;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetExpenseTransactionGroupDto>> Handle(UpdateExpenseGroupCommand request, CancellationToken cancellationToken)
@@ -68,6 +58,4 @@ public class UpdateExpenseGroupCommandHandler : ICommandHandler<UpdateExpenseGro
 
     return Result.Success(_mapper.Map<GetExpenseTransactionGroupDto>(await _expenseTransactionGroupRepository.UpdateAsync(transactionGroup, cancellationToken)));
   }
-
-  #endregion
 }

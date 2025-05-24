@@ -4,8 +4,6 @@ namespace FinanceApp.Application.Abstraction.Repositories;
 
 public interface IUnitOfWork : IDisposable
 {
-  #region Methods
-
   /// <summary>
   /// Saves all changes made in this unit of work to the database.
   /// </summary>
@@ -60,6 +58,4 @@ public interface IUnitOfWork : IDisposable
   /// <param name="entity"></param>
   /// <returns></returns>
   bool Exists<T>(T? entity) where T : class;
-
-  #endregion
 }

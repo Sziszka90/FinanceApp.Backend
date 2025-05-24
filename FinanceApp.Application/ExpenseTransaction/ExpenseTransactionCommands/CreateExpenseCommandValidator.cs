@@ -6,13 +6,9 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
 
 public class CreateExpenseCommandValidator : AbstractValidator<CreateExpenseCommand>
 {
-  #region Constructors
-
   public CreateExpenseCommandValidator(IValidator<CreateExpenseTransactionDto> createExpenseTransactionDtoValidator)
   {
     RuleFor(x => x.CreateExpenseTransactionDto)
       .SetValidator(createExpenseTransactionDtoValidator);
   }
-
-  #endregion
 }

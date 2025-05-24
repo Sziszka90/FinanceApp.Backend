@@ -1,11 +1,9 @@
-using FinanceApp.Domain.Common;
+﻿using FinanceApp.Domain.Common;
 
 namespace FinanceApp.Domain.Entities;
 
 public class IncomeTransaction : BaseTransaction
 {
-  #region Constructors
-
   /// <inheritdoc />
   public IncomeTransaction(
     string name,
@@ -16,10 +14,6 @@ public class IncomeTransaction : BaseTransaction
     User user) : base(name, description, value, dueDate, group, user) { }
 
   private IncomeTransaction() { }
-
-  #endregion
-
-  #region Methods
 
   public void Update(
     string name,
@@ -34,6 +28,4 @@ public class IncomeTransaction : BaseTransaction
     DueDate = dueDate;
     TransactionGroup = group;
   }
-
-  #endregion
 }

@@ -1,4 +1,4 @@
-using FinanceApp.Infrastructure.EntityFramework.Common;
+﻿using FinanceApp.Infrastructure.EntityFramework.Common;
 using FinanceApp.Infrastructure.EntityFramework.Mssql;
 using FinanceApp.Infrastructure.EntityFramework.Sqlite;
 using Microsoft.Extensions.Configuration;
@@ -8,8 +8,6 @@ namespace FinanceApp.Infrastructure.EntityFramework;
 
 public static class DependencyInjection
 {
-  #region Methods
-
   public static IServiceCollection AddEntityFrameworkCore(this IServiceCollection services, IConfiguration configuration)
   {
     var databaseProvider = configuration.GetValue<string>(Constants.ConfigurationKeys.DatabaseProvider);
@@ -32,6 +30,4 @@ public static class DependencyInjection
 
     return services;
   }
-
-  #endregion
 }

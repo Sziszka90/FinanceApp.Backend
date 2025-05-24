@@ -2,15 +2,9 @@ namespace FinanceApp.Application.Abstraction.Repositories;
 
 public interface IUnitOfWorkDbTransaction
 {
-  #region Properties
-
   /// <summary>Specifies the UnitOfWork associated with the transaction.</summary>
   /// <returns>The UnitOfWork associated with the transaction.</returns>
   IUnitOfWork UnitOfWork { get; }
-
-  #endregion
-
-  #region Methods
 
   /// <summary>
   /// Commits all changes made to the database in the current transaction asynchronously.
@@ -27,6 +21,4 @@ public interface IUnitOfWorkDbTransaction
   /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
   /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
   Task RollbackAsync(CancellationToken cancellationToken = default);
-
-  #endregion
 }

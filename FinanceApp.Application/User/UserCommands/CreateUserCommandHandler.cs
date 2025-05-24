@@ -10,16 +10,10 @@ namespace FinanceApp.Application.User.UserCommands;
 
 public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Result<GetUserDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly ILogger<CreateUserCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public CreateUserCommandHandler(IMapper mapper,
                                   IUnitOfWork unitOfWork,
@@ -31,10 +25,6 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     _userRepository = userRepository;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetUserDto>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -62,6 +52,4 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
 
     return Result.Success(_mapper.Map<GetUserDto>(user));
   }
-
-  #endregion
 }

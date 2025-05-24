@@ -6,13 +6,9 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
 
 public class UpdateExpenseGroupCommandValidator : AbstractValidator<UpdateExpenseGroupCommand>
 {
-  #region Constructors
-
   public UpdateExpenseGroupCommandValidator(IValidator<UpdateExpenseTransactionGroupDto> updateExpenseTransactionGroupDto)
   {
     RuleFor(x => x.UpdateExpenseTransactionGroupDto)
       .SetValidator(updateExpenseTransactionGroupDto);
   }
-
-  #endregion
 }

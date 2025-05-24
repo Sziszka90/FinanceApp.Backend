@@ -2,13 +2,7 @@ namespace FinanceApp.Application.Models;
 
 public class Result<T> : Result
 {
-  #region Properties
-
   public T? Data { get; set; }
-
-  #endregion
-
-  #region Constructors
 
   public Result(T data)
   {
@@ -23,21 +17,13 @@ public class Result<T> : Result
   }
 
   public Result(ApplicationError applicationError) : base(applicationError) { }
-
-  #endregion
 }
 
 public class Result
 {
-  #region Properties
-
   public bool IsSuccess => ApplicationError == null;
 
   public ApplicationError? ApplicationError { get; set; }
-
-  #endregion
-
-  #region Constructors
 
   public Result() { }
 
@@ -45,10 +31,6 @@ public class Result
   {
     ApplicationError = applicationError;
   }
-
-  #endregion
-
-  #region Methods
 
   public static Result Success()
   {
@@ -74,6 +56,4 @@ public class Result
   {
     return new Result<T>(data, error);
   }
-
-  #endregion
 }

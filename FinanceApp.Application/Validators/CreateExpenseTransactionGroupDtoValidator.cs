@@ -6,8 +6,6 @@ namespace FinanceApp.Application.Validators;
 
 public class CreateExpenseTransactionGroupDtoValidator : AbstractValidator<CreateExpenseTransactionGroupDto>
 {
-  #region Constructors
-
   public CreateExpenseTransactionGroupDtoValidator(IValidator<Money> moneyValidator)
   {
     RuleFor(x => x.Name)
@@ -21,6 +19,4 @@ public class CreateExpenseTransactionGroupDtoValidator : AbstractValidator<Creat
                                        .SetValidator(moneyValidator!);
                                    });
   }
-
-  #endregion
 }

@@ -5,8 +5,6 @@ namespace FinanceApp.Application.Validators;
 
 public class CreateIncomeTransactionGroupDtoValidator : AbstractValidator<CreateIncomeTransactionGroupDto>
 {
-  #region Constructors
-
   public CreateIncomeTransactionGroupDtoValidator()
   {
     RuleFor(x => x.Name)
@@ -14,6 +12,4 @@ public class CreateIncomeTransactionGroupDtoValidator : AbstractValidator<Create
     RuleFor(x => x.Description)
       .MaximumLength(200);
   }
-
-  #endregion
 }

@@ -1,6 +1,4 @@
-using FinanceApp.Infrastructure.EntityFramework.Context;
 using FinanceApp.Infrastructure.EntityFramework.Interceptors;
-using FinanceApp.Infrastructure.EntityFramework.Interfaces;
 using FinanceApp.Infrastructure.EntityFramework.Mssql.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,8 +17,6 @@ public static class DependencyInjection
                                                                    options.UseSqlServer(configuration.GetConnectionString(Constants.ConfigurationKeys.MssqlConnectionString))
                                                                           .AddInterceptors(new TimestampableEntitySaveChangesInterceptor());
                                                                  });
-
-    services.AddScoped<IScopedContextFactory<FinanceAppDbContext>, ScopedContextFactory<FinanceAppMssqlDbContext>>();
 
     return services;
   }

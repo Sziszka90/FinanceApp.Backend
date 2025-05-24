@@ -78,7 +78,7 @@ public class InvestmentApi : TestBase
     {
       Id = investment!.Id,
       Name = "Updated Name",
-      Amount = investment.Amount,
+      Value = investment.Value,
       Description = "Updated Description"
     };
 
@@ -89,7 +89,7 @@ public class InvestmentApi : TestBase
     // Assert
     Assert.Equal(investment!.Id, response!.Id);
     Assert.Equal(updatedInvestment.Name, response.Name);
-    Assert.Equal(updatedInvestment.Amount.Amount, response.Amount.Amount);
+    Assert.Equal(updatedInvestment.Value.Amount, response.Value.Amount);
   }
 
   [Fact]
@@ -102,7 +102,7 @@ public class InvestmentApi : TestBase
     {
       Id = investment!.Id,
       Name = "Updated Name",
-      Amount = new Money
+      Value = new Money
       {
         Currency = CurrencyEnum.USD,
         Amount = -100

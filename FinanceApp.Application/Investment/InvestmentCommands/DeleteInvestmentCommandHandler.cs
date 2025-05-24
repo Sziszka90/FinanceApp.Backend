@@ -7,15 +7,9 @@ namespace FinanceApp.Application.Investment.InvestmentCommands;
 
 public class DeleteInvestmentCommandHandler : ICommandHandler<DeleteInvestmentCommand, Result>
 {
-  #region Members
-
   private readonly IRepository<Domain.Entities.Investment> _investmentRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ILogger<DeleteInvestmentCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public DeleteInvestmentCommandHandler(IRepository<Domain.Entities.Investment> investmentRepository,
                                         IUnitOfWork unitOfWork,
@@ -25,10 +19,6 @@ public class DeleteInvestmentCommandHandler : ICommandHandler<DeleteInvestmentCo
     _unitOfWork = unitOfWork;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteInvestmentCommand request, CancellationToken cancellationToken)
@@ -49,6 +39,4 @@ public class DeleteInvestmentCommandHandler : ICommandHandler<DeleteInvestmentCo
 
     return Result.Success();
   }
-
-  #endregion
 }

@@ -5,8 +5,6 @@ namespace FinanceApp.Application.Extensions;
 
 public static class ExpressionExtensions
 {
-  #region Methods
-
   public static string GetPropertyPath(this Expression expression)
   {
     var result = new StringBuilder();
@@ -44,6 +42,4 @@ public static class ExpressionExtensions
       _ => default
     };
   }
-
-  #endregion
 }

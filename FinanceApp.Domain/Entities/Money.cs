@@ -4,8 +4,6 @@ namespace FinanceApp.Domain.Entities;
 
 public class Money
 {
-  #region Properties
-
   /// <summary>
   /// Currency of the Money
   /// </summary>
@@ -15,6 +13,4 @@ public class Money
   /// Amount of the Money
   /// </summary>
   public decimal Amount { get; set; }
-
-  #endregion
 }

@@ -1,9 +1,7 @@
 using System.Reflection;
-using System.Security.Claims;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Domain.Common;
 using FinanceApp.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Context;
@@ -45,12 +43,14 @@ public abstract class FinanceAppDbContext : DbContext
   /// </summary>
   private void SetupGlobalFilters(ModelBuilder modelBuilder)
   {
-    modelBuilder.Entity<BaseTransaction>()
+    modelBuilder.Entity<IncomeTransaction>()
+      .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
+
+    modelBuilder.Entity<ExpenseTransaction>()
       .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
 
     modelBuilder.Entity<BaseTransactionGroup>()
       .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
-
   }
 
   /// <summary>
@@ -59,7 +59,7 @@ public abstract class FinanceAppDbContext : DbContext
   /// <param name="modelBuilder"></param>
   protected virtual void OnModelCreatingProviderSpecific(ModelBuilder modelBuilder)
   {
-    // Enables provider-specific model creation setups while keeping Seeding in a central spot 
+    // Enables provider-specific model creation setups while keeping Seeding in a central spot
     // Global filter for Product
   }
 

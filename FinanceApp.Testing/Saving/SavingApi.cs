@@ -78,7 +78,7 @@ public class SavingApi : TestBase
     {
       Id = saving!.Id,
       Name = "Updated Name",
-      Amount = saving.Amount,
+      Value = saving.Value,
       Description = "Updated Description"
     };
 
@@ -89,7 +89,7 @@ public class SavingApi : TestBase
     // Assert
     Assert.Equal(saving!.Id, response!.Id);
     Assert.Equal(updatedSaving.Name, response.Name);
-    Assert.Equal(updatedSaving.Amount.Amount, response.Amount.Amount);
+    Assert.Equal(updatedSaving.Value.Amount, response.Value.Amount);
   }
 
   [Fact]
@@ -102,7 +102,7 @@ public class SavingApi : TestBase
     {
       Id = saving!.Id,
       Name = "Updated Name",
-      Amount = new Money
+      Value = new Money
       {
         Currency = CurrencyEnum.USD,
         Amount = -100

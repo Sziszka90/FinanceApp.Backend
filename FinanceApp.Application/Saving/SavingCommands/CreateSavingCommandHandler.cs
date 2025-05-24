@@ -10,16 +10,10 @@ namespace FinanceApp.Application.Saving.SavingCommands;
 
 public class CreateSavingCommandHandler : ICommandHandler<CreateSavingCommand, Result<GetSavingDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.Saving> _savingRepository;
   private readonly ILogger<CreateSavingCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public CreateSavingCommandHandler(IMapper mapper,
                                     IUnitOfWork unitOfWork,
@@ -31,10 +25,6 @@ public class CreateSavingCommandHandler : ICommandHandler<CreateSavingCommand, R
     _savingRepository = savingRepository;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetSavingDto>> Handle(CreateSavingCommand request, CancellationToken cancellationToken)
@@ -52,7 +42,7 @@ public class CreateSavingCommandHandler : ICommandHandler<CreateSavingCommand, R
     var saving = await _savingRepository.CreateAsync(new Domain.Entities.Saving(
                                                        request.CreateSavingDto.Name,
                                                        request.CreateSavingDto.Description,
-                                                       request.CreateSavingDto.Amount,
+                                                       request.CreateSavingDto.Value,
                                                        request.CreateSavingDto.Type,
                                                        request.CreateSavingDto.DueDate), cancellationToken);
 
@@ -62,6 +52,4 @@ public class CreateSavingCommandHandler : ICommandHandler<CreateSavingCommand, R
 
     return Result.Success(_mapper.Map<GetSavingDto>(saving));
   }
-
-  #endregion
 }

@@ -12,26 +12,15 @@ namespace FinanceApp.User.UserQueries.SavingQueries;
 
 public class GetActiveUserQueryHandler : IQueryHandler<GetActiveUserQuery, Result<GetUserDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly IHttpContextAccessor _httpContextAccessor;
-
-  #endregion
-
-  #region Constructors
-
   public GetActiveUserQueryHandler(IMapper mapper, IRepository<Domain.Entities.User> userRepository, IHttpContextAccessor httpContextAccessor)
   {
     _mapper = mapper;
     _userRepository = userRepository;
     _httpContextAccessor = httpContextAccessor;
   }
-
-  #endregion
-
-  #region Methods
 
   public async Task<Result<GetUserDto>> Handle(GetActiveUserQuery request, CancellationToken cancellationToken)
   {
@@ -45,6 +34,4 @@ public class GetActiveUserQueryHandler : IQueryHandler<GetActiveUserQuery, Resul
     var user = await _userRepository.GetQueryAsync(criteria, cancellationToken: cancellationToken);
     return Result.Success(_mapper.Map<GetUserDto>(user[0]));
   }
-
-  #endregion
 }

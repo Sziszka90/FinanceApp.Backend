@@ -11,10 +11,10 @@ using FinanceApp.Application.Dtos.IncomeTransactionGroupDtos;
 using FinanceApp.Application.Dtos.InvestmentDtos;
 using FinanceApp.Application.Dtos.SavingDtos;
 using FinanceApp.Application.Dtos.UserDtos;
+using FinanceApp.Application.Services;
 using FinanceApp.Domain.Entities;
 using FinanceApp.Domain.Enums;
 using FinanceApp.Infrastructure.EntityFramework.Context;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApp.Testing.Base;
@@ -124,7 +124,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     var investmentContent = CreateContent(new CreateInvestmentDto
     {
       Name = "TestInvestment",
-      Amount = new Money
+      Value = new Money
       {
         Currency = CurrencyEnum.USD,
         Amount = 1000
@@ -141,7 +141,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     var savingContent = CreateContent(new CreateSavingDto
     {
       Name = "TestSaving",
-      Amount = new Money
+      Value = new Money
       {
         Currency = CurrencyEnum.USD,
         Amount = 1000

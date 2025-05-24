@@ -7,15 +7,9 @@ namespace FinanceApp.Application.Saving.SavingCommands;
 
 public class DeleteSavingCommandHandler : ICommandHandler<DeleteSavingCommand, Result>
 {
-  #region Members
-
   private readonly IRepository<Domain.Entities.Saving> _savingRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ILogger<DeleteSavingCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public DeleteSavingCommandHandler(IRepository<Domain.Entities.Saving> savingRepository,
                                     IUnitOfWork unitOfWork,
@@ -25,10 +19,6 @@ public class DeleteSavingCommandHandler : ICommandHandler<DeleteSavingCommand, R
     _unitOfWork = unitOfWork;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteSavingCommand request, CancellationToken cancellationToken)
@@ -49,6 +39,4 @@ public class DeleteSavingCommandHandler : ICommandHandler<DeleteSavingCommand, R
 
     return Result.Success();
   }
-
-  #endregion
 }

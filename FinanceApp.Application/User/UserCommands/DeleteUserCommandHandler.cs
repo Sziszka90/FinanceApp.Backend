@@ -8,16 +8,10 @@ namespace FinanceApp.Application.User.UserCommands;
 
 public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Result>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly ILogger<CreateUserCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public DeleteUserCommandHandler(IMapper mapper,
                                   IUnitOfWork unitOfWork,
@@ -29,10 +23,6 @@ public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Resul
     _userRepository = userRepository;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
@@ -53,6 +43,4 @@ public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Resul
 
     return Result.Success();
   }
-
-  #endregion
 }

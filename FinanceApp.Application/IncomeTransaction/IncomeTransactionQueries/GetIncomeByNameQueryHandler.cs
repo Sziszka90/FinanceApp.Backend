@@ -8,14 +8,8 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionQueries;
 
 public class GetIncomeByNameQueryHandler : IQueryHandler<GetIncomeByIdQuery, Result<GetIncomeTransactionDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IRepository<Domain.Entities.IncomeTransaction> _incomeTransactionRepository;
-
-  #endregion
-
-  #region Constructors
 
   public GetIncomeByNameQueryHandler(IMapper mapper, IRepository<Domain.Entities.IncomeTransaction> incomeTransactionRepository)
   {
@@ -23,15 +17,9 @@ public class GetIncomeByNameQueryHandler : IQueryHandler<GetIncomeByIdQuery, Res
     _incomeTransactionRepository = incomeTransactionRepository;
   }
 
-  #endregion
-
-  #region Methods
-
   public async Task<Result<GetIncomeTransactionDto>> Handle(GetIncomeByIdQuery request, CancellationToken cancellationToken)
   {
     var result = await _incomeTransactionRepository.GetByIdAsync(request.Id, cancellationToken);
     return Result.Success(_mapper.Map<GetIncomeTransactionDto>(result));
   }
-
-  #endregion
 }

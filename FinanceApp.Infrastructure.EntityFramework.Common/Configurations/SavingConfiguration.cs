@@ -7,9 +7,13 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Configurations;
 public class SavingConfiguration : BaseEntityTypeConfiguration<Saving>
 {
   /// <inheritdoc />
-  protected override void ConfigureSpecificProperties(EntityTypeBuilder<Saving> entity)
+  protected override void ConfigureSpecificProperties(EntityTypeBuilder<Saving> builder)
   {
-    entity.ToTable(nameof(Saving));
-    entity.ComplexProperty(y => y.Amount, y => { y.IsRequired(); });
+    builder.ToTable(nameof(Saving));
+    builder.OwnsOne(x => x.Value, money =>
+    {
+      money.Property(m => m.Amount).HasColumnName("Value_Amount");
+      money.Property(m => m.Currency).HasColumnName("Value_Currency");
+    });
   }
 }

@@ -6,8 +6,6 @@ namespace FinanceApp.Application.Abstraction.Repositories;
 
 public interface IRepository<T> where T : BaseEntity
 {
-  #region Methods
-
   /// <summary>
   /// Get a list of all entities in the repository that satisfy a specified condition
   /// </summary>
@@ -115,6 +113,4 @@ public interface IRepository<T> where T : BaseEntity
   /// </summary>
   /// <param name="entity">The entity to delete.</param>
   Task DeleteAsync(T entity);
-
-  #endregion
 }

@@ -6,8 +6,6 @@ namespace FinanceApp.Application.Validators;
 
 public class UpdateIncomeTransactionDtoValidator : AbstractValidator<UpdateIncomeTransactionDto>
 {
-  #region Constructors
-
   public UpdateIncomeTransactionDtoValidator(IValidator<Money> moneyValidator)
   {
     RuleFor(x => x.Name)
@@ -17,6 +15,4 @@ public class UpdateIncomeTransactionDtoValidator : AbstractValidator<UpdateIncom
     RuleFor(x => x.Value)
       .SetValidator(moneyValidator);
   }
-
-  #endregion
 }

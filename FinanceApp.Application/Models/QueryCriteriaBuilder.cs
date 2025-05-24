@@ -9,16 +9,10 @@ namespace FinanceApp.Application.Models;
 /// </summary>
 public class QueryCriteriaBuilder<T> where T : BaseEntity
 {
-  #region Members
-
   private readonly List<Expression<Func<T, bool>>> _wheres = [];
   private readonly Dictionary<string, Expression<Func<T, object>>> _orderByMappings = new();
   private readonly List<string> _includes = [];
   private Func<IQueryable<T>, IOrderedQueryable<T>>? _orderBy;
-
-  #endregion
-
-  #region Methods
 
   public QueryCriteriaBuilder<T> AddOrderByMapping(string sortingKey, Expression<Func<T, object>> keySelector)
   {
@@ -108,6 +102,4 @@ public class QueryCriteriaBuilder<T> where T : BaseEntity
       OrderBy = _orderBy
     };
   }
-
-  #endregion
 }

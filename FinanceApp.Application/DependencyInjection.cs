@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using FinanceApp.Application.Abstraction.HttpClients;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Behaviors;
@@ -13,8 +13,6 @@ namespace FinanceApp.Application;
 
 public static class DependencyInjection
 {
-  #region Methods
-
   public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddAutoMapper(config => { config.AddMaps(typeof(DependencyInjection).Assembly); });
@@ -54,6 +52,4 @@ public static class DependencyInjection
     services.AddHttpClient<IExchangeRateHttpClient, ExchangeRateHttpClient>();
     return services;
   }
-
-  #endregion
 }

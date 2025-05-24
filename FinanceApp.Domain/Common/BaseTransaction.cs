@@ -1,11 +1,9 @@
-using FinanceApp.Domain.Entities;
+﻿using FinanceApp.Domain.Entities;
 
 namespace FinanceApp.Domain.Common;
 
 public abstract class BaseTransaction : BaseEntity
 {
-  #region Properties
-
   /// <summary>
   /// Name of the transaction
   /// </summary>
@@ -36,10 +34,6 @@ public abstract class BaseTransaction : BaseEntity
   /// </summary>
   public User User { get; set; }
 
-  #endregion
-
-  #region Constructors
-
   /// <inheritdoc />
   protected BaseTransaction(
     string name,
@@ -58,6 +52,4 @@ public abstract class BaseTransaction : BaseEntity
   }
 
   protected BaseTransaction() { }
-
-  #endregion
 }

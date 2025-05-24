@@ -1,19 +1,13 @@
-using FinanceApp.Domain.Common;
+﻿using FinanceApp.Domain.Common;
 
 namespace FinanceApp.Domain.Entities;
 
 public class ExpenseTransaction : BaseTransaction
 {
-  #region Properties
-
   /// <summary>
   /// Priority of the given expense
   /// </summary>
   public int? Priority { get; set; }
-
-  #endregion
-
-  #region Constructors
 
   /// <inheritdoc />
   public ExpenseTransaction(
@@ -31,10 +25,6 @@ public class ExpenseTransaction : BaseTransaction
 
   private ExpenseTransaction() { }
 
-  #endregion
-
-  #region Methods
-
   public void Update(
     string name,
     string? description,
@@ -50,6 +40,4 @@ public class ExpenseTransaction : BaseTransaction
     TransactionGroup = transactionGroup;
     Priority = priority;
   }
-
-  #endregion
 }

@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
@@ -12,8 +12,6 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
 
 public class CreateIncomeCommandHandler : ICommandHandler<CreateIncomeCommand, Result<GetIncomeTransactionDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.IncomeTransaction> _incomeTransactionRepository;
@@ -21,10 +19,6 @@ public class CreateIncomeCommandHandler : ICommandHandler<CreateIncomeCommand, R
   private readonly ILogger<CreateIncomeCommandHandler> _logger;
   private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly IUserRepository _userRepository;
-
-  #endregion
-
-  #region Constructors
 
   public CreateIncomeCommandHandler(IMapper mapper,
                                     IUnitOfWork unitOfWork,
@@ -42,10 +36,6 @@ public class CreateIncomeCommandHandler : ICommandHandler<CreateIncomeCommand, R
     _userRepository = userRepository;
     _httpContextAccessor = httpContextAccessor;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetIncomeTransactionDto>> Handle(CreateIncomeCommand request, CancellationToken cancellationToken)
@@ -102,6 +92,4 @@ public class CreateIncomeCommandHandler : ICommandHandler<CreateIncomeCommand, R
 
     return Result.Success(_mapper.Map<GetIncomeTransactionDto>(income));
   }
-
-  #endregion
 }

@@ -10,16 +10,10 @@ namespace FinanceApp.Application.Saving.SavingCommands;
 
 public class UpdateSavingCommandHandler : ICommandHandler<UpdateSavingCommand, Result<GetSavingDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.Saving> _savingRepository;
   private readonly ILogger<UpdateSavingCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public UpdateSavingCommandHandler(IMapper mapper,
                                     IUnitOfWork unitOfWork,
@@ -31,10 +25,6 @@ public class UpdateSavingCommandHandler : ICommandHandler<UpdateSavingCommand, R
     _savingRepository = savingRepository;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetSavingDto>> Handle(UpdateSavingCommand request, CancellationToken cancellationToken)
@@ -58,7 +48,7 @@ public class UpdateSavingCommandHandler : ICommandHandler<UpdateSavingCommand, R
     saving.Update(
       request.UpdateSavingDto.Name,
       request.UpdateSavingDto.Description,
-      request.UpdateSavingDto.Amount,
+      request.UpdateSavingDto.Value,
       request.UpdateSavingDto.Type,
       request.UpdateSavingDto.DueDate
     );
@@ -69,6 +59,4 @@ public class UpdateSavingCommandHandler : ICommandHandler<UpdateSavingCommand, R
 
     return Result.Success(_mapper.Map<GetSavingDto>(await _savingRepository.UpdateAsync(saving, cancellationToken)));
   }
-
-  #endregion
 }

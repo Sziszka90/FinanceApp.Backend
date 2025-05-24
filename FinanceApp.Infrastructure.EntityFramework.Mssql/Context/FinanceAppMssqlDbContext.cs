@@ -1,7 +1,6 @@
 using System.Reflection;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Infrastructure.EntityFramework.Context;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Context;

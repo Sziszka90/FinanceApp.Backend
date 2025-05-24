@@ -1,19 +1,13 @@
-using FinanceApp.Domain.Common;
+﻿using FinanceApp.Domain.Common;
 
 namespace FinanceApp.Domain.Entities;
 
 public class ExpenseTransactionGroup : BaseTransactionGroup
 {
-  #region Properties
-
   /// <summary>
   /// Limit on the current expense group
   /// </summary>
   public Money? Limit { get; set; }
-
-  #endregion
-
-  #region Constructors
 
   /// <inheritdoc />
   public ExpenseTransactionGroup(
@@ -28,10 +22,6 @@ public class ExpenseTransactionGroup : BaseTransactionGroup
 
   private ExpenseTransactionGroup() { }
 
-  #endregion
-
-  #region Methods
-
   public void Update(string name, string? description, string? icon, Money? limit)
   {
     Name = name;
@@ -39,6 +29,4 @@ public class ExpenseTransactionGroup : BaseTransactionGroup
     Icon = icon;
     Limit = limit;
   }
-
-  #endregion
 }

@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.HttpClients;
 using FinanceApp.Application.Abstraction.Repositories;
@@ -14,18 +14,12 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionQueries;
 
 public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<Money>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IExchangeRateHttpClient _exchangeRateHttpClient;
   private readonly IRepository<Domain.Entities.IncomeTransaction> _incomeTransactionRepository;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly IOptions<ExchangeRateSettings> _exchangeRateOptions;
   private readonly IHttpContextAccessor _httpContextAccessor;
-
-  #endregion
-
-  #region Constructors
 
   public GetIncomeSumQueryHandler(
     IMapper mapper,
@@ -42,10 +36,6 @@ public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<
     _exchangeRateOptions = exchangeRateOptions;
     _httpContextAccessor = httpContextAccessor;
   }
-
-  #endregion
-
-  #region Methods
 
   public async Task<Result<Money>> Handle(GetIncomeSumQuery request, CancellationToken cancellationToken)
   {
@@ -77,12 +67,12 @@ public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<
       {
         var exchangeRates = await _exchangeRateHttpClient.GetDataAsync(income.Value.Currency.ToString(), targetCurrency.ToString());
 
-        if (exchangeRates is null)
+        if (!exchangeRates.IsSuccess)
         {
           return Result.Failure<Money>(ApplicationError.DefaultError("Exchange not found"));
         }
 
-        summAmount.Amount = summAmount.Amount + (income.Value.Amount * (exchangeRates.Rates[targetCurrency.ToString()] / exchangeRates.Rates[income.Value.Currency.ToString()]));
+        summAmount.Amount = summAmount.Amount + (income.Value.Amount * (exchangeRates.Data!.Rates[targetCurrency.ToString()] / exchangeRates.Data!.Rates[income.Value.Currency.ToString()]));
       }
       else
       {
@@ -92,6 +82,4 @@ public class GetIncomeSumQueryHandler : IQueryHandler<GetIncomeSumQuery, Result<
 
     return Result.Success(summAmount);
   }
-
-  #endregion
 }

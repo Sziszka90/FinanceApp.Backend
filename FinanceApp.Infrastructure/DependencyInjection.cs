@@ -7,8 +7,6 @@ namespace FinanceApp.Infrastructure;
 
 public static class DependencyInjection
 {
-  #region Methods
-
   public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddEntityFrameworkCore(configuration);
@@ -24,6 +22,4 @@ public static class DependencyInjection
 
     return services;
   }
-
-  #endregion
 }

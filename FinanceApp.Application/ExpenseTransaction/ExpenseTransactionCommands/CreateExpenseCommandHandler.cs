@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
@@ -12,8 +12,6 @@ namespace FinanceApp.Application.ExpenseTransaction.ExpenseTransactionCommands;
 
 public class CreateExpenseCommandHandler : ICommandHandler<CreateExpenseCommand, Result<GetExpenseTransactionDto>>
 {
-  #region Members
-
   private readonly ILogger<CreateExpenseCommandHandler> _logger;
   private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly IMapper _mapper;
@@ -21,10 +19,6 @@ public class CreateExpenseCommandHandler : ICommandHandler<CreateExpenseCommand,
   private readonly IRepository<Domain.Entities.ExpenseTransaction> _expenseTransactionRepository;
   private readonly IUserRepository _userRepository;
   private readonly IRepository<Domain.Entities.ExpenseTransactionGroup> _expenseTransactionGroupRepository;
-
-  #endregion
-
-  #region Constructors
 
   public CreateExpenseCommandHandler(ILogger<CreateExpenseCommandHandler> logger,
                                      IHttpContextAccessor httpContextAccessor,
@@ -42,10 +36,6 @@ public class CreateExpenseCommandHandler : ICommandHandler<CreateExpenseCommand,
     _userRepository = userRepository;
     _expenseTransactionGroupRepository = expenseTransactionGroupRepository;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetExpenseTransactionDto>> Handle(CreateExpenseCommand request, CancellationToken cancellationToken)
@@ -100,6 +90,4 @@ public class CreateExpenseCommandHandler : ICommandHandler<CreateExpenseCommand,
     _logger.LogInformation("Expense Transaction created with ID:{Id}", expense.Id);
     return Result.Success(_mapper.Map<GetExpenseTransactionDto>(expense));
   }
-
-  #endregion
 }

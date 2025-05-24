@@ -8,22 +8,12 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
   where TRequest : IRequest<TResponse>
   where TResponse : Result, new()
 {
-  #region Members
-
   private readonly IEnumerable<IValidator<TRequest>> _validators;
-
-  #endregion
-
-  #region Constructors
 
   public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
   {
     _validators = validators;
   }
-
-  #endregion
-
-  #region Methods
 
   public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
   {
@@ -46,6 +36,4 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
 
     return response;
   }
-
-  #endregion
 }

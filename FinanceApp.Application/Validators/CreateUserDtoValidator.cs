@@ -5,8 +5,6 @@ namespace FinanceApp.Application.Validators;
 
 public class CreateUserDtoValidator : AbstractValidator<CreateUserDto>
 {
-  #region Constructors
-
   public CreateUserDtoValidator()
   {
     RuleFor(x => x.UserName)
@@ -27,6 +25,4 @@ public class CreateUserDtoValidator : AbstractValidator<CreateUserDto>
     RuleFor(x => x.BaseCurrency)
       .IsInEnum();
   }
-
-  #endregion
 }

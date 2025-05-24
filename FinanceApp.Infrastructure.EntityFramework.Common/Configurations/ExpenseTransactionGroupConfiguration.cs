@@ -9,9 +9,9 @@ public class ExpenseTransactionGroupConfiguration : IEntityTypeConfiguration<Exp
   #region Methods
 
   /// <inheritdoc />
-  public void Configure(EntityTypeBuilder<ExpenseTransactionGroup> entity)
+  public void Configure(EntityTypeBuilder<ExpenseTransactionGroup> builder)
   {
-    entity.ComplexProperty(y => y.Limit, y => { y.IsRequired(); });
+    builder.ComplexProperty(y => y.Limit, y => { y.IsRequired(); });
   }
 
   #endregion

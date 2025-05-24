@@ -10,16 +10,10 @@ namespace FinanceApp.Application.Auth;
 
 public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginResponseDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly ILogger<LoginCommandHandler> _logger;
   private readonly IUserRepository _userRepository;
   private readonly IJwtService _jwtService;
-
-  #endregion
-
-  #region Constructors
 
   public LoginCommandHandler(IMapper mapper,
                              ILogger<LoginCommandHandler> logger,
@@ -31,10 +25,6 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
     _userRepository = userRepository;
     _jwtService = jwtService;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<LoginResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -62,6 +52,4 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
       Token = token
     });
   }
-
-  #endregion
 }

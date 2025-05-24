@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.HttpClients;
 using FinanceApp.Application.Abstraction.Repositories;
@@ -14,18 +14,12 @@ namespace FinanceApp.Application.ExpenseTransaction.ExpenseTransactionQueries;
 
 public class GetExpenseSumQueryHandler : IQueryHandler<GetExpenseSumQuery, Result<Money>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IExchangeRateHttpClient _exchangeRateHttpClient;
   private readonly IRepository<Domain.Entities.ExpenseTransaction> _expenseTransactionRepository;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly IOptions<ExchangeRateSettings> _exchangeRateOptions;
   private readonly IHttpContextAccessor _httpContextAccessor;
-
-  #endregion
-
-  #region Constructors
 
   public GetExpenseSumQueryHandler(
     IMapper mapper,
@@ -42,10 +36,6 @@ public class GetExpenseSumQueryHandler : IQueryHandler<GetExpenseSumQuery, Resul
     _exchangeRateOptions = exchangeRateOptions;
     _httpContextAccessor = httpContextAccessor;
   }
-
-  #endregion
-
-  #region Methods
 
   public async Task<Result<Money>> Handle(GetExpenseSumQuery request, CancellationToken cancellationToken)
   {
@@ -77,12 +67,12 @@ public class GetExpenseSumQueryHandler : IQueryHandler<GetExpenseSumQuery, Resul
       {
         var exchangeRates = await _exchangeRateHttpClient.GetDataAsync(expense.Value.Currency.ToString(), targetCurrency.ToString());
 
-        if (exchangeRates is null)
+        if (!exchangeRates.IsSuccess)
         {
-          return Result.Failure<Money>(ApplicationError.DefaultError("Exchange not found"));
+          return Result.Failure<Money>(ApplicationError.DefaultError("Exchange request error"));
         }
 
-        summAmount.Amount = summAmount.Amount + (expense.Value.Amount * (exchangeRates.Rates[targetCurrency.ToString()] / exchangeRates.Rates[expense.Value.Currency.ToString()]));
+        summAmount.Amount = summAmount.Amount + (expense.Value.Amount * (exchangeRates.Data!.Rates[targetCurrency.ToString()] / exchangeRates.Data!.Rates[expense.Value.Currency.ToString()]));
       }
       else
       {
@@ -92,6 +82,4 @@ public class GetExpenseSumQueryHandler : IQueryHandler<GetExpenseSumQuery, Resul
 
     return Result.Success(summAmount);
   }
-
-  #endregion
 }

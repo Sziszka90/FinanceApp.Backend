@@ -6,8 +6,6 @@ namespace FinanceApp.Application.Converters;
 
 public class DecimalConverter : JsonConverter<decimal>
 {
-  #region Methods
-
   public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
   {
     // If the value is a string, try to parse it as a decimal
@@ -30,6 +28,4 @@ public class DecimalConverter : JsonConverter<decimal>
   {
     writer.WriteStringValue(value.ToString());
   }
-
-  #endregion
 }

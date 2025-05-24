@@ -5,7 +5,6 @@ namespace FinanceApp.Application.Models;
 
 public class ApplicationError
 {
-  #region Constants
 
   public const string DEFAULT_MESSAGE = "An exception occurred.";
   public const string DEFAULT_CODE = "EXCEPTION_OCCURRED";
@@ -40,12 +39,11 @@ public class ApplicationError
   public const string DBCONNERR_MESSAGE = "DB connection error";
   public const string DBCONNERR_CODE = "DB_CONNECTION_ERROR";
 
+  public const string EXT_CALL_MESSAGE = "External call error";
+  public const string EXT_CALL_CODE = "EXT_CALL_ERROR";
+
   public const string VALIDATION_MESSAGE = "Validation failed.";
   public const string VALIDATION_CODE = "VALIDATION_FAILED";
-
-  #endregion
-
-  #region Properties
 
   /// <summary>
   /// Machine readable error code
@@ -72,10 +70,6 @@ public class ApplicationError
   /// </summary>
   public static ApplicationError DbUpdateError => new(DBUPDATEERROR_MESSAGE, DBUPDATEERROR_CODE);
 
-  #endregion
-
-  #region Constructors
-
   /// <summary>
   /// Constructor
   /// </summary>
@@ -91,12 +85,7 @@ public class ApplicationError
     Path = path;
   }
 
-
   public ApplicationError() { }
-
-  #endregion
-
-  #region Methods
 
   /// <summary>
   /// Default error for when we receive an exception
@@ -206,6 +195,15 @@ public class ApplicationError
   }
 
   /// <summary>
+  /// External call error
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError ExternalCallError()
+  {
+    return new ApplicationError(DBCONNERR_MESSAGE, DBCONNERR_CODE);
+  }
+
+  /// <summary>
   /// Error when Validation fails
   /// </summary>
   /// <returns></returns>
@@ -226,6 +224,4 @@ public class ApplicationError
                                     .ToUniqueDictionaryWithCounters(x => $"{x.ErrorCode}_{x.FormattedMessagePlaceholderValues["PropertyName"]}", x => x.ErrorMessage as object);
     return new ApplicationError(VALIDATION_MESSAGE, VALIDATION_CODE, details);
   }
-
-  #endregion
 }

@@ -9,8 +9,6 @@ namespace FinanceApp.Application.QueryCriteria;
 
 public static class ExpenseQueryCriteria
 {
-  #region Methods
-
   public static QueryCriteria<Domain.Entities.ExpenseTransaction> FindDuplicatedName(CreateExpenseTransactionDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.ExpenseTransaction>();
@@ -48,14 +46,10 @@ public static class ExpenseQueryCriteria
 
     return builder.Build();
   }
-
-  #endregion
 }
 
 public static class IncomeQueryCriteria
 {
-  #region Methods
-
   public static QueryCriteria<Domain.Entities.IncomeTransaction> FindDuplicatedName(CreateIncomeTransactionDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.IncomeTransaction>();
@@ -93,14 +87,10 @@ public static class IncomeQueryCriteria
 
     return builder.Build();
   }
-
-  #endregion
 }
 
 public static class InvestmentQueryCriteria
 {
-  #region Methods
-
   public static QueryCriteria<Domain.Entities.Investment> FindDuplicatedName(CreateInvestmentDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.Investment>();
@@ -119,14 +109,10 @@ public static class InvestmentQueryCriteria
 
     return builder.Build();
   }
-
-  #endregion
 }
 
 public static class SavingQueryCriteria
 {
-  #region Methods
-
   public static QueryCriteria<Domain.Entities.Saving> FindDuplicatedName(CreateSavingDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.Saving>();
@@ -145,14 +131,10 @@ public static class SavingQueryCriteria
 
     return builder.Build();
   }
-
-  #endregion
 }
 
 public static class UserQueryCriteria
 {
-  #region Methods
-
   public static QueryCriteria<Domain.Entities.User> FindUserName(CreateUserDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
@@ -180,6 +162,4 @@ public static class UserQueryCriteria
 
     return builder.Build();
   }
-
-  #endregion
 }

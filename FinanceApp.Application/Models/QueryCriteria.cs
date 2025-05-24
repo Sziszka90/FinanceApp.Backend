@@ -4,8 +4,6 @@ namespace FinanceApp.Application.Models;
 
 public class QueryCriteria<T>
 {
-  #region Properties
-
   /// <summary>
   /// Where conditions of the query. Multiple wheres can be aggregated
   /// </summary>
@@ -25,6 +23,4 @@ public class QueryCriteria<T>
   /// Include expressions to add foreign table data with string property paths
   /// </summary>
   public IEnumerable<string>? IncludesWithPropertyPath { get; set; }
-
-  #endregion
 }

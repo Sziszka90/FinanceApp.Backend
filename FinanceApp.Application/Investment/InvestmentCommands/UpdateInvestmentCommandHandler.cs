@@ -10,16 +10,10 @@ namespace FinanceApp.Application.Investment.InvestmentCommands;
 
 public class UpdateInvestmentCommandHandler : ICommandHandler<UpdateInvestmentCommand, Result<GetInvestmentDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.Investment> _investmentRepository;
   private readonly ILogger<UpdateInvestmentCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public UpdateInvestmentCommandHandler(IMapper mapper,
                                         IUnitOfWork unitOfWork,
@@ -31,10 +25,6 @@ public class UpdateInvestmentCommandHandler : ICommandHandler<UpdateInvestmentCo
     _investmentRepository = investmentRepository;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetInvestmentDto>> Handle(UpdateInvestmentCommand request, CancellationToken cancellationToken)
@@ -57,7 +47,7 @@ public class UpdateInvestmentCommandHandler : ICommandHandler<UpdateInvestmentCo
 
     investment.Update(
       request.UpdateInvestmentDto.Name,
-      request.UpdateInvestmentDto.Amount,
+      request.UpdateInvestmentDto.Value,
       request.UpdateInvestmentDto.Description
     );
 
@@ -67,6 +57,4 @@ public class UpdateInvestmentCommandHandler : ICommandHandler<UpdateInvestmentCo
 
     return Result.Success(_mapper.Map<GetInvestmentDto>(await _investmentRepository.UpdateAsync(investment, cancellationToken)));
   }
-
-  #endregion
 }

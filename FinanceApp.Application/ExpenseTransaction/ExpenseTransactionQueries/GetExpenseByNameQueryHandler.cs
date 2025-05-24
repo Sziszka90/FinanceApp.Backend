@@ -8,14 +8,8 @@ namespace FinanceApp.Application.ExpenseTransaction.ExpenseTransactionQueries;
 
 public class GetExpenseByNameQueryHandler : IQueryHandler<GetExpenseByIdQuery, Result<GetExpenseTransactionDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IRepository<Domain.Entities.ExpenseTransaction> _expenseTransactionRepository;
-
-  #endregion
-
-  #region Constructors
 
   public GetExpenseByNameQueryHandler(IMapper mapper, IRepository<Domain.Entities.ExpenseTransaction> expenseTransactionRepository)
   {
@@ -23,15 +17,9 @@ public class GetExpenseByNameQueryHandler : IQueryHandler<GetExpenseByIdQuery, R
     _expenseTransactionRepository = expenseTransactionRepository;
   }
 
-  #endregion
-
-  #region Methods
-
   public async Task<Result<GetExpenseTransactionDto>> Handle(GetExpenseByIdQuery request, CancellationToken cancellationToken)
   {
     var result = await _expenseTransactionRepository.GetByIdAsync(request.Id, cancellationToken);
     return Result.Success(_mapper.Map<GetExpenseTransactionDto>(result));
   }
-
-  #endregion
 }

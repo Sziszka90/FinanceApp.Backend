@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
@@ -12,18 +12,12 @@ namespace FinanceApp.Application.ExpenseTransactionGroup.ExpenseTransactionGroup
 
 public class CreateExpenseGroupCommandHandler : ICommandHandler<CreateExpenseGroupCommand, Result<GetExpenseTransactionGroupDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.ExpenseTransactionGroup> _expenseTransactionGroupRepository;
   private readonly ILogger<CreateExpenseGroupCommandHandler> _logger;
   private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly IUserRepository _userRepository;
-
-  #endregion
-
-  #region Constructors
 
   public CreateExpenseGroupCommandHandler(IMapper mapper,
                                           IUnitOfWork unitOfWork,
@@ -39,10 +33,6 @@ public class CreateExpenseGroupCommandHandler : ICommandHandler<CreateExpenseGro
     _httpContextAccessor = httpContextAccessor;
     _userRepository = userRepository;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetExpenseTransactionGroupDto>> Handle(CreateExpenseGroupCommand request, CancellationToken cancellationToken)
@@ -81,6 +71,4 @@ public class CreateExpenseGroupCommandHandler : ICommandHandler<CreateExpenseGro
 
     return Result.Success(_mapper.Map<GetExpenseTransactionGroupDto>(expenseGroup));
   }
-
-  #endregion
 }

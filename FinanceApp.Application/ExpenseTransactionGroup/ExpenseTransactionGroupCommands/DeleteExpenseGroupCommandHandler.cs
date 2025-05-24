@@ -7,15 +7,9 @@ namespace FinanceApp.Application.ExpenseTransactionGroup.ExpenseTransactionGroup
 
 public class DeleteExpenseGroupCommandHandler : ICommandHandler<DeleteExpenseGroupCommand, Result>
 {
-  #region Members
-
   private readonly IRepository<Domain.Entities.ExpenseTransactionGroup> _expenseTransactionGroupRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ILogger<DeleteExpenseGroupCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public DeleteExpenseGroupCommandHandler(IRepository<Domain.Entities.ExpenseTransactionGroup> expenseTransactionGroupRepository,
                                           IUnitOfWork unitOfWork,
@@ -25,10 +19,6 @@ public class DeleteExpenseGroupCommandHandler : ICommandHandler<DeleteExpenseGro
     _unitOfWork = unitOfWork;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteExpenseGroupCommand request, CancellationToken cancellationToken)
@@ -49,6 +39,4 @@ public class DeleteExpenseGroupCommandHandler : ICommandHandler<DeleteExpenseGro
 
     return Result.Success();
   }
-
-  #endregion
 }

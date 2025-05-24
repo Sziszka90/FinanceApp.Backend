@@ -6,8 +6,6 @@ namespace FinanceApp.Application.Mappings;
 
 public class ExpenseTransactionGroupProfile : Profile
 {
-  #region Constructors
-
   public ExpenseTransactionGroupProfile()
   {
     CreateMap<Domain.Entities.ExpenseTransactionGroup, GetExpenseTransactionGroupDto>();
@@ -18,6 +16,4 @@ public class ExpenseTransactionGroupProfile : Profile
 
     CreateMap<Money, Money>();
   }
-
-  #endregion
 }

@@ -10,17 +10,11 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
 
 public class UpdateIncomeCommandHandler : ICommandHandler<UpdateIncomeCommand, Result<GetIncomeTransactionDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.IncomeTransaction> _incomeTransactionRepository;
   private readonly IRepository<Domain.Entities.IncomeTransactionGroup> _incomeTransactionGroupRepository;
   private readonly ILogger<UpdateIncomeCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public UpdateIncomeCommandHandler(IMapper mapper,
                                     IUnitOfWork unitOfWork,
@@ -34,10 +28,6 @@ public class UpdateIncomeCommandHandler : ICommandHandler<UpdateIncomeCommand, R
     _incomeTransactionGroupRepository = incomeTransactionGroupRepository;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetIncomeTransactionDto>> Handle(UpdateIncomeCommand request, CancellationToken cancellationToken)
@@ -84,6 +74,4 @@ public class UpdateIncomeCommandHandler : ICommandHandler<UpdateIncomeCommand, R
     _logger.LogInformation("Income Transaction updated with ID:{Id}", request.UpdateIncomeTransactionDto.Id);
     return Result.Success(_mapper.Map<GetIncomeTransactionDto>(await _incomeTransactionRepository.UpdateAsync(income, cancellationToken)));
   }
-
-  #endregion
 }

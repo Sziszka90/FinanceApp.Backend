@@ -11,22 +11,12 @@ namespace FinanceApp.Application.Services;
 
 public class JwtService : IJwtService
 {
-  #region Members
-
   private readonly AuthenticationSettings _authenticationSettings;
-
-  #endregion
-
-  #region Constructors
 
   public JwtService(IOptions<AuthenticationSettings> authenticationOptions)
   {
     _authenticationSettings = authenticationOptions.Value;
   }
-
-  #endregion
-
-  #region Methods
 
   public string GenerateToken(string username)
   {
@@ -49,6 +39,4 @@ public class JwtService : IJwtService
 
     return new JwtSecurityTokenHandler().WriteToken(token);
   }
-
-  #endregion
 }

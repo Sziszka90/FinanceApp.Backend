@@ -6,10 +6,16 @@ namespace FinanceApp.Application.Services;
 
 public class CurrentUserService : ICurrentUserService
 {
-  public string? UserName { get; }
+  private readonly IHttpContextAccessor? _contextAccessor;
+  public string UserName { get; } = String.Empty;
 
-  public CurrentUserService(IHttpContextAccessor accessor)
+  public CurrentUserService(IHttpContextAccessor? contextAccessor = null)
   {
-    UserName = accessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    _contextAccessor = contextAccessor;
+
+    if (_contextAccessor?.HttpContext is not null)
+    {
+      UserName = _contextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? String.Empty;
+    }
   }
 }

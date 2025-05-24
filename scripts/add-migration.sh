@@ -27,7 +27,9 @@ else
   exit 1
 fi
 
-echo "✅ Adding migration '$MIGRATION_NAME' for $PROVIDER..."
+echo "✅ Adding migration "$MIGRATION_NAME" for "$PROVIDER...""
+echo "✅ Context: $CONTEXT"
+echo "✅ Project: $PROJECT..."
 
 dotnet ef migrations add "$MIGRATION_NAME" \
   --project "$PROJECT" \

@@ -10,17 +10,10 @@ namespace FinanceApp.Application.User.UserCommands;
 
 public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Result<GetUserDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly ILogger<UpdateUserCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
-
   public UpdateUserCommandHandler(IMapper mapper,
                                   IUnitOfWork unitOfWork,
                                   IRepository<Domain.Entities.User> userRepository,
@@ -31,10 +24,6 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
     _userRepository = userRepository;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result<GetUserDto>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -67,6 +56,4 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
 
     return Result.Success(_mapper.Map<GetUserDto>(user));
   }
-
-  #endregion
 }

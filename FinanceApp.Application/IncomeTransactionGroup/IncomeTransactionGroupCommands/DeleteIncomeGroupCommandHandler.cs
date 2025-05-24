@@ -7,15 +7,9 @@ namespace FinanceApp.Application.IncomeTransactionGroup.IncomeTransactionGroupCo
 
 public class DeleteIncomeGroupCommandHandler : ICommandHandler<DeleteIncomeGroupCommand, Result>
 {
-  #region Members
-
   private readonly IRepository<Domain.Entities.IncomeTransactionGroup> _incomeTransactionGroupRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ILogger<DeleteIncomeGroupCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public DeleteIncomeGroupCommandHandler(IRepository<Domain.Entities.IncomeTransactionGroup> incomeTransactionGroupRepository,
                                          IUnitOfWork unitOfWork,
@@ -25,10 +19,6 @@ public class DeleteIncomeGroupCommandHandler : ICommandHandler<DeleteIncomeGroup
     _unitOfWork = unitOfWork;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteIncomeGroupCommand request, CancellationToken cancellationToken)
@@ -48,6 +38,4 @@ public class DeleteIncomeGroupCommandHandler : ICommandHandler<DeleteIncomeGroup
 
     return Result.Success();
   }
-
-  #endregion
 }

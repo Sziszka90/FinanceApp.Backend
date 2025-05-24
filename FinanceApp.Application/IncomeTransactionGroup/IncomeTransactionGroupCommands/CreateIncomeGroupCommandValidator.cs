@@ -6,13 +6,9 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
 
 public class CreateIncomeGroupCommandValidator : AbstractValidator<CreateIncomeGroupCommand>
 {
-  #region Constructors
-
   public CreateIncomeGroupCommandValidator(IValidator<CreateIncomeTransactionGroupDto> createIncomeTransactionGroupDto)
   {
     RuleFor(x => x.CreateIncomeTransactionGroupDto)
       .SetValidator(createIncomeTransactionGroupDto);
   }
-
-  #endregion
 }

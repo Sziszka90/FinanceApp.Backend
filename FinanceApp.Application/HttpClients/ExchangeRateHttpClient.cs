@@ -1,36 +1,32 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FinanceApp.Application.Abstraction.HttpClients;
 using FinanceApp.Application.Converters;
 using FinanceApp.Application.Dtos.ExchangeRateDtos;
 using FinanceApp.Application.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FinanceApp.Application.HttpClients;
 
 public class ExchangeRateHttpClient : IExchangeRateHttpClient
 {
-  #region Members
-
   private readonly HttpClient _httpClient;
   private readonly ExchangeRateSettings _exchangeRateSettings;
+  private readonly ILogger<ExchangeRateHttpClient> _logger;
 
-  #endregion
-
-  #region Constructors
-
-  public ExchangeRateHttpClient(HttpClient httpClient, IOptions<ExchangeRateSettings> exchangeRateSetOptions)
+  public ExchangeRateHttpClient(
+    HttpClient httpClient,
+    IOptions<ExchangeRateSettings> exchangeRateSetOptions,
+    ILogger<ExchangeRateHttpClient> logger)
   {
     _httpClient = httpClient;
     _exchangeRateSettings = exchangeRateSetOptions.Value;
+    _logger = logger;
   }
 
-  #endregion
-
-  #region Methods
-
-  public async Task<ExchangeRateResponseDto?> GetDataAsync(string fromCurrency, string toCurrency)
+  public async Task<Result<ExchangeRateResponseDto?>> GetDataAsync(string fromCurrency, string toCurrency)
   {
     var options = new JsonSerializerOptions
     {
@@ -44,9 +40,18 @@ public class ExchangeRateHttpClient : IExchangeRateHttpClient
     var endpoint = _exchangeRateSettings.Endpoint.Replace("API_KEY", _exchangeRateSettings.ApiKey);
 
     var response = await _httpClient.GetAsync(endpoint);
+
+    if (!response.IsSuccessStatusCode)
+    {
+      var errorContent = await response.Content.ReadAsStringAsync();
+      // Log the error or throw
+      _logger.LogError($"Failed to get exchange rate: {response.StatusCode} - {errorContent}");
+      return Result.Failure<ExchangeRateResponseDto>(ApplicationError.ExternalCallError())!;
+    }
+
     var content = await response.Content.ReadAsStringAsync();
     var dto = JsonSerializer.Deserialize<ExchangeRateResponseDto>(content, options);
-    return dto;
+    return Result.Success(dto);
   }
 
   private HttpContent ConvertObjectToHttpContent(ExchangeRateResponseDto obj)
@@ -57,6 +62,4 @@ public class ExchangeRateHttpClient : IExchangeRateHttpClient
     // Create HttpContent using StringContent with the serialized JSON string
     return new StringContent(jsonString, Encoding.UTF8, "application/json");
   }
-
-  #endregion
 }

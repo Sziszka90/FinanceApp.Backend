@@ -4,8 +4,6 @@ namespace FinanceApp.Domain.Entities;
 
 public class Saving : BaseEntity
 {
-  #region Properties
-
   /// <summary>
   /// Name of the saving
   /// </summary>
@@ -17,9 +15,9 @@ public class Saving : BaseEntity
   public string? Description { get; set; }
 
   /// <summary>
-  /// Amount of the saving
+  /// Value of the saving
   /// </summary>
-  public Money Amount { get; set; }
+  public Money Value { get; set; }
 
   /// <summary>
   /// Type of the Saving
@@ -31,34 +29,24 @@ public class Saving : BaseEntity
   /// </summary>
   public DateTimeOffset? DueDate { get; set; }
 
-  #endregion
-
-  #region Constructors
-
   /// <inheritdoc />
-  public Saving(string name, string? description, Money amount, SavingTypeEnum type, DateTimeOffset? dueDate)
+  public Saving(string name, string? description, Money value, SavingTypeEnum type, DateTimeOffset? dueDate)
   {
     Name = name;
     Description = description;
-    Amount = amount;
+    Value = value;
     Type = type;
     DueDate = dueDate;
   }
 
   private Saving() { }
 
-  #endregion
-
-  #region Methods
-
-  public void Update(string name, string? description, Money amount, SavingTypeEnum type, DateTimeOffset? dueDate)
+  public void Update(string name, string? description, Money value, SavingTypeEnum type, DateTimeOffset? dueDate)
   {
     Name = name;
     Description = description;
-    Amount = amount;
+    Value = value;
     Type = type;
     DueDate = dueDate;
   }
-
-  #endregion
 }

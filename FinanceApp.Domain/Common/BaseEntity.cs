@@ -4,8 +4,6 @@ namespace FinanceApp.Domain.Common;
 
 public abstract class BaseEntity : IIdentifiable, ITimestampable
 {
-  #region Properties
-
   /// <inheritdoc />
   public Guid Id { get; set; }
 
@@ -15,20 +13,12 @@ public abstract class BaseEntity : IIdentifiable, ITimestampable
   /// <inheritdoc />
   public DateTimeOffset Modified { get; set; }
 
-  #endregion
-
-  #region Constructors
-
   protected BaseEntity()
   {
     Id = Guid.NewGuid();
     Created = DateTimeOffset.UtcNow;
     Modified = DateTimeOffset.UtcNow;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public void UpdateId(Guid id)
@@ -41,6 +31,4 @@ public abstract class BaseEntity : IIdentifiable, ITimestampable
   {
     Modified = DateTimeOffset.UtcNow;
   }
-
-  #endregion
 }

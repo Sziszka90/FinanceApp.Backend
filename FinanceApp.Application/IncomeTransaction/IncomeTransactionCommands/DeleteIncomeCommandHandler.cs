@@ -7,15 +7,9 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
 
 public class DeleteIncomeCommandHandler : ICommandHandler<DeleteIncomeCommand, Result>
 {
-  #region Members
-
   private readonly IRepository<Domain.Entities.IncomeTransaction> _incomeTransactionRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ILogger<DeleteIncomeCommandHandler> _logger;
-
-  #endregion
-
-  #region Constructors
 
   public DeleteIncomeCommandHandler(IRepository<Domain.Entities.IncomeTransaction> incomeTransactionRepository,
                                     IUnitOfWork unitOfWork,
@@ -25,10 +19,6 @@ public class DeleteIncomeCommandHandler : ICommandHandler<DeleteIncomeCommand, R
     _unitOfWork = unitOfWork;
     _logger = logger;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteIncomeCommand request, CancellationToken cancellationToken)
@@ -49,6 +39,4 @@ public class DeleteIncomeCommandHandler : ICommandHandler<DeleteIncomeCommand, R
 
     return Result.Success();
   }
-
-  #endregion
 }

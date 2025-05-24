@@ -2,8 +2,6 @@ namespace FinanceApp.Application.Extensions;
 
 public static class EnumerableExtensions
 {
-  #region Methods
-
   /// <summary>
   /// Creates a dictionary from a list. If the list contains multiple keys with the same value, a counter will be
   /// concatenated to the subsequent keys.
@@ -38,6 +36,4 @@ public static class EnumerableExtensions
 
     return dictionary;
   }
-
-  #endregion
 }

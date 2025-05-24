@@ -20,8 +20,6 @@ public static class DependencyInjection
                                                                            .AddInterceptors(new TimestampableEntitySaveChangesInterceptor());
                                                                   });
 
-    services.AddScoped<IScopedContextFactory<FinanceAppDbContext>, ScopedContextFactory<FinanceAppSqliteDbContext>>();
-
     return services;
   }
 

@@ -6,13 +6,9 @@ namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
 
 public class UpdateSavingCommandValidator : AbstractValidator<UpdateSavingCommand>
 {
-  #region Constructors
-
   public UpdateSavingCommandValidator(IValidator<UpdateSavingDto> updateSavingDto)
   {
     RuleFor(x => x.UpdateSavingDto)
       .SetValidator(updateSavingDto);
   }
-
-  #endregion
 }

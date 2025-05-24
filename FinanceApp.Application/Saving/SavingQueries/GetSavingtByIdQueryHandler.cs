@@ -8,14 +8,8 @@ namespace FinanceApp.Application.Saving.SavingQueries;
 
 public class GetSavingByIdQueryHandler : IQueryHandler<GetSavingByIdQuery, Result<GetSavingDto>>
 {
-  #region Members
-
   private readonly IMapper _mapper;
   private readonly IRepository<Domain.Entities.Saving> _savingRepository;
-
-  #endregion
-
-  #region Constructors
 
   public GetSavingByIdQueryHandler(IMapper mapper, IRepository<Domain.Entities.Saving> savingRepository)
   {
@@ -23,15 +17,9 @@ public class GetSavingByIdQueryHandler : IQueryHandler<GetSavingByIdQuery, Resul
     _savingRepository = savingRepository;
   }
 
-  #endregion
-
-  #region Methods
-
   public async Task<Result<GetSavingDto>> Handle(GetSavingByIdQuery request, CancellationToken cancellationToken)
   {
     var result = await _savingRepository.GetByIdAsync(request.Id, cancellationToken);
     return Result.Success(_mapper.Map<GetSavingDto>(result));
   }
-
-  #endregion
 }

@@ -1,4 +1,6 @@
 using System.Data.Common;
+using FinanceApp.Application.Abstraction.Services;
+using FinanceApp.Application.Services;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using FinanceApp.Infrastructure.EntityFramework.Interceptors;
 using FinanceApp.Infrastructure.EntityFramework.Sqlite.Context;
@@ -25,6 +27,7 @@ public class CustomWebApplicationFactory<TProgram>
     builder.ConfigureServices(services =>
                               {
                                 services.AddSingleton(SqliteDatabaseConnection);
+                                services.AddScoped<ICurrentUserService, CurrentUserService>();
                                 services.AddDbContext<FinanceAppDbContext, FinanceAppSqliteDbContext>(options =>
                                                                                                       {
                                                                                                         options.UseSqlite(SqliteDatabaseConnection)
