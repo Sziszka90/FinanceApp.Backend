@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using FinanceApp.Application.Abstraction.HttpClients;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Behaviors;

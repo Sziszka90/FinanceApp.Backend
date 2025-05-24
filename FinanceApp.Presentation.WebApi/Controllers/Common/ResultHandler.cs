@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Models;
+using FinanceApp.Application.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceApp.Presentation.WebApi.Controllers.Common;

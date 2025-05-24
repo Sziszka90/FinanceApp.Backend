@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.HttpClients;
 using FinanceApp.Application.Abstraction.Repositories;

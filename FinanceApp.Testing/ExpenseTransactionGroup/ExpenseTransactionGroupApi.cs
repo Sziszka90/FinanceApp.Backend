@@ -35,7 +35,7 @@ public class ExpenseTransactionGroupApi : TestBase
     var response = await Client.DeleteAsync(EXPENSE_TRANSACTION_GROUPS + expenseGroup!.Id);
 
     // Assert
-    Assert.Equal(response.StatusCode, HttpStatusCode.NotFound);
+    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 
   [Fact]

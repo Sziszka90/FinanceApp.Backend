@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Dtos;
+using FinanceApp.Application.Dtos;
 using FinanceApp.Application.Dtos.ExpenseTransactionGroupDtos;
 using FinanceApp.Application.Dtos.IncomeTransactionGroupDtos;
 using FinanceApp.Application.ExpenseTransactionGroup.ExpenseTransactionGroupCommands;

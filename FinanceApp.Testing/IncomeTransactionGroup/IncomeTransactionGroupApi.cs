@@ -35,7 +35,7 @@ public class IncomeTransactionGroupApi : TestBase
     var response = await Client.DeleteAsync(INCOME_TRANSACTION_GROUPS + incomeGroup!.Id);
 
     // Assert
-    Assert.Equal(response.StatusCode, HttpStatusCode.NotFound);
+    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 
 

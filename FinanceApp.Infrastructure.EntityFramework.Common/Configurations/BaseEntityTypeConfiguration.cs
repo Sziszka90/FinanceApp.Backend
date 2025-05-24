@@ -1,4 +1,4 @@
-﻿using FinanceApp.Domain.Common;
+using FinanceApp.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

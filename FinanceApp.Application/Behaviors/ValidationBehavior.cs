@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Models;
+using FinanceApp.Application.Models;
 using FluentValidation;
 using MediatR;
 

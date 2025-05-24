@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Dtos;
+using FinanceApp.Application.Dtos;
 using FinanceApp.Application.IncomeTransactionGroup.IncomeTransactionGroupCommands;
 using FluentValidation;
 

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Security.Claims;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Domain.Common;
@@ -27,7 +27,7 @@ public abstract class FinanceAppDbContext : DbContext
   protected FinanceAppDbContext(
     DbContextOptions options,
     ICurrentUserService currentUserService) : base(options)
-  { 
+  {
     _currentUserService = currentUserService;
   }
 

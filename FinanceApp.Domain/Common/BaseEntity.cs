@@ -1,4 +1,4 @@
-﻿using FinanceApp.Domain.Interfaces;
+using FinanceApp.Domain.Interfaces;
 
 namespace FinanceApp.Domain.Common;
 

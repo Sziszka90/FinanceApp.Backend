@@ -1,3 +1,3 @@
-﻿namespace FinanceApp.Application.Abstraction.Repositories;
+namespace FinanceApp.Application.Abstraction.Repositories;
 
 public interface ISavingRepository : IRepository<Domain.Entities.Saving> { }

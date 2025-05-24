@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Application.Abstraction.Services;
+namespace FinanceApp.Application.Abstraction.Services;
 
 public interface IJwtService
 {

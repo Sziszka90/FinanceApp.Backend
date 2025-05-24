@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using Microsoft.AspNetCore.Http;

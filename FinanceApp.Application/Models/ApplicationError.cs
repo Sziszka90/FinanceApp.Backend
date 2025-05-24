@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Extensions;
+using FinanceApp.Application.Extensions;
 using FluentValidation.Results;
 
 namespace FinanceApp.Application.Models;

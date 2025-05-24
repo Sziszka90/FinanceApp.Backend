@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Dtos.IncomeTransactionGroupDtos;
+using FinanceApp.Application.Dtos.IncomeTransactionGroupDtos;
 using FinanceApp.Domain.Entities;
 
 namespace FinanceApp.Application.Dtos.IncomeTransactionDtos;

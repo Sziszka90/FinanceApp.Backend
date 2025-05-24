@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
@@ -78,7 +78,7 @@ public class CreateExpenseCommandHandler : ICommandHandler<CreateExpenseCommand,
     var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-   if (currentUserName is null)
+    if (currentUserName is null)
     {
       _logger.LogError("User is not logged in");
       return Result.Failure<GetExpenseTransactionDto>(ApplicationError.UserNotFoundError());

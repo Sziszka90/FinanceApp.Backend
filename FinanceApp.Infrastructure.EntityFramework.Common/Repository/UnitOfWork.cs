@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Domain.Common;
 using FinanceApp.Infrastructure.EntityFramework.Context;

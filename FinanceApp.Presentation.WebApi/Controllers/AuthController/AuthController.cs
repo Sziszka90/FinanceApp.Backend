@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Auth;
+using FinanceApp.Application.Auth;
 using FinanceApp.Application.Dtos.AuthDtos;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Presentation.WebApi.Controllers.Common;

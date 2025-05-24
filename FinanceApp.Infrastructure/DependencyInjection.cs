@@ -1,4 +1,4 @@
-﻿using FinanceApp.Infrastructure.EntityFramework;
+using FinanceApp.Infrastructure.EntityFramework;
 using FinanceApp.Infrastructure.EntityFramework.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

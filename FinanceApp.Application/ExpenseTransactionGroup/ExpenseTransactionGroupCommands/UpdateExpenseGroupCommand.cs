@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Abstractions.CQRS;
+using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.ExpenseTransactionGroupDtos;
 using FinanceApp.Application.Models;
 

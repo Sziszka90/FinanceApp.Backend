@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Application.Dtos.IncomeTransactionGroupDtos;
+namespace FinanceApp.Application.Dtos.IncomeTransactionGroupDtos;
 
 public class GetIncomeTransactionGroupDto
 {

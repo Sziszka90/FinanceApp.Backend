@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using FinanceApp.Infrastructure.EntityFramework.Interceptors;
 using FinanceApp.Infrastructure.EntityFramework.Sqlite.Context;

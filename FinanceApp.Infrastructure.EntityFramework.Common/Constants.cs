@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Infrastructure.EntityFramework;
+namespace FinanceApp.Infrastructure.EntityFramework;
 
 public static class Constants
 {

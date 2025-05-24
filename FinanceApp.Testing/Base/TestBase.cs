@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -48,7 +48,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected HttpClient Client { get; }
   protected Guid CreatedUserId { get; set; }
-  
+
   #endregion
 
   #region Constructors
@@ -306,7 +306,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     return inComeList;
   }
 
-  
+
   protected async Task<List<GetExpenseTransactionDto>> CreateMultipleExpenseAsync()
   {
     var expenseGroupContent = CreateContent(new CreateExpenseTransactionGroupDto

@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Abstraction.Repositories;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 

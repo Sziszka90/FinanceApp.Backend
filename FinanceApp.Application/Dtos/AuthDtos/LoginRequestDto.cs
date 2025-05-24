@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Application.Dtos.AuthDtos;
+namespace FinanceApp.Application.Dtos.AuthDtos;
 
 public class LoginRequestDto
 {

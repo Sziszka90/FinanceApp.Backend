@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FinanceApp.Application.Dtos.UserDtos;
 
 namespace FinanceApp.Application.Mappings;

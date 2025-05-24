@@ -20,7 +20,7 @@ public class UserApi : TestBase
     var response = await Client.DeleteAsync(USERS + user!.Id);
 
     // Assert
-    Assert.Equal(response.StatusCode, HttpStatusCode.NotFound);
+    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 
   [Fact]
@@ -35,7 +35,7 @@ public class UserApi : TestBase
 
     // Assert
     Assert.Null(response);
-    Assert.Equal(deleteResponse.StatusCode, HttpStatusCode.NoContent);
+    Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
   }
 
   [Fact]

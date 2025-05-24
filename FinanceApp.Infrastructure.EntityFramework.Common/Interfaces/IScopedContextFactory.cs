@@ -1,4 +1,4 @@
-﻿using FinanceApp.Infrastructure.EntityFramework.Context;
+using FinanceApp.Infrastructure.EntityFramework.Context;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Interfaces;
 

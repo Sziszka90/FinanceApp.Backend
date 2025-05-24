@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
@@ -55,12 +55,12 @@ public class CreateIncomeGroupCommandHandler : ICommandHandler<CreateIncomeGroup
       return Result.Failure<GetIncomeTransactionGroupDto>(ApplicationError.NameAlreadyExistsError(request.CreateIncomeTransactionGroupDto.Name));
     }
 
-        var httpContext = _httpContextAccessor.HttpContext;
+    var httpContext = _httpContextAccessor.HttpContext;
 
     var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-   if (currentUserName is null)
+    if (currentUserName is null)
     {
       _logger.LogError("User is not logged in");
       return Result.Failure<GetIncomeTransactionGroupDto>(ApplicationError.UserNotFoundError());

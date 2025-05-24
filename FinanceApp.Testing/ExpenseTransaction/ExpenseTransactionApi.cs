@@ -64,8 +64,8 @@ public class ExpenseTransactionApi : TestBase
     var responseExpenseGroup = await Client.DeleteAsync(EXPENSE_TRANSACTION_GROUPS + expense!.TransactionGroup!.Id);
 
     // Assert
-    Assert.Equal(responseExpense.StatusCode, HttpStatusCode.NoContent);
-    Assert.Equal(responseExpenseGroup.StatusCode, HttpStatusCode.NoContent);
+    Assert.Equal(HttpStatusCode.NoContent, responseExpense.StatusCode);
+    Assert.Equal(HttpStatusCode.NoContent, responseExpenseGroup.StatusCode);
   }
 
   [Fact]
@@ -95,7 +95,7 @@ public class ExpenseTransactionApi : TestBase
     var response = await Client.DeleteAsync(EXPENSE_TRANSACTIONS + expense!.Id);
 
     // Assert
-    Assert.Equal(response.StatusCode, HttpStatusCode.NotFound);
+    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 
   [Fact]

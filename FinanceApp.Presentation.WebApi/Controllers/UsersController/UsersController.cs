@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Dtos;
+using FinanceApp.Application.Dtos;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Application.User.UserCommands;
 using FinanceApp.Application.User.UserQueries;

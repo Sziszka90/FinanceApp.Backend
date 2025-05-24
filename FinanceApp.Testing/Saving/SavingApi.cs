@@ -22,7 +22,7 @@ public class SavingApi : TestBase
     var response = await Client.DeleteAsync(SAVINGS + saving!.Id);
 
     // Assert
-    Assert.Equal(response.StatusCode, HttpStatusCode.NotFound);
+    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 
   [Fact]

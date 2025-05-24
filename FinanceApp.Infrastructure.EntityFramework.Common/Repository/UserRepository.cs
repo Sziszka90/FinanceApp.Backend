@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 

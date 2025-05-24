@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Common;

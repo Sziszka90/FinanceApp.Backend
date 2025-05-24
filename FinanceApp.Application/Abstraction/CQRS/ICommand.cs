@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Models;
+using FinanceApp.Application.Models;
 using MediatR;
 
 namespace FinanceApp.Application.Abstractions.CQRS;

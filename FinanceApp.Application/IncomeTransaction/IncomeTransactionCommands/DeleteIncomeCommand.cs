@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Abstractions.CQRS;
+using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;

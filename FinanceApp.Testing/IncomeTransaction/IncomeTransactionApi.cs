@@ -81,8 +81,8 @@ public class IncomeTransactionApi : TestBase
     var responseIncomeGroup = await Client.DeleteAsync(INCOME_TRANSACTION_GROUPS + income!.TransactionGroup!.Id);
 
     // Assert
-    Assert.Equal(responseIncome.StatusCode, HttpStatusCode.NoContent);
-    Assert.Equal(responseIncomeGroup.StatusCode, HttpStatusCode.NoContent);
+    Assert.Equal(HttpStatusCode.NoContent, responseIncome.StatusCode);
+    Assert.Equal(HttpStatusCode.NoContent, responseIncomeGroup.StatusCode);
   }
 
   [Fact]
@@ -97,7 +97,7 @@ public class IncomeTransactionApi : TestBase
     var response = await Client.DeleteAsync(INCOME_TRANSACTIONS + income!.Id);
 
     // Assert
-    Assert.Equal(response.StatusCode, HttpStatusCode.NotFound);
+    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 
 

@@ -1,4 +1,4 @@
-﻿using FinanceApp.Domain.Entities;
+using FinanceApp.Domain.Entities;
 
 namespace FinanceApp.Application.Dtos.InvestmentDtos;
 

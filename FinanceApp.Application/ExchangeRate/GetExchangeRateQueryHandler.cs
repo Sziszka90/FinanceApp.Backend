@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Abstraction.HttpClients;
+using FinanceApp.Application.Abstraction.HttpClients;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Models;
 

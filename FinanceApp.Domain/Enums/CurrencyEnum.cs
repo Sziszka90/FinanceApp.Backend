@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Domain.Enums;
+namespace FinanceApp.Domain.Enums;
 
 public enum CurrencyEnum
 {

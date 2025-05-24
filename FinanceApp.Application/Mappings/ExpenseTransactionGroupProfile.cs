@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FinanceApp.Application.Dtos.ExpenseTransactionGroupDtos;
 using FinanceApp.Domain.Entities;
 

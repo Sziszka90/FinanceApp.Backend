@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Domain.Interfaces;
+namespace FinanceApp.Domain.Interfaces;
 
 public interface IIdentifiable
 {

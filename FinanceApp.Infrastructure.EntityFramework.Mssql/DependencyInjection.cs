@@ -1,4 +1,4 @@
-﻿using FinanceApp.Infrastructure.EntityFramework.Context;
+using FinanceApp.Infrastructure.EntityFramework.Context;
 using FinanceApp.Infrastructure.EntityFramework.Interceptors;
 using FinanceApp.Infrastructure.EntityFramework.Interfaces;
 using FinanceApp.Infrastructure.EntityFramework.Mssql.Context;

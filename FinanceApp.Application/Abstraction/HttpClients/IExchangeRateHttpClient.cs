@@ -1,4 +1,4 @@
-﻿using FinanceApp.Application.Dtos.ExchangeRateDtos;
+using FinanceApp.Application.Dtos.ExchangeRateDtos;
 
 namespace FinanceApp.Application.Abstraction.HttpClients;
 

@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Application.Extensions;
+namespace FinanceApp.Application.Extensions;
 
 public static class EnumerableExtensions
 {

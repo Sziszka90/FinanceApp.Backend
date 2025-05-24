@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Presentation.WebApi.Extensions;
+namespace FinanceApp.Presentation.WebApi.Extensions;
 
 public static class HostEnvironmentExtensions
 {
