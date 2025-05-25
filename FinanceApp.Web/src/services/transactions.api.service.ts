@@ -3,10 +3,6 @@ import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GetIncomeTransactionDto } from '../models/IncomeTransactionDtos/GetIncomeTransactionDto';
-import { LoginResponseDto } from '../models/LoginDtos/LoginResponseDto';
-import { LoginRequestDto } from '../models/LoginDtos/LoginRequestDto';
-import { CreateUserDto } from '../models/RegisterDtos/CreateUserDto';
-import { GetUserDto } from '../models/RegisterDtos/GetUserDto';
 import { GetIncomeTransactionGroupDto } from '../models/IncomeTransactionDtos/GetIncomeTransactionGroupDto';
 import { UpdateIncomeTransactionDto } from '../models/IncomeTransactionDtos/UpdateIncomeTransactionDto';
 import { Money } from '../models/Money/Money';
@@ -25,7 +21,7 @@ export class TransactionApiService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
- 
+
   // Method to get data from the backend
   getAllIncomeTransactions(): Observable<GetIncomeTransactionDto[]> {
      return this.http.get<GetIncomeTransactionDto[]>(`${this.apiUrl}/transactions/income`);

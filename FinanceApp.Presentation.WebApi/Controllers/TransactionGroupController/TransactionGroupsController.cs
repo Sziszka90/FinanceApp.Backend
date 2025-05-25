@@ -1,10 +1,6 @@
-﻿using FinanceApp.Application.Dtos;
-using FinanceApp.Application.Dtos.ExpenseTransactionGroupDtos;
-using FinanceApp.Application.Dtos.IncomeTransactionGroupDtos;
-using FinanceApp.Application.ExpenseTransactionGroup.ExpenseTransactionGroupCommands;
-using FinanceApp.Application.ExpenseTransactionGroup.ExpenseTransactionGroupQueries;
-using FinanceApp.Application.IncomeTransactionGroup.IncomeTransactionGroupCommands;
-using FinanceApp.Application.IncomeTransactionGroup.IncomeTransactionGroupQueries;
+﻿using FinanceApp.Application.Dtos.TransactionGroupDtos;
+using FinanceApp.Application.TransactionGroup.TransactionGroupCommands;
+using FinanceApp.Application.TransactionGroup.TransactionGroupQueries;
 using FinanceApp.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -27,124 +23,63 @@ public class TransactionGroupsController : ControllerBase
     _mediator = mediator;
   }
 
-  [HttpGet("expense")]
+  [HttpGet]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(List<GetExpenseTransactionGroupDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(List<GetTransactionGroupDto>), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetExpenseTransactionGroupDto>>> GetExpenseTransactionGroups()
+  public async Task<ActionResult<List<GetTransactionGroupDto>>> GetTransactionGroups()
   {
-    var result = await _mediator.Send(new GetAllExpenseGroupsQuery());
+    var result = await _mediator.Send(new GetAllTransactionGroupsQuery());
     return this.GetResult(result);
   }
 
-  [HttpGet("income")]
+  [HttpGet("{id}")]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(List<GetIncomeTransactionGroupDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(GetTransactionGroupDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetIncomeTransactionGroupDto>>> GetIncomeTransactionGroups()
+  public async Task<ActionResult<GetTransactionGroupDto>> GetTransactionGroup([FromRoute] Guid id)
   {
-    var result = await _mediator.Send(new GetAllIncomeGroupsQuery());
+    var result = await _mediator.Send(new GetTransactionGroupByIdQuery(id));
     return this.GetResult(result);
   }
 
-
-  [HttpGet("expense/{id}")]
+  [HttpPost]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetExpenseTransactionGroupDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(GetTransactionGroupDto), StatusCodes.Status201Created)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetExpenseTransactionGroupDto>> GetExpenseTransactionGroups([FromRoute] Guid id)
+  public async Task<ActionResult<GetTransactionGroupDto>> CreateTransactionGroup([FromBody] CreateTransactionGroupDto createTransactionGroupDto)
   {
-    var result = await _mediator.Send(new GetExpenseGroupByIdQuery(id));
-    return this.GetResult(result);
-  }
-
-  [HttpGet("income/{id}")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetIncomeTransactionGroupDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetIncomeTransactionGroupDto>> GetIncomeTransactionGroups([FromRoute] Guid id)
-  {
-    var result = await _mediator.Send(new GetIncomeGroupByIdQuery(id));
-    return this.GetResult(result);
-  }
-
-  [HttpPost("expense")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetExpenseTransactionGroupDto), StatusCodes.Status201Created)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetExpenseTransactionGroupDto>> CreateExpenseTransactionGroup([FromBody] CreateExpenseTransactionGroupDto createExpenseTransactionGroupDto)
-  {
-    var result = await _mediator.Send(new CreateExpenseGroupCommand(createExpenseTransactionGroupDto));
+    var result = await _mediator.Send(new CreateTransactionGroupCommand(createTransactionGroupDto));
     return this.GetResult(result, StatusCodes.Status201Created);
   }
 
-  [HttpPost("income")]
+  [HttpPut]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetIncomeTransactionGroupDto), StatusCodes.Status201Created)]
+  [ProducesResponseType(typeof(GetTransactionGroupDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetIncomeTransactionGroupDto>> CreateIncomeTransactionGroup([FromBody] CreateIncomeTransactionGroupDto createIncomeTransactionGroupDto)
+  public async Task<ActionResult<GetTransactionGroupDto>> UpdateTransactionGroup([FromBody] UpdateTransactionGroupDto updateTransactionGroupDto)
   {
-    var result = await _mediator.Send(new CreateIncomeGroupCommand(createIncomeTransactionGroupDto));
-    return this.GetResult(result, StatusCodes.Status201Created);
-  }
-
-  [HttpPut("expense")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetExpenseTransactionGroupDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetExpenseTransactionGroupDto>> UpdateExpenseTransactionGroup([FromBody] UpdateExpenseTransactionGroupDto updateExpenseTransactionGroupDto)
-  {
-    var result = await _mediator.Send(new UpdateExpenseGroupCommand(updateExpenseTransactionGroupDto));
+    var result = await _mediator.Send(new UpdateTransactionGroupCommand(updateTransactionGroupDto));
     return this.GetResult(result);
   }
 
-  [HttpPut("income")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetIncomeTransactionGroupDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetIncomeTransactionGroupDto>> UpdateIncomeTransactionGroup([FromBody] UpdateIncomeTransactionGroupDto updateIncomeTransactionGroupDto)
-  {
-    var result = await _mediator.Send(new UpdateIncomeGroupCommand(updateIncomeTransactionGroupDto));
-    return this.GetResult(result);
-  }
-
-  [HttpDelete("expense/{id}")]
+  [HttpDelete("{id}")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult> DeleteExpenseTransactionGroup([FromRoute] Guid id)
+  public async Task<ActionResult> DeleteTransactionGroup([FromRoute] Guid id)
   {
-    var result = await _mediator.Send(new DeleteExpenseGroupCommand(id));
-    return this.GetResult(result, StatusCodes.Status204NoContent);
-  }
-
-  [HttpDelete("income/{id}")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(StatusCodes.Status204NoContent)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult> DeleteIncomeTransactionGroup([FromRoute] Guid id)
-  {
-    var result = await _mediator.Send(new DeleteIncomeGroupCommand(id));
+    var result = await _mediator.Send(new DeleteTransactionGroupCommand(id));
     return this.GetResult(result, StatusCodes.Status204NoContent);
   }
 }

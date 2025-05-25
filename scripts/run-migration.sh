@@ -14,7 +14,7 @@ case "$PROVIDER" in
     PROJECT="FinanceApp.Infrastructure.EntityFramework.Mssql"
     ;;
   sqlite)
-    CONTEXT="FinanceAppSqliteDbContext"
+    CONTEXT="FinanceAppDesignTimeSqliteDbContext"
     PROJECT="FinanceApp.Infrastructure.EntityFramework.Sqlite"
     ;;
   *)

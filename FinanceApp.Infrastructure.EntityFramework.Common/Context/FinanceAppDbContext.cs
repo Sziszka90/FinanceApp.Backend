@@ -10,8 +10,8 @@ public abstract class FinanceAppDbContext : DbContext
 {
   private readonly ICurrentUserService _currentUserService;
 
-  public DbSet<IncomeTransaction> IncomeTransaction => Set<IncomeTransaction>();
-  public DbSet<ExpenseTransaction> ExpenseTransaction => Set<ExpenseTransaction>();
+  public DbSet<Transaction> Transaction => Set<Transaction>();
+   public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
   public DbSet<Saving> Saving => Set<Saving>();
   public DbSet<Investment> Investment => Set<Investment>();
   public DbSet<Domain.Entities.User> User => Set<Domain.Entities.User>();
@@ -35,13 +35,10 @@ public abstract class FinanceAppDbContext : DbContext
   /// </summary>
   private void SetupGlobalFilters(ModelBuilder modelBuilder)
   {
-    modelBuilder.Entity<IncomeTransaction>()
+    modelBuilder.Entity<Transaction>()
       .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
 
-    modelBuilder.Entity<ExpenseTransaction>()
-      .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
-
-    modelBuilder.Entity<BaseTransactionGroup>()
+    modelBuilder.Entity<TransactionGroup>()
       .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
   }
 

@@ -1,10 +1,6 @@
-﻿using FinanceApp.Application.Dtos;
-using FinanceApp.Application.Dtos.ExpenseTransactionDtos;
-using FinanceApp.Application.Dtos.IncomeTransactionDtos;
-using FinanceApp.Application.ExpenseTransaction.ExpenseTransactionCommands;
-using FinanceApp.Application.ExpenseTransaction.ExpenseTransactionQueries;
-using FinanceApp.Application.IncomeTransaction.IncomeTransactionCommands;
-using FinanceApp.Application.IncomeTransaction.IncomeTransactionQueries;
+﻿using FinanceApp.Application.Dtos.TransactionDtos;
+using FinanceApp.Application.Transaction.TransactionCommands;
+using FinanceApp.Application.Transaction.TransactionQueries;
 using FinanceApp.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -27,149 +23,76 @@ public class TransactionsController : ControllerBase
     _mediator = mediator;
   }
 
-  [HttpGet("expense/summary")]
+  [HttpGet("summary")]
   [AllowAnonymous]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(List<GetExpenseTransactionDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(List<GetTransactionDto>), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetExpenseTransactionDto>>> GetExpenseTransactionsSummary()
+  public async Task<ActionResult<List<GetTransactionDto>>> GetTransactionsSummary()
   {
-    var result = await _mediator.Send(new GetExpenseSumQuery());
+    var result = await _mediator.Send(new GetTransactionSumQuery());
     return this.GetResult(result);
   }
 
-  [HttpGet("income/summary")]
-  [AllowAnonymous]
+  [HttpGet]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(List<GetIncomeTransactionDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(List<GetTransactionDto>), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetIncomeTransactionDto>>> GetIncomeTransactionsSummary()
+  public async Task<ActionResult<List<GetTransactionDto>>> GetTransactions()
   {
-    var result = await _mediator.Send(new GetIncomeSumQuery());
+    var result = await _mediator.Send(new GetAllTransactionQuery());
     return this.GetResult(result);
   }
 
-  [HttpGet("expense")]
+  [HttpGet("{id}")]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(List<GetExpenseTransactionDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(GetTransactionDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetExpenseTransactionDto>>> GetExpenseTransactions()
+  public async Task<ActionResult<GetTransactionDto>> GetTransactions([FromRoute] Guid id)
   {
-    var result = await _mediator.Send(new GetAllExpensesQuery());
+    var result = await _mediator.Send(new GetTransactionByIdQuery(id));
     return this.GetResult(result);
   }
 
-  [HttpGet("income")]
+  [HttpPost]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(List<GetIncomeTransactionDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(GetTransactionDto), StatusCodes.Status201Created)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetIncomeTransactionDto>>> GetIncomeTransactions()
+  public async Task<ActionResult<GetTransactionDto>> CreateTransaction([FromBody] CreateTransactionDto createTransactionDto)
   {
-    var result = await _mediator.Send(new GetAllIncomesQuery());
-    return this.GetResult(result);
-  }
-
-  [HttpGet("expense/{id}")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetExpenseTransactionDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetExpenseTransactionDto>> GetExpenseTransactions([FromRoute] Guid id)
-  {
-    var result = await _mediator.Send(new GetExpenseByIdQuery(id));
-    return this.GetResult(result);
-  }
-
-  [HttpGet("income/{id}")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetIncomeTransactionDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetIncomeTransactionDto>> GetIncomeTransactions([FromRoute] Guid id)
-  {
-    var result = await _mediator.Send(new GetIncomeByIdQuery(id));
-    return this.GetResult(result);
-  }
-
-  [HttpPost("expense")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetExpenseTransactionDto), StatusCodes.Status201Created)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetExpenseTransactionDto>> CreateExpenseTransaction([FromBody] CreateExpenseTransactionDto createExpenseTransactionDto)
-  {
-    var result = await _mediator.Send(new CreateExpenseCommand(createExpenseTransactionDto));
+    var result = await _mediator.Send(new CreateTransactionCommand(createTransactionDto));
     return this.GetResult(result, StatusCodes.Status201Created);
   }
 
-  [HttpPost("income")]
+  [HttpPut]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetIncomeTransactionDto), StatusCodes.Status201Created)]
+  [ProducesResponseType(typeof(GetTransactionDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetIncomeTransactionDto>> CreateIncomeTransaction([FromBody] CreateIncomeTransactionDto createIncomeTransactionDto)
+  public async Task<ActionResult<GetTransactionDto>> UpdateTransaction([FromBody] UpdateTransactionDto updateTransactionDto)
   {
-    var result = await _mediator.Send(new CreateIncomeCommand(createIncomeTransactionDto));
-    return this.GetResult(result, StatusCodes.Status201Created);
-  }
-
-  [HttpPut("expense")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetExpenseTransactionDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetExpenseTransactionDto>> UpdateExpenseTransaction([FromBody] UpdateExpenseTransactionDto updateExpenseTransactionDto)
-  {
-    var result = await _mediator.Send(new UpdateExpenseCommand(updateExpenseTransactionDto));
+    var result = await _mediator.Send(new UpdateTransactionCommand(updateTransactionDto));
     return this.GetResult(result);
   }
 
-  [HttpPut("income")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetIncomeTransactionDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetIncomeTransactionDto>> UpdateIncomeTransaction([FromBody] UpdateIncomeTransactionDto updateIncomeTransactionDto)
-  {
-    var result = await _mediator.Send(new UpdateIncomeCommand(updateIncomeTransactionDto));
-    return this.GetResult(result);
-  }
-
-  [HttpDelete("expense/{id}")]
+  [HttpDelete("{id}")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult> DeleteExpenseTransaction([FromRoute] Guid id)
+  public async Task<ActionResult> DeleteTransaction([FromRoute] Guid id)
   {
-    var result = await _mediator.Send(new DeleteExpenseCommand(id));
-    return this.GetResult(result, StatusCodes.Status204NoContent);
-  }
-
-  [HttpDelete("income/{id}")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(StatusCodes.Status204NoContent)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult> DeleteIncomeTransaction([FromRoute] Guid id)
-  {
-    var result = await _mediator.Send(new DeleteIncomeCommand(id));
+    var result = await _mediator.Send(new DeleteTransactionCommand(id));
     return this.GetResult(result, StatusCodes.Status204NoContent);
   }
 }

@@ -19,7 +19,7 @@ if [ "$PROVIDER" == "mssql" ]; then
   CONTEXT="FinanceAppMssqlDbContext"
   PROJECT="FinanceApp.Infrastructure.EntityFramework.Mssql"
 elif [ "$PROVIDER" == "sqlite" ]; then
-  CONTEXT="FinanceAppSqliteDbContext"
+  CONTEXT="FinanceAppDesignTimeSqliteDbContext"
   PROJECT="FinanceApp.Infrastructure.EntityFramework.Sqlite"
 else
   echo "❌ Unknown provider: $PROVIDER"

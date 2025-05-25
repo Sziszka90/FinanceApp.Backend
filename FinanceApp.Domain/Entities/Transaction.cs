@@ -1,0 +1,75 @@
+﻿using FinanceApp.Domain.Common;
+
+namespace FinanceApp.Domain.Entities;
+
+public class Transaction : BaseEntity
+{
+  /// <summary>
+  /// Name of the transaction
+  /// </summary>
+  public string Name { get; set; }
+
+  /// <summary>
+  /// Description of the transaction
+  /// </summary>
+  public string? Description { get; set; }
+
+  /// <summary>
+  /// Transaction type
+  /// </summary>
+  public TransactionTypeEnum? TransactionType { get; set; }
+
+  /// <summary>
+  /// Value of the transaction
+  /// </summary>
+  public Money Value { get; set; }
+
+  /// <summary>
+  /// Transaction group
+  /// </summary>
+  public TransactionGroup? TransactionGroup { get; set; }
+
+  /// <summary>
+  /// User
+  /// </summary>
+  public User User { get; set; }
+
+  /// <summary>
+  /// Date when Transaction occured
+  /// </summary>
+  public DateTimeOffset TransactionDate { get; set; }
+
+  public Transaction(
+    string name,
+    string? description,
+    TransactionTypeEnum transactionType,
+    Money value,
+    TransactionGroup? transactionGroup,
+    DateTimeOffset transactionDate,
+    User user)
+  {
+    Name = name;
+    Description = description;
+    Value = value;
+    TransactionGroup = transactionGroup;
+    TransactionType = transactionType;
+    TransactionDate = transactionDate;
+    User = user;
+  }
+
+  protected Transaction() { }
+
+  public void Update(
+    string name,
+    string? description,
+    Money value,
+    DateTimeOffset transactionDate,
+    TransactionGroup? transactionGroup)
+  {
+    Name = name;
+    Description = description;
+    Value = value;
+    TransactionDate = transactionDate;
+    TransactionGroup = transactionGroup;
+  }
+}

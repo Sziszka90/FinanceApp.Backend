@@ -1,76 +1,36 @@
 using FinanceApp.Application.Dtos;
-using FinanceApp.Application.Dtos.ExpenseTransactionGroupDtos;
 using FinanceApp.Application.Dtos.InvestmentDtos;
 using FinanceApp.Application.Dtos.SavingDtos;
+using FinanceApp.Application.Dtos.TransactionDtos;
+using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.QueryCriteria;
 
-public static class ExpenseQueryCriteria
+public static class TransactionQueryCriteria
 {
-  public static QueryCriteria<Domain.Entities.ExpenseTransaction> FindDuplicatedName(CreateExpenseTransactionDto request)
+  public static QueryCriteria<Domain.Entities.Transaction> FindDuplicatedName(CreateTransactionDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.ExpenseTransaction>();
+    var builder = new QueryCriteriaBuilder<Domain.Entities.Transaction>();
 
     builder.Where(x => x.Name == request.Name);
 
     return builder.Build();
   }
 
-  public static QueryCriteria<Domain.Entities.ExpenseTransactionGroup> FindDuplicatedName(CreateExpenseTransactionGroupDto request)
+  public static QueryCriteria<Domain.Entities.TransactionGroup> FindDuplicatedName(CreateTransactionGroupDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.ExpenseTransactionGroup>();
+    var builder = new QueryCriteriaBuilder<Domain.Entities.TransactionGroup>();
 
     builder.Where(x => x.Name == request.Name);
 
     return builder.Build();
   }
 
-  public static QueryCriteria<Domain.Entities.ExpenseTransaction> FindDuplicatedNameExludingId(UpdateExpenseTransactionDto request)
+  public static QueryCriteria<Domain.Entities.Transaction> FindDuplicatedNameExludingId(UpdateTransactionDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.ExpenseTransaction>();
-
-    builder.Where(x => x.Name == request.Name);
-    builder.Where(x => x.Id != request.Id);
-
-    return builder.Build();
-  }
-
-  public static QueryCriteria<Domain.Entities.ExpenseTransactionGroup> FindDuplicatedNameExludingId(UpdateExpenseTransactionGroupDto request)
-  {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.ExpenseTransactionGroup>();
-
-    builder.Where(x => x.Name == request.Name);
-    builder.Where(x => x.Id != request.Id);
-
-    return builder.Build();
-  }
-}
-
-public static class IncomeQueryCriteria
-{
-  public static QueryCriteria<Domain.Entities.IncomeTransaction> FindDuplicatedName(CreateIncomeTransactionDto request)
-  {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.IncomeTransaction>();
-
-    builder.Where(x => x.Name == request.Name);
-
-    return builder.Build();
-  }
-
-  public static QueryCriteria<Domain.Entities.IncomeTransactionGroup> FindDuplicatedName(CreateIncomeTransactionGroupDto request)
-  {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.IncomeTransactionGroup>();
-
-    builder.Where(x => x.Name == request.Name);
-
-    return builder.Build();
-  }
-
-  public static QueryCriteria<Domain.Entities.IncomeTransaction> FindDuplicatedNameExludingId(UpdateIncomeTransactionDto request)
-  {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.IncomeTransaction>();
+    var builder = new QueryCriteriaBuilder<Domain.Entities.Transaction>();
 
     builder.Where(x => x.Name == request.Name);
     builder.Where(x => x.Id != request.Id);
@@ -78,9 +38,9 @@ public static class IncomeQueryCriteria
     return builder.Build();
   }
 
-  public static QueryCriteria<Domain.Entities.IncomeTransactionGroup> FindDuplicatedNameExludingId(UpdateIncomeTransactionGroupDto request)
+  public static QueryCriteria<Domain.Entities.TransactionGroup> FindDuplicatedNameExludingId(UpdateTransactionGroupDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.IncomeTransactionGroup>();
+    var builder = new QueryCriteriaBuilder<Domain.Entities.TransactionGroup>();
 
     builder.Where(x => x.Name == request.Name);
     builder.Where(x => x.Id != request.Id);
