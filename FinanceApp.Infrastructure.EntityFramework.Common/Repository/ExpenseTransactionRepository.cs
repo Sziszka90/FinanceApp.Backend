@@ -7,14 +7,8 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
 public class ExpenseTransactionRepository : GenericRepository<ExpenseTransaction>, IExpenseTransactionRepository
 {
-  #region Constructors
-
   /// <inheritdoc />
   public ExpenseTransactionRepository(FinanceAppDbContext dbContext) : base(dbContext) { }
-
-  #endregion
-
-  #region Methods
 
   public new async Task<List<ExpenseTransaction>> GetAllAsync(bool noTracking = false, CancellationToken cancellationToken = default)
   {
@@ -37,6 +31,4 @@ public class ExpenseTransactionRepository : GenericRepository<ExpenseTransaction
                           .Include(y => y.TransactionGroup)
                           .FirstOrDefaultAsync(y => y.Id == id, cancellationToken);
   }
-
-  #endregion
 }

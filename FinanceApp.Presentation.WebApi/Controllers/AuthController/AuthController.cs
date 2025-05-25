@@ -1,4 +1,4 @@
-using FinanceApp.Application.Auth;
+﻿using FinanceApp.Application.Auth;
 using FinanceApp.Application.Dtos.AuthDtos;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Presentation.WebApi.Controllers.Common;
@@ -14,22 +14,11 @@ namespace FinanceApp.Presentation.WebApi.Controllers.AuthController;
 [Produces("application/json")]
 public class AuthController : ControllerBase
 {
-  #region Members
-
   private readonly IMediator _mediator;
-
-  #endregion
-
-  #region Constructors
-
   public AuthController(IMediator mediator)
   {
     _mediator = mediator;
   }
-
-  #endregion
-
-  #region Methods
 
   [HttpPost("login")]
   [Produces("application/json")]
@@ -42,6 +31,4 @@ public class AuthController : ControllerBase
     var result = await _mediator.Send(new LoginCommand(loginRequestDto));
     return this.GetResult(result);
   }
-
-  #endregion
 }

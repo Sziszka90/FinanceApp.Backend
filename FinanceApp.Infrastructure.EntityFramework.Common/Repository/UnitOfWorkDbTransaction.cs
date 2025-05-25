@@ -4,29 +4,15 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
 public class UnitOfWorkDbTransaction : IUnitOfWorkDbTransaction
 {
-  #region Members
-
   private bool _disposed;
-
-  #endregion
-
-  #region Properties
 
   /// <inheritdoc />
   public IUnitOfWork UnitOfWork { get; private set; }
-
-  #endregion
-
-  #region Constructors
 
   public UnitOfWorkDbTransaction(IUnitOfWork unitOfWork)
   {
     UnitOfWork = unitOfWork;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   /// <remarks>
@@ -49,8 +35,6 @@ public class UnitOfWorkDbTransaction : IUnitOfWorkDbTransaction
     await UnitOfWork.RollbackTransactionAsync(cancellationToken);
   }
 
-  #region IAsyncDisposable implementation
-
   /// <inheritdoc />
   public async ValueTask DisposeAsync()
   {
@@ -66,12 +50,6 @@ public class UnitOfWorkDbTransaction : IUnitOfWorkDbTransaction
       _disposed = true;
     }
   }
-
-  #endregion // IAsyncDisposable implementation
-
-  #endregion
-
-  #region IDisposable implementation
 
   /// <inheritdoc />
   public void Dispose()
@@ -93,6 +71,4 @@ public class UnitOfWorkDbTransaction : IUnitOfWorkDbTransaction
       _disposed = true;
     }
   }
-
-  #endregion
 }

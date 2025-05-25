@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -21,8 +21,6 @@ namespace FinanceApp.Testing.Base;
 
 public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable, IAsyncDisposable
 {
-  #region Constants
-
   protected const string INCOME_TRANSACTIONS = "/api/transactions/income/";
   protected const string INCOME_TRANSACTIONS_SUMMARY = "/api/transactions/income/summary";
   protected const string EXPENSE_TRANSACTIONS_SUMMARY = "/api/transactions/expense/summary";
@@ -36,32 +34,16 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
   protected const string SAVINGS = "/api/savings/";
   protected const string USERS = "/api/users/";
 
-  #endregion
-
-  #region Members
-
   private readonly CustomWebApplicationFactory<Program> _factory;
-
-  #endregion
-
-  #region Properties
 
   protected HttpClient Client { get; }
   protected Guid CreatedUserId { get; set; }
-
-  #endregion
-
-  #region Constructors
 
   protected TestBase()
   {
     _factory = new CustomWebApplicationFactory<Program>();
     Client = _factory.CreateClient();
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async ValueTask DisposeAsync()
@@ -116,8 +98,6 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     Client.DefaultRequestHeaders.Authorization =
       new AuthenticationHeaderValue("Bearer", response!.Token);
   }
-
-  #endregion
 
   protected async Task<GetInvestmentDto?> CreateInvestmentAsync()
   {

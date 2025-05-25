@@ -17,22 +17,12 @@ namespace FinanceApp.Presentation.WebApi.Controllers.TransactionController;
 [Produces("application/json")]
 public class InvestmentsController : ControllerBase
 {
-  #region Members
-
   private readonly IMediator _mediator;
-
-  #endregion
-
-  #region Constructors
 
   public InvestmentsController(IMediator mediator)
   {
     _mediator = mediator;
   }
-
-  #endregion
-
-  #region Methods
 
   [HttpGet]
   [Produces("application/json")]
@@ -93,6 +83,4 @@ public class InvestmentsController : ControllerBase
     var result = await _mediator.Send(new DeleteInvestmentCommand(id));
     return this.GetResult(result, StatusCodes.Status204NoContent);
   }
-
-  #endregion
 }

@@ -8,8 +8,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql;
 
 public static class DependencyInjection
 {
-  #region Methods
-
   public static IServiceCollection AddEntityFrameworkCoreMssqlPersistence(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddPooledDbContextFactory<FinanceAppMssqlDbContext>(options =>
@@ -20,6 +18,4 @@ public static class DependencyInjection
 
     return services;
   }
-
-  #endregion
 }

@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Domain.Common;
 using FinanceApp.Domain.Entities;
@@ -10,17 +10,11 @@ public abstract class FinanceAppDbContext : DbContext
 {
   private readonly ICurrentUserService _currentUserService;
 
-  #region Properties
-
   public DbSet<IncomeTransaction> IncomeTransaction => Set<IncomeTransaction>();
   public DbSet<ExpenseTransaction> ExpenseTransaction => Set<ExpenseTransaction>();
   public DbSet<Saving> Saving => Set<Saving>();
   public DbSet<Investment> Investment => Set<Investment>();
   public DbSet<Domain.Entities.User> User => Set<Domain.Entities.User>();
-
-  #endregion
-
-  #region Constructors
 
   protected FinanceAppDbContext(
     DbContextOptions options,
@@ -28,8 +22,6 @@ public abstract class FinanceAppDbContext : DbContext
   {
     _currentUserService = currentUserService;
   }
-
-  #endregion
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {

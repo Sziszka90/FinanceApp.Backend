@@ -9,22 +9,12 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
 public class GenericRepository<T> : IRepository<T> where T : BaseEntity
 {
-  #region Properties
-
   protected FinanceAppDbContext DbContext { get; }
-
-  #endregion
-
-  #region Constructors
 
   public GenericRepository(FinanceAppDbContext dbContext)
   {
     DbContext = dbContext;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   public async Task<List<T>> GetAllAsync(bool noTracking = false, CancellationToken cancellationToken = default)
@@ -165,6 +155,4 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
              .Remove(entity);
     return Task.CompletedTask;
   }
-
-  #endregion
 }

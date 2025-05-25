@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json.Serialization;
 using FinanceApp.Application.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,8 +8,6 @@ namespace FinanceApp.Presentation.WebApi.Extensions;
 
 public static class ApiExtensions
 {
-  #region Methods
-
   public static WebApplicationBuilder SetupApi(this WebApplicationBuilder builder, IConfiguration configuration)
   {
     var authenticationSection = builder.Configuration.GetSection("AuthenticationSettings");
@@ -79,6 +77,4 @@ public static class ApiExtensions
 
     return app;
   }
-
-  #endregion
 }

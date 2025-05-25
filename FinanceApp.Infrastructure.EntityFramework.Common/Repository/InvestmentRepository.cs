@@ -6,10 +6,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
 public class InvestmentRepository : GenericRepository<Investment>, IInvestmentRepository
 {
-  #region Constructors
-
   /// <inheritdoc />
   public InvestmentRepository(FinanceAppDbContext dbContext) : base(dbContext) { }
-
-  #endregion
 }

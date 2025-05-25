@@ -16,22 +16,12 @@ namespace FinanceApp.Presentation.WebApi.Controllers.UsersController;
 [Produces("application/json")]
 public class UsersController : ControllerBase
 {
-  #region Members
-
   private readonly IMediator _mediator;
-
-  #endregion
-
-  #region Constructors
 
   public UsersController(IMediator mediator)
   {
     _mediator = mediator;
   }
-
-  #endregion
-
-  #region Methods
 
   [HttpGet("{id}")]
   [Authorize]
@@ -96,6 +86,4 @@ public class UsersController : ControllerBase
     var result = await _mediator.Send(new DeleteUserCommand(id));
     return this.GetResult(result, StatusCodes.Status204NoContent);
   }
-
-  #endregion
 }

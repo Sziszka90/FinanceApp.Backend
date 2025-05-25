@@ -1,4 +1,4 @@
-using FinanceApp.Application.Dtos;
+﻿using FinanceApp.Application.Dtos;
 using FinanceApp.Application.Dtos.ExpenseTransactionGroupDtos;
 using FinanceApp.Application.Dtos.IncomeTransactionGroupDtos;
 using FinanceApp.Application.ExpenseTransactionGroup.ExpenseTransactionGroupCommands;
@@ -20,22 +20,12 @@ namespace FinanceApp.Presentation.WebApi.Controllers.TransactionGroupController;
 [Produces("application/json")]
 public class TransactionGroupsController : ControllerBase
 {
-  #region Members
-
   private readonly IMediator _mediator;
-
-  #endregion
-
-  #region Constructors
 
   public TransactionGroupsController(IMediator mediator)
   {
     _mediator = mediator;
   }
-
-  #endregion
-
-  #region Methods
 
   [HttpGet("expense")]
   [Produces("application/json")]
@@ -157,6 +147,4 @@ public class TransactionGroupsController : ControllerBase
     var result = await _mediator.Send(new DeleteIncomeGroupCommand(id));
     return this.GetResult(result, StatusCodes.Status204NoContent);
   }
-
-  #endregion
 }

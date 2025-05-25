@@ -4,8 +4,6 @@ namespace FinanceApp.Presentation.WebApi.Extensions;
 
 public static class SwaggerExtensions
 {
-  #region Methods
-
   public static void AddSwagger(this WebApplicationBuilder builder)
   {
     builder.Services.AddEndpointsApiExplorer();
@@ -45,6 +43,4 @@ public static class SwaggerExtensions
     builder.UseSwagger();
     builder.UseSwaggerUI();
   }
-
-  #endregion
 }

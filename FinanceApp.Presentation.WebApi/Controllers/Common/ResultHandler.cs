@@ -5,8 +5,6 @@ namespace FinanceApp.Presentation.WebApi.Controllers.Common;
 
 public static class ResultHandler
 {
-  #region Methods
-
   /// <summary>
   /// Reads a Result and returns a ActionResult
   /// </summary>
@@ -69,6 +67,4 @@ public static class ResultHandler
       _ => controller.StatusCode(StatusCodes.Status500InternalServerError, errorResult)
     };
   }
-
-  #endregion
 }

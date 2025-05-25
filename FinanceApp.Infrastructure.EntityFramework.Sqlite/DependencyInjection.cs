@@ -10,8 +10,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite;
 
 public static class DependencyInjection
 {
-  #region Methods
-
   public static IServiceCollection AddEntityFrameworkCoreSqlitePersistence(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddPooledDbContextFactory<FinanceAppSqliteDbContext>(options =>
@@ -22,6 +20,4 @@ public static class DependencyInjection
 
     return services;
   }
-
-  #endregion
 }

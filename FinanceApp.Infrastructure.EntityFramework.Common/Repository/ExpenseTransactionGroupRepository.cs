@@ -6,10 +6,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
 public class ExpenseTransactionGroupRepository : GenericRepository<ExpenseTransactionGroup>, IExpenseTransactionGroupRepository
 {
-  #region Constructors
-
   /// <inheritdoc />
   public ExpenseTransactionGroupRepository(FinanceAppDbContext dbContext) : base(dbContext) { }
-
-  #endregion
 }

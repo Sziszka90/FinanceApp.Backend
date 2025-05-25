@@ -6,14 +6,9 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
 public class UserRepository : GenericRepository<Domain.Entities.User>, IUserRepository
 {
-  #region Constructors
 
   /// <inheritdoc />
   public UserRepository(FinanceAppDbContext dbContext) : base(dbContext) { }
-
-  #endregion
-
-  #region Methods
 
   public async Task<Domain.Entities.User?> GetByUserNameAsync(string userName, bool noTracking = false, CancellationToken cancellationToken = default)
   {
@@ -27,6 +22,4 @@ public class UserRepository : GenericRepository<Domain.Entities.User>, IUserRepo
     return await DbContext.Set<Domain.Entities.User>()
                           .FirstOrDefaultAsync(user => user.UserName == userName, cancellationToken);
   }
-
-  #endregion
 }

@@ -10,32 +10,18 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
 public sealed class UnitOfWork : IUnitOfWork
 {
-  #region Members
-
   private readonly FinanceAppDbContext _dbContext;
   private readonly IServiceProvider _serviceProvider;
 
   private bool _disposed;
 
-  #endregion
-
-  #region Properties
-
   internal IDbContextTransaction? Transaction => _dbContext?.Database?.CurrentTransaction;
-
-  #endregion
-
-  #region Constructors
 
   public UnitOfWork(FinanceAppDbContext dbContext, IServiceProvider serviceProvider)
   {
     _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     _serviceProvider = serviceProvider;
   }
-
-  #endregion
-
-  #region Methods
 
   /// <inheritdoc />
   /// <seealso cref="Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(System.Threading.CancellationToken)" />
@@ -141,10 +127,6 @@ public sealed class UnitOfWork : IUnitOfWork
     return toValidate;
   }
 
-  #endregion
-
-  #region IDisposable implementation
-
   /// <inheritdoc />
   public void Dispose()
   {
@@ -164,6 +146,4 @@ public sealed class UnitOfWork : IUnitOfWork
       _disposed = true;
     }
   }
-
-  #endregion
 }

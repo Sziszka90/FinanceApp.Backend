@@ -13,11 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 public class CustomWebApplicationFactory<TProgram>
   : WebApplicationFactory<TProgram> where TProgram : class
 {
-  #region Properties
-
   public DbConnection? SqliteDatabaseConnection { get; set; }
-
-  #endregion
 
   protected override void ConfigureWebHost(IWebHostBuilder builder)
   {

@@ -9,8 +9,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common;
 
 public static class DependencyInjection
 {
-  #region Methods
-
   public static IServiceCollection AddEntityFrameworkCorePersistence(this IServiceCollection services)
   {
     services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -33,6 +31,4 @@ public static class DependencyInjection
                                .CreateDbContext());
     return services;
   }
-
-  #endregion
 }

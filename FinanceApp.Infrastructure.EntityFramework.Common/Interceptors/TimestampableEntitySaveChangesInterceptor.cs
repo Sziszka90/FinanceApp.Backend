@@ -6,8 +6,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Interceptors;
 
 public class TimestampableEntitySaveChangesInterceptor : SaveChangesInterceptor
 {
-  #region Methods
-
   public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
   {
     UpdateEntitie(eventData.Context);
@@ -50,6 +48,4 @@ public class TimestampableEntitySaveChangesInterceptor : SaveChangesInterceptor
       }
     }
   }
-
-  #endregion
 }
