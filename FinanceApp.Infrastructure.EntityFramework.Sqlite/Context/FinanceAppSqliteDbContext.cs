@@ -10,7 +10,7 @@ public class FinanceAppSqliteDbContext : FinanceAppDbContext
   /// <inheritdoc />
   public FinanceAppSqliteDbContext(
     DbContextOptions<FinanceAppSqliteDbContext> options,
-    ICurrentUserService currentUserService) : base(options, currentUserService) { }
+    ICurrentUserService? currentUserService = null) : base(options, currentUserService) { }
 
   protected override void OnModelCreatingProviderSpecific(ModelBuilder modelBuilder)
   {

@@ -8,7 +8,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Context;
 
 public abstract class FinanceAppDbContext : DbContext
 {
-  private readonly ICurrentUserService _currentUserService;
+  private string UserName { get; set; } = String.Empty;
 
   public DbSet<Transaction> Transaction => Set<Transaction>();
    public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
@@ -18,9 +18,12 @@ public abstract class FinanceAppDbContext : DbContext
 
   protected FinanceAppDbContext(
     DbContextOptions options,
-    ICurrentUserService currentUserService) : base(options)
+    ICurrentUserService? currentUserService = null) : base(options)
   {
-    _currentUserService = currentUserService;
+    if (currentUserService is not null)
+    {
+      UserName = currentUserService.UserName;
+    }
   }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,10 +39,10 @@ public abstract class FinanceAppDbContext : DbContext
   private void SetupGlobalFilters(ModelBuilder modelBuilder)
   {
     modelBuilder.Entity<Transaction>()
-      .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
+      .HasQueryFilter(x => x.User.UserName == UserName);
 
     modelBuilder.Entity<TransactionGroup>()
-      .HasQueryFilter(x => x.User.UserName == _currentUserService.UserName);
+      .HasQueryFilter(x => x.User.UserName == UserName);
   }
 
   /// <summary>

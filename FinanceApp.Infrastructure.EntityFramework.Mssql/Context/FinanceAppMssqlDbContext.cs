@@ -10,7 +10,7 @@ public class FinanceAppMssqlDbContext : FinanceAppDbContext
   /// <inheritdoc />
   public FinanceAppMssqlDbContext(
     DbContextOptions<FinanceAppMssqlDbContext> options,
-    ICurrentUserService currentUserService) : base(options, currentUserService) { }
+    ICurrentUserService? currentUserService = null) : base(options, currentUserService) { }
 
   protected override void OnModelCreatingProviderSpecific(ModelBuilder modelBuilder)
   {

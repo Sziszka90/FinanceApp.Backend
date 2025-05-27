@@ -4,22 +4,22 @@ using Microsoft.Extensions.Configuration;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Context.Factories;
 
-public class FinanceAppDesignTimeContextFactory : IDesignTimeDbContextFactory<FinanceAppDesignTimeSqliteDbContext>
+public class FinanceAppDesignTimeContextFactory : IDesignTimeDbContextFactory<FinanceAppSqliteDbContext>
 {
-    public FinanceAppDesignTimeSqliteDbContext CreateDbContext(string[] args)
+    public FinanceAppSqliteDbContext CreateDbContext(string[] args)
     {
-        var optionsBuilder = new DbContextOptionsBuilder<FinanceAppDesignTimeSqliteDbContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<FinanceAppSqliteDbContext>();
 
-        // Adjust this to match your project setup and file location
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json")
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddEnvironmentVariables()
             .Build();
 
         var connectionString = configuration.GetConnectionString(Constants.ConfigurationKeys.SqliteConnectionString);
 
         optionsBuilder.UseSqlite(connectionString);
 
-        return new FinanceAppDesignTimeSqliteDbContext(optionsBuilder.Options);
+        return new FinanceAppSqliteDbContext(optionsBuilder.Options);
     }
 }

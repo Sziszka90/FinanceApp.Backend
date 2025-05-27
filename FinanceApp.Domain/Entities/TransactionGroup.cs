@@ -64,11 +64,22 @@ public class TransactionGroup : BaseEntity
 
     if (groupIcon is not null)
     {
-      GroupIcon = new Icon(
-        groupIcon.FileName,
-        groupIcon.ContentType,
-        groupIcon.Data
-      );
+      if (GroupIcon is not null)
+      {
+        GroupIcon!.Update(
+          groupIcon.FileName,
+          groupIcon.ContentType,
+          groupIcon.Data
+        );
+      }
+      else
+      {
+        GroupIcon = new Icon(
+          groupIcon.FileName,
+          groupIcon.ContentType,
+          groupIcon.Data
+        );
+      }
     }
     else
     {

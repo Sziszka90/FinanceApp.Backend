@@ -3,16 +3,19 @@ using System;
 using FinanceApp.Infrastructure.EntityFramework.Sqlite.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
 {
-    [DbContext(typeof(FinanceAppDesignTimeSqliteDbContext))]
-    partial class FinanceAppDesignTimeSqliteDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(FinanceAppSqliteDbContext))]
+    [Migration("20250526194903_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");

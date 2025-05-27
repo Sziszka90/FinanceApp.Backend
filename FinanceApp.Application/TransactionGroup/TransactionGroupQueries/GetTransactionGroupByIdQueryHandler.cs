@@ -9,9 +9,9 @@ namespace FinanceApp.Application.TransactionGroup.TransactionGroupQueries;
 public class GetTransactionGroupByIdQueryHandler : IQueryHandler<GetTransactionGroupByIdQuery, Result<GetTransactionGroupDto>>
 {
   private readonly IMapper _mapper;
-  private readonly IRepository<Domain.Entities.TransactionGroup> _transactionGroupRepository;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
 
-  public GetTransactionGroupByIdQueryHandler(IMapper mapper, IRepository<Domain.Entities.TransactionGroup> transactionGroupRepository)
+  public GetTransactionGroupByIdQueryHandler(IMapper mapper, ITransactionGroupRepository transactionGroupRepository)
   {
     _mapper = mapper;
     _transactionGroupRepository = transactionGroupRepository;
@@ -19,7 +19,7 @@ public class GetTransactionGroupByIdQueryHandler : IQueryHandler<GetTransactionG
 
   public async Task<Result<GetTransactionGroupDto>> Handle(GetTransactionGroupByIdQuery request, CancellationToken cancellationToken)
   {
-    var result = await _transactionGroupRepository.GetByIdAsync(request.Id, cancellationToken);
+    var result = await _transactionGroupRepository.GetByIdWithLimitAndIconAsync(request.Id, cancellationToken);
     return Result.Success(_mapper.Map<GetTransactionGroupDto>(result));
   }
 }

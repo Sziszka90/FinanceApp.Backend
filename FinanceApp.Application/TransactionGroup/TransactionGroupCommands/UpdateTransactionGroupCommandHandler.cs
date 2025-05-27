@@ -12,12 +12,12 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
 {
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
-  private readonly IRepository<Domain.Entities.TransactionGroup> _transactionGroupRepository;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly ILogger<UpdateTransactionGroupCommandHandler> _logger;
 
   public UpdateTransactionGroupCommandHandler(IMapper mapper,
                                          IUnitOfWork unitOfWork,
-                                         IRepository<Domain.Entities.TransactionGroup> transactionGroupRepository,
+                                         ITransactionGroupRepository transactionGroupRepository,
                                          ILogger<UpdateTransactionGroupCommandHandler> logger)
   {
     _mapper = mapper;
@@ -29,7 +29,7 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
   /// <inheritdoc />
   public async Task<Result<GetTransactionGroupDto>> Handle(UpdateTransactionGroupCommand request, CancellationToken cancellationToken)
   {
-    var transactionGroup = await _transactionGroupRepository.GetByIdAsync(request.UpdateTransactionGroupDto.Id, cancellationToken);
+    var transactionGroup = await _transactionGroupRepository.GetByIdWithLimitAndIconAsync(request.UpdateTransactionGroupDto.Id, cancellationToken);
 
     if (transactionGroup is null)
     {
