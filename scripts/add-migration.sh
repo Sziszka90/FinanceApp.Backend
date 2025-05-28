@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-MIGRATION_NAME=$1
-PROVIDER=$2
+MIGRATION_NAME="$1"
+PROVIDER="$2"
 
 if [ -z "$MIGRATION_NAME" ]; then
   echo "❌ Migration name is required."
@@ -15,17 +15,20 @@ if [ -z "$PROVIDER" ]; then
 fi
 
 # Configure values based on provider
-if [ "$PROVIDER" == "mssql" ]; then
-  PROJECT="FinanceApp.Infrastructure.EntityFramework.Mssql"
-elif [ "$PROVIDER" == "sqlite" ]; then
-  PROJECT="FinanceApp.Infrastructure.EntityFramework.Sqlite"
-else
-  echo "❌ Unknown provider: $PROVIDER"
-  echo "Supported providers: mssql, sqlite"
-  exit 1
-fi
+case "$PROVIDER" in
+  mssql)
+    PROJECT="FinanceApp.Infrastructure.EntityFramework.Mssql"
+    ;;
+  sqlite)
+    PROJECT="FinanceApp.Infrastructure.EntityFramework.Sqlite"
+    ;;
+  *)
+    echo "❌ Unknown provider: $PROVIDER"
+    echo "Supported providers: mssql, sqlite"
+    exit 1
+    ;;
+esac
 
-echo "✅ Adding migration "$MIGRATION_NAME" for "$PROVIDER...""
+echo "✅ Adding migration \"$MIGRATION_NAME\" for \"$PROVIDER\"..."
 
-dotnet ef migrations add "$MIGRATION_NAME" \
-  --project "$PROJECT"
+dotnet ef migrations add "$MIGRATION_NAME" --project "$PROJECT"
