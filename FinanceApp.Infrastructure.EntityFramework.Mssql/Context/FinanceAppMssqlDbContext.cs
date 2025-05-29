@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,8 +8,7 @@ public class FinanceAppMssqlDbContext : FinanceAppDbContext
 {
   /// <inheritdoc />
   public FinanceAppMssqlDbContext(
-    DbContextOptions<FinanceAppMssqlDbContext> options,
-    ICurrentUserService? currentUserService = null) : base(options, currentUserService) { }
+    DbContextOptions<FinanceAppMssqlDbContext> options) : base(options) { }
 
   protected override void OnModelCreatingProviderSpecific(ModelBuilder modelBuilder)
   {

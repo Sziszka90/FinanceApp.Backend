@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using FinanceApp.Application.Abstraction.Services;
-using FinanceApp.Domain.Common;
 using FinanceApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +6,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Context;
 
 public abstract class FinanceAppDbContext : DbContext
 {
-  private string UserName { get; set; } = String.Empty;
+  public string UserName { get; set; } = String.Empty;
 
   public DbSet<Transaction> Transaction => Set<Transaction>();
    public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
@@ -17,14 +15,8 @@ public abstract class FinanceAppDbContext : DbContext
   public DbSet<Domain.Entities.User> User => Set<Domain.Entities.User>();
 
   protected FinanceAppDbContext(
-    DbContextOptions options,
-    ICurrentUserService? currentUserService = null) : base(options)
-  {
-    if (currentUserService is not null)
-    {
-      UserName = currentUserService.UserName;
-    }
-  }
+    DbContextOptions options) : base(options)
+  {}
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {

@@ -9,8 +9,6 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import {
-  MAT_DIALOG_DATA,
-  MatDialog,
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
@@ -22,12 +20,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
-import { GetIncomeTransactionGroupDto } from '../../models/IncomeTransactionDtos/GetIncomeTransactionGroupDto';
 import { take } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
+import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactionGroupDto';
 
 @Component({
-  selector: 'app-income-transaction-modal',
+  selector: 'app-transaction-modal',
   imports: [
     MatInputModule,
     MatDialogTitle,
@@ -42,19 +40,19 @@ import { CurrencyEnum } from '../../models/Money/Money';
     MatSelectModule,
     CommonModule,
   ],
-  templateUrl: './create-income-transaction-modal.component.html',
-  styleUrl: './create-income-transaction-modal.component.scss',
+  templateUrl: './create-transaction-modal.component.html',
+  styleUrl: './create-transaction-modal.component.scss',
   standalone: true,
 })
-export class CreateIncomeTransactionModalComponent implements OnInit {
+export class CreateTransactionModalComponent implements OnInit {
   transactionForm: FormGroup;
-  groupOptions: GetIncomeTransactionGroupDto[] = [];
+  groupOptions: GetTransactionGroupDto[] = [];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
 
   constructor(
-    private dialogRef: MatDialogRef<CreateIncomeTransactionModalComponent>,
+    private dialogRef: MatDialogRef<CreateTransactionModalComponent>,
     private fb: FormBuilder,
     private transactionApiService: TransactionApiService
   ) {
@@ -68,7 +66,7 @@ export class CreateIncomeTransactionModalComponent implements OnInit {
     });
 
     this.transactionApiService
-      .getAllIncomeTransactionGroups()
+      .getAllTransactionGroups()
       .pipe(take(1))
       .subscribe((data) => {
         this.groupOptions = data;
@@ -87,14 +85,15 @@ export class CreateIncomeTransactionModalComponent implements OnInit {
   onSubmit(): void {
     if (this.transactionForm.valid) {
       this.transactionApiService
-        .createIncomeTransaction({
+        .createTransaction({
           name: this.transactionForm.get('name')?.value,
           description: this.transactionForm.get('description')?.value,
           value: {
             amount: this.transactionForm.get('value')?.value,
             currency: this.transactionForm.get('currency')!.value,
           },
-          dueDate: this.transactionForm.get('dueDate')?.value,
+          transactionDate: this.transactionForm.get('dueDate')?.value,
+          transactionType: this.transactionForm.get('transactionType')?.value,
           transactionGroupId: this.transactionForm.get('group')?.value.id,
         })
         .pipe(take(1))

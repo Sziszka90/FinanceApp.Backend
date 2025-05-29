@@ -76,7 +76,8 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
       }
       else
       {
-        summAmount.Amount += transaction.Value.Amount;
+        if(transaction.TransactionType == TransactionTypeEnum.Expense) summAmount.Amount += transaction.Value.Amount;
+        if(transaction.TransactionType == TransactionTypeEnum.Income) summAmount.Amount -= transaction.Value.Amount;
       }
     }
 

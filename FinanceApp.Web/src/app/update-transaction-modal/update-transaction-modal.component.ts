@@ -23,8 +23,8 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
 import { take } from 'rxjs';
-import { GetIncomeTransactionGroupDto } from '../../models/IncomeTransactionDtos/GetIncomeTransactionGroupDto';
 import { CurrencyEnum } from '../../models/Money/Money';
+import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactionGroupDto';
 
 @Component({
   selector: 'app-income-transaction-modal',
@@ -42,19 +42,19 @@ import { CurrencyEnum } from '../../models/Money/Money';
     MatSelectModule,
     CommonModule,
   ],
-  templateUrl: './update-income-transaction-modal.component.html',
-  styleUrl: './update-income-transaction-modal.component.scss',
+  templateUrl: './update-transaction-modal.component.html',
+  styleUrl: './update-transaction-modal.component.scss',
   standalone: true,
 })
-export class UpdateIncomeTransactionModalComponent implements OnInit {
+export class UpdateTransactionModalComponent implements OnInit {
   transactionForm: FormGroup;
-  groupOptions: GetIncomeTransactionGroupDto[] = [];
+  groupOptions: GetTransactionGroupDto[] = [];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
 
   constructor(
-    private dialogRef: MatDialogRef<UpdateIncomeTransactionModalComponent>,
+    private dialogRef: MatDialogRef<UpdateTransactionModalComponent>,
     private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private transactionApiService: TransactionApiService
@@ -79,7 +79,7 @@ export class UpdateIncomeTransactionModalComponent implements OnInit {
     this.transactionForm.get('currency')?.setValue(this.data.value.currency);
 
     this.transactionApiService
-      .getAllIncomeTransactionGroups()
+      .getAllTransactionGroups()
       .pipe(take(1))
       .subscribe((data) => {
         this.groupOptions = data;
@@ -98,7 +98,7 @@ export class UpdateIncomeTransactionModalComponent implements OnInit {
   onSubmit(): void {
     if (this.transactionForm.valid) {
       this.transactionApiService
-        .updateIncomeTransaction(this.data.id, {
+        .updateTransaction(this.data.id, {
           id: this.data.id,
           name: this.transactionForm.get('name')?.value,
           description: this.transactionForm.get('description')?.value,
@@ -106,7 +106,7 @@ export class UpdateIncomeTransactionModalComponent implements OnInit {
             amount: this.transactionForm.get('value')?.value,
             currency: this.transactionForm.get('currency')?.value,
           },
-          dueDate: this.transactionForm.get('dueDate')?.value,
+          transactionDate: this.transactionForm.get('dueDate')?.value,
           transactionGroupId:
             this.transactionForm.get('group')?.value.id === ''
               ? null

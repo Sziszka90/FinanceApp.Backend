@@ -2,14 +2,13 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { combineLatest, Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { TransactionApiService } from 'src/services/transactions.api.service';
 import { CurrencyEnum, Money } from 'src/models/Money/Money';
-import { GetIncomeTransactionDto } from 'src/models/IncomeTransactionDtos/GetIncomeTransactionDto';
-import { GetExpenseTransactionDto } from 'src/models/ExpenseTransactionDtos/GetExpenseTransactionDto';
-import { UpdateIncomeTransactionModalComponent } from '../update-income-transaction-modal/update-income-transaction-modal.component';
 import { MatDialog } from '@angular/material/dialog';
-import { CreateIncomeTransactionModalComponent } from '../create-income-transaction-modal/create-income-transaction-modal.component';
+import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
+import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
+import { UpdateTransactionModalComponent } from '../update-transaction-modal/update-transaction-modal.component';
 
 @Component({
   selector: 'app-transaction',
@@ -23,11 +22,9 @@ export class TransactionComponent implements OnInit, OnDestroy {
   public transactionApiService = inject(TransactionApiService);
   public matDialog = inject(MatDialog);
 
-  public incomeSummary$: Observable<Money> | undefined;
-  public expenseSummary$: Observable<Money> | undefined;
-  public incomeTransactions$: Observable<GetIncomeTransactionDto[]> | undefined;
-  public expenseTransactions$: Observable<GetExpenseTransactionDto[]> | undefined;
-  public allTransactions: GetExpenseTransactionDto[]> | undefined;
+  public summary$: Observable<Money> | undefined;
+  public transactions$: Observable<GetTransactionDto[]> | undefined;
+  public allTransactions: GetTransactionDto[] | undefined;
   public total: Money = {amount: 0, currency: CurrencyEnum.EUR};
 
   displayedColumns: string[] = [
@@ -35,7 +32,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
     'description',
     'value',
     'currency',
-    'dueDate',
+    'transactionDate',
     'group',
     'actions',
   ];
@@ -43,41 +40,20 @@ export class TransactionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    this.incomeSummary$ = this.transactionApiService.getAllIncomeTransactionsSummary();
-    this.expenseSummary$ = this.transactionApiService.getAllExpenseTransactionsSummary();
-    this.incomeTransactions$ = this.transactionApiService.getAllIncomeTransactions();
-    this.expenseTransactions$ = this.transactionApiService.getAllExpenseTransactions();
-
-    combineLatest([this.incomeSummary$, this.expenseSummary$])
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(([incomeSum, expenseSum]) => {
-      this.total = { amount: incomeSum.amount - expenseSum.amount, currency: incomeSum.currency }
-    })
-
-    combineLatest([this.incomeTransactions$, this.expenseTransactions$])
-    .pipe(takeUntil(this.destroy$))
-    .subscribe([incomeTransactions, expenseTransaction]) => {
-
-    }
+    this.transactions$ = this.transactionApiService.getAllTransactions();
+    this.summary$ = this.transactionApiService.getAllTransactionsSummary();
   }
 
-  deleteIncomeTransaction(row: any) {
-    this.transactionApiService.deleteIncomeTransaction(row.id).subscribe(() => {
-      this.incomeSummary$ = this.transactionApiService.getAllIncomeTransactionsSummary();
-      this.incomeTransactions$ = this.transactionApiService.getAllIncomeTransactions();
+  deleteTransaction(row: any) {
+    this.transactionApiService.deleteTransaction(row.id).subscribe(() => {
+      this.transactions$ = this.transactionApiService.getAllTransactions();
+      this.summary$ = this.transactionApiService.getAllTransactionsSummary();
     });
   }
 
-  deleteExpenseTransaction(row: any) {
-    this.transactionApiService.deleteExpenseTransaction(row.id).subscribe(() => {
-      this.expenseSummary$ = this.transactionApiService.getAllExpenseTransactionsSummary();
-      this.expenseTransactions$ = this.transactionApiService.getAllExpenseTransactions();
-    });
-  }
-
-  editIncomeTransaction(row: any) {
+  editTransaction(row: any) {
     const dialogRef = this.matDialog.open(
-      UpdateIncomeTransactionModalComponent,
+      UpdateTransactionModalComponent,
       {
         width: '50rem',
         data: row,
@@ -87,14 +63,14 @@ export class TransactionComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed()
     .pipe(takeUntil(this.destroy$))
     .subscribe(() => {
-      this.incomeSummary$ = this.transactionApiService.getAllIncomeTransactionsSummary();
-      this.incomeTransactions$ = this.transactionApiService.getAllIncomeTransactions();
+      this.transactions$ = this.transactionApiService.getAllTransactions();
+      this.summary$ = this.transactionApiService.getAllTransactionsSummary();
     })
   }
 
-  createIncomeTransaction() {
+  createTransaction() {
     const dialogRef = this.matDialog.open(
-      CreateIncomeTransactionModalComponent,
+      CreateTransactionModalComponent,
       {
         width: '50rem',
       }
@@ -103,8 +79,8 @@ export class TransactionComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed()
     .pipe(takeUntil(this.destroy$))
     .subscribe(() => {
-      this.incomeSummary$ = this.transactionApiService.getAllIncomeTransactionsSummary();
-      this.incomeTransactions$ = this.transactionApiService.getAllIncomeTransactions();
+      this.summary$ = this.transactionApiService.getAllTransactionsSummary();
+      this.transactions$ = this.transactionApiService.getAllTransactions();
     })
   }
 

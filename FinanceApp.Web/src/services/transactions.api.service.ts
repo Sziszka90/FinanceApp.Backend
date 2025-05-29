@@ -2,15 +2,11 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { GetIncomeTransactionDto } from '../models/IncomeTransactionDtos/GetIncomeTransactionDto';
-import { GetIncomeTransactionGroupDto } from '../models/IncomeTransactionDtos/GetIncomeTransactionGroupDto';
-import { UpdateIncomeTransactionDto } from '../models/IncomeTransactionDtos/UpdateIncomeTransactionDto';
 import { Money } from '../models/Money/Money';
-import { CreateIncomeTransactionDto } from '../models/IncomeTransactionDtos/CreateIncomeTransactionDto';
-import { GetExpenseTransactionDto } from 'src/models/ExpenseTransactionDtos/GetExpenseTransactionDto';
-import { CreateExpenseTransactionDto } from 'src/models/ExpenseTransactionDtos/CreateExpenseTransactionDto';
-import { UpdateExpenseTransactionDto } from 'src/models/ExpenseTransactionDtos/UpdateExpenseTransactionDto';
-import { GetExpenseTransactionGroupDto } from 'src/models/ExpenseTransactionDtos/GetExpenseTransactionGroupDto';
+import { CreateTransactionDto } from '../models/TransactionDtos/CreateTransactionDto';
+import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
+import { UpdateTransactionDto } from 'src/models/TransactionDtos/UpdateTransactionDto';
+import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactionGroupDto';
 
 @Injectable({
   providedIn: 'root'
@@ -23,55 +19,29 @@ export class TransactionApiService {
   constructor(private http: HttpClient) { }
 
   // Method to get data from the backend
-  getAllIncomeTransactions(): Observable<GetIncomeTransactionDto[]> {
-     return this.http.get<GetIncomeTransactionDto[]>(`${this.apiUrl}/transactions/income`);
+  getAllTransactions(): Observable<GetTransactionDto[]> {
+     return this.http.get<GetTransactionDto[]>(`${this.apiUrl}/transactions/`);
   }
 
-  getAllExpenseTransactions(): Observable<GetExpenseTransactionDto[]> {
-     return this.http.get<GetExpenseTransactionDto[]>(`${this.apiUrl}/transactions/expense`);
+  getAllTransactionsSummary(): Observable<Money> {
+    return this.http.get<Money>(`${this.apiUrl}/transactions/summary`);
   }
 
-  getAllIncomeTransactionsSummary(): Observable<Money> {
-    return this.http.get<Money>(`${this.apiUrl}/transactions/income/summary`);
+  createTransaction(createTransactionDto:CreateTransactionDto): Observable<GetTransactionDto[]> {
+    console.log(createTransactionDto);
+    return this.http.post<GetTransactionDto[]>(`${this.apiUrl}/transactions/`, createTransactionDto);
   }
 
-  getAllExpenseTransactionsSummary(): Observable<Money> {
-    return this.http.get<Money>(`${this.apiUrl}/transactions/expense/summary`);
+  updateTransaction(id: string, updateTransactionDto: UpdateTransactionDto): Observable<GetTransactionDto[]> {
+    console.log(updateTransactionDto);
+    return this.http.put<GetTransactionDto[]>(`${this.apiUrl}/transactions/`, updateTransactionDto);
   }
 
-  createIncomeTransaction(createIncomeTransactionDto:CreateIncomeTransactionDto): Observable<GetIncomeTransactionDto[]> {
-    console.log(createIncomeTransactionDto);
-    return this.http.post<GetIncomeTransactionDto[]>(`${this.apiUrl}/transactions/income`, createIncomeTransactionDto);
+  deleteTransaction(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/transactions//${id}`);
   }
 
-  createExpenseTransaction(createExpenseTransactionDto:CreateExpenseTransactionDto): Observable<GetExpenseTransactionDto[]> {
-    console.log(createExpenseTransactionDto);
-    return this.http.post<GetExpenseTransactionDto[]>(`${this.apiUrl}/transactions/expense`, createExpenseTransactionDto);
-  }
-
-  updateIncomeTransaction(id: string, updateIncomeTransactionDto: UpdateIncomeTransactionDto): Observable<GetIncomeTransactionDto[]> {
-    console.log(updateIncomeTransactionDto);
-    return this.http.put<GetIncomeTransactionDto[]>(`${this.apiUrl}/transactions/income`, updateIncomeTransactionDto);
-  }
-
-  updateExpenseTransaction(id: string, updateExpenseTransactionDto: UpdateExpenseTransactionDto): Observable<GetExpenseTransactionDto[]> {
-    console.log(updateExpenseTransactionDto);
-    return this.http.put<GetExpenseTransactionDto[]>(`${this.apiUrl}/transactions/expense`, updateExpenseTransactionDto);
-  }
-
-  deleteIncomeTransaction(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/transactions/income/${id}`);
-  }
-
-  deleteExpenseTransaction(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/transactions/expense/${id}`);
-  }
-
-  getAllIncomeTransactionGroups(): Observable<GetIncomeTransactionGroupDto[]> {
-    return this.http.get<GetIncomeTransactionGroupDto[]>(`${this.apiUrl}/transactiongroups/income`);
-  }
-
-  getAllExpenseTransactionGroups(): Observable<GetExpenseTransactionGroupDto[]> {
-    return this.http.get<GetExpenseTransactionGroupDto[]>(`${this.apiUrl}/transactiongroups/expense`);
+  getAllTransactionGroups(): Observable<GetTransactionGroupDto[]> {
+    return this.http.get<GetTransactionGroupDto[]>(`${this.apiUrl}/transactiongroups/income`);
   }
 }

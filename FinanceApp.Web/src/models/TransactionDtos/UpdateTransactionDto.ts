@@ -1,9 +1,10 @@
 import { Money } from "../Money/Money";
 
-export interface CreateIncomeTransactionDto {
+export interface UpdateTransactionDto {
+    id: string,
     name: string,
-    description: string,
+    description?: string,
     value: Money,
-    dueDate: Date,
+    transactionDate: Date,
     transactionGroupId: string
 }

@@ -28,9 +28,9 @@
               <td mat-cell *matCellDef="let element"> {{element.value.currency}} </td>
           </ng-container>
 
-          <ng-container class="column" matColumnDef="dueDate">
-              <th mat-header-cell *matHeaderCellDef> Due Date </th>
-              <td mat-cell *matCellDef="let element"> {{element.dueDate | date:'short'}} </td>
+          <ng-container class="column" matColumnDef="transactionDate">
+              <th mat-header-cell *matHeaderCellDef> Transaction Date </th>
+              <td mat-cell *matCellDef="let element"> {{element.transactionDate | date:'short'}} </td>
           </ng-container>
 
           <ng-container class="column" matColumnDef="group">
@@ -54,19 +54,9 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
   </ng-container>
-  <div *ngIf="incomeSummary$ | async as incomeSummary" class="value-container">
-    <div class="title">Sum of Income</div>
-    <div class="value" id="value">{{ incomeSummary.amount }}</div>
-    <div class="currency" id="currency">{{ incomeSummary.currency }}</div>
-  </div>
-  <div *ngIf="expenseSummary$ | async as expenseSummary" class="value-container">
-    <div class="title">Sum of Expense</div>
-    <div class="value" id="value">{{ expenseSummary.amount }}</div>
-    <div class="currency" id="currency">{{ expenseSummary.currency }}</div>
-  </div>
-  <div class="value-container">
-    <div class="title">Sum</div>
-    <div class="value" id="value">{{ total.amount }}</div>
-    <div class="currency" id="currency">{{ total.currency }}</div>
+  <div *ngIf="summary$ | async as summary" class="value-container">
+    <div class="title">Sum of Transactions</div>
+    <div class="value" id="value">{{ summary.amount }}</div>
+    <div class="currency" id="currency">{{ summary.currency }}</div>
   </div>
 </div>
