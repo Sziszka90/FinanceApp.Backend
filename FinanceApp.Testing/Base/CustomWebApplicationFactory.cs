@@ -23,7 +23,6 @@ public class CustomWebApplicationFactory<TProgram>
     builder.ConfigureServices(services =>
                               {
                                 services.AddSingleton(SqliteDatabaseConnection);
-                                services.AddScoped<ICurrentUserService, CurrentUserService>();
                                 services.AddDbContext<FinanceAppDbContext, FinanceAppSqliteDbContext>(options =>
                                                                                                       {
                                                                                                         options.UseSqlite(SqliteDatabaseConnection)

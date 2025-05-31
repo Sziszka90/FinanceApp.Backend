@@ -1,8 +1,9 @@
 using FinanceApp.Domain.Common;
+using FinanceApp.Domain.Interfaces;
 
 namespace FinanceApp.Domain.Entities;
 
-public class Saving : BaseEntity
+public class Saving : BaseEntity, IUserOwned
 {
   /// <summary>
   /// Name of the saving
@@ -29,14 +30,20 @@ public class Saving : BaseEntity
   /// </summary>
   public DateTimeOffset? DueDate { get; set; }
 
+  /// <summary>
+  /// User which owns the entity
+  /// </summary>
+  public User User { get; set; }
+
   /// <inheritdoc />
-  public Saving(string name, string? description, Money value, SavingTypeEnum type, DateTimeOffset? dueDate)
+  public Saving(string name, string? description, Money value, SavingTypeEnum type, DateTimeOffset? dueDate, User user)
   {
     Name = name;
     Description = description;
     Value = value;
     Type = type;
     DueDate = dueDate;
+    User = user;
   }
 
   private Saving() { }

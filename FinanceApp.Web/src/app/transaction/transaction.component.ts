@@ -9,10 +9,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
 import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
 import { UpdateTransactionModalComponent } from '../update-transaction-modal/update-transaction-modal.component';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
   selector: 'app-transaction',
-  imports: [MatIconModule, MatButtonModule, CommonModule],
+  imports: [MatIconModule, MatButtonModule, CommonModule, MatTableModule],
   templateUrl: './transaction.component.html',
   styleUrl: './transaction.component.css',
   standalone: true,

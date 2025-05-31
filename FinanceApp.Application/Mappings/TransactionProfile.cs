@@ -1,5 +1,4 @@
 using AutoMapper;
-using FinanceApp.Application.Dtos;
 using FinanceApp.Application.Dtos.TransactionDtos;
 
 namespace FinanceApp.Application.Mappings;

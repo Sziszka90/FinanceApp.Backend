@@ -6,8 +6,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Context;
 
 public abstract class FinanceAppDbContext : DbContext
 {
-  public string UserName { get; set; } = String.Empty;
-
   public DbSet<Transaction> Transaction => Set<Transaction>();
    public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
   public DbSet<Saving> Saving => Set<Saving>();
@@ -22,19 +20,6 @@ public abstract class FinanceAppDbContext : DbContext
   {
     modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     OnModelCreatingProviderSpecific(modelBuilder);
-    SetupGlobalFilters(modelBuilder);
-  }
-
-  /// <summary>
-  /// Setup global query filter
-  /// </summary>
-  private void SetupGlobalFilters(ModelBuilder modelBuilder)
-  {
-    modelBuilder.Entity<Transaction>()
-      .HasQueryFilter(x => x.User.UserName == UserName);
-
-    modelBuilder.Entity<TransactionGroup>()
-      .HasQueryFilter(x => x.User.UserName == UserName);
   }
 
   /// <summary>

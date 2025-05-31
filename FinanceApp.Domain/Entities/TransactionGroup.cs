@@ -1,8 +1,9 @@
 ﻿using FinanceApp.Domain.Common;
+using FinanceApp.Domain.Interfaces;
 
 namespace FinanceApp.Domain.Entities;
 
-public class TransactionGroup : BaseEntity
+public class TransactionGroup : BaseEntity, IUserOwned
 {
   /// <summary>
   /// Name of the transaction group
@@ -20,14 +21,14 @@ public class TransactionGroup : BaseEntity
   public Icon? GroupIcon { get; set; }
 
   /// <summary>
-  /// User
-  /// </summary>
-  public User User { get; set; }
-
-  /// <summary>
   /// Limit on the current expense group
   /// </summary>
   public Money? Limit { get; set; }
+
+  /// <summary>
+  /// User which owns the entity
+  /// </summary>
+  public User User { get; set; }
 
   public TransactionGroup(
     string name,

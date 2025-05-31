@@ -1,8 +1,9 @@
 using FinanceApp.Domain.Common;
+using FinanceApp.Domain.Interfaces;
 
 namespace FinanceApp.Domain.Entities;
 
-public class Investment : BaseEntity
+public class Investment : BaseEntity, IUserOwned
 {
   /// <summary>
   /// Name of the saving
@@ -19,12 +20,18 @@ public class Investment : BaseEntity
   /// </summary>
   public string? Description { get; set; }
 
+  /// <summary>
+  /// User which owns the entity
+  /// </summary>
+  public User User { get; set; }
+
   /// <inheritdoc />
-  public Investment(string name, Money value, string? description)
+  public Investment(string name, Money value, string? description, User user)
   {
     Name = name;
     Value = value;
     Description = description;
+    User = user;
   }
 
   private Investment() { }

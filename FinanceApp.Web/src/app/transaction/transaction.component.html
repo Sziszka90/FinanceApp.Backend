@@ -50,8 +50,8 @@
           </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <th mat-header-row *matHeaderRowDef="displayedColumns"></th>
+          <th mat-row *matRowDef="let row; columns: displayedColumns;"></th>
       </table>
   </ng-container>
   <div *ngIf="summary$ | async as summary" class="value-container">

@@ -1,5 +1,6 @@
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Domain.Entities;
+using FinanceApp.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
@@ -7,5 +8,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 public class SavingRepository : GenericRepository<Saving>, ISavingRepository
 {
   /// <inheritdoc />
-  public SavingRepository(FinanceAppDbContext dbContext) : base(dbContext) { }
+  public SavingRepository(
+    FinanceAppDbContext dbContext,
+    IFilteredQueryProvider filteredQueryProvider) : base(dbContext, filteredQueryProvider) { }
 }

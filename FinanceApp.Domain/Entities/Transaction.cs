@@ -1,8 +1,9 @@
 ﻿using FinanceApp.Domain.Common;
+using FinanceApp.Domain.Interfaces;
 
 namespace FinanceApp.Domain.Entities;
 
-public class Transaction : BaseEntity
+public class Transaction : BaseEntity, IUserOwned
 {
   /// <summary>
   /// Name of the transaction
@@ -30,7 +31,7 @@ public class Transaction : BaseEntity
   public TransactionGroup? TransactionGroup { get; set; }
 
   /// <summary>
-  /// User
+  /// User which owns the entity
   /// </summary>
   public User User { get; set; }
 

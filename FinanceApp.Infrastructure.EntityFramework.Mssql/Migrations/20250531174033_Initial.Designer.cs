@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 {
     [DbContext(typeof(FinanceAppMssqlDbContext))]
-    [Migration("20250526195205_Initial")]
+    [Migration("20250531174033_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -73,7 +73,12 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Investment", (string)null);
                 });
@@ -103,7 +108,12 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Saving", (string)null);
                 });
@@ -212,6 +222,12 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 
             modelBuilder.Entity("FinanceApp.Domain.Entities.Investment", b =>
                 {
+                    b.HasOne("FinanceApp.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.OwnsOne("FinanceApp.Domain.Entities.Money", "Value", b1 =>
                         {
                             b1.Property<Guid>("InvestmentId")
@@ -233,12 +249,20 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                                 .HasForeignKey("InvestmentId");
                         });
 
+                    b.Navigation("User");
+
                     b.Navigation("Value")
                         .IsRequired();
                 });
 
             modelBuilder.Entity("FinanceApp.Domain.Entities.Saving", b =>
                 {
+                    b.HasOne("FinanceApp.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.OwnsOne("FinanceApp.Domain.Entities.Money", "Value", b1 =>
                         {
                             b1.Property<Guid>("SavingId")
@@ -259,6 +283,8 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("SavingId");
                         });
+
+                    b.Navigation("User");
 
                     b.Navigation("Value")
                         .IsRequired();

@@ -1,5 +1,6 @@
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Domain.Entities;
+using FinanceApp.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using FinanceApp.Infrastructure.EntityFramework.Interfaces;
@@ -11,6 +12,7 @@ public static class DependencyInjection
 {
   public static IServiceCollection AddEntityFrameworkCorePersistence(this IServiceCollection services)
   {
+    services.AddScoped<IFilteredQueryProvider, FilteredQueryProvider.FilteredQueryProvider>();
     services.AddScoped<IUnitOfWork, UnitOfWork>();
     services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
     services.AddScoped(typeof(ITransactionGroupRepository), typeof(TransactionGroupRepository));

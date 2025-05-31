@@ -1,9 +1,11 @@
+using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.Saving.SavingCommands;
@@ -14,16 +16,22 @@ public class CreateSavingCommandHandler : ICommandHandler<CreateSavingCommand, R
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.Saving> _savingRepository;
   private readonly ILogger<CreateSavingCommandHandler> _logger;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IUserRepository _userRepository;
 
   public CreateSavingCommandHandler(IMapper mapper,
                                     IUnitOfWork unitOfWork,
                                     IRepository<Domain.Entities.Saving> savingRepository,
-                                    ILogger<CreateSavingCommandHandler> logger)
+                                    ILogger<CreateSavingCommandHandler> logger,
+                                    IUserRepository userRepository,
+                                    IHttpContextAccessor httpContextAccessor)
   {
     _mapper = mapper;
     _unitOfWork = unitOfWork;
     _savingRepository = savingRepository;
     _logger = logger;
+    _userRepository = userRepository;
+    _httpContextAccessor = httpContextAccessor;
   }
 
   /// <inheritdoc />
@@ -39,12 +47,26 @@ public class CreateSavingCommandHandler : ICommandHandler<CreateSavingCommand, R
       return Result.Failure<GetSavingDto>(ApplicationError.NameAlreadyExistsError(request.CreateSavingDto.Name));
     }
 
+    var httpContext = _httpContextAccessor.HttpContext;
+
+    var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
+                                      ?.Value;
+
+    if (currentUserName is null)
+    {
+      _logger.LogError("User is not logged in");
+      return Result.Failure<GetSavingDto>(ApplicationError.UserNotFoundError());
+    }
+
+    var user = await _userRepository.GetByUserNameAsync(currentUserName!);
+
     var saving = await _savingRepository.CreateAsync(new Domain.Entities.Saving(
                                                        request.CreateSavingDto.Name,
                                                        request.CreateSavingDto.Description,
                                                        request.CreateSavingDto.Value,
                                                        request.CreateSavingDto.Type,
-                                                       request.CreateSavingDto.DueDate), cancellationToken);
+                                                       request.CreateSavingDto.DueDate,
+                                                       user!), cancellationToken);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

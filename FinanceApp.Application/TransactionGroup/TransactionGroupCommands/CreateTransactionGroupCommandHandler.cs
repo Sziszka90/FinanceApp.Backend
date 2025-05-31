@@ -70,6 +70,7 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
     _logger.LogInformation("Transaction Group created with ID:{Id}", result.Id);
+    var asd = _mapper.Map<GetTransactionGroupDto>(result);
     return Result.Success(_mapper.Map<GetTransactionGroupDto>(result));
   }
 }

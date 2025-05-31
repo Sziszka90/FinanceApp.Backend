@@ -9,7 +9,6 @@ using FinanceApp.Application.Dtos.SavingDtos;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Dtos.UserDtos;
-using FinanceApp.Application.Services;
 using FinanceApp.Domain.Entities;
 using FinanceApp.Domain.Enums;
 using FinanceApp.Infrastructure.EntityFramework.Context;
@@ -70,7 +69,8 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   private void CreateDatabaseSchema()
   {
-    var dbContext = _factory.Services.GetRequiredService<FinanceAppDbContext>();
+    using var scope = _factory.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<FinanceAppDbContext>();
     dbContext.Database.EnsureCreated();
   }
 

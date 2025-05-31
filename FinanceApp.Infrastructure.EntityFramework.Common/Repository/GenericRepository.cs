@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Common;
+using FinanceApp.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +10,16 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
 public class GenericRepository<T> : IRepository<T> where T : BaseEntity
 {
-  protected FinanceAppDbContext DbContext { get; }
+  private readonly IFilteredQueryProvider _filteredQueryProvider;
+  private readonly FinanceAppDbContext _dbContext;
 
-  public GenericRepository(FinanceAppDbContext dbContext)
+  public GenericRepository(
+    FinanceAppDbContext dbContext,
+    IFilteredQueryProvider filteredQueryProvider)
   {
-    DbContext = dbContext;
+    _filteredQueryProvider = filteredQueryProvider;
+    _dbContext = dbContext;
+
   }
 
   /// <inheritdoc />
@@ -21,12 +27,12 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   {
     if (noTracking)
     {
-      return await DbContext.Set<T>()
+      return await _filteredQueryProvider.Query<T>()
                             .AsNoTracking()
                             .ToListAsync(cancellationToken);
     }
 
-    return await DbContext.Set<T>()
+    return await _filteredQueryProvider.Query<T>()
                           .ToListAsync(cancellationToken);
   }
 
@@ -35,13 +41,13 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   {
     if (noTracking)
     {
-      return await DbContext.Set<T>()
+      return await _filteredQueryProvider.Query<T>()
                             .AsNoTracking()
                             .Where(predicate)
                             .ToListAsync(cancellationToken);
     }
 
-    return await DbContext.Set<T>()
+    return await _filteredQueryProvider.Query<T>()
                           .Where(predicate)
                           .ToListAsync(cancellationToken);
   }
@@ -49,7 +55,7 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   /// <inheritdoc />
   public async Task<List<T>> GetQueryAsync(QueryCriteria<T> criteria, bool noTracking = true, CancellationToken cancellationToken = default)
   {
-    var query = DbContext.Set<T>()
+    var query = _filteredQueryProvider.Query<T>()
                          .AsQueryable();
 
     var includes = criteria.Includes;
@@ -87,42 +93,42 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   /// <inheritdoc />
   public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
   {
-    return await DbContext.Set<T>()
-                          .FindAsync(id);
+    return await _filteredQueryProvider.Query<T>()
+                          .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
   }
 
   /// <inheritdoc />
   public async Task<T> GetSingleAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
   {
-    return await DbContext.Set<T>()
+    return await _filteredQueryProvider.Query<T>()
                           .SingleAsync(predicate, cancellationToken);
   }
 
   /// <inheritdoc />
   public async Task<T?> GetSingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
   {
-    return await DbContext.Set<T>()
+    return await _filteredQueryProvider.Query<T>()
                           .SingleOrDefaultAsync(predicate, cancellationToken);
   }
 
   /// <inheritdoc />
   public async Task<T> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
   {
-    return await DbContext.Set<T>()
+    return await _filteredQueryProvider.Query<T>()
                           .FirstAsync(predicate, cancellationToken);
   }
 
   /// <inheritdoc />
   public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
   {
-    return await DbContext.Set<T>()
+    return await _filteredQueryProvider.Query<T>()
                           .FirstOrDefaultAsync(predicate, cancellationToken);
   }
 
   /// <inheritdoc />
   public virtual async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default)
   {
-    await DbContext.Set<T>()
+    await _dbContext.Set<T>()
                    .AddAsync(entity, cancellationToken);
     return entity;
   }
@@ -134,7 +140,7 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
 
     entity.Created = existingEntity.Created;
 
-    DbContext.Entry(existingEntity)
+    _dbContext.Entry(existingEntity)
              .CurrentValues
              .SetValues(entity);
     return existingEntity;
@@ -151,7 +157,7 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   /// <inheritdoc />
   public virtual Task DeleteAsync(T entity)
   {
-    DbContext.Set<T>()
+    _dbContext.Set<T>()
              .Remove(entity);
     return Task.CompletedTask;
   }

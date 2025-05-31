@@ -43,7 +43,6 @@ public static class DependencyInjection
   private static IServiceCollection AddServices(this IServiceCollection services)
   {
     services.AddScoped<IJwtService, JwtService>();
-    services.AddScoped<ICurrentUserService, CurrentUserService>();
     return services;
   }
 
