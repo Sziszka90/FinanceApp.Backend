@@ -1,5 +1,5 @@
 import { Money } from "../Money/Money";
-import { GetTransactionGroupDto } from "./GetTransactionGroupDto";
+import { GetTransactionGroupDto } from "../TransactionGroupDtos/GetTransactionGroupDto";
 
 export interface GetTransactionDto {
     id: string;

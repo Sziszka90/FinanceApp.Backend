@@ -1,4 +1,5 @@
-﻿using FinanceApp.Application.Dtos.TransactionGroupDtos;
+﻿using System.Reflection;
+using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.TransactionGroup.TransactionGroupCommands;
 using FinanceApp.Application.TransactionGroup.TransactionGroupQueries;
 using FinanceApp.Presentation.WebApi.Controllers.Common;
@@ -53,9 +54,9 @@ public class TransactionGroupsController : ControllerBase
   [ProducesResponseType(typeof(GetTransactionGroupDto), StatusCodes.Status201Created)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetTransactionGroupDto>> CreateTransactionGroup([FromBody] CreateTransactionGroupDto createTransactionGroupDto)
+  public async Task<ActionResult<GetTransactionGroupDto>> CreateTransactionGroup([FromForm] IFormFile? image, [FromForm] CreateTransactionGroupDto createTransactionGroupDto)
   {
-    var result = await _mediator.Send(new CreateTransactionGroupCommand(createTransactionGroupDto));
+    var result = await _mediator.Send(new CreateTransactionGroupCommand(createTransactionGroupDto, image));
     return this.GetResult(result, StatusCodes.Status201Created);
   }
 
@@ -69,6 +70,21 @@ public class TransactionGroupsController : ControllerBase
   {
     var result = await _mediator.Send(new UpdateTransactionGroupCommand(updateTransactionGroupDto));
     return this.GetResult(result);
+  }
+
+  [HttpGet("{id}/image")]
+  [Produces("image/jpeg", "image/png", "image/gif")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+public async Task<IActionResult> GetImage(Guid id)
+  {
+    var group = await _dbContext.TransactionGroups.FindAsync(id);
+
+    if (group?.ImageData == null)
+      return NotFound();
+
+    return File(group.ImageData, group.ImageContentType ?? "image/jpeg");
   }
 
   [HttpDelete("{id}")]

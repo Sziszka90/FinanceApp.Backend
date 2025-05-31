@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -22,7 +22,8 @@ import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
 import { take } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
-import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactionGroupDto';
+import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
+import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -47,6 +48,7 @@ import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactio
 export class CreateTransactionModalComponent implements OnInit {
   transactionForm: FormGroup;
   groupOptions: GetTransactionGroupDto[] = [];
+  typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
@@ -61,7 +63,8 @@ export class CreateTransactionModalComponent implements OnInit {
       description: new FormControl(''),
       value: new FormControl(0, [Validators.required, Validators.min(0)]),
       currency: new FormControl('', Validators.required),
-      dueDate: new FormControl(new Date()),
+      transactionDate: new FormControl(new Date()),
+      transactionType: new FormControl({name: "Expense", value: TransactionTypeEnum.Expense}),
       group: new FormControl(''),
     });
 
@@ -92,7 +95,7 @@ export class CreateTransactionModalComponent implements OnInit {
             amount: this.transactionForm.get('value')?.value,
             currency: this.transactionForm.get('currency')!.value,
           },
-          transactionDate: this.transactionForm.get('dueDate')?.value,
+          transactionDate: this.transactionForm.get('transactionDate')?.value,
           transactionType: this.transactionForm.get('transactionType')?.value,
           transactionGroupId: this.transactionForm.get('group')?.value.id,
         })

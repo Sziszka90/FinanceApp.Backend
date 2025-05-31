@@ -24,10 +24,10 @@ import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
 import { take } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
-import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactionGroupDto';
+import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 
 @Component({
-  selector: 'app-income-transaction-modal',
+  selector: 'app-transaction-modal',
   imports: [
     MatInputModule,
     MatDialogTitle,

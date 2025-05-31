@@ -5,6 +5,7 @@ using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
+using FinanceApp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +36,7 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
   }
 
   /// <inheritdoc />
-  public async Task<Result<GetTransactionGroupDto>> Handle(CreateTransactionGroupCommand request, CancellationToken cancellationToken)
+  public async Task<Result<GetTransactionGroupDto>> Handle(CreateTransactionGroupCommand request, Icon? image, CancellationToken cancellationToken)
   {
     var transactionGroup = await _transactionGroupRepository.GetQueryAsync(TransactionQueryCriteria.FindDuplicatedName(request.CreateTransactionGroupDto), cancellationToken: cancellationToken);
 
@@ -58,10 +59,21 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
 
     var user = await _userRepository.GetByUserNameAsync(currentUserName!);
 
+    Icon? groupIcon = null;
+
+    if (request.Image is not null && request.Image.Length > 0)
+    {
+      using var ms = new MemoryStream();
+      await request.Image.CopyToAsync(ms);
+      var imageData = ms.ToArray();
+      var contentType = request.Image.ContentType;
+      groupIcon = new Icon(request.CreateTransactionGroupDto.Name, contentType, imageData);
+    }
+
     var result = await _transactionGroupRepository.CreateAsync(new Domain.Entities.TransactionGroup(
                                                                             request.CreateTransactionGroupDto.Name,
                                                                             request.CreateTransactionGroupDto.Description,
-                                                                            request.CreateTransactionGroupDto.GroupIcon,
+                                                                            groupIcon,
                                                                             user!,
                                                                             request.CreateTransactionGroupDto.Limit
                                                                             ), cancellationToken);

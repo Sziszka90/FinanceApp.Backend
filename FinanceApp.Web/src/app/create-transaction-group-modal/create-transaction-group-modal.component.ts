@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
 import { take } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
-import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactionGroupDto';
+import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -44,19 +44,13 @@ import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactio
   styleUrl: './create-transaction-modal.component.scss',
   standalone: true,
 })
-export class CreateTransactionModalComponent implements OnInit {
-  transactionForm: FormGroup;
-  groupOptions: GetTransactionGroupDto[] = [];
-  currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
-    isNaN(Number(key))
-  );
-
+export class CreateTransactionGroupModalComponent implements OnInit {
   constructor(
-    private dialogRef: MatDialogRef<CreateTransactionModalComponent>,
+    private dialogRef: MatDialogRef<CreateTransactionGroupModalComponent>,
     private fb: FormBuilder,
     private transactionApiService: TransactionApiService
   ) {
-    this.transactionForm = this.fb.group({
+    this.transactionGroupForm = this.fb.group({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),
       value: new FormControl(0, [Validators.required, Validators.min(0)]),

@@ -6,7 +6,7 @@ import { Money } from '../models/Money/Money';
 import { CreateTransactionDto } from '../models/TransactionDtos/CreateTransactionDto';
 import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
 import { UpdateTransactionDto } from 'src/models/TransactionDtos/UpdateTransactionDto';
-import { GetTransactionGroupDto } from 'src/models/TransactionDtos/GetTransactionGroupDto';
+import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 
 @Injectable({
   providedIn: 'root'
@@ -38,10 +38,10 @@ export class TransactionApiService {
   }
 
   deleteTransaction(id: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/transactions//${id}`);
+    return this.http.delete<any>(`${this.apiUrl}/transactions/${id}`);
   }
 
   getAllTransactionGroups(): Observable<GetTransactionGroupDto[]> {
-    return this.http.get<GetTransactionGroupDto[]>(`${this.apiUrl}/transactiongroups/income`);
+    return this.http.get<GetTransactionGroupDto[]>(`${this.apiUrl}/transactiongroups`);
   }
 }
