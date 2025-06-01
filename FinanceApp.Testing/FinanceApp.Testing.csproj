@@ -29,6 +29,12 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <None Update="Base/test-image.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

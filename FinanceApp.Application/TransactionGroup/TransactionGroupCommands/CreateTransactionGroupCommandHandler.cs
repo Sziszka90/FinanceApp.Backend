@@ -36,7 +36,7 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
   }
 
   /// <inheritdoc />
-  public async Task<Result<GetTransactionGroupDto>> Handle(CreateTransactionGroupCommand request, Icon? image, CancellationToken cancellationToken)
+  public async Task<Result<GetTransactionGroupDto>> Handle(CreateTransactionGroupCommand request, CancellationToken cancellationToken)
   {
     var transactionGroup = await _transactionGroupRepository.GetQueryAsync(TransactionQueryCriteria.FindDuplicatedName(request.CreateTransactionGroupDto), cancellationToken: cancellationToken);
 

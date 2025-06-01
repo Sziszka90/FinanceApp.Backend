@@ -4,6 +4,7 @@ using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
+using FinanceApp.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.TransactionGroup.TransactionGroupCommands;
@@ -45,9 +46,20 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
       return Result.Failure<GetTransactionGroupDto>(ApplicationError.NameAlreadyExistsError(request.UpdateTransactionGroupDto.Name));
     }
 
+    Icon? groupIcon = null;
+
+    if (request.Image is not null && request.Image.Length > 0)
+    {
+      using var ms = new MemoryStream();
+      await request.Image.CopyToAsync(ms);
+      var imageData = ms.ToArray();
+      var contentType = request.Image.ContentType;
+      groupIcon = new Icon(request.UpdateTransactionGroupDto.Name, contentType, imageData);
+    }
+
     transactionGroup!.Update(request.UpdateTransactionGroupDto.Name,
                              request.UpdateTransactionGroupDto.Description,
-                             request.UpdateTransactionGroupDto.GroupIcon,
+                             groupIcon,
                              request.UpdateTransactionGroupDto.Limit);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -72,12 +72,12 @@ public class TransactionGroupApi : TestBase
     // Arrange
     await InitializeAsync();
     var transactionGroup = await CreateTransactionGroupAsync();
+
     var updatedTransactionGroup = new UpdateTransactionGroupDto
     {
       Id = transactionGroup!.Id,
       Name = "Updated Name",
       Description = "Updated Description",
-      GroupIcon = transactionGroup.GroupIcon,
       Limit = new Money
       {
         Currency = CurrencyEnum.USD,
@@ -93,6 +93,5 @@ public class TransactionGroupApi : TestBase
     Assert.Equal(transactionGroup!.Id, response!.Id);
     Assert.Equal(updatedTransactionGroup.Name, response.Name);
     Assert.Equal(updatedTransactionGroup.Limit.Amount, response.Limit!.Amount);
-    Assert.Equal(updatedTransactionGroup.GroupIcon!.FileName, response.GroupIcon!.FileName);
   }
 }

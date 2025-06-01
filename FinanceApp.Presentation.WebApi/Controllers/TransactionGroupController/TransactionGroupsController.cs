@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.TransactionGroup.TransactionGroupCommands;
 using FinanceApp.Application.TransactionGroup.TransactionGroupQueries;
@@ -50,7 +51,7 @@ public class TransactionGroupsController : ControllerBase
 
   [HttpPost]
   [Produces("application/json")]
-  [Consumes("application/json")]
+  [Consumes("multipart/form-data")]
   [ProducesResponseType(typeof(GetTransactionGroupDto), StatusCodes.Status201Created)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -66,9 +67,9 @@ public class TransactionGroupsController : ControllerBase
   [ProducesResponseType(typeof(GetTransactionGroupDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetTransactionGroupDto>> UpdateTransactionGroup([FromBody] UpdateTransactionGroupDto updateTransactionGroupDto)
+  public async Task<ActionResult<GetTransactionGroupDto>> UpdateTransactionGroup([FromForm] IFormFile? image, [FromForm] UpdateTransactionGroupDto updateTransactionGroupDto)
   {
-    var result = await _mediator.Send(new UpdateTransactionGroupCommand(updateTransactionGroupDto));
+    var result = await _mediator.Send(new UpdateTransactionGroupCommand(updateTransactionGroupDto, image));
     return this.GetResult(result);
   }
 
@@ -79,12 +80,10 @@ public class TransactionGroupsController : ControllerBase
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public async Task<IActionResult> GetImage(Guid id)
   {
-    var group = await _dbContext.TransactionGroups.FindAsync(id);
+    var result = await _mediator.Send(new GetTransactionGroupImageQuery(id));
 
-    if (group?.ImageData == null)
-      return NotFound();
-
-    return File(group.ImageData, group.ImageContentType ?? "image/jpeg");
+    if (result.IsSuccess && result.Data is not null) return this.GetResult(result, StatusCodes.Status404NotFound);
+    return File(result.Data!.Data, result.Data!.ContentType);
   }
 
   [HttpDelete("{id}")]

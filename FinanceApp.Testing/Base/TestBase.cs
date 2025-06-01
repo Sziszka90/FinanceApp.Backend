@@ -12,6 +12,7 @@ using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Domain.Entities;
 using FinanceApp.Domain.Enums;
 using FinanceApp.Infrastructure.EntityFramework.Context;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApp.Testing.Base;
@@ -140,15 +141,12 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected async Task<GetTransactionDto?> CreateTransactionAsync()
   {
+    var form = new MultipartFormDataContent();
+
     var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
     {
       Name = "TransactionGroup",
       Description = "Transaction group",
-      GroupIcon = new Icon(
-        "TransactionGroupIcon",
-        "JPG",
-        [72, 101, 108, 108, 111]
-      ),
       Limit = new Money
       {
         Currency = CurrencyEnum.USD,
@@ -156,7 +154,12 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       }
     });
 
-    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
+    var image = GetImageContent();
+
+    form.Add(image, "image");
+    form.Add(transactionGroupContent, "dto");
+
+    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, form));
 
     var transactionContent = CreateContent(new CreateTransactionDto
     {
@@ -178,123 +181,52 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected async Task<GetTransactionGroupDto?> CreateTransactionGroupAsync()
   {
+    var form = new MultipartFormDataContent();
+
     var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
     {
       Name = "TransactionGroup",
       Description = "Transaction group",
-      GroupIcon = new Icon(
-        "TransactionGroupIcon",
-        "JPG",
-        [72, 101, 108, 108, 111]
-      ),
+      Limit = new Money
+      {
+        Currency = CurrencyEnum.USD,
+        Amount = 100
+      }
     });
+
+    var image = GetImageContent();
+
+    form.Add(image, "image");
+    form.Add(transactionGroupContent, "dto");
+
+    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, form));
 
     var result = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
 
     return result;
   }
 
-  protected async Task<GetTransactionDto?> CreateIncomeAsync()
-  {
-    var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
-    {
-      Name = "TransactionGroup",
-      Description = "Transaction group",
-      GroupIcon = new Icon(
-        "TransactionGroupIcon",
-        "JPG",
-        [72, 101, 108, 108, 111]
-      ),
-    });
-
-    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
-
-    var transactionContent = CreateContent(new CreateTransactionDto
-    {
-      Name = "TestTransaction",
-      Description = "Test Transaction",
-      Value = new Money
-      {
-        Amount = 100,
-        Currency = CurrencyEnum.HUF
-      },
-      TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = transactionGroup!.Id
-    });
-
-    var result = await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContent));
-    return result;
-  }
-
   protected async Task<List<GetTransactionDto>> CreateMultipleTransactionAsync()
   {
+    var form = new MultipartFormDataContent();
+
     var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
     {
       Name = "TransactionGroup",
       Description = "Transaction group",
-      GroupIcon = new Icon(
-        "TransactionGroupIcon",
-        "JPG",
-        [72, 101, 108, 108, 111]
-      )
-    });
-
-    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
-    var transactionList = new List<GetTransactionDto>();
-
-    var transactionContentHuf = CreateContent(new CreateTransactionDto
-    {
-      Name = "TestTransaction1",
-      Description = "Test Transaction",
-      Value = new Money
-      {
-        Amount = 1000000,
-        Currency = CurrencyEnum.HUF
-      },
-      TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = transactionGroup!.Id
-    });
-
-    transactionList.Add((await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContentHuf)))!);
-
-    var transactionContentGbp = CreateContent(new CreateTransactionDto
-    {
-      Name = "TestTransaction2",
-      Description = "Test Transaction",
-      Value = new Money
-      {
-        Amount = 10,
-        Currency = CurrencyEnum.GBP
-      },
-      TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = transactionGroup!.Id
-    });
-
-    transactionList.Add((await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContentGbp)))!);
-
-    return transactionList;
-  }
-
-
-  protected async Task<List<GetTransactionDto>> CreateMultipleExpenseAsync()
-  {
-    var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
-    {
-      Name = "TransactionGroup",
-      Description = "Transaction group",
-      GroupIcon = new Icon(
-        "TransactionGroupIcon",
-        "JPG",
-        [72, 101, 108, 108, 111]
-      ),
       Limit = new Money
       {
-        Amount = 10000000,
-        Currency = CurrencyEnum.GBP
-      },
+        Currency = CurrencyEnum.USD,
+        Amount = 100
+      }
     });
 
-    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
+    var image = GetImageContent();
+
+    form.Add(image, "image");
+    form.Add(transactionGroupContent, "dto");
+
+    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, form));
 
     var transactionList = new List<GetTransactionDto>();
 
@@ -351,4 +283,12 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     var result = new StringContent(objectAsString, Encoding.UTF8, "application/json");
     return result;
   }
+
+  public ByteArrayContent GetImageContent()
+  {
+    var fileContent = new ByteArrayContent(File.ReadAllBytes("Base/test-image.png"));
+    fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+
+    return fileContent;
+}
 }
