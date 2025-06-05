@@ -12,22 +12,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Icon",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Data = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    Created = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    Modified = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Icon", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -100,7 +84,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GroupIconId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    GroupIcon = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Limit_Currency = table.Column<int>(type: "int", nullable: true),
                     Limit_Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -110,11 +94,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TransactionGroup", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TransactionGroup_Icon_GroupIconId",
-                        column: x => x.GroupIconId,
-                        principalTable: "Icon",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TransactionGroup_User_UserId",
                         column: x => x.UserId,
@@ -176,11 +155,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TransactionGroup_GroupIconId",
-                table: "TransactionGroup",
-                column: "GroupIconId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TransactionGroup_UserId",
                 table: "TransactionGroup",
                 column: "UserId");
@@ -200,9 +174,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 
             migrationBuilder.DropTable(
                 name: "TransactionGroup");
-
-            migrationBuilder.DropTable(
-                name: "Icon");
 
             migrationBuilder.DropTable(
                 name: "User");

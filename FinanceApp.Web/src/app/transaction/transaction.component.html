@@ -1,4 +1,5 @@
 <button mat-fab (click)="createTransaction()" ><mat-icon>add</mat-icon></button>
+<button mat-fab (click)="createTransactionGroup()" ><mat-icon>add</mat-icon></button>
 <div class="container">
   <ng-container *ngIf="transactions$ | async as transactions">
       <table mat-table [dataSource]="transactions" class="mat-elevation-z8">

@@ -10,6 +10,7 @@ import { CreateTransactionModalComponent } from '../create-transaction-modal/cre
 import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
 import { UpdateTransactionModalComponent } from '../update-transaction-modal/update-transaction-modal.component';
 import { MatTableModule } from '@angular/material/table';
+import { CreateTransactionGroupModalComponent } from '../create-transaction-group-modal/create-transaction-group-modal.component';
 
 @Component({
   selector: 'app-transaction',
@@ -75,14 +76,22 @@ export class TransactionComponent implements OnInit, OnDestroy {
       {
         width: '50rem',
       }
-    );
-
+    )
     dialogRef.afterClosed()
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.summary$ = this.transactionApiService.getAllTransactionsSummary();
-      this.transactions$ = this.transactionApiService.getAllTransactions();
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.summary$ = this.transactionApiService.getAllTransactionsSummary();
+        this.transactions$ = this.transactionApiService.getAllTransactions();
     })
+  };
+
+  createTransactionGroup() {
+    const dialogRef = this.matDialog.open(
+      CreateTransactionGroupModalComponent,
+      {
+        width: '50rem',
+      }
+    );
   }
 
   ngOnDestroy(): void {

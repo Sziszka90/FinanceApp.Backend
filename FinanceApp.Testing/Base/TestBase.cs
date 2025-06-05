@@ -141,12 +141,11 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected async Task<GetTransactionDto?> CreateTransactionAsync()
   {
-    var form = new MultipartFormDataContent();
-
     var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
     {
       Name = "TransactionGroup",
       Description = "Transaction group",
+      GroupIcon = "icon",
       Limit = new Money
       {
         Currency = CurrencyEnum.USD,
@@ -154,12 +153,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       }
     });
 
-    var image = GetImageContent();
-
-    form.Add(image, "image");
-    form.Add(transactionGroupContent, "dto");
-
-    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, form));
+    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
 
     var transactionContent = CreateContent(new CreateTransactionDto
     {
@@ -181,8 +175,6 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected async Task<GetTransactionGroupDto?> CreateTransactionGroupAsync()
   {
-    var form = new MultipartFormDataContent();
-
     var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
     {
       Name = "TransactionGroup",
@@ -191,15 +183,9 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       {
         Currency = CurrencyEnum.USD,
         Amount = 100
-      }
+      },
+      GroupIcon = "icon"
     });
-
-    var image = GetImageContent();
-
-    form.Add(image, "image");
-    form.Add(transactionGroupContent, "dto");
-
-    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, form));
 
     var result = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
 
@@ -208,8 +194,6 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected async Task<List<GetTransactionDto>> CreateMultipleTransactionAsync()
   {
-    var form = new MultipartFormDataContent();
-
     var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
     {
       Name = "TransactionGroup",
@@ -221,12 +205,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       }
     });
 
-    var image = GetImageContent();
-
-    form.Add(image, "image");
-    form.Add(transactionGroupContent, "dto");
-
-    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, form));
+    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
 
     var transactionList = new List<GetTransactionDto>();
 
@@ -283,12 +262,4 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     var result = new StringContent(objectAsString, Encoding.UTF8, "application/json");
     return result;
   }
-
-  public ByteArrayContent GetImageContent()
-  {
-    var fileContent = new ByteArrayContent(File.ReadAllBytes("Base/test-image.png"));
-    fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
-
-    return fileContent;
-}
 }

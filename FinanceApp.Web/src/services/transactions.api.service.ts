@@ -7,6 +7,8 @@ import { CreateTransactionDto } from '../models/TransactionDtos/CreateTransactio
 import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
 import { UpdateTransactionDto } from 'src/models/TransactionDtos/UpdateTransactionDto';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
+import { CreateTransactionGroupDto } from 'src/models/TransactionGroupDtos/CreateTransactionGroupDto';
+import { UpdateTransactionGroupDto } from 'src/models/TransactionGroupDtos/UpdateTransactionGroupDto';
 
 @Injectable({
   providedIn: 'root'
@@ -43,5 +45,21 @@ export class TransactionApiService {
 
   getAllTransactionGroups(): Observable<GetTransactionGroupDto[]> {
     return this.http.get<GetTransactionGroupDto[]>(`${this.apiUrl}/transactiongroups`);
+  }
+
+  getTransactionGroup(id: string): Observable<GetTransactionGroupDto> {
+    return this.http.get<GetTransactionGroupDto>(`${this.apiUrl}/transactiongroups/${id}`);
+  }
+
+  createTransactionGroup(createTransactionGroupDto:CreateTransactionGroupDto): Observable<GetTransactionGroupDto> {
+    return this.http.post<GetTransactionGroupDto>(`${this.apiUrl}/transactiongroups/`, createTransactionGroupDto);
+  }
+
+  updateTransactionGroup(updateTransactionGroupDto:UpdateTransactionGroupDto): Observable<UpdateTransactionGroupDto> {
+    return this.http.put<UpdateTransactionGroupDto>(`${this.apiUrl}/transactiongroups/`, updateTransactionGroupDto);
+  }
+
+  deleteTransactionGroup(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/transactiongroups/${id}`);
   }
 }

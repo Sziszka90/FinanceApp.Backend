@@ -5,4 +5,4 @@ using Microsoft.AspNetCore.Http;
 
 namespace FinanceApp.Application.TransactionGroup.TransactionGroupCommands;
 
-public record UpdateTransactionGroupCommand(UpdateTransactionGroupDto UpdateTransactionGroupDto, IFormFile? Image) : ICommand<Result<GetTransactionGroupDto>>;
+public record UpdateTransactionGroupCommand(UpdateTransactionGroupDto UpdateTransactionGroupDto) : ICommand<Result<GetTransactionGroupDto>>;

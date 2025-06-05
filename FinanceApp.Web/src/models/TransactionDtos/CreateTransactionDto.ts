@@ -5,7 +5,7 @@ export interface CreateTransactionDto {
     name: string,
     description: string,
     value: Money,
-    transactionType: TransactionTypeEnum,
     transactionDate: Date,
+    transactionType: TransactionTypeEnum,
     transactionGroupId: string
 }

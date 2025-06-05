@@ -5,6 +5,6 @@ export interface UpdateTransactionGroupDto {
     id: string,
     name: string,
     description?: string,
-    groupIcon?: Icon,
+    groupIcon?: string,
     limit?: Money,
 }

@@ -25,7 +25,6 @@ public class TransactionGroupRepository : GenericRepository<TransactionGroup>, I
   {
     return await _filteredQueryProvider.Query<TransactionGroup>()
                           .Include(tg => tg.Limit)
-                          .Include(tg => tg.GroupIcon)
                           .FirstOrDefaultAsync(tg => tg.Id == id);
   }
 }

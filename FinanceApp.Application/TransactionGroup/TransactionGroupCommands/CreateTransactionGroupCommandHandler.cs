@@ -59,21 +59,10 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
 
     var user = await _userRepository.GetByUserNameAsync(currentUserName!);
 
-    Icon? groupIcon = null;
-
-    if (request.Image is not null && request.Image.Length > 0)
-    {
-      using var ms = new MemoryStream();
-      await request.Image.CopyToAsync(ms);
-      var imageData = ms.ToArray();
-      var contentType = request.Image.ContentType;
-      groupIcon = new Icon(request.CreateTransactionGroupDto.Name, contentType, imageData);
-    }
-
     var result = await _transactionGroupRepository.CreateAsync(new Domain.Entities.TransactionGroup(
                                                                             request.CreateTransactionGroupDto.Name,
                                                                             request.CreateTransactionGroupDto.Description,
-                                                                            groupIcon,
+                                                                            request.CreateTransactionGroupDto.GroupIcon,
                                                                             user!,
                                                                             request.CreateTransactionGroupDto.Limit
                                                                             ), cancellationToken);

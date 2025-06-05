@@ -29,17 +29,14 @@
       </mat-form-field>
 
       <mat-form-field appearance="fill">
-        <mat-label>Due Date</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="dueDate" />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+        <mat-label>GroupIcon</mat-label>
+        <mat-select formControlName="groupIcon" [(value)]="selectedIcon">
+          <mat-select-trigger>
+              <i class="{{selectedIcon}}"></i>
+          </mat-select-trigger>
 
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Group</mat-label>
-        <mat-select formControlName="group">
-          <mat-option *ngFor="let option of groupOptions" [value]="option">
-            {{ option.name }}
+          <mat-option *ngFor="let option of groupIconOptions" [value]="option">
+            <i class="{{option}}"></i>
           </mat-option>
         </mat-select>
       </mat-form-field>

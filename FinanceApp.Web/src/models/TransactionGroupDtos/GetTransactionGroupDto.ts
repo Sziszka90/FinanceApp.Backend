@@ -5,8 +5,6 @@ export interface GetTransactionGroupDto {
     id: string;
     name: string;
     description?: string;
-    icon?: Icon;
+    groupIcon?: string;
     limit?: Money;
 }
-
-

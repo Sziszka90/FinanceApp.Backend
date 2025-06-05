@@ -6,6 +6,7 @@ import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { LoggedInComponent } from './logged-in/logged-in.component';
 import { ProfileComponent } from './profile/profile.component';
+import { CreateTransactionGroupModalComponent } from './create-transaction-group-modal/create-transaction-group-modal.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

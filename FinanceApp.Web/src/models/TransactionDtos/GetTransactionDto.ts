@@ -1,3 +1,4 @@
+import { TransactionTypeEnum } from "../Enums/TransactionType.enum";
 import { Money } from "../Money/Money";
 import { GetTransactionGroupDto } from "../TransactionGroupDtos/GetTransactionGroupDto";
 

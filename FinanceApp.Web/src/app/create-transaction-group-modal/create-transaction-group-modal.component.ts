@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -21,8 +21,8 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
 import { take } from 'rxjs';
-import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
+import { CurrencyEnum } from 'src/models/Money/Money';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -40,23 +40,41 @@ import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTrans
     MatSelectModule,
     CommonModule,
   ],
-  templateUrl: './create-transaction-modal.component.html',
-  styleUrl: './create-transaction-modal.component.scss',
+  templateUrl: './create-transaction-group-modal.component.html',
+  styleUrl: './create-transaction-group-modal.component.scss',
   standalone: true,
 })
 export class CreateTransactionGroupModalComponent implements OnInit {
+  public transactionForm: FormGroup;
+  public groupOptions: GetTransactionGroupDto[] = [];
+  public currencyOptions: string[] = Object.keys(CurrencyEnum)
+  .filter(key => isNaN(Number(key))) as (keyof typeof CurrencyEnum)[];
+  public selectedIcon: string = "";
+
+  public groupIconOptions: string[] = [
+    "fa-solid fa-utensils",
+    "fa-solid fa-car",
+    "fa-solid fa-house",
+    "fa-solid fa-gamepad",
+    "fa-solid fa-tv",
+    "fa-solid fa-cart-shopping",
+    "fa-solid fa-plane",
+    "fa-solid fa-socks",
+    "fa-solid fa-bath",
+    "fa-solid fa-ellipsis",
+  ];
+
   constructor(
     private dialogRef: MatDialogRef<CreateTransactionGroupModalComponent>,
     private fb: FormBuilder,
     private transactionApiService: TransactionApiService
   ) {
-    this.transactionGroupForm = this.fb.group({
+    this.transactionForm = this.fb.group({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),
-      value: new FormControl(0, [Validators.required, Validators.min(0)]),
-      currency: new FormControl('', Validators.required),
-      dueDate: new FormControl(new Date()),
-      group: new FormControl(''),
+      value: new FormControl(0),
+      currency: new FormControl(CurrencyEnum),
+      groupIcon: new FormControl('')
     });
 
     this.transactionApiService
@@ -67,7 +85,7 @@ export class CreateTransactionGroupModalComponent implements OnInit {
         this.groupOptions.push({
           id: '',
           name: 'No group',
-        }); // Add default empty option
+        });
       });
   }
   ngOnInit(): void {}
@@ -79,16 +97,14 @@ export class CreateTransactionGroupModalComponent implements OnInit {
   onSubmit(): void {
     if (this.transactionForm.valid) {
       this.transactionApiService
-        .createTransaction({
+        .createTransactionGroup({
           name: this.transactionForm.get('name')?.value,
           description: this.transactionForm.get('description')?.value,
-          value: {
+          limit: {
             amount: this.transactionForm.get('value')?.value,
             currency: this.transactionForm.get('currency')!.value,
           },
-          transactionDate: this.transactionForm.get('dueDate')?.value,
-          transactionType: this.transactionForm.get('transactionType')?.value,
-          transactionGroupId: this.transactionForm.get('group')?.value.id,
+          groupIcon: this.transactionForm.get('groupIcon')?.value
         })
         .pipe(take(1))
         .subscribe(() => this.dialogRef.close(this.transactionForm.value));

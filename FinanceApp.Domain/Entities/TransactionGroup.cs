@@ -18,7 +18,7 @@ public class TransactionGroup : BaseEntity, IUserOwned
   /// <summary>
   /// Icon of the transaction group
   /// </summary>
-  public Icon? GroupIcon { get; set; }
+  public string? GroupIcon { get; set; }
 
   /// <summary>
   /// Limit on the current expense group
@@ -33,21 +33,13 @@ public class TransactionGroup : BaseEntity, IUserOwned
   public TransactionGroup(
     string name,
     string? description,
-    Icon? groupIcon,
+    string? groupIcon,
     User user,
     Money? limit)
   {
     Name = name;
     Description = description;
-
-    if (groupIcon is not null)
-    {
-      GroupIcon = new Icon(
-        groupIcon.FileName,
-        groupIcon.ContentType,
-        groupIcon.Data
-      );
-    }
+    GroupIcon = groupIcon;
     Limit = limit;
     User = user;
   }
@@ -57,35 +49,12 @@ public class TransactionGroup : BaseEntity, IUserOwned
   public void Update(
     string name,
     string? description,
-    Icon? groupIcon,
+    string? groupIcon,
     Money? limit)
   {
     Name = name;
     Description = description;
-
-    if (groupIcon is not null)
-    {
-      if (GroupIcon is not null)
-      {
-        GroupIcon!.Update(
-          groupIcon.FileName,
-          groupIcon.ContentType,
-          groupIcon.Data
-        );
-      }
-      else
-      {
-        GroupIcon = new Icon(
-          groupIcon.FileName,
-          groupIcon.ContentType,
-          groupIcon.Data
-        );
-      }
-    }
-    else
-    {
-      GroupIcon = null;
-    }
+    GroupIcon = groupIcon;
     Limit = limit;
   }
 }

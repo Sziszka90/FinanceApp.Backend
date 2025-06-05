@@ -51,13 +51,13 @@ public class TransactionGroupsController : ControllerBase
 
   [HttpPost]
   [Produces("application/json")]
-  [Consumes("multipart/form-data")]
+  [Consumes("application/json")]
   [ProducesResponseType(typeof(GetTransactionGroupDto), StatusCodes.Status201Created)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetTransactionGroupDto>> CreateTransactionGroup([FromForm] IFormFile? image, [FromForm] CreateTransactionGroupDto createTransactionGroupDto)
+  public async Task<ActionResult<GetTransactionGroupDto>> CreateTransactionGroup([FromBody] CreateTransactionGroupDto createTransactionGroupDto)
   {
-    var result = await _mediator.Send(new CreateTransactionGroupCommand(createTransactionGroupDto, image));
+    var result = await _mediator.Send(new CreateTransactionGroupCommand(createTransactionGroupDto));
     return this.GetResult(result, StatusCodes.Status201Created);
   }
 
@@ -67,23 +67,10 @@ public class TransactionGroupsController : ControllerBase
   [ProducesResponseType(typeof(GetTransactionGroupDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetTransactionGroupDto>> UpdateTransactionGroup([FromForm] IFormFile? image, [FromForm] UpdateTransactionGroupDto updateTransactionGroupDto)
+  public async Task<ActionResult<GetTransactionGroupDto>> UpdateTransactionGroup([FromBody] UpdateTransactionGroupDto updateTransactionGroupDto)
   {
-    var result = await _mediator.Send(new UpdateTransactionGroupCommand(updateTransactionGroupDto, image));
+    var result = await _mediator.Send(new UpdateTransactionGroupCommand(updateTransactionGroupDto));
     return this.GetResult(result);
-  }
-
-  [HttpGet("{id}/image")]
-  [Produces("image/jpeg", "image/png", "image/gif")]
-  [ProducesResponseType(StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status404NotFound)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-public async Task<IActionResult> GetImage(Guid id)
-  {
-    var result = await _mediator.Send(new GetTransactionGroupImageQuery(id));
-
-    if (result.IsSuccess && result.Data is not null) return this.GetResult(result, StatusCodes.Status404NotFound);
-    return File(result.Data!.Data, result.Data!.ContentType);
   }
 
   [HttpDelete("{id}")]

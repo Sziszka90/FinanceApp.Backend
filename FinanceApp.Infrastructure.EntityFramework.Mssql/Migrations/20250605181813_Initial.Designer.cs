@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 {
     [DbContext(typeof(FinanceAppMssqlDbContext))]
-    [Migration("20250531174033_Initial")]
+    [Migration("20250605181813_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -24,35 +24,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Icon", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<byte[]>("Data")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("Modified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Icon");
-                });
 
             modelBuilder.Entity("FinanceApp.Domain.Entities.Investment", b =>
                 {
@@ -170,8 +141,8 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("GroupIconId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("GroupIcon")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("Modified")
                         .HasColumnType("datetimeoffset");
@@ -184,8 +155,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GroupIconId");
 
                     b.HasIndex("UserId");
 
@@ -333,10 +302,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 
             modelBuilder.Entity("FinanceApp.Domain.Entities.TransactionGroup", b =>
                 {
-                    b.HasOne("FinanceApp.Domain.Entities.Icon", "GroupIcon")
-                        .WithMany()
-                        .HasForeignKey("GroupIconId");
-
                     b.HasOne("FinanceApp.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -363,8 +328,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("TransactionGroupId");
                         });
-
-                    b.Navigation("GroupIcon");
 
                     b.Navigation("Limit");
 

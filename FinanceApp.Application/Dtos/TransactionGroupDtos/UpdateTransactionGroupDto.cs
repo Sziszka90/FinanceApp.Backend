@@ -8,6 +8,6 @@ public class UpdateTransactionGroupDto
   public Guid Id { get; set; }
   public string Name { get; set; } = string.Empty;
   public string? Description { get; set; }
-  public IFormFile? GroupIcon { get; set; }
+  public string? GroupIcon { get; set; }
   public Money? Limit { get; set; }
 }
