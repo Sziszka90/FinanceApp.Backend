@@ -35,6 +35,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
     'value',
     'currency',
     'transactionDate',
+    'transactionType',
     'group',
     'actions',
   ];

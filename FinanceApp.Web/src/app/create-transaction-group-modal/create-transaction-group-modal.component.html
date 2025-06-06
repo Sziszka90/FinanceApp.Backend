@@ -1,48 +1,44 @@
-<h2 mat-dialog-title>Create Transaction</h2>
+<h2 mat-dialog-title>Create Transaction Group</h2>
 <mat-dialog-content>Create the item and click on save!</mat-dialog-content>
 
-<div class="form-container">
-  <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
-    <div mat-dialog-content>
-      <mat-form-field appearance="fill">
-        <mat-label>Name</mat-label>
-        <input matInput formControlName="name" />
-      </mat-form-field>
+<form class="form-container" [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+  <mat-form-field appearance="fill">
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name" />
+  </mat-form-field>
 
-      <mat-form-field appearance="fill">
-        <mat-label>Description</mat-label>
-        <input matInput formControlName="description" />
-      </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Description</mat-label>
+    <input matInput formControlName="description" />
+  </mat-form-field>
 
-      <mat-form-field appearance="fill">
-        <mat-label>Value</mat-label>
-        <input matInput type="number" formControlName="value" />
-      </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Limit</mat-label>
+    <input matInput type="number" formControlName="value" />
+  </mat-form-field>
 
-      <mat-form-field appearance="fill">
-        <mat-label>Currency</mat-label>
-        <mat-select formControlName="currency">
-          <mat-option *ngFor="let option of currencyOptions" [value]="option">
-            {{ option }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Limit Currency</mat-label>
+    <mat-select formControlName="currency">
+      <mat-option *ngFor="let option of currencyOptions" [value]="option">
+        {{ option }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 
-      <mat-form-field appearance="fill">
-        <mat-label>GroupIcon</mat-label>
-        <mat-select formControlName="groupIcon" [(value)]="selectedIcon">
-          <mat-select-trigger>
-              <i class="{{selectedIcon}}"></i>
-          </mat-select-trigger>
+  <mat-form-field appearance="fill" class="group-icon">
+    <mat-label>GroupIcon</mat-label>
+    <mat-select formControlName="groupIcon" [(value)]="selectedIcon">
+      <mat-select-trigger>
+          <i class="{{selectedIcon}}"></i>
+      </mat-select-trigger>
 
-          <mat-option *ngFor="let option of groupIconOptions" [value]="option">
-            <i class="{{option}}"></i>
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-  </form>
-</div>
+      <mat-option *ngFor="let option of groupIconOptions" [value]="option">
+        <i class="{{option}}"></i>
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>
 
 <mat-dialog-actions>
   <button mat-button mat-dialog-save (click)="onSubmit()">Save</button>

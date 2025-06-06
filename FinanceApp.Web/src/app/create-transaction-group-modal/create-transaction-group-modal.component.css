@@ -1,0 +1,16 @@
+
+.form-container {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+i {
+  margin-left: 4.5rem;
+  margin-right: 5rem;
+  margin-top: 1rem;
+  font-size: 1.25rem;
+}

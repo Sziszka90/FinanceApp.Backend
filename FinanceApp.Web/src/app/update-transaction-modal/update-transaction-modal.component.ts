@@ -106,7 +106,7 @@ export class UpdateTransactionModalComponent implements OnInit {
             amount: this.transactionForm.get('value')?.value,
             currency: this.transactionForm.get('currency')?.value,
           },
-          transactionDate: this.transactionForm.get('dueDate')?.value,
+          transactionDate: this.transactionForm.get('transactionDate')?.value,
           transactionGroupId:
             this.transactionForm.get('group')?.value.id === ''
               ? null
