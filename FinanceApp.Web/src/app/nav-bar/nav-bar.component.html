@@ -1,15 +1,15 @@
 <mat-toolbar>
     <!-- Logo Section -->
     <span class="title"><img class="image" src="../assets/icon.png" alt="icon" />{{ 'APPNAME' | translate }}</span>
-  
+
     <!-- Navigation Links -->
-    <div class="container">
+    <div class="navbar-container">
         <button mat-button [matMenuTriggerFor]="menu"><mat-icon>menu</mat-icon></button>
         <mat-menu #menu="matMenu">
             <button mat-menu-item routerLink="/">{{ 'MENU.HOME' | translate }}</button>
             <button mat-menu-item routerLink="/transactions">{{ 'MENU.TRANSACTIONS' | translate }}</button>
-        </mat-menu>
+             <button mat-menu-item routerLink="/transactions-groups">{{ 'MENU.TRANSACTION_GROUPS' | translate }}</button>
+          </mat-menu>
         <button mat-button (click)="login()"><mat-icon>login</mat-icon></button>
     </div>
 </mat-toolbar>
-  

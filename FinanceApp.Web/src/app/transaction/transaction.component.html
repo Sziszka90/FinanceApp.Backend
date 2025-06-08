@@ -1,7 +1,6 @@
 <div class="component-container">
   <div class="buttons">
     <button mat-raised-button (click)="createTransaction()" >Create Transaction</button>
-    <button mat-raised-button (click)="createTransactionGroup()" >Create Transaction Group</button>
   </div>
   <div class="container">
     <div *ngIf="transactions$ | async as transactions" class="transaction-table">
@@ -49,10 +48,10 @@
         <ng-container class="column" matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Actions </th>
         <td class="content" mat-cell *matCellDef="let row">
-          <button mat-fab (click)="deleteTransaction(row)">
+          <button class="action-button" mat-fab (click)="deleteTransaction(row)">
             <mat-icon>delete</mat-icon>
           </button>
-          <button mat-fab (click)="editTransaction(row)">
+          <button class="action-button" mat-fab (click)="editTransaction(row)">
             <mat-icon>edit</mat-icon>
           </button>
         </td>
