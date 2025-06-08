@@ -56,7 +56,9 @@ public static class ResultHandler
   private static ActionResult AssignHttpCodeToError(ControllerBase controller, ApplicationError error)
   {
     string path = controller.Request.PathBase + controller.Request.Path;
+
     var errorResult = new ErrorResult(error, path);
+
     return error.Code switch
     {
       ApplicationError.ENTITYNOTFOUND_CODE or ApplicationError.USERNOTFOUND_CODE => controller.NotFound(errorResult),

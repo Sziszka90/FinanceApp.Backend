@@ -34,8 +34,16 @@ public class DeleteTransactionGroupCommandHandler : ICommandHandler<DeleteTransa
     await _transactionGroupRepository.DeleteAsync(request.Id, cancellationToken);
 
     _logger.LogInformation("Transaction Group deleted with ID:{Id}", request.Id);
-    await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+    try
+    {
+      await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Error occurred while deleting Transaction Group with ID:{Id}", request.Id);
+      return Result.Failure(ApplicationError.DefaultError(ex.Message));
+    }
     return Result.Success();
   }
 }

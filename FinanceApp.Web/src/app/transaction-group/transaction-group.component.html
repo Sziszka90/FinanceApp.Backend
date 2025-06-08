@@ -22,14 +22,14 @@
       </ng-container>
 
       <ng-container class="column" matColumnDef="value">
-        <th mat-header-cell *matHeaderCellDef> Value </th>
+        <th mat-header-cell *matHeaderCellDef> Limit </th>
         <td mat-cell *matCellDef="let element">
           {{ element.limit ? element.limit.amount : '' }}
         </td>
       </ng-container>
 
       <ng-container class="column" matColumnDef="currency">
-        <th mat-header-cell *matHeaderCellDef> Currency </th>
+        <th mat-header-cell *matHeaderCellDef> Limit Currency </th>
         <td mat-cell *matCellDef="let element">
           {{ element.limit ? element.limit.currency : '' }}
         </td>
@@ -38,10 +38,10 @@
       <ng-container class="column" matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td class="content" mat-cell *matCellDef="let row">
-        <button class="action-button" mat-fab (click)="deleteTransaction(row)">
+        <button class="action-button" mat-fab (click)="deleteTransactionGroup(row)">
           <mat-icon>delete</mat-icon>
         </button>
-        <button class="action-button" mat-fab (click)="editTransaction(row)">
+        <button class="action-button" mat-fab (click)="editTransactionGroup(row)">
           <mat-icon>edit</mat-icon>
         </button>
       </td>

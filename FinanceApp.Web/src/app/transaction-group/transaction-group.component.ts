@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateTransactionGroupModalComponent } from '../create-transaction-group-modal/create-transaction-group-modal.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,8 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { TransactionApiService } from 'src/services/transactions.api.service';
-import { Observable } from 'rxjs';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
+import { UpdateTransactionGroupModalComponent } from '../update-transaction-group-modal/update-transaction-group-modal.component';
 
 @Component({
   selector: 'app-transaction-group',
@@ -15,7 +16,7 @@ import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTrans
   templateUrl: './transaction-group.component.html',
   styleUrl: './transaction-group.component.css'
 })
-export class TransactionGroupComponent {
+export class TransactionGroupComponent implements OnInit, OnDestroy {
   public matDialog = inject(MatDialog);
   public transactionApiService = inject(TransactionApiService);
 
@@ -27,6 +28,8 @@ export class TransactionGroupComponent {
     'currency',
     'actions',
   ];
+
+  private destroy$ = new Subject<void>();
 
   public transactionGroups$: Observable<GetTransactionGroupDto[]> | undefined;
 
@@ -42,5 +45,32 @@ export class TransactionGroupComponent {
         width: '50rem',
       }
     );
+  }
+
+  deleteTransactionGroup(row: any) {
+    this.transactionApiService.deleteTransactionGroup(row.id).subscribe(() => {
+      this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
+    });
+  }
+
+  editTransaction(row: any) {
+    const dialogRef = this.matDialog.open(
+      UpdateTransactionGroupModalComponent,
+      {
+        width: '50rem',
+        data: row,
+      }
+    );
+
+    dialogRef.afterClosed()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -15,7 +15,7 @@ export class ErrorModalComponent {
 
   constructor(
     public dialogRef: MatDialogRef<ErrorModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { message: string }
+    @Inject(MAT_DIALOG_DATA) public data: { message?: string, details:  { [key: string]: any } }
   ) {}
 
   onClose(): void {

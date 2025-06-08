@@ -65,7 +65,7 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
           case error.status === 404:
             router.navigateByUrl('/not-found')
             break;
-      
+
         case error.status >= 401 && error.status < 500:
           if (
             error.error?.code === 'INVALID_PASSWORD' ||
@@ -79,15 +79,15 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
             router.navigateByUrl('/login');
           }
           break;
-      
+
         default:
           matDialog.open(ErrorModalComponent, {
             width: '50rem',
-            data: error.error ?? error,
+            data:  { message: error.error?.message ?? error.message, details: error.error?.details ?? "" },
           });
           break;
       }
-      
+
       console.error('Error during an HTTP call!', error);
       return throwError(() => error);
     })
