@@ -1,0 +1,47 @@
+name: Build and Deploy to AKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Azure ACR Login
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build and Push Angular image
+      run: |
+        docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/angular-app:latest ./path-to-angular
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/angular-app:latest
+
+    - name: Build and Push .NET image
+      run: |
+        docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/backend-app:latest ./path-to-backend
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/backend-app:latest
+
+    - name: Set AKS context
+      uses: azure/aks-set-context@v3
+      with:
+        resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+        cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
+
+    - name: Deploy to AKS
+      run: |
+        kubectl apply -f k8s/frontend-deployment.yaml
+        kubectl apply -f k8s/backend-deployment.yaml
