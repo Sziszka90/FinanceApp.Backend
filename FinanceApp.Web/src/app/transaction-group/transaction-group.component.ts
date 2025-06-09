@@ -45,6 +45,12 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
         width: '50rem',
       }
     );
+
+    dialogRef.afterClosed()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
+    })
   }
 
   deleteTransactionGroup(row: any) {
@@ -53,7 +59,7 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     });
   }
 
-  editTransaction(row: any) {
+  editTransactionGroup(row: any) {
     const dialogRef = this.matDialog.open(
       UpdateTransactionGroupModalComponent,
       {

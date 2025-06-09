@@ -73,10 +73,6 @@ export class CreateTransactionModalComponent implements OnInit {
       .pipe(take(1))
       .subscribe((data) => {
         this.groupOptions = data;
-        this.groupOptions.push({
-          id: '',
-          name: 'No group',
-        }); // Add default empty option
       });
   }
   ngOnInit(): void {}

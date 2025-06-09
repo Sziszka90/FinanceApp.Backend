@@ -44,7 +44,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
 
     if (request.CreateTransactionDto.TransactionGroupId is not null)
     {
-      transactionGroup = await _transactionGroupRepository.GetByIdAsync((Guid)request.CreateTransactionDto.TransactionGroupId, cancellationToken);
+      transactionGroup = await _transactionGroupRepository.GetByIdAsync(new Guid(request.CreateTransactionDto.TransactionGroupId), cancellationToken);
 
       if (transactionGroup is null)
       {

@@ -34,7 +34,9 @@
       </mat-select-trigger>
 
       <mat-option *ngFor="let option of groupIconOptions" [value]="option">
-        <i class="{{option}}"></i>
+        <span class="icon-preview">
+          <i class="{{option}}"></i>
+        </span>
       </mat-option>
     </mat-select>
   </mat-form-field>

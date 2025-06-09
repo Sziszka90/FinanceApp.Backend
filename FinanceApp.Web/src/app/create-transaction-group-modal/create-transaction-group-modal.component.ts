@@ -47,7 +47,6 @@ import { groupIconOptions } from 'src/models/Constants/group-icon-options.const'
 })
 export class CreateTransactionGroupModalComponent implements OnInit {
   public transactionForm: FormGroup;
-  public groupOptions: GetTransactionGroupDto[] = [];
   public groupIconOptions: string[] = groupIconOptions;
   public currencyOptions: string[] = Object.keys(CurrencyEnum)
   .filter(key => isNaN(Number(key))) as (keyof typeof CurrencyEnum)[];
@@ -65,18 +64,8 @@ export class CreateTransactionGroupModalComponent implements OnInit {
       currency: new FormControl(),
       groupIcon: new FormControl('')
     });
-
-    this.transactionApiService
-      .getAllTransactionGroups()
-      .pipe(take(1))
-      .subscribe((data) => {
-        this.groupOptions = data;
-        this.groupOptions.push({
-          id: '',
-          name: 'No group',
-        });
-      });
   }
+
   ngOnInit(): void {}
 
   closeDialog() {
@@ -104,9 +93,9 @@ export class CreateTransactionGroupModalComponent implements OnInit {
           description: this.transactionForm.get('description')?.value,
           limit: limit,
           groupIcon: this.transactionForm.get('groupIcon')?.value
-        })
-        .pipe(take(1))
-        .subscribe(() => this.dialogRef.close(this.transactionForm.value));
+        }).subscribe(() => {
+          this.dialogRef.close(this.transactionForm.value);
+      });
     }
   }
 }

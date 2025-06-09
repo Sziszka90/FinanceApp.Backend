@@ -1,4 +1,3 @@
-import { Icon } from "../Icon/Icon";
 import { Money } from "../Money/Money";
 
 export interface UpdateTransactionGroupDto {
@@ -8,3 +7,4 @@ export interface UpdateTransactionGroupDto {
     groupIcon?: string,
     limit?: Money,
 }
+

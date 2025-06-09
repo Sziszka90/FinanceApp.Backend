@@ -10,5 +10,5 @@ public class CreateTransactionDto
   public Money Value { get; set; } = new();
   public DateTimeOffset TransactionDate { get; set; }
   public TransactionTypeEnum TransactionType { get; set; }
-  public Guid? TransactionGroupId { get; set; } = null!;
+  public string? TransactionGroupId { get; set; } = null!;
 }

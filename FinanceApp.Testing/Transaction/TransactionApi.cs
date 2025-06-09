@@ -25,7 +25,7 @@ public class TransactionApi : TestBase
         Currency = CurrencyEnum.HUF
       },
       TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = new Guid()
+      TransactionGroupId = new Guid().ToString()
     });
 
     // Act

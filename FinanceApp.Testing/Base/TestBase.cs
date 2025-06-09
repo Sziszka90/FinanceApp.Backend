@@ -166,7 +166,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       },
       TransactionType = TransactionTypeEnum.Expense,
       TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = transactionGroup!.Id
+      TransactionGroupId = transactionGroup!.Id.ToString()
     });
 
     var result = await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContent));
@@ -219,7 +219,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
         Currency = CurrencyEnum.HUF
       },
       TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = transactionGroup!.Id
+      TransactionGroupId = transactionGroup!.Id.ToString()
     });
 
     transactionList.Add((await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContentHuf)))!);
@@ -234,7 +234,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
         Currency = CurrencyEnum.GBP
       },
       TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = transactionGroup!.Id
+      TransactionGroupId = transactionGroup!.Id.ToString()
     });
 
     transactionList.Add((await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContentGbp)))!);

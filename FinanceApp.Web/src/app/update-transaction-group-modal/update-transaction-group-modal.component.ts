@@ -21,10 +21,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
-import { take } from 'rxjs';
-import { CurrencyEnum } from '../../models/Money/Money';
-import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
+import { CurrencyEnum, Money } from '../../models/Money/Money';
 import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
+import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -43,12 +42,11 @@ import { groupIconOptions } from 'src/models/Constants/group-icon-options.const'
     CommonModule,
   ],
   templateUrl: './update-transaction-group-modal.component.html',
-  styleUrl: './update-transaction-group-modal.component.scss',
+  styleUrl: './update-transaction-group-modal.component.css',
   standalone: true,
 })
 export class UpdateTransactionGroupModalComponent implements OnInit {
   transactionForm: FormGroup;
-  groupOptions: GetTransactionGroupDto[] = [];
   public groupIconOptions: string[] = groupIconOptions;
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
@@ -58,40 +56,20 @@ export class UpdateTransactionGroupModalComponent implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<UpdateTransactionGroupModalComponent>,
     private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: GetTransactionGroupDto,
     private transactionApiService: TransactionApiService
   ) {
     this.transactionForm = this.fb.group({
-      name: new FormControl(this.data.name, Validators.required),
-      description: new FormControl(this.data.description),
-      value: new FormControl(this.data.value.amount, [
-        Validators.required,
-        Validators.min(0),
-      ]),
-      currency: new FormControl(this.data.value.currency, Validators.required),
-      dueDate: new FormControl(this.data.dueDate),
-      group: new FormControl(
-        this.data.transactionGroup != null
-          ? this.data.transactionGroup.Name
-          : ''
-      ),
+      name: new FormControl(data.name, Validators.required),
+      description: new FormControl(data.description),
+      value: new FormControl(data.limit?.amount),
+      currency: new FormControl(data.limit?.currency),
+      groupIcon: new FormControl(data.groupIcon)
     });
-
-    this.transactionForm.get('group')?.setValue(this.data.transactionGroup);
-    this.transactionForm.get('currency')?.setValue(this.data.value.currency);
-
-    this.transactionApiService
-      .getAllTransactionGroups()
-      .pipe(take(1))
-      .subscribe((data) => {
-        this.groupOptions = data;
-        this.groupOptions.push({
-          id: '',
-          name: 'No group',
-        }); // Add default empty option
-      });
   }
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.selectedIcon = this.transactionForm.get('groupIcon')?.value || '';
+  }
 
   closeDialog() {
     this.dialogRef.close();
@@ -99,23 +77,29 @@ export class UpdateTransactionGroupModalComponent implements OnInit {
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
+
+      var limit: Money | undefined = { amount: 0, currency: CurrencyEnum.EUR};
+
+      var limitCurrency = this.transactionForm.get('currency')!.value;
+      var limitValue = this.transactionForm.get('value')!.value;
+
+      if(limitValue === null) {
+        limit = undefined;
+      } else {
+        limit.amount = limitValue;
+        limit.currency = limitCurrency;
+      }
+
       this.transactionApiService
-        .updateTransaction(this.data.id, {
+        .updateTransactionGroup({
           id: this.data.id,
           name: this.transactionForm.get('name')?.value,
           description: this.transactionForm.get('description')?.value,
-          value: {
-            amount: this.transactionForm.get('value')?.value,
-            currency: this.transactionForm.get('currency')?.value,
-          },
-          transactionDate: this.transactionForm.get('transactionDate')?.value,
-          transactionGroupId:
-            this.transactionForm.get('group')?.value.id === ''
-              ? null
-              : this.transactionForm.get('group')?.value.id,
-        })
-        .pipe(take(1))
-        .subscribe(() => this.dialogRef.close(this.transactionForm.value));
+          limit: limit,
+          groupIcon: this.transactionForm.get('groupIcon')?.value
+        }).subscribe(() => {
+          this.dialogRef.close(this.transactionForm.value);
+      });
     }
   }
 
