@@ -18,30 +18,19 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Azure ACR Login
-      uses: azure/docker-login@v1
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
       with:
-        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and Push Angular image
       run: |
-        docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/angular-app:latest ./path-to-angular
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/angular-app:latest
+        docker build -t ghcr.io/${{ github.repository_owner }}/angular-app:latest ./FinanceApp.Web
+        docker push ghcr.io/${{ github.repository_owner }}/angular-app:latest
 
     - name: Build and Push .NET image
       run: |
-        docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/backend-app:latest ./path-to-backend
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/backend-app:latest
-
-    - name: Set AKS context
-      uses: azure/aks-set-context@v3
-      with:
-        resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
-        cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
-
-    - name: Deploy to AKS
-      run: |
-        kubectl apply -f k8s/frontend-deployment.yaml
-        kubectl apply -f k8s/backend-deployment.yaml
+        docker build -t ghcr.io/${{ github.repository_owner }}/backend-app:latest ./FinanceApp.Presentation.WebApi
+        docker push ghcr.io/${{ github.repository_owner }}/backend-app:latest
