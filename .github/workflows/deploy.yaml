@@ -27,7 +27,7 @@ jobs:
 
       - name: List environment files
         run: |
-          ls
+          ls -la ./FinanceApp.Web/src/environments
 
       - name: Generate environment.prod.ts from template
         run: |
