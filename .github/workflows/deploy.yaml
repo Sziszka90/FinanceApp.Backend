@@ -25,6 +25,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: List environment files
+        run: |
+          ls
+
       - name: Generate environment.prod.ts from template
         run: |
           export API_URL="${{ secrets.BACKEND_URL }}"
