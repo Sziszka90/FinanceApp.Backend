@@ -32,7 +32,7 @@ jobs:
       - name: Generate environment.prod.ts from template
         run: |
           export API_URL="${{ secrets.BACKEND_URL }}"
-          envsubst < ./FinanceApp.Web/src/environments/environment.prod.template.ts > FinanceApp.Web/src/environments/environment.prod.ts
+          envsubst < src/environments/environment.prod.template.ts > src/environments/environment.prod.ts
         working-directory: ./FinanceApp.Web
 
       - name: Build and Push Frontend image
