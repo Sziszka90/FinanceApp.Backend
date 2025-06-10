@@ -34,5 +34,5 @@ jobs:
     - name: Build and Push .NET image
       run: |
         OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-        docker build -t ghcr.io/$OWNER/backend-app:latest ./FinanceApp.Presentation.WebApi
+        docker build -t ghcr.io/$OWNER/backend-app:latest .
         docker push ghcr.io/$OWNER/backend-app:latest
