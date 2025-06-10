@@ -27,10 +27,12 @@ jobs:
 
     - name: Build and Push Frontend image
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/frontend-app:latest ./FinanceApp.Web
-        docker push ghcr.io/${{ github.repository_owner }}/frontend-app:latest
+        OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        docker build -t ghcr.io/$OWNER/frontend-app:latest ./FinanceApp.Web
+        docker push ghcr.io/$OWNER/frontend-app:latest
 
     - name: Build and Push .NET image
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/backend-app:latest ./FinanceApp.Presentation.WebApi
-        docker push ghcr.io/${{ github.repository_owner }}/backend-app:latest
+        OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        docker build -t ghcr.io/$OWNER/backend-app:latest ./FinanceApp.Presentation.WebApi
+        docker push ghcr.io/$OWNER/backend-app:latest
