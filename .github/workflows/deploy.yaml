@@ -35,7 +35,7 @@ jobs:
 
       - name: Generate environment.prod.ts from template
         run: |
-          export API_URL="${{ secrets.BACKEND_URL }}"
+          export API_URL="${{ vars.BACKEND_URL }}"
           envsubst < src/environments/environment.prod.template.ts > src/environments/environment.prod.ts
         working-directory: ./FinanceApp.Web
 
@@ -50,15 +50,6 @@ jobs:
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/$OWNER/finance-app-backend:latest .
           docker push ghcr.io/$OWNER/finance-app-backend:latest
-
-      - name: Update Azure Container App (Frontend)
-        run: |
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          az containerapp update \
-            --name finance-app-frontend \
-            --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-frontend:latest \
-            --set-env-vars "API_URL=${{ vars.BACKEND_URL }}"
 
       - name: Update Azure Container App (Backend)
         run: |
