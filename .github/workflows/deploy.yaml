@@ -46,3 +46,17 @@ jobs:
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/$OWNER/finance-app-backend:latest .
           docker push ghcr.io/$OWNER/finance-app-backend:latest
+
+      - name: Update Azure Container App (Frontend)
+        run: |
+          az containerapp update \
+            --name finance-app-frontend \
+            --resource-group FinanceApp \
+            --image ghcr.io/${{ github.repository_owner }}/finance-app-frontend:latest
+
+      - name: Update Azure Container App (Backend)
+        run: |
+          az containerapp update \
+            --name finance-app-backend \
+            --resource-group FinanceApp \
+            --image ghcr.io/${{ github.repository_owner }}/finance-app-backend:latest
