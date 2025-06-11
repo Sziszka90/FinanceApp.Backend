@@ -52,7 +52,7 @@ jobs:
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           az containerapp update \
             --name finance-app-frontend \
-            --resource-group FinanceApp \
+            --resource-group FinanaceApp \
             --image ghcr.io/$OWNER/finance-app-frontend:latest
 
       - name: Update Azure Container App (Backend)
@@ -60,5 +60,5 @@ jobs:
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           az containerapp update \
             --name finance-app-backend \
-            --resource-group FinanceApp \
+            --resource-group FinanaceApp \
             --image ghcr.io/$OWNER/finance-app-backend:latest
