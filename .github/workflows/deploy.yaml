@@ -53,6 +53,7 @@ jobs:
 
       - name: Update Azure Container App (Backend)
         run: |
+          set -x
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           az containerapp update \
             --name finance-app-backend \
