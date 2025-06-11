@@ -53,7 +53,8 @@ jobs:
           az containerapp update \
             --name finance-app-frontend \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-frontend:latest
+            --image ghcr.io/$OWNER/finance-app-frontend:latest \
+            --set-env-vars "API_URL=${{ vars.BACKEND_URL }}"
 
       - name: Update Azure Container App (Backend)
         run: |
@@ -61,4 +62,11 @@ jobs:
           az containerapp update \
             --name finance-app-backend \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-backend:latest
+            --image ghcr.io/$OWNER/finance-app-backend:latest \
+            --set-env-vars \
+              "ConnectionStrings__MsSql=${{ secrets.DB_CONNECTION_STRING }}" \
+              "ExchangeRateSettings__ApiKey=${{ secrets.API_KEY }}" \
+              "AuthenticationSettings__SecretKey=${{ secrets.SECRET_KEY }}" \
+              "AuthenticationSettings__Audience=${{ vars.AUDIENCE }}" \
+              "AuthenticationSettings__Issuer=${{ vars.ISSUER }}" \
+
