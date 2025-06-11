@@ -38,11 +38,22 @@ jobs:
       - name: Build and Push Frontend image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/frontend-app:latest ./FinanceApp.Web
-          docker push ghcr.io/$OWNER/frontend-app:latest
+          docker build -t ghcr.io/$OWNER/finance-app-frontend:latest ./FinanceApp.Web
+          docker push ghcr.io/$OWNER/finance-app-frontend:latest
 
       - name: Build and Push .NET image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/backend-app:latest .
-          docker push ghcr.io/$OWNER/backend-app:latest
+          docker build -t ghcr.io/$OWNER/finance-app-backend:latest .
+          docker push ghcr.io/$OWNER/finance-app-backend:latest
+
+      - name: Create/Update K8s Secret for DB Connection String and API Key
+        run: |
+          kubectl create secret generic backend-connection-secret \
+            --from-literal=connectionString="${{ secrets.DB_CONNECTION_STRING }}" \
+            --from-literal=apiKey="${{ secrets.API_KEY }}" \
+            --from-literal=audience="${{ secrets.AUDIENCE }}" \
+            --from-literal=issuer="${{ secrets.ISSUER }}" \
+            --from-literal=secretKey="${{ secrets.SECRET_KEY }}" \
+            --namespace default \
+            --dry-run=client -o yaml | kubectl apply -f -

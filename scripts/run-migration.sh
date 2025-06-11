@@ -19,7 +19,7 @@ case "$PROVIDER" in
     ;;
   *)
     echo "❌ Unknown provider: '$PROVIDER'"
-    echo "Usage: ./scripts/apply-migrations.sh [mssql|sqlite]"
+    echo "Usage: ./scripts/run-migrations.sh [mssql|sqlite]"
     exit 1
     ;;
 esac

@@ -13,18 +13,38 @@ spec:
         app: backend-app
     spec:
       containers:
-      - name: backend-app
-        image: youracr.azurecr.io/backend-app:latest
-        ports:
-        - containerPort: 8080
-        env:
-        - name: ASPNETCORE_ENVIRONMENT
-          value: "Production"
-        - name: ConnectionStrings__Default
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: connectionstring
+        - name: backend-app
+          image: youracr.azurecr.io/finance-app-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ConnectionStrings__MsSql
+              valueFrom:
+                secretKeyRef:
+                  name: backend-connection-secret
+                  key: connectionString
+            - name: ExchangeRateSettings__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: backend-connection-secret
+                  key: apiKey
+            - name: AuthenticationSettings__Audience
+              valueFrom:
+                secretKeyRef:
+                  name: backend-connection-secret
+                  key: audience
+            - name: AuthenticationSettings__Issuer
+              valueFrom:
+                secretKeyRef:
+                  name: backend-connection-secret
+                  key: issuer
+            - name: AuthenticationSettings__SecretKey
+              valueFrom:
+                secretKeyRef:
+                  name: backend-connection-secret
+                  key: secretKey
 ---
 apiVersion: v1
 kind: Service
@@ -34,7 +54,7 @@ spec:
   selector:
     app: backend-app
   ports:
-  - protocol: TCP
-    port: 8080
-    targetPort: 8080
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
   type: ClusterIP
