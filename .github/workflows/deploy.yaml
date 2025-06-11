@@ -72,5 +72,5 @@ jobs:
               "ExchangeRateSettings__ApiKey=${{ secrets.API_KEY }}" \
               "AuthenticationSettings__SecretKey=${{ secrets.SECRET_KEY }}" \
               "AuthenticationSettings__Audience=${{ vars.AUDIENCE }}" \
-              "AuthenticationSettings__Issuer=${{ vars.ISSUER }}" \
+              "AuthenticationSettings__Issuer=${{ vars.ISSUER }}"
 
