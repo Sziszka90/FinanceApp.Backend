@@ -51,6 +51,18 @@ jobs:
           docker build -t ghcr.io/$OWNER/finance-app-backend:latest .
           docker push ghcr.io/$OWNER/finance-app-backend:latest
 
+      - name: Create env-vars.json for backend
+        run: |
+          cat <<EOF > env-vars.json
+          [
+            {"name": "ConnectionStrings__MsSql", "value": "${{ secrets.DB_CONNECTION_STRING }}"},
+            {"name": "ExchangeRateSettings__ApiKey", "value": "${{ secrets.API_KEY }}"},
+            {"name": "AuthenticationSettings__SecretKey", "value": "${{ secrets.SECRET_KEY }}"},
+            {"name": "AuthenticationSettings__Audience", "value": "${{ vars.AUDIENCE }}"},
+            {"name": "AuthenticationSettings__Issuer", "value": "${{ vars.ISSUER }}"}
+          ]
+          EOF
+
       - name: Update Azure Container App (Backend)
         run: |
           set -x
@@ -59,9 +71,7 @@ jobs:
             --name finance-app-backend \
             --resource-group projects \
             --image ghcr.io/$OWNER/finance-app-backend:latest \
-            --set-env-vars \
-              "ConnectionStrings__MsSql=${{ secrets.DB_CONNECTION_STRING }}" \
-              "ExchangeRateSettings__ApiKey=${{ secrets.API_KEY }}" \
-              "AuthenticationSettings__SecretKey=${{ secrets.SECRET_KEY }}" \
-              "AuthenticationSettings__Audience=${{ vars.AUDIENCE }}" \
-              "AuthenticationSettings__Issuer=${{ vars.ISSUER }}"
+            --env-vars-file env-vars.json
+
+      - name: Clean up env-vars.json
+        run: rm -f env-vars.json
