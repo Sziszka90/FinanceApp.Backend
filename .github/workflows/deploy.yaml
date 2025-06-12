@@ -65,3 +65,12 @@ jobs:
               AuthenticationSettings__SecretKey='${{ secrets.SECRET_KEY }}' \
               AuthenticationSettings__Audience='${{ vars.AUDIENCE }}' \
               AuthenticationSettings__Issuer='${{ vars.ISSUER }}'
+
+      - name: Update Azure Container App (Frontend)
+        run: |
+          set -x
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          az containerapp update \
+            --name finance-app-frontend \
+            --resource-group projects \
+            --image ghcr.io/$OWNER/finance-app-frontend:latest

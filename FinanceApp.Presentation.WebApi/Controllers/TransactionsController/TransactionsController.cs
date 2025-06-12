@@ -24,7 +24,6 @@ public class TransactionsController : ControllerBase
   }
 
   [HttpGet("summary")]
-  [AllowAnonymous]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(List<GetTransactionDto>), StatusCodes.Status200OK)]
