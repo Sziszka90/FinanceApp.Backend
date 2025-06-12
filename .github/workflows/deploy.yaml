@@ -39,17 +39,21 @@ jobs:
           envsubst < src/environments/environment.prod.template.ts > src/environments/environment.prod.ts
         working-directory: ./FinanceApp.Web
 
+      - name: Set image tag
+        id: vars
+        run: echo "tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
       - name: Build and Push Frontend image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-frontend:latest ./FinanceApp.Web
-          docker push ghcr.io/$OWNER/finance-app-frontend:latest
+          docker build -t ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }} ./FinanceApp.Web
+          docker push ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }}
 
       - name: Build and Push .NET image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-backend:latest .
-          docker push ghcr.io/$OWNER/finance-app-backend:latest
+          docker build -t ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }} .
+          docker push ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }}
 
       - name: Update Azure Container App (Backend)
         run: |
@@ -58,7 +62,7 @@ jobs:
           az containerapp update \
             --name finance-app-backend \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-backend:latest \
+            --image ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }} \
             --set-env-vars \
               ConnectionStrings__MsSql='${{ secrets.DB_CONNECTION_STRING }}' \
               ExchangeRateSettings__ApiKey='${{ secrets.API_KEY }}' \
@@ -73,4 +77,4 @@ jobs:
           az containerapp update \
             --name finance-app-frontend \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-frontend:latest
+            --image ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }}
