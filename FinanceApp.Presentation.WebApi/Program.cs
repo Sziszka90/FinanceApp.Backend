@@ -1,6 +1,7 @@
 using FinanceApp.Application;
 using FinanceApp.Infrastructure;
 using FinanceApp.Presentation.WebApi.Extensions;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,22 @@ var app = builder.Build();
 
 app.UseApi(builder.Configuration);
 app.UseSwaggerConfiguration();
+
+// Map each probe separately
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("liveness")
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("readiness")
+});
+
+app.MapHealthChecks("/health/startup", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("startup")
+});
 
 app.Run();
 

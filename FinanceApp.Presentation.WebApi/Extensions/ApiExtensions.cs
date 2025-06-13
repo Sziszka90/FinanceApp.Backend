@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
 using FinanceApp.Application.Models;
+using FinanceApp.Presentation.WebApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -28,6 +29,11 @@ public static class ApiExtensions
                                                                         .AllowAnyMethod();
                                                                     });
                              });
+
+    builder.Services.AddHealthChecks()
+        .AddCheck<LivenessCheck>("liveness_check", tags: new[] { "liveness" })
+        .AddCheck<ReadinessCheck>("readiness_check", tags: new[] { "readiness" })
+        .AddCheck<StartupCheck>("startup_check", tags: new[] { "startup" });
 
     builder.Services.AddControllers()
            .AddJsonOptions(options =>
