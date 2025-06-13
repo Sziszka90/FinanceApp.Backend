@@ -41,7 +41,7 @@ jobs:
 
       - name: Set image tag
         id: vars
-        run: echo "tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+        run: echo "tag=${GITHUB_RUN_NUMBER}" >> $GITHUB_OUTPUT
 
       - name: Build and Push Frontend image
         run: |
