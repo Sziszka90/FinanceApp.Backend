@@ -25,8 +25,7 @@ public static class ApiExtensions
                                                                       policy
                                                                         .AllowAnyHeader()
                                                                         .AllowAnyOrigin()
-                                                                        .AllowAnyMethod()
-                                                                        .AllowCredentials();
+                                                                        .AllowAnyMethod();
                                                                     });
                              });
 
