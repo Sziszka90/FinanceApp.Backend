@@ -21,7 +21,7 @@
     </div>
     <label for="currency">Limit Currency</label>
     <div class="form-group">
-      <select class="select" id="currency" formControlName="currency" required>
+      <select class="select" id="currency" formControlName="currency">
         <option *ngFor="let option of currencyOptions" [value]="option">
           {{ option }}
         </option>
