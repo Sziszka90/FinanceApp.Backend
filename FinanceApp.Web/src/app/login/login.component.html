@@ -1,26 +1,41 @@
-<mat-card>
-  <mat-card-content>
-    <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
-      <h3 class="default-font">Log In</h3>
-      <mat-error class="default-font" *ngIf="!loginValid">
-        The username and password were not recognized
-      </mat-error>
-      <mat-form-field>
-        <input class="default-font" matInput placeholder="User Name" [(ngModel)]="username" name="username" required>
-        <mat-error class="default-font">
-          Please provide a valid User Name address
-        </mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <input class="default-font" matInput type="password" placeholder="Password" [(ngModel)]="password" name="password" required>
-        <mat-error class="default-font">
-          Please provide a valid password
-        </mat-error>
-      </mat-form-field>
-      <div class="button-container">
-        <button class="custom-button bounce-button default-font" routerLink="/registration">Registration</button>
-        <button class="custom-button bounce-button default-font" [disabled]="!loginForm.form.valid">Login</button>
+<div class="form-container">
+  <form class="form-element" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <h3 class="default-font">Log In</h3>
+    <div class="error-message default-font" *ngIf="!loginValid">
+      The username and password were not recognized
+    </div>
+    <label class="default-font" for="username">User Name</label>
+    <div class="form-group">
+      <input
+        class="default-font"
+        id="username"
+        formControlName="username"
+        required
+        placeholder="User Name"
+      />
+      <div class="error-message default-font"
+           *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+        Please provide a valid User Name address
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+    </div>
+    <label class="default-font" for="password">Password</label>
+    <div class="form-group">
+      <input
+        class="default-font"
+        id="password"
+        type="password"
+        formControlName="password"
+        required
+        placeholder="Password"
+      />
+      <div class="error-message default-font"
+           *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        Please provide a valid password
+      </div>
+    </div>
+    <div class="button-container">
+      <button class="custom-button bounce-button default-font" type="button" routerLink="/registration">Registration</button>
+      <button class="custom-button bounce-button default-font" type="submit" [disabled]="!loginForm.valid">Login</button>
+    </div>
+  </form>
+</div>

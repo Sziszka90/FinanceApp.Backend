@@ -23,11 +23,6 @@ public static class ResultHandler
       return AssignHttpCodeToError(controller, appResult.ApplicationError!);
     }
 
-    if (appResult.Data == null)
-    {
-      return controller.StatusCode(succeededStatusCode);
-    }
-
     return controller.StatusCode(succeededStatusCode, appResult.Data);
   }
 

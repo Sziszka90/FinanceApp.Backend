@@ -112,14 +112,4 @@ public static class UserQueryCriteria
 
     return builder.Build();
   }
-
-  public static QueryCriteria<Domain.Entities.User> FindDuplicatedUserNameExludingId(UpdateUserDto request)
-  {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
-
-    builder.Where(x => x.UserName == request.UserName);
-    builder.Where(x => x.Id != request.Id);
-
-    return builder.Build();
-  }
 }

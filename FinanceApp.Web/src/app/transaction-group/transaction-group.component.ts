@@ -42,7 +42,8 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(
       CreateTransactionGroupModalComponent,
       {
-        width: '50rem',
+        width: '70vw',
+        height: '90vh',
       }
     );
 
@@ -63,7 +64,8 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(
       UpdateTransactionGroupModalComponent,
       {
-        width: '50rem',
+        width: '70vw',
+        height: '90vh',
         data: row,
       }
     );

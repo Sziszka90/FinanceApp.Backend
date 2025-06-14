@@ -28,16 +28,6 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
   /// <inheritdoc />
   public async Task<Result<GetUserDto>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
   {
-    var criteria = UserQueryCriteria.FindDuplicatedUserNameExludingId(request.UpdateUserDto);
-
-    var usersWithSameName = await _userRepository.GetQueryAsync(criteria, cancellationToken: cancellationToken);
-
-    if (usersWithSameName.Count > 0)
-    {
-      _logger.LogError("User already exists with name:{Name}", request.UpdateUserDto.UserName);
-      return Result.Failure<GetUserDto>(ApplicationError.UserNameAlreadyExistsError(request.UpdateUserDto.UserName));
-    }
-
     var user = await _userRepository.GetByIdAsync(request.UpdateUserDto.Id, cancellationToken);
 
     if (user is null)
@@ -46,9 +36,7 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
       return Result.Failure<GetUserDto>(ApplicationError.EntityNotFoundError());
     }
 
-    var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.UpdateUserDto.Password);
-
-    user.Update(request.UpdateUserDto.UserName, passwordHash, request.UpdateUserDto.BaseCurrency);
+    user.Update(request.UpdateUserDto.BaseCurrency);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

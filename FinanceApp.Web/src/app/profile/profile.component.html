@@ -1,38 +1,14 @@
-<div class="profile-container">
-  <div class="header-container">
-    <h1>User Profile</h1>
-  </div>
-  <form class="profile-form" [formGroup]="updateUserForm" (ngSubmit)="onSubmit()">
-    <mat-form-field class="input-field" appearance="fill">
-      <mat-label>First Name</mat-label>
-      <input matInput formControlName="userName" />
-      <mat-error *ngIf="updateUserForm.get('userName')?.hasError('required')">
-        First name is required
-      </mat-error>
-      <mat-error *ngIf="updateUserForm.get('userName')?.hasError('minlength')">
-        Minimum 2 characters required
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Password</mat-label>
-      <input matInput formControlName="password" type="password" />
-      <mat-error *ngIf="updateUserForm.get('password')?.hasError('required')">
-        Password is required
-      </mat-error>
-      <mat-error *ngIf="updateUserForm.get('password')?.hasError('minlength')">
-        Minimum 8 characters required
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Currency</mat-label>
-      <mat-select formControlName="currency">
-        <mat-option *ngFor="let option of currencyOptions" [value]="option">
+<div class="form-container">
+  <h3 class="default-font">Update Profile</h3>
+  <form class="form-element" [formGroup]="updateUserForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="currency">Currency</label>
+      <select class="select" id="currency" formControlName="currency" required>
+        <option *ngFor="let option of currencyOptions" [value]="option">
           {{ option }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+        </option>
+      </select>
+    </div>
 
     <button class="bounce-button custom-button" type="submit">Update</button>
   </form>

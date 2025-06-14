@@ -6,35 +6,18 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
 import {
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
   MatDialogRef,
-  MatDialogTitle,
 } from '@angular/material/dialog';
-import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
 import { CurrencyEnum, Money } from 'src/models/Money/Money';
 import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-transaction-modal',
   imports: [
-    MatInputModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatLabel,
-    MatDatepickerModule,
     ReactiveFormsModule,
     MatSelectModule,
     CommonModule,
@@ -66,7 +49,7 @@ export class CreateTransactionGroupModalComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  closeDialog() {
+  onClose(): void {
     this.dialogRef.close();
   }
 

@@ -24,6 +24,8 @@
   transition: border-color 0.3s;
   align-items: center;
   color: white;
+  width: 60%;
+  margin: 0.5rem;
 }
 
 .custom-button:active {
@@ -55,6 +57,60 @@
     background-color: variables.$primary-color;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(209, 189, 189, 0.2);
+}
+
+.select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 2rem;
+  background: #fff;
+  color: variables.$secondary-color;
+  font-size: 1rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  appearance: none;
+  transition: border-color 0.2s;
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em;
+  padding-right: 2.5rem;
+}
+
+.select:focus {
+  border-color: variables.$primary-color;
+  outline: none;
+}
+
+.select:disabled {
+  background: #f5f5f5;
+  color: variables.$secondary-color;
+  cursor: not-allowed;
+}
+
+input,
+input.ng-untouched,
+input.ng-touched,
+input.ng-dirty,
+input.ng-pristine {
+  font-family: variables.$default-font !important;
+  font-size: 1rem;
+  color: variables.$secondary-color;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 2rem;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.error-font, .error-message {
+  color: variables.$red-color;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+label {
+  margin: 0.5rem;
 }
 
 @keyframes bounce {

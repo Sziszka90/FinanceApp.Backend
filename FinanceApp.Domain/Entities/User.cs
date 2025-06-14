@@ -16,10 +16,8 @@ public class User : BaseEntity
     BaseCurrency = baseCurrency;
   }
 
-  public void Update(string userName, string passwordHash, CurrencyEnum baseCurrency)
+  public void Update(CurrencyEnum baseCurrency)
   {
-    UserName = userName;
-    PasswordHash = passwordHash;
     BaseCurrency = baseCurrency;
   }
 }

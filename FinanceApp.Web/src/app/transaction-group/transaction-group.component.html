@@ -1,5 +1,5 @@
-<div class="buttons">
-  <button mat-raised-button (click)="createTransactionGroup()" >Create Transaction Group</button>
+<div class="button-container">
+  <button class="custom-button bounce-button" (click)="createTransactionGroup()" >Create Transaction Group</button>
 </div>
 <div class="container">
   <div *ngIf="transactionGroups$ | async as transactionGroups" class="transaction-table">

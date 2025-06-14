@@ -1,48 +1,46 @@
-<h2 mat-dialog-title>Create Transaction Group</h2>
-<mat-dialog-content>Create the item and click on save!</mat-dialog-content>
-
-<form class="form-container" [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
-  <mat-form-field appearance="fill">
-    <mat-label>Name</mat-label>
-    <input matInput formControlName="name" />
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Description</mat-label>
-    <input matInput formControlName="description" />
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Limit</mat-label>
-    <input matInput type="number" formControlName="value" />
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Limit Currency</mat-label>
-    <mat-select formControlName="currency">
-      <mat-option *ngFor="let option of currencyOptions" [value]="option">
-        {{ option }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="fill" class="group-icon">
-    <mat-label>GroupIcon</mat-label>
-    <mat-select formControlName="groupIcon" [(value)]="selectedIcon">
-      <mat-select-trigger>
-          <i class="{{selectedIcon}}"></i>
-      </mat-select-trigger>
-
-      <mat-option *ngFor="let option of groupIconOptions" [value]="option">
-        <span class="icon-preview">
-          <i class="{{option}}"></i>
-        </span>
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-</form>
-
-<mat-dialog-actions>
-  <button mat-button mat-dialog-save (click)="onSubmit()">Save</button>
-  <button mat-button mat-dialog-close>Close</button>
-</mat-dialog-actions>
+<div class="main-container">
+  <div class="modal-header">
+    <h3>Create Transaction Group</h3>
+    <p class="modal-description">Create the item and click on save!</p>
+  </div>
+  <form class="form-container" [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+    <label for="name">Name</label>
+    <div class="form-group">
+      <input id="name" type="text" formControlName="name" required />
+      <div class="error-message" *ngIf="transactionForm.get('name')?.invalid && transactionForm.get('name')?.touched">
+        Name is required
+      </div>
+    </div>
+    <label for="description">Description</label>
+    <div class="form-group">
+      <input id="description" type="text" formControlName="description" />
+    </div>
+    <label for="value">Limit</label>
+    <div class="form-group">
+      <input id="value" type="number" formControlName="value" />
+    </div>
+    <label for="currency">Limit Currency</label>
+    <div class="form-group">
+      <select class="select" id="currency" formControlName="currency" required>
+        <option *ngFor="let option of currencyOptions" [value]="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+    <label class="default-font" for="groupIcon">Group Icon</label>
+    <div class="form-group">
+      <mat-select class="select" formControlName="groupIcon" required>
+        <mat-select-trigger>
+          <i class="{{ transactionForm.get('groupIcon')?.value }}"></i>
+        </mat-select-trigger>
+        <mat-option *ngFor="let option of groupIconOptions" [value]="option">
+          <i class="{{ option }}"></i>
+        </mat-option>
+      </mat-select>
+    </div>
+    <div class="button-container">
+      <button class="custom-button bounce-button" type="submit">Save</button>
+      <button class="custom-button bounce-button" type="button" (click)="onClose()">Close</button>
+    </div>
+  </form>
+</div>

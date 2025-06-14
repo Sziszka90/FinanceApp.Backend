@@ -1,39 +1,61 @@
-<div class="registration-container">
-    <form class="registration-form" [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
-      <mat-form-field appearance="fill">
-        <mat-label class="default-font">User Name</mat-label>
-        <input matInput formControlName="userName" />
-        <mat-error class="error-font" *ngIf="registrationForm.get('userName')?.hasError('required')">
-          User name is required
-        </mat-error>
-        <mat-error class="error-font" *ngIf="registrationForm.get('userName')?.hasError('minlength')">
-          Minimum 2 characters required
-        </mat-error>
-      </mat-form-field>
+<div class="form-container">
+  <form class="form-element" [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+    <h3 class="default-font">Registration</h3>
+    <label class="default-font" for="userName">User Name</label>
+    <div class="form-group">
+      <input
+        class="default-font"
+        id="userName"
+        type="text"
+        formControlName="userName"
+        required
+        placeholder="User Name"
+      />
+      <div class="error-font" *ngIf="registrationForm.get('userName')?.hasError('required') && registrationForm.get('userName')?.touched">
+        User name is required
+      </div>
+      <div class="error-font" *ngIf="registrationForm.get('userName')?.hasError('minlength') && registrationForm.get('userName')?.touched">
+        Minimum 2 characters required
+      </div>
+    </div>
 
-      <mat-form-field appearance="fill">
-        <mat-label class="default-font">Password</mat-label>
-        <input class="default-font" matInput formControlName="password" type="password" />
-        <mat-error class="error-font" *ngIf="registrationForm.get('password')?.hasError('required')">
-          Password is required
-        </mat-error>
-        <mat-error class="error-font" *ngIf="registrationForm.get('password')?.hasError('minlength')">
-          Minimum 8 characters required
-        </mat-error>
-        <mat-error class="error-font" *ngIf="registrationForm.get('password')?.hasError('pattern')">
-          Include uppercase letter, number, and special character
-        </mat-error>
-      </mat-form-field>
+    <label class="default-font" for="password">Password</label>
+    <div class="form-group">
+      <input
+        class="default-font"
+        id="password"
+        type="password"
+        formControlName="password"
+        required
+        placeholder="Password"
+      />
+      <div class="error-font" *ngIf="registrationForm.get('password')?.hasError('required') && registrationForm.get('password')?.touched">
+        Password is required
+      </div>
+      <div class="error-font" *ngIf="registrationForm.get('password')?.hasError('minlength') && registrationForm.get('password')?.touched">
+        Minimum 8 characters required
+      </div>
+      <div class="error-font" *ngIf="registrationForm.get('password')?.hasError('pattern') && registrationForm.get('password')?.touched">
+        Include uppercase letter, number, and special character
+      </div>
+    </div>
 
-      <mat-form-field appearance="fill">
-        <mat-label class="default-font">Currency</mat-label>
-        <mat-select formControlName="currency">
-          <mat-option class="default-font" *ngFor="let option of currencyOptions" [value]="option">
-            {{ option }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+    <label class="default-font" for="currency">Currency</label>
+    <div class="form-group">
+      <select
+        class="default-font select"
+        id="currency"
+        formControlName="currency"
+        required
+      >
+        <option *ngFor="let option of currencyOptions" [value]="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
 
-      <button class="custom-button bounce-button default-font" type="submit">Register</button>
-    </form>
+    <button class="custom-button bounce-button default-font" type="submit" [disabled]="registrationForm.invalid">
+      Register
+    </button>
+  </form>
 </div>
