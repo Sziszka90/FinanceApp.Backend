@@ -42,7 +42,7 @@ import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTrans
     CommonModule,
   ],
   templateUrl: './update-transaction-group-modal.component.html',
-  styleUrl: './update-transaction-group-modal.component.css',
+  styleUrl: './update-transaction-group-modal.component.scss',
   standalone: true,
 })
 export class UpdateTransactionGroupModalComponent implements OnInit {

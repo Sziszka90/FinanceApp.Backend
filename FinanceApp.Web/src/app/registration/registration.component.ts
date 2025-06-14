@@ -28,7 +28,7 @@ import { UserApiService } from '../../services/user.api.service';
     CommonModule,
   ],
   templateUrl: './registration.component.html',
-  styleUrls: ['./registration.component.css'],
+  styleUrls: ['./registration.component.scss'],
 })
 export class RegistrationComponent implements OnDestroy {
   registrationForm: FormGroup;
@@ -40,7 +40,6 @@ export class RegistrationComponent implements OnDestroy {
   constructor(
     private fb: FormBuilder,
     private apiService: UserApiService,
-    private matDialog: MatDialog,
     private router: Router
   ) {
     this.registrationForm = this.fb.group({

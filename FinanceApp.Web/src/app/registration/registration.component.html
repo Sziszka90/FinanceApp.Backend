@@ -1,40 +1,39 @@
 <div class="registration-container">
     <form class="registration-form" [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="fill">
-        <mat-label>User Name</mat-label>
+        <mat-label class="default-font">User Name</mat-label>
         <input matInput formControlName="userName" />
-        <mat-error *ngIf="registrationForm.get('userName')?.hasError('required')">
+        <mat-error class="error-font" *ngIf="registrationForm.get('userName')?.hasError('required')">
           User name is required
         </mat-error>
-        <mat-error *ngIf="registrationForm.get('userName')?.hasError('minlength')">
+        <mat-error class="error-font" *ngIf="registrationForm.get('userName')?.hasError('minlength')">
           Minimum 2 characters required
         </mat-error>
       </mat-form-field>
-  
+
       <mat-form-field appearance="fill">
-        <mat-label>Password</mat-label>
-        <input matInput formControlName="password" type="password" />
-        <mat-error *ngIf="registrationForm.get('password')?.hasError('required')">
+        <mat-label class="default-font">Password</mat-label>
+        <input class="default-font" matInput formControlName="password" type="password" />
+        <mat-error class="error-font" *ngIf="registrationForm.get('password')?.hasError('required')">
           Password is required
         </mat-error>
-        <mat-error *ngIf="registrationForm.get('password')?.hasError('minlength')">
+        <mat-error class="error-font" *ngIf="registrationForm.get('password')?.hasError('minlength')">
           Minimum 8 characters required
         </mat-error>
-        <mat-error *ngIf="registrationForm.get('password')?.hasError('pattern')">
+        <mat-error class="error-font" *ngIf="registrationForm.get('password')?.hasError('pattern')">
           Include uppercase letter, number, and special character
         </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="fill">
-        <mat-label>Currency</mat-label>
+        <mat-label class="default-font">Currency</mat-label>
         <mat-select formControlName="currency">
-          <mat-option *ngFor="let option of currencyOptions" [value]="option">
+          <mat-option class="default-font" *ngFor="let option of currencyOptions" [value]="option">
             {{ option }}
           </mat-option>
         </mat-select>
       </mat-form-field>
-      
-      <button mat-raised-button color="primary" type="submit">Register</button>
+
+      <button class="custom-button bounce-button default-font" type="submit">Register</button>
     </form>
 </div>
-  

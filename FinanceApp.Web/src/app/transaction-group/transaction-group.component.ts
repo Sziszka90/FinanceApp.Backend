@@ -14,7 +14,7 @@ import { UpdateTransactionGroupModalComponent } from '../update-transaction-grou
   selector: 'app-transaction-group',
   imports: [MatIconModule, MatButtonModule, CommonModule, MatTableModule],
   templateUrl: './transaction-group.component.html',
-  styleUrl: './transaction-group.component.css'
+  styleUrl: './transaction-group.component.scss'
 })
 export class TransactionGroupComponent implements OnInit, OnDestroy {
   public matDialog = inject(MatDialog);

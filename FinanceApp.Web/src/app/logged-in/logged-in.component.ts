@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-logged-in',
   templateUrl: './logged-in.component.html',
-  styleUrls: ['./logged-in.component.css'],
+  styleUrls: ['./logged-in.component.scss'],
   imports: [
     MatToolbarModule,
     MatButtonModule,

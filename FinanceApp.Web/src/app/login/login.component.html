@@ -1,24 +1,26 @@
 <mat-card>
-    <mat-card-content>
-      <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
-        <h2>Log In</h2>
-        <mat-error *ngIf="!loginValid">
-          The username and password were not recognized
+  <mat-card-content>
+    <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
+      <h3 class="default-font">Log In</h3>
+      <mat-error class="default-font" *ngIf="!loginValid">
+        The username and password were not recognized
+      </mat-error>
+      <mat-form-field>
+        <input class="default-font" matInput placeholder="User Name" [(ngModel)]="username" name="username" required>
+        <mat-error class="default-font">
+          Please provide a valid User Name address
         </mat-error>
-        <mat-form-field>
-          <input matInput placeholder="User Name" [(ngModel)]="username" name="username" required>
-          <mat-error>
-            Please provide a valid User Name address
-          </mat-error>
-        </mat-form-field>
-        <mat-form-field>
-          <input matInput type="password" placeholder="Password" [(ngModel)]="password" name="password" required>
-          <mat-error>
-            Please provide a valid password
-          </mat-error>
-        </mat-form-field>
-        <button mat-flat-button routerLink="/registration">Registration</button>
-        <button mat-raised-button [disabled]="!loginForm.form.valid">Login</button>
-      </form>
-    </mat-card-content>
+      </mat-form-field>
+      <mat-form-field>
+        <input class="default-font" matInput type="password" placeholder="Password" [(ngModel)]="password" name="password" required>
+        <mat-error class="default-font">
+          Please provide a valid password
+        </mat-error>
+      </mat-form-field>
+      <div class="button-container">
+        <button class="custom-button bounce-button default-font" routerLink="/registration">Registration</button>
+        <button class="custom-button bounce-button default-font" [disabled]="!loginForm.form.valid">Login</button>
+      </div>
+    </form>
+  </mat-card-content>
 </mat-card>

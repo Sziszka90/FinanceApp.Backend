@@ -1,15 +1,35 @@
-<mat-toolbar>
+<div class="nav-bar">
     <!-- Logo Section -->
-    <span class="title"><img class="image" src="../assets/icon.png" alt="icon" />{{ 'APPNAME' | translate }}</span>
+    <div class="logo-container">
+      <a routerLink="/">
+        <img class="image" src="../assets/icon.png" alt="icon" />
+      </a>
+      <a routerLink="/">
+        <span class="title title-font">{{ 'APPNAME' | translate }}</span>
+      </a>
+    </div>
 
     <!-- Navigation Links -->
     <div class="navbar-container">
-        <button mat-button [matMenuTriggerFor]="menu"><mat-icon>menu</mat-icon></button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item routerLink="/">{{ 'MENU.HOME' | translate }}</button>
-            <button mat-menu-item routerLink="/transactions">{{ 'MENU.TRANSACTIONS' | translate }}</button>
-             <button mat-menu-item routerLink="/transactions-groups">{{ 'MENU.TRANSACTION_GROUPS' | translate }}</button>
-          </mat-menu>
-        <button mat-button (click)="login()"><mat-icon>login</mat-icon></button>
+        <div class="custom-dropdown-minimized">
+          <button class="custom-dropdown-minimized-toggle" (click)="menuToggle()">
+            <span class="material-icons">menu</span>
+          </button>
+          <div class="custom-dropdown-menu-minimized" *ngIf="showMenu">
+            <a class="custom-dropdown-item-minimized default-font" routerLink="/">{{ 'MENU.HOME' | translate }}</a>
+            <a class="custom-dropdown-item-minimized default-font" routerLink="/transactions">{{ 'MENU.TRANSACTIONS' | translate }}</a>
+            <a class="custom-dropdown-item-minimized default-font" routerLink="/transactions-groups">{{ 'MENU.TRANSACTION_GROUPS' | translate }}</a>
+          </div>
+        </div>
+        <div class="custom-dropdown">
+          <div class="custom-dropdown-menu">
+            <a class="custom-dropdown-item default-font" routerLink="/">{{ 'MENU.HOME' | translate }}</a>
+            <a class="custom-dropdown-item default-font" routerLink="/transactions">{{ 'MENU.TRANSACTIONS' | translate }}</a>
+            <a class="custom-dropdown-item default-font" routerLink="/transactions-groups">{{ 'MENU.TRANSACTION_GROUPS' | translate }}</a>
+          </div>
+        </div>
+        <button class="login-btn" (click)="login()">
+          <span class="material-icons">login</span>
+        </button>
     </div>
-</mat-toolbar>
+</div>

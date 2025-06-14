@@ -17,7 +17,7 @@ import { UserFormModel } from 'src/models/Profile/UserFormModel';
   selector: 'app-profile',
   imports: [CommonModule, MatFormFieldModule, MatSelectModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnDestroy {
   constructor(private userApiService: UserApiService, private fb: FormBuilder, private router: Router, private authService: AuthenticationService) {
@@ -26,7 +26,7 @@ export class ProfileComponent implements OnDestroy {
         password: new FormControl('', [Validators.required, Validators.minLength(8)]),
         currency: new FormControl(CurrencyEnum.Unknown, [Validators.required]),
       });
-    
+
     const subscription = this.userApiService.getActiveUser().pipe(take(1)).subscribe((user) => {
       this.user = user;
       this.updateUserForm.get('userName')?.setValue(user.userName);

@@ -16,7 +16,7 @@ import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.scss'],
   standalone: true,
   imports: [
     MatCardModule,
@@ -58,7 +58,6 @@ export class LoginComponent implements OnDestroy {
           this.loginValid = true;
         }
         this.authService.saveToken(data.token);
-        console.log('Token: ' + this.authService.getToken());
         this.router.navigate(['/']);
       });
   }

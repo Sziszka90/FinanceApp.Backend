@@ -15,7 +15,7 @@ import { MatTableModule } from '@angular/material/table';
   selector: 'app-transaction',
   imports: [MatIconModule, MatButtonModule, CommonModule, MatTableModule],
   templateUrl: './transaction.component.html',
-  styleUrl: './transaction.component.css',
+  styleUrl: './transaction.component.scss',
   standalone: true,
 })
 

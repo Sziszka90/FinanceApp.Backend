@@ -11,7 +11,7 @@ import { CommonModule, isPlatformServer } from '@angular/common';
         CommonModule
     ],
     templateUrl: './app.component.html',
-    styleUrl: './app.component.css',
+    styleUrl: './app.component.scss',
     standalone: true,
 })
 export class AppComponent {

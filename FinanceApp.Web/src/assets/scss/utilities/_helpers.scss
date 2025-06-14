@@ -1,0 +1,83 @@
+@use "base/variables";
+
+.bounce-button {
+  display: inline-block;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.bounce-button:hover {
+  animation: bounce 0.6s ease infinite;
+}
+
+.custom-button {
+  padding: 1rem;
+  background-color: variables.$primary-color;
+  font-size: 1rem;
+  border: 3px solid variables.$primary-color;
+  border-radius: 20px;
+  outline: none;
+  max-width: 100%;
+  transition: border-color 0.3s;
+  align-items: center;
+  color: white;
+}
+
+.custom-button:active {
+  background-color: variables.$secondary-color;
+}
+
+.custom-button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+  border: 1px solid #aaa;
+}
+
+.disable-button {
+  pointer-events: none;
+  color: gray;
+}
+
+.error-snackbar {
+  padding: 1rem;
+  background-color: #f44336;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(233, 229, 229, 0.2);
+}
+
+.info-snackbar {
+    padding: 1rem;
+    background-color: variables.$primary-color;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(209, 189, 189, 0.2);
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-10px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(100%); }
+  33% { transform: scale(110%); }
+  66% { transform: scale(110%); }
+  100% { transform: scale(100%); }
+}

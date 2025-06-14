@@ -1,0 +1,54 @@
+@use 'base/variables' as variables;
+
+.registration-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: variables.$text-color;
+  margin: 5rem;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  border-radius: 12px;
+  gap: 1.5rem;
+  width: 50%;
+}
+
+.custom-button {
+  width: 50%;
+}
+
+::ng-deep mat-form-field {
+  width: 100%;
+  margin: 1.5rem;
+}
+
+mat-error {
+  color: variables.$red-color;
+}
+
+::ng-deep .mat-mdc-select-panel {
+  background-color: variables.$text-color !important;
+}
+
+.custom-button:disabled {
+  background: #bdbdbd;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .registration-form {
+    padding: 1.2rem 0.5rem;
+    width: 100%;
+  }
+
+  .custom-button {
+    width: 100%;
+  }
+}

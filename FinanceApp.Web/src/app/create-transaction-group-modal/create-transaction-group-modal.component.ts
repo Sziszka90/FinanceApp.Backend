@@ -20,8 +20,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
-import { take } from 'rxjs';
-import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { CurrencyEnum, Money } from 'src/models/Money/Money';
 import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
 
@@ -42,7 +40,7 @@ import { groupIconOptions } from 'src/models/Constants/group-icon-options.const'
     CommonModule,
   ],
   templateUrl: './create-transaction-group-modal.component.html',
-  styleUrl: './create-transaction-group-modal.component.css',
+  styleUrl: './create-transaction-group-modal.component.scss',
   standalone: true,
 })
 export class CreateTransactionGroupModalComponent implements OnInit {

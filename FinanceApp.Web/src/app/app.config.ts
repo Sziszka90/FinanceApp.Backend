@@ -55,18 +55,18 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
   return next(req).pipe(
     catchError((error: any) => {
       switch (error.status) {
-        case error.status === 400:
+        case 400:
           matDialog.open(ErrorModalComponent, {
             width: '50rem',
             data: error,
           });
           break;
 
-          case error.status === 404:
+          case 404:
             router.navigateByUrl('/not-found')
             break;
 
-        case error.status >= 401 && error.status < 500:
+        case 401:
           if (
             error.error?.code === 'INVALID_PASSWORD' ||
             error.error?.code === 'USER_NOT_FOUND'
