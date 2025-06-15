@@ -42,21 +42,6 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     'actions',
   ];
 
-  displayedColumnsSlide1: string[] = [
-    'name',
-    'description',
-    'icon',
-  ];
-
-  displayedColumnsSlide2: string[] = [
-    'value',
-    'currency',
-    'actions',
-  ];
-
-  showSlide1: boolean = true;
-  showSlide2: boolean = false;
-
   private destroy$ = new Subject<void>();
 
   public transactionGroups$: Observable<GetTransactionGroupDto[]> | undefined;
@@ -105,29 +90,6 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     .subscribe(() => {
       this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
     })
-  }
-
-  slideRight() {
-    this.showSlide1 = false;
-    this.showSlide2 = true;
-  }
-
-  slideLeft() {
-    this.showSlide1 = true;
-    this.showSlide2 = false;
-  }
-
-  onTouchStart(event: TouchEvent) {
-    this.touchStartX = event.touches[0].clientX;
-  }
-
-  onTouchEnd(event: TouchEvent) {
-    const deltaX = event.changedTouches[0].clientX - this.touchStartX;
-    if (deltaX < -50) {
-      this.slideRight();
-    } else if (deltaX > 50) {
-      this.slideLeft();
-    }
   }
 
   ngOnDestroy(): void {

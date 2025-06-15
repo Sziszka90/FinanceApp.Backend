@@ -1,0 +1,79 @@
+@use "base/variables";
+
+.bounce-button {
+  display: inline-block;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.bounce-button:hover {
+  animation: bounce 0.6s ease infinite;
+}
+
+.custom-button {
+  padding: 1rem;
+  background-color: variables.$primary-color;
+  font-size: 1rem;
+  border: 3px solid variables.$primary-color;
+  border-radius: 20px;
+  outline: none;
+  max-width: 100%;
+  transition: border-color 0.3s;
+  align-items: center;
+  color: white;
+  width: 60%;
+  margin: 0.5rem;
+}
+
+.custom-button:active {
+  background-color: variables.$secondary-color;
+}
+
+.custom-small-button {
+  background-color: variables.$primary-color;
+  font-size: 1rem;
+  border: 3px solid variables.$primary-color;
+  border-radius: 50%;
+  outline: none;
+  transition: border-color 0.3s;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  color: white;
+  margin: 0;
+  padding: 0.5rem;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.custom-small-button mat-icon {
+  position: relative;
+  top: 2px;
+}
+
+.custom-small-button:active {
+  background-color: variables.$secondary-color;
+}
+
+.custom-button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+  border: 1px solid #aaa;
+}
+
+.disable-button {
+  pointer-events: none;
+  color: gray;
+}
+
+.action-button {
+  margin: 1rem 1rem;
+  justify-content: center;
+  align-items: center;
+}
+

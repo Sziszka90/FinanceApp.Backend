@@ -28,11 +28,29 @@ export class TransactionComponent implements OnInit, OnDestroy {
   public allTransactions: GetTransactionDto[] | undefined;
   public total: Money = {amount: 0, currency: CurrencyEnum.EUR};
 
-  displayedColumns: string[] = [
+  showSlide1: boolean = true;
+  showSlide2: boolean = false;
+  touchStartX = 0;
+
+  displayedColumnsFull: string[] = [
     'name',
     'description',
     'value',
     'currency',
+    'transactionDate',
+    'transactionType',
+    'group',
+    'actions',
+  ];
+
+  displayedColumnsSlide1: string[] = [
+    'name',
+    'description',
+    'value',
+    'currency',
+  ];
+
+  displayedColumnsSlide2: string[] = [
     'transactionDate',
     'transactionType',
     'group',
@@ -68,6 +86,29 @@ export class TransactionComponent implements OnInit, OnDestroy {
       this.transactions$ = this.transactionApiService.getAllTransactions();
       this.summary$ = this.transactionApiService.getAllTransactionsSummary();
     })
+  }
+
+  slideRight() {
+    this.showSlide1 = false;
+    this.showSlide2 = true;
+  }
+
+  slideLeft() {
+    this.showSlide1 = true;
+    this.showSlide2 = false;
+  }
+
+  onTouchStart(event: TouchEvent) {
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    const deltaX = event.changedTouches[0].clientX - this.touchStartX;
+    if (deltaX < -50) {
+      this.slideRight();
+    } else if (deltaX > 50) {
+      this.slideLeft();
+    }
   }
 
   createTransaction() {

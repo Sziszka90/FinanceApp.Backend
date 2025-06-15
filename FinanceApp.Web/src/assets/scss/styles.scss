@@ -10,6 +10,9 @@
 @forward "utilities/helpers";
 @use "utilities/helpers";
 
+@forward "utilities/buttons";
+@use "utilities/buttons";
+
 @forward "layout/container";
 @use "layout/container";
 
@@ -44,54 +47,10 @@ a {
   color: variables.$text-color;
 }
 
-.component-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  align-items: center;
-  justify-content: space-around;
-}
-
-.transaction-table {
-  margin: 2rem;
-}
-
-.summary {
-  margin: 2rem;
-  text-align: center;
-}
-
-.content {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  padding-bottom: 1.5rem;
-  padding-top: 1.5rem;
-}
-
 i {
   font-size: 1.25rem;
   width: 100%;
   text-align: center;
 }
 
-.mat-mdc-header-cell {
-  text-align: center !important;
-}
-
-td {
-  text-align: center !important;
-}
-
-.action-button {
-  margin: 1rem 1rem;
-  justify-content: center;
-  align-items: center;
-}
 

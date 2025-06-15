@@ -29,4 +29,17 @@
   width: 100%;
 }
 
+.action-button-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  gap: 0.5rem;
+}
 
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: space-around;
+}
