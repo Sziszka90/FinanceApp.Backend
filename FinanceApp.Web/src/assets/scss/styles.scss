@@ -13,6 +13,9 @@
 @forward "layout/container";
 @use "layout/container";
 
+@forward "layout/table";
+@use "layout/table";
+
 @use '@angular/material' as mat;
 
 
@@ -31,8 +34,8 @@ body {
     background-color: variables.$background-color;
     background-size: contain;
     background-repeat: no-repeat;
-    height: 100%;
-    width: 100%;
+    height: 100vh;
+    width: 100vw;
     overflow-x: hidden;
 }
 

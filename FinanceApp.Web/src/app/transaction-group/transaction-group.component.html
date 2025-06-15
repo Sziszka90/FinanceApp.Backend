@@ -1,56 +1,121 @@
 <div class="button-container">
   <button class="custom-button bounce-button" (click)="createTransactionGroup()" >Create Transaction Group</button>
 </div>
-<div class="container">
+<div class="table-container">
   <div *ngIf="transactionGroups$ | async as transactionGroups" class="transaction-table">
     <div *ngIf="transactionGroups.length > 0">
-      <table mat-table [dataSource]="transactionGroups" class="mat-elevation-z8">
-        <!--- Note trat trese columns can be defined in any order.
-            tre actual rendered columns are set as a property on tre row definition" -->
-        <ng-container class="column" matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-        </ng-container>
+      <div class="full-table">
+        <table mat-table [dataSource]="transactionGroups" class="mat-elevation-z8">
+          <!--- Note trat trese columns can be defined in any order.
+              tre actual rendered columns are set as a property on tre row definition" -->
+          <ng-container class="column" matColumnDef="name">
+          <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Name</th>
+          <td class="default-text text-color-black" mat-cell *matCellDef="let element"> {{element.name}} </td>
+          </ng-container>
 
-        <ng-container class="column" matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef> Description </th>
-          <td mat-cell *matCellDef="let element"> {{element.description}} </td>
-        </ng-container>
+          <ng-container class="column" matColumnDef="description">
+            <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Description</th>
+            <td class="default-text text-color-black" mat-cell *matCellDef="let element"> {{element.description}} </td>
+          </ng-container>
 
-        <ng-container class="column" matColumnDef="icon">
-          <th mat-header-cell *matHeaderCellDef> Group Icon </th>
-          <td mat-cell *matCellDef="let element"><i class="{{element.groupIcon}}"></i></td>
-        </ng-container>
+          <ng-container class="column" matColumnDef="icon">
+            <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Icon</th>
+            <td class="default-text text-color-black" mat-cell *matCellDef="let element"><i class="{{element.groupIcon}}"></i></td>
+          </ng-container>
 
-        <ng-container class="column" matColumnDef="value">
-          <th mat-header-cell *matHeaderCellDef> Limit </th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.limit ? element.limit.amount : '' }}
+          <ng-container class="column" matColumnDef="value">
+            <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Limit</th>
+            <td class="default-text text-color-black" mat-cell *matCellDef="let element">
+              {{ element.limit ? element.limit.amount : '' }}
+            </td>
+          </ng-container>
+
+          <ng-container class="column" matColumnDef="currency">
+            <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Currency</th>
+            <td class="default-text text-color-black" mat-cell *matCellDef="let element">
+              {{ element.limit ? element.limit.currency : '' }}
+            </td>
+          </ng-container>
+
+          <ng-container class="column" matColumnDef="actions">
+            <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Actions</th>
+          <td class="content" mat-cell *matCellDef="let row">
+            <button class="custom-small-button bounce-button" (click)="deleteTransactionGroup(row)">
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button class="custom-small-button bounce-button" (click)="editTransactionGroup(row)">
+              <mat-icon>edit</mat-icon>
+            </button>
           </td>
-        </ng-container>
+          </ng-container>
 
-        <ng-container class="column" matColumnDef="currency">
-          <th mat-header-cell *matHeaderCellDef> Limit Currency </th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.limit ? element.limit.currency : '' }}
-          </td>
-        </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsFull"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsFull;"></tr>
+        </table>
+      </div>
+      <div class="slides-table"
+           (touchstart)="onTouchStart($event)"
+           (touchend)="onTouchEnd($event)">
+        <div class="slide-arrow">
+          <mat-icon (click)="slideLeft()">chevron_left</mat-icon>
+          <mat-icon (click)="slideRight()">chevron_right</mat-icon>
+        </div>
+        <div class="slide-1" *ngIf="showSlide1" @slideInOut>
+          <table mat-table [dataSource]="transactionGroups" class="mat-elevation-z8">
+            <!--- Note trat trese columns can be defined in any order.
+                tre actual rendered columns are set as a property on tre row definition" -->
+            <ng-container class="column" matColumnDef="name">
+            <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Name</th>
+            <td class="default-text text-color-black" mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
 
-        <ng-container class="column" matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef> Actions </th>
-        <td class="content" mat-cell *matCellDef="let row">
-          <button class="action-button" mat-fab (click)="deleteTransactionGroup(row)">
-            <mat-icon>delete</mat-icon>
-          </button>
-          <button class="action-button" mat-fab (click)="editTransactionGroup(row)">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </td>
-        </ng-container>
+            <ng-container class="column" matColumnDef="description">
+              <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Description</th>
+              <td class="default-text text-color-black" mat-cell *matCellDef="let element"> {{element.description}} </td>
+            </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
+            <ng-container class="column" matColumnDef="icon">
+              <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Icon</th>
+              <td class="default-text text-color-black" mat-cell *matCellDef="let element"><i class="{{element.groupIcon}}"></i></td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsSlide1"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsSlide1;"></tr>
+          </table>
+        </div>
+        <div class="slide-2" *ngIf="showSlide2" @slideInOut>
+          <table mat-table [dataSource]="transactionGroups" class="mat-elevation-z8">
+            <ng-container class="column" matColumnDef="value">
+              <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Limit</th>
+              <td class="default-text text-color-black" mat-cell *matCellDef="let element">
+                {{ element.limit ? element.limit.amount : '' }}
+              </td>
+            </ng-container>
+
+            <ng-container class="column" matColumnDef="currency">
+              <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Currency</th>
+              <td class="default-text text-color-black" mat-cell *matCellDef="let element">
+                {{ element.limit ? element.limit.currency : '' }}
+              </td>
+            </ng-container>
+
+            <ng-container class="column" matColumnDef="actions">
+              <th class="default-text text-color-black" mat-header-cell *matHeaderCellDef>Actions</th>
+              <td class="content" mat-cell *matCellDef="let row">
+                <button class="custom-small-button bounce-button" (click)="deleteTransactionGroup(row)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <button class="custom-small-button bounce-button" (click)="editTransactionGroup(row)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsSlide2"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsSlide2;"></tr>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -9,18 +9,31 @@ import { TransactionApiService } from 'src/services/transactions.api.service';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { UpdateTransactionGroupModalComponent } from '../update-transaction-group-modal/update-transaction-group-modal.component';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-transaction-group',
   imports: [MatIconModule, MatButtonModule, CommonModule, MatTableModule],
   templateUrl: './transaction-group.component.html',
-  styleUrl: './transaction-group.component.scss'
+  styleUrl: './transaction-group.component.scss',
+  animations: [
+    trigger('slideInOut', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateX(-40px)' }),
+        animate('300ms ease', style({ opacity: 1, transform: 'translateX(0)' })),
+      ]),
+      transition(':leave', [
+        animate('300ms ease', style({ opacity: 0, transform: 'translateX(40px)' })),
+      ]),
+    ]),
+  ]
 })
+
 export class TransactionGroupComponent implements OnInit, OnDestroy {
   public matDialog = inject(MatDialog);
   public transactionApiService = inject(TransactionApiService);
 
-    displayedColumns: string[] = [
+  displayedColumnsFull: string[] = [
     'name',
     'description',
     'icon',
@@ -29,9 +42,26 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     'actions',
   ];
 
+  displayedColumnsSlide1: string[] = [
+    'name',
+    'description',
+    'icon',
+  ];
+
+  displayedColumnsSlide2: string[] = [
+    'value',
+    'currency',
+    'actions',
+  ];
+
+  showSlide1: boolean = true;
+  showSlide2: boolean = false;
+
   private destroy$ = new Subject<void>();
 
   public transactionGroups$: Observable<GetTransactionGroupDto[]> | undefined;
+
+  touchStartX = 0;
 
   ngOnInit(): void {
     this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
@@ -75,6 +105,29 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     .subscribe(() => {
       this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
     })
+  }
+
+  slideRight() {
+    this.showSlide1 = false;
+    this.showSlide2 = true;
+  }
+
+  slideLeft() {
+    this.showSlide1 = true;
+    this.showSlide2 = false;
+  }
+
+  onTouchStart(event: TouchEvent) {
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    const deltaX = event.changedTouches[0].clientX - this.touchStartX;
+    if (deltaX < -50) {
+      this.slideRight();
+    } else if (deltaX > 50) {
+      this.slideLeft();
+    }
   }
 
   ngOnDestroy(): void {
