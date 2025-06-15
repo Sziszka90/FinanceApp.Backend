@@ -1,53 +1,76 @@
-<h2 mat-dialog-title>Edit Transaction</h2>
-<mat-dialog-content>Edit the item and click on save!</mat-dialog-content>
-
-<div class="form-container">
-  <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
-    <div mat-dialog-content>
-      <mat-form-field appearance="fill">
-        <mat-label>Name</mat-label>
-        <input matInput formControlName="name" />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Description</mat-label>
-        <input matInput formControlName="description" />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Value</mat-label>
-        <input matInput type="number" formControlName="value" />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Currency</mat-label>
-        <mat-select formControlName="currency">
+<div class="main-container">
+  <div class="modal-header">
+    <h3>Create Transaction</h3>
+    <p class="modal-description">Create the item and click on save!</p>
+  </div>
+  <form class="form-container" [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+    <label for="name">Name</label>
+    <div class="form-group">
+      <input id="name" type="text" formControlName="name" required />
+      <div class="error-message" *ngIf="transactionForm.get('name')?.invalid && transactionForm.get('name')?.touched">
+        Name is required
+      </div>
+    </div>
+    <label for="description">Description</label>
+    <div class="form-group">
+      <input id="description" type="text" formControlName="description" />
+    </div>
+    <label for="value">Value</label>
+    <div class="form-group">
+      <input id="value" type="number" formControlName="value" />
+        <div class="error-message" *ngIf="transactionForm.get('value')?.invalid && transactionForm.get('value')?.touched">
+        Value is required
+      </div>
+    </div>
+    <label for="currency">Currency</label>
+    <div class="form-group">
+      <mat-form-field>
+        <mat-select class="select" formControlName="currency">
           <mat-option *ngFor="let option of currencyOptions" [value]="option">
-            {{ option }}
+            &#8226; {{ option }}
           </mat-option>
         </mat-select>
+        <i matSuffix class="fa fa-chevron-down"></i>
       </mat-form-field>
+        <div class="error-message" *ngIf="transactionForm.get('currency')?.invalid && transactionForm.get('currency')?.touched">
+          Currency is required
+        </div>
+    </div>
+   <label for="transactionDate">Transaction Date</label>
+    <div class="form-group">
+      <input id="transactionDate" type="date" formControlName="transactionDate" />
+    </div>
 
-      <mat-form-field appearance="fill">
-        <mat-label>Due Date</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="dueDate" />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
+    <label for="transactionType">Transaction Type</label>
+    <div class="form-group">
+      <mat-form-field>
+        <mat-select class="select" formControlName="transactionType">
+          <mat-option *ngFor="let option of typeOptions" [value]="option.value">
+            &#8226; {{ option.name }}
+          </mat-option>
+        </mat-select>
+        <i matSuffix class="fa fa-chevron-down"></i>
       </mat-form-field>
+      <div class="error-message" *ngIf="transactionForm.get('transactionType')?.invalid && transactionForm.get('transactionType')?.touched">
+        Transaction Type is required
+      </div>
+    </div>
 
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Group</mat-label>
-        <mat-select formControlName="group" [compareWith]="compareCategoryObjects">
+    <label for="group">Group</label>
+    <div class="form-group">
+      <mat-form-field>
+        <mat-select class="select" formControlName="group">
           <mat-option *ngFor="let option of groupOptions" [value]="option">
-            {{ option.name }}
+            &#8226; {{ option.name }}
           </mat-option>
         </mat-select>
+        <i matSuffix class="fa fa-chevron-down"></i>
       </mat-form-field>
+    </div>
+
+    <div class="button-container">
+      <button [disabled]="transactionForm.invalid" class="custom-button bounce-button" type="submit">Save</button>
+      <button class="custom-button bounce-button" type="button" (click)="onClose()">Close</button>
     </div>
   </form>
 </div>
-
-<mat-dialog-actions>
-  <button mat-button mat-dialog-save (click)="onSubmit()">Save</button>
-  <button mat-button mat-dialog-close>Close</button>
-</mat-dialog-actions>

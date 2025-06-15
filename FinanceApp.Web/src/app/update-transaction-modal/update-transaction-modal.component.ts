@@ -25,6 +25,8 @@ import { TransactionApiService } from '../../services/transactions.api.service';
 import { take } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
+import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
+import { enumValidator } from 'src/helpers/helpers';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -49,6 +51,7 @@ import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTrans
 export class UpdateTransactionModalComponent implements OnInit {
   transactionForm: FormGroup;
   groupOptions: GetTransactionGroupDto[] = [];
+  typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
@@ -67,7 +70,11 @@ export class UpdateTransactionModalComponent implements OnInit {
         Validators.min(0),
       ]),
       currency: new FormControl(this.data.value.currency, Validators.required),
-      dueDate: new FormControl(this.data.dueDate),
+      transactionDate: new FormControl(this.data.transactionDate),
+      transactionType: new FormControl(
+        null,
+        [Validators.required, enumValidator(TransactionTypeEnum)]
+      ),
       group: new FormControl(
         this.data.transactionGroup != null
           ? this.data.transactionGroup.Name
@@ -77,6 +84,8 @@ export class UpdateTransactionModalComponent implements OnInit {
 
     this.transactionForm.get('group')?.setValue(this.data.transactionGroup);
     this.transactionForm.get('currency')?.setValue(this.data.value.currency);
+    this.transactionForm.get('transactionType')?.setValue(null);
+    this.transactionForm.get('transactionDate')?.setValue(new Date(this.data.transactionDate));
 
     this.transactionApiService
       .getAllTransactionGroups()
@@ -86,9 +95,10 @@ export class UpdateTransactionModalComponent implements OnInit {
         this.groupOptions.push({
           id: '',
           name: 'No group',
-        }); // Add default empty option
+        });
       });
   }
+
   ngOnInit(): void {}
 
   closeDialog() {
@@ -97,6 +107,14 @@ export class UpdateTransactionModalComponent implements OnInit {
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
+
+      var transactionDate = undefined;
+
+      const date: Date = this.transactionForm.get('transactionDate')?.value;
+      if (date && date.getFullYear() !== 1) {
+        transactionDate = date;
+      }
+
       this.transactionApiService
         .updateTransaction(this.data.id, {
           id: this.data.id,
@@ -104,17 +122,19 @@ export class UpdateTransactionModalComponent implements OnInit {
           description: this.transactionForm.get('description')?.value,
           value: {
             amount: this.transactionForm.get('value')?.value,
-            currency: this.transactionForm.get('currency')?.value,
+            currency: this.transactionForm.get('currency')!.value,
           },
-          transactionDate: this.transactionForm.get('transactionDate')?.value,
-          transactionGroupId:
-            this.transactionForm.get('group')?.value.id === ''
-              ? null
-              : this.transactionForm.get('group')?.value.id,
+          transactionType: this.transactionForm.get('transactionType')!.value,
+          transactionDate: transactionDate,
+          transactionGroupId: this.transactionForm.get('group')?.value.id,
         })
         .pipe(take(1))
         .subscribe(() => this.dialogRef.close(this.transactionForm.value));
     }
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
   }
 
   compareCategoryObjects(object1: any, object2: any) {

@@ -13,13 +13,15 @@ import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
 import { CurrencyEnum, Money } from 'src/models/Money/Money';
 import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
-import { MatSelect, MatSelectModule } from '@angular/material/select';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-transaction-modal',
   imports: [
     ReactiveFormsModule,
     MatSelectModule,
+    MatIconModule,
     CommonModule,
   ],
   templateUrl: './create-transaction-group-modal.component.html',

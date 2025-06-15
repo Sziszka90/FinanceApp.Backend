@@ -24,11 +24,13 @@ import { take } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-transaction-modal',
   imports: [
     MatInputModule,
+    MatIconModule,
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
@@ -77,7 +79,7 @@ export class CreateTransactionModalComponent implements OnInit {
   }
   ngOnInit(): void {}
 
-  closeDialog() {
+  onClose(): void {
     this.dialogRef.close();
   }
 

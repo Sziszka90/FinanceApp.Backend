@@ -43,20 +43,6 @@ export class TransactionComponent implements OnInit, OnDestroy {
     'actions',
   ];
 
-  displayedColumnsSlide1: string[] = [
-    'name',
-    'description',
-    'value',
-    'currency',
-  ];
-
-  displayedColumnsSlide2: string[] = [
-    'transactionDate',
-    'transactionType',
-    'group',
-    'actions',
-  ];
-
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
@@ -75,7 +61,8 @@ export class TransactionComponent implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(
       UpdateTransactionModalComponent,
       {
-        width: '50rem',
+        width: '70vw',
+        height: '90vh',
         data: row,
       }
     );
@@ -88,34 +75,12 @@ export class TransactionComponent implements OnInit, OnDestroy {
     })
   }
 
-  slideRight() {
-    this.showSlide1 = false;
-    this.showSlide2 = true;
-  }
-
-  slideLeft() {
-    this.showSlide1 = true;
-    this.showSlide2 = false;
-  }
-
-  onTouchStart(event: TouchEvent) {
-    this.touchStartX = event.touches[0].clientX;
-  }
-
-  onTouchEnd(event: TouchEvent) {
-    const deltaX = event.changedTouches[0].clientX - this.touchStartX;
-    if (deltaX < -50) {
-      this.slideRight();
-    } else if (deltaX > 50) {
-      this.slideLeft();
-    }
-  }
-
   createTransaction() {
     const dialogRef = this.matDialog.open(
       CreateTransactionModalComponent,
       {
-        width: '50rem',
+        width: '70vw',
+        height: '90vh'
       }
     )
     dialogRef.afterClosed()

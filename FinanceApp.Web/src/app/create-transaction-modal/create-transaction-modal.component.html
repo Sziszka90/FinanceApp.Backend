@@ -1,6 +1,6 @@
 <div class="main-container">
   <div class="modal-header">
-    <h3>Create Transaction Group</h3>
+    <h3>Create Transaction</h3>
     <p class="modal-description">Create the item and click on save!</p>
   </div>
   <form class="form-container" [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
@@ -21,34 +21,46 @@
     </div>
     <label for="currency">Currency</label>
     <div class="form-group">
-      <select class="select" id="currency" formControlName="currency">
-        <option *ngFor="let option of currencyOptions" [value]="option">
-          {{ option }}
-        </option>
-      </select>
+      <mat-form-field>
+        <mat-select class="select" formControlName="currency">
+          <mat-option *ngFor="let option of currencyOptions" [value]="option">
+            &#8226; {{ option }}
+          </mat-option>
+        </mat-select>
+        <i matSuffix class="fa fa-chevron-down"></i>
+      </mat-form-field>
     </div>
    <label for="transactionDate">Transaction Date</label>
     <div class="form-group">
       <input id="transactionDate" type="date" formControlName="transactionDate" />
     </div>
+
     <label for="transactionType">Transaction Type</label>
     <div class="form-group">
-      <select id="transactionType" formControlName="transactionType">
-        <option *ngFor="let option of typeOptions" [value]="option.value">
-          {{ option.name }}
-        </option>
-      </select>
+      <mat-form-field>
+        <mat-select class="select" formControlName="transactionType">
+          <mat-option *ngFor="let option of typeOptions" [value]="option.value">
+            &#8226; {{ option.name }}
+          </mat-option>
+        </mat-select>
+        <i matSuffix class="fa fa-chevron-down"></i>
+      </mat-form-field>
     </div>
+
     <label for="group">Group</label>
     <div class="form-group">
-      <select id="group" formControlName="group">
-        <option *ngFor="let option of groupOptions" [value]="option">
-          {{ option.name }}
-        </option>
-      </select>
+      <mat-form-field>
+        <mat-select class="select" formControlName="group">
+          <mat-option *ngFor="let option of groupOptions" [value]="option">
+            &#8226; {{ option.name }}
+          </mat-option>
+        </mat-select>
+        <i matSuffix class="fa fa-chevron-down"></i>
+      </mat-form-field>
     </div>
+
     <div class="button-container">
-      <button class="custom-button bounce-button" type="submit">Save</button>
+      <button [disabled]="transactionForm.invalid" class="custom-button bounce-button" type="submit">Save</button>
       <button class="custom-button bounce-button" type="button" (click)="onClose()">Close</button>
     </div>
   </form>

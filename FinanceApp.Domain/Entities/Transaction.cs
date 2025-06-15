@@ -64,6 +64,7 @@ public class Transaction : BaseEntity, IUserOwned
     string name,
     string? description,
     Money value,
+    TransactionTypeEnum transactionType,
     DateTimeOffset transactionDate,
     TransactionGroup? transactionGroup)
   {
@@ -72,5 +73,6 @@ public class Transaction : BaseEntity, IUserOwned
     Value = value;
     TransactionDate = transactionDate;
     TransactionGroup = transactionGroup;
+    TransactionType = transactionType;
   }
 }

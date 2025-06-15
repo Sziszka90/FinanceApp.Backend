@@ -65,6 +65,7 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
       request.UpdateTransactionDto.Name,
       request.UpdateTransactionDto.Description,
       request.UpdateTransactionDto.Value,
+      request.UpdateTransactionDto.TransactionType,
       request.UpdateTransactionDto.TransactionDate,
       transactionGroup
     );

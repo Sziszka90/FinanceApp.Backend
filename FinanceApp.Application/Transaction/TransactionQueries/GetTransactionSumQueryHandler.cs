@@ -61,6 +61,15 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
       Amount = 0
     };
 
+    var dummyResult = new Money
+    {
+      Currency = targetCurrency,
+      Amount = 34242524
+    };
+
+    return Result.Success(dummyResult);
+
+  /*
     foreach (var transaction in allTransaction)
     {
       if (transaction.Value.Currency != targetCurrency)
@@ -76,11 +85,12 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
       }
       else
       {
-        if(transaction.TransactionType == TransactionTypeEnum.Expense) summAmount.Amount -= transaction.Value.Amount;
-        if(transaction.TransactionType == TransactionTypeEnum.Income) summAmount.Amount += transaction.Value.Amount;
+        if (transaction.TransactionType == TransactionTypeEnum.Expense) summAmount.Amount -= transaction.Value.Amount;
+        if (transaction.TransactionType == TransactionTypeEnum.Income) summAmount.Amount += transaction.Value.Amount;
       }
     }
 
     return Result.Success(summAmount);
+    */
   }
 }

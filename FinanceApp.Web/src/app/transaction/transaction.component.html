@@ -46,12 +46,14 @@
       <ng-container class="column" matColumnDef="actions">
         <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef> Actions </th>
         <td class="default-font text-color-black" mat-cell *matCellDef="let row">
-          <button custom-small-button bounce-button mat-fab (click)="deleteTransaction(row)">
-            <mat-icon>delete</mat-icon>
-          </button>
-          <button custom-small-button bounce-button mat-fab (click)="editTransaction(row)">
-            <mat-icon>edit</mat-icon>
-          </button>
+          <div class="action-button-container">
+            <button class="custom-small-button bounce-button" (click)="deleteTransaction(row)">
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button class="custom-small-button bounce-button" (click)="editTransaction(row)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
         </td>
       </ng-container>
 
