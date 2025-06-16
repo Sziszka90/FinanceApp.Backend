@@ -55,15 +55,3 @@ mat-select {
   padding: 1rem;
   width: 100%;
 }
-
-mat-option {
-  margin: 1rem;
-}
-
-::ng-deep .mat-mdc-select-panel {
-  background-color: variables.$text-color !important;
-}
-
-::ng-deep .mat-mdc-select-arrow {
-  display: none !important;
-}

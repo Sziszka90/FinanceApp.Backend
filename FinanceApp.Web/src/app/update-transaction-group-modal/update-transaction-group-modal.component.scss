@@ -56,10 +56,3 @@ mat-select {
   width: 100%;
 }
 
-::ng-deep .mat-mdc-select-panel {
-  background-color: variables.$text-color !important;
-}
-
-::ng-deep .mat-mdc-select-arrow {
-  display: none !important;
-}

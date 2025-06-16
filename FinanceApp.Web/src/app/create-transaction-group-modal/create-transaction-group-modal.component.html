@@ -29,17 +29,14 @@
     </div>
     <label class="default-font" for="groupIcon">Group Icon</label>
     <div class="form-group">
-      <mat-form-field>
-        <mat-select class="select" formControlName="groupIcon" required>
-          <mat-select-trigger>
-            <i class="{{ transactionForm.get('groupIcon')?.value }}"></i>
-          </mat-select-trigger>
-          <mat-option *ngFor="let option of groupIconOptions" [value]="option">
-            <i class="{{ option }}"></i>
-          </mat-option>
-        </mat-select>
-        <i matSuffix class="fa fa-chevron-down"></i>
-      </mat-form-field>
+      <mat-select class="select" formControlName="groupIcon" required>
+        <mat-select-trigger>
+          <i class="{{ transactionForm.get('groupIcon')?.value }}"></i>
+        </mat-select-trigger>
+        <mat-option *ngFor="let option of groupIconOptions" [value]="option">
+          <i class="{{ option }}"></i>
+        </mat-option>
+      </mat-select>
     </div>
     <div class="button-container">
       <button [disabled]="transactionForm.invalid" class="custom-button bounce-button" type="submit">Save</button>

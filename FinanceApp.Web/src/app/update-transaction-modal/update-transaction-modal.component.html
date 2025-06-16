@@ -24,14 +24,11 @@
     </div>
     <label for="currency">Currency</label>
     <div class="form-group">
-      <mat-form-field>
-        <mat-select class="select" formControlName="currency">
-          <mat-option *ngFor="let option of currencyOptions" [value]="option">
-            &#8226; {{ option }}
-          </mat-option>
+      <mat-select class="select" formControlName="currency">
+        <mat-option *ngFor="let option of currencyOptions" [value]="option">
+          &#8226; {{ option }}
+        </mat-option>
         </mat-select>
-        <i matSuffix class="fa fa-chevron-down"></i>
-      </mat-form-field>
         <div class="error-message" *ngIf="transactionForm.get('currency')?.invalid && transactionForm.get('currency')?.touched">
           Currency is required
         </div>
@@ -43,14 +40,11 @@
 
     <label for="transactionType">Transaction Type</label>
     <div class="form-group">
-      <mat-form-field>
-        <mat-select class="select" formControlName="transactionType">
-          <mat-option *ngFor="let option of typeOptions" [value]="option.value">
-            &#8226; {{ option.name }}
-          </mat-option>
-        </mat-select>
-        <i matSuffix class="fa fa-chevron-down"></i>
-      </mat-form-field>
+      <mat-select class="select" formControlName="transactionType">
+        <mat-option *ngFor="let option of typeOptions" [value]="option.value">
+          &#8226; {{ option.name }}
+        </mat-option>
+      </mat-select>
       <div class="error-message" *ngIf="transactionForm.get('transactionType')?.invalid && transactionForm.get('transactionType')?.touched">
         Transaction Type is required
       </div>
@@ -58,14 +52,11 @@
 
     <label for="group">Group</label>
     <div class="form-group">
-      <mat-form-field>
-        <mat-select class="select" formControlName="group">
-          <mat-option *ngFor="let option of groupOptions" [value]="option">
-            &#8226; {{ option.name }}
-          </mat-option>
-        </mat-select>
-        <i matSuffix class="fa fa-chevron-down"></i>
-      </mat-form-field>
+      <mat-select class="select" formControlName="group">
+        <mat-option *ngFor="let option of groupOptions" [value]="option">
+          &#8226; {{ option.name }}
+        </mat-option>
+      </mat-select>
     </div>
 
     <div class="button-container">

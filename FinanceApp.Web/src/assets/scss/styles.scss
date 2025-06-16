@@ -52,3 +52,16 @@ i {
   width: 100%;
   text-align: center;
 }
+
+.mat-mdc-select-panel {
+  background-color: white !important;
+}
+
+mat-option span {
+  display: flex;
+  flex-direction: row;
+  align-items: center !important;
+  text-align: center !important;
+  justify-content: space-evenly !important;
+  margin: auto;
+}
