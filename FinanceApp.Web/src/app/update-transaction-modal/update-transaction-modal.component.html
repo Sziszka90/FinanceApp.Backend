@@ -35,7 +35,11 @@
     </div>
    <label for="transactionDate">Transaction Date</label>
     <div class="form-group">
-      <input id="transactionDate" type="date" formControlName="transactionDate" />
+      <mat-form-field>
+        <input matInput [matDatepicker]="picker" formControlName="transactionDate" id="transactionDate" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
     </div>
 
     <label for="transactionType">Transaction Type</label>

@@ -9,4 +9,5 @@
     "fa-solid fa-socks",
     "fa-solid fa-bath",
     "fa-solid fa-ellipsis",
+    "fa-solid fa-coins"
   ];

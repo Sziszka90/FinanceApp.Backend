@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
@@ -12,11 +12,10 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
   ]
 })
 export class ErrorModalComponent {
+  private dialogRef = inject(MatDialogRef<ErrorModalComponent>);
+  public data = inject<{ message?: string, details: { [key: string]: any } }>(MAT_DIALOG_DATA);
 
-  constructor(
-    public dialogRef: MatDialogRef<ErrorModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { message?: string, details:  { [key: string]: any } }
-  ) {}
+  constructor() {}
 
   onClose(): void {
     this.dialogRef.close();

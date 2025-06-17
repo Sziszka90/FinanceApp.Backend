@@ -58,7 +58,14 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumnsFull"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumnsFull;"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumnsFull;"
+        [ngClass]="{
+          'income': row.transactionType === 'Income',
+          'expense': row.transactionType === 'Expense'
+        }"
+      ></tr>
     </table>
   </div>
 </div>

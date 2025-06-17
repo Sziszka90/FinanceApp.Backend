@@ -19,6 +19,9 @@
     <div class="form-group">
       <input id="value" type="number" formControlName="value" />
     </div>
+    <div class="error-message" *ngIf="transactionForm.get('value')?.invalid && transactionForm.get('value')?.touched">
+      Value is required
+    </div>
     <label for="currency">Currency</label>
     <div class="form-group">
       <mat-select class="select" formControlName="currency">
@@ -27,9 +30,16 @@
         </mat-option>
       </mat-select>
     </div>
+    <div class="error-message" *ngIf="transactionForm.get('currency')?.invalid && transactionForm.get('currency')?.touched">
+      Currency is required
+    </div>
    <label for="transactionDate">Transaction Date</label>
     <div class="form-group">
-      <input id="transactionDate" type="date" formControlName="transactionDate" />
+      <mat-form-field>
+        <input matInput [matDatepicker]="picker" formControlName="transactionDate" id="transactionDate" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
     </div>
 
     <label for="transactionType">Transaction Type</label>
@@ -39,6 +49,9 @@
           &#8226; {{ option.name }}
         </mat-option>
       </mat-select>
+    </div>
+    <div class="error-message" *ngIf="transactionForm.get('transactionType')?.invalid && transactionForm.get('transactionType')?.touched">
+      Transaction Type is required
     </div>
 
     <label for="group">Group</label>

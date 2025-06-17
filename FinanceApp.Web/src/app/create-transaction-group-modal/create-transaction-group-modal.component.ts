@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -35,11 +35,12 @@ export class CreateTransactionGroupModalComponent implements OnInit {
   .filter(key => isNaN(Number(key))) as (keyof typeof CurrencyEnum)[];
   public selectedIcon: string = "";
 
-  constructor(
-    private dialogRef: MatDialogRef<CreateTransactionGroupModalComponent>,
-    private fb: FormBuilder,
-    private transactionApiService: TransactionApiService
-  ) {
+  private dialogRef = inject(MatDialogRef<CreateTransactionGroupModalComponent>);
+  private fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+
+  constructor()
+  {
     this.transactionForm = this.fb.group({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),

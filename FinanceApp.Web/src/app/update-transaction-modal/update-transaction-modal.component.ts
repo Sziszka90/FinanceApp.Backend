@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -27,6 +27,7 @@ import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { enumValidator } from 'src/helpers/helpers';
+import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -56,12 +57,12 @@ export class UpdateTransactionModalComponent implements OnInit {
     isNaN(Number(key))
   );
 
-  constructor(
-    private dialogRef: MatDialogRef<UpdateTransactionModalComponent>,
-    private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private transactionApiService: TransactionApiService
-  ) {
+  private dialogRef = inject(MatDialogRef<UpdateTransactionModalComponent>);
+  private fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+  public data = inject(MAT_DIALOG_DATA);
+
+  constructor() {
     this.transactionForm = this.fb.group({
       name: new FormControl(this.data.name, Validators.required),
       description: new FormControl(this.data.description),

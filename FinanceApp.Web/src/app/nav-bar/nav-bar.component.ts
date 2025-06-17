@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router, RouterLink } from '@angular/router';
@@ -17,14 +17,23 @@ import { CommonModule } from '@angular/common';
     styleUrl: './nav-bar.component.scss',
     standalone: true
 })
-export class NavBarComponent {
+export class NavBarComponent implements OnInit {
   showMenu = false;
-  constructor(
-    private authService: AuthenticationService,
-    private router: Router,
-    private elementRef: ElementRef){}
-    
-  login(){
+  userLoggedIn = false;
+
+  private authService = inject(AuthenticationService);
+  private router = inject(Router)
+  private elementRef = inject(ElementRef);
+
+  constructor() {}
+
+  ngOnInit() {
+    this.authService.userLoggedIn.subscribe((isLoggedIn) => {
+      this.userLoggedIn = isLoggedIn;
+    });
+  }
+
+  login() {
     if(this.authService.isAuthenticated()){
       this.router.navigateByUrl('/logged-in');
     } else {

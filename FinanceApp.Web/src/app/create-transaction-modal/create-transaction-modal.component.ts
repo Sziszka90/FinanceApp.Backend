@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -55,18 +55,18 @@ export class CreateTransactionModalComponent implements OnInit {
     isNaN(Number(key))
   );
 
-  constructor(
-    private dialogRef: MatDialogRef<CreateTransactionModalComponent>,
-    private fb: FormBuilder,
-    private transactionApiService: TransactionApiService
-  ) {
+  private dialogRef = inject(MatDialogRef<CreateTransactionModalComponent>);
+  private fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+
+  constructor() {
     this.transactionForm = this.fb.group({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),
       value: new FormControl(0, [Validators.required, Validators.min(0)]),
       currency: new FormControl('', Validators.required),
       transactionDate: new FormControl(new Date()),
-      transactionType: new FormControl({name: "Expense", value: TransactionTypeEnum.Expense}),
+      transactionType: new FormControl('', Validators.required),
       group: new FormControl(''),
     });
 
@@ -77,6 +77,7 @@ export class CreateTransactionModalComponent implements OnInit {
         this.groupOptions = data;
       });
   }
+
   ngOnInit(): void {}
 
   onClose(): void {

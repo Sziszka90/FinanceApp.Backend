@@ -58,6 +58,44 @@ input.ng-pristine {
   transition: border-color 0.2s;
 }
 
+#transactionDate {
+  font-family: variables.$default-font !important;
+  font-size: 1rem;
+  color: variables.$secondary-color;
+  padding: 0.75rem;
+  border: 1px solid #ccc !important;
+  border-radius: 2rem !important;
+  font-size: 1rem !important;
+  background-color: #fff !important;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.mdc-line-ripple.mdc-line-ripple--deactivating {
+  color: variables.$text-color !important;
+}
+
+.mat-mdc-form-field-subscript-wrapper,
+.mat-mdc-form-field-bottom-align {
+  display: none !important;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.mdc-text-field--no-label {
+  padding: 0rem !important;
+}
+
+.mat-mdc-button-touch-target {
+  color: black !important;
+}
+
+.mat-mdc-form-field-infix {
+  padding: 0rem !important;
+}
+
 .error-font, .error-message {
   color: variables.$red-color;
   font-size: 1rem;

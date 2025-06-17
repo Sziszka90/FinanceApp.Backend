@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -28,11 +28,11 @@ export class RegistrationComponent implements OnDestroy {
     isNaN(Number(key))
   );
 
-  constructor(
-    private fb: FormBuilder,
-    private apiService: UserApiService,
-    private router: Router
-  ) {
+  private fb = inject(FormBuilder);
+  private apiService = inject(UserApiService)
+  private router = inject(Router);
+
+  constructor() {
     this.registrationForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(2)]],
       password: [

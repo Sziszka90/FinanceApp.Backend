@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -36,18 +36,18 @@ export class UpdateTransactionGroupModalComponent implements OnInit {
   );
   public selectedIcon: string = "";
 
-  constructor(
-    private dialogRef: MatDialogRef<UpdateTransactionGroupModalComponent>,
-    private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) public data: GetTransactionGroupDto,
-    private transactionApiService: TransactionApiService
-  ) {
+  private dialogRef = inject(MatDialogRef<UpdateTransactionGroupModalComponent>);
+  private fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+  public data = inject<GetTransactionGroupDto>(MAT_DIALOG_DATA);
+
+  constructor() {
     this.transactionForm = this.fb.group({
-      name: new FormControl(data.name, Validators.required),
-      description: new FormControl(data.description),
-      value: new FormControl(data.limit?.amount),
-      currency: new FormControl(data.limit?.currency),
-      groupIcon: new FormControl(data.groupIcon)
+      name: new FormControl(this.data.name, Validators.required),
+      description: new FormControl(this.data.description),
+      value: new FormControl(this.data.limit?.amount),
+      currency: new FormControl(this.data.limit?.currency),
+      groupIcon: new FormControl(this.data.groupIcon)
     });
   }
   ngOnInit(): void {

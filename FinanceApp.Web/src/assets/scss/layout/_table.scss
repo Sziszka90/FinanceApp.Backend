@@ -17,6 +17,14 @@ td {
   text-align: center !important;
 }
 
+.income {
+  background-color: variables.$income-color !important;
+}
+
+.expense {
+  background-color: variables.$expense-color !important;
+}
+
 @media (max-width: 900px) {
   table {
     .default-font {

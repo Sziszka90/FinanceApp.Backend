@@ -1,16 +1,19 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { LoginRequestDto } from '../models/LoginDtos/LoginRequestDto';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { LoginResponseDto } from '../models/LoginDtos/LoginResponseDto';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
 import { AuthenticationApiService } from './authentication.api.service';
+import { TOKEN_KEY } from 'src/models/Constants/token.const';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private readonly tokenKey: string = 'authToken'; // Define the key for local storage
+  private readonly tokenKey: string = TOKEN_KEY; // Define the key for local storage
+  public userLoggedIn: Subject<boolean> = new Subject<boolean>();
+
 
   constructor(
     private authApiService: AuthenticationApiService,
@@ -37,6 +40,7 @@ export class AuthenticationService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.tokenKey);
     }
+    this.userLoggedIn.next(false); // Notify subscribers that the user has logged out
   }
 
   login(loginRequestDto: LoginRequestDto): Observable<LoginResponseDto> {

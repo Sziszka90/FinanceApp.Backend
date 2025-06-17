@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { Subscription, take } from 'rxjs';
 import { AuthenticationService } from '../../services/authentication.service';
 import { CommonModule } from '@angular/common';
@@ -22,11 +22,11 @@ export class LoginComponent implements OnDestroy {
   loginValid = true;
   loginSubscription: Subscription | undefined;
 
-  constructor(
-    private authService: AuthenticationService,
-    private router: Router,
-    private fb: FormBuilder
-  ) {
+  private authService = inject(AuthenticationService);
+  private router = inject(Router);
+  private fb = inject(FormBuilder);
+
+  constructor() {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]]
@@ -48,6 +48,7 @@ export class LoginComponent implements OnDestroy {
             this.loginValid = false;
           } else {
             this.loginValid = true;
+            this.authService.userLoggedIn.next(true);
           }
           this.authService.saveToken(data.token);
           this.router.navigate(['/']);

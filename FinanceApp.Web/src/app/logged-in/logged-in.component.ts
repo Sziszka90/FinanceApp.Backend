@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { AuthenticationService } from '../../services/authentication.service';
@@ -15,7 +15,10 @@ import { MatButtonModule } from '@angular/material/button';
   ]
 })
 export class LoggedInComponent {
-  constructor(private router: Router, private authService: AuthenticationService) {}
+  public router = inject(Router);
+  public authService = inject(AuthenticationService);
+
+  constructor() {}
 
   logout() {
     this.authService.logout();
