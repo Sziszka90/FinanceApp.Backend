@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -20,7 +20,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
-import { take } from 'rxjs';
+import { Subject, take, takeUntil } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
@@ -47,17 +47,19 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './create-transaction-modal.component.scss',
   standalone: true,
 })
-export class CreateTransactionModalComponent implements OnInit {
+export class CreateTransactionModalComponent implements OnDestroy {
+  private dialogRef = inject(MatDialogRef<CreateTransactionModalComponent>);
+  private fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+
+  private onDestroy$ = new Subject<void>();
+
   transactionForm: FormGroup;
   groupOptions: GetTransactionGroupDto[] = [];
   typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
-
-  private dialogRef = inject(MatDialogRef<CreateTransactionModalComponent>);
-  private fb = inject(FormBuilder);
-  private transactionApiService = inject(TransactionApiService);
 
   constructor() {
     this.transactionForm = this.fb.group({
@@ -73,12 +75,15 @@ export class CreateTransactionModalComponent implements OnInit {
     this.transactionApiService
       .getAllTransactionGroups()
       .pipe(take(1))
+      .pipe(takeUntil(this.onDestroy$))
       .subscribe((data) => {
         this.groupOptions = data;
       });
   }
-
-  ngOnInit(): void {}
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
 
   onClose(): void {
     this.dialogRef.close();
@@ -99,6 +104,7 @@ export class CreateTransactionModalComponent implements OnInit {
           transactionGroupId: this.transactionForm.get('group')?.value.id,
         })
         .pipe(take(1))
+        .pipe(takeUntil(this.onDestroy$))
         .subscribe(() => this.dialogRef.close(this.transactionForm.value));
     }
   }

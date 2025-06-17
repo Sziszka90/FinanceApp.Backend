@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -10,7 +10,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import {
   MAT_DIALOG_DATA,
-  MatDialog,
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
@@ -22,12 +21,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
-import { take } from 'rxjs';
+import { Subject, take, takeUntil } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { enumValidator } from 'src/helpers/helpers';
-import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -49,18 +47,20 @@ import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto'
   styleUrl: './update-transaction-modal.component.scss',
   standalone: true,
 })
-export class UpdateTransactionModalComponent implements OnInit {
+export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
+  private dialogRef = inject(MatDialogRef<UpdateTransactionModalComponent>);
+  private fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+  public data = inject(MAT_DIALOG_DATA);
+
+  private onDestroy$ = new Subject<void>();
+
   transactionForm: FormGroup;
   groupOptions: GetTransactionGroupDto[] = [];
   typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
-
-  private dialogRef = inject(MatDialogRef<UpdateTransactionModalComponent>);
-  private fb = inject(FormBuilder);
-  private transactionApiService = inject(TransactionApiService);
-  public data = inject(MAT_DIALOG_DATA);
 
   constructor() {
     this.transactionForm = this.fb.group({
@@ -99,6 +99,10 @@ export class UpdateTransactionModalComponent implements OnInit {
         });
       });
   }
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
 
   ngOnInit(): void {}
 
@@ -129,7 +133,7 @@ export class UpdateTransactionModalComponent implements OnInit {
           transactionDate: transactionDate,
           transactionGroupId: this.transactionForm.get('group')?.value.id,
         })
-        .pipe(take(1))
+        .pipe(takeUntil(this.onDestroy$))
         .subscribe(() => this.dialogRef.close(this.transactionForm.value));
     }
   }

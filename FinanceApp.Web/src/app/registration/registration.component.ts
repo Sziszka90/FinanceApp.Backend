@@ -22,15 +22,15 @@ import { UserApiService } from '../../services/user.api.service';
   styleUrls: ['./registration.component.scss'],
 })
 export class RegistrationComponent implements OnDestroy {
+  private fb = inject(FormBuilder);
+  private apiService = inject(UserApiService)
+  private router = inject(Router);
+
   registrationForm: FormGroup;
   registrationSubscription: Subscription | undefined;
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
-
-  private fb = inject(FormBuilder);
-  private apiService = inject(UserApiService)
-  private router = inject(Router);
 
   constructor() {
     this.registrationForm = this.fb.group({

@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -16,6 +16,8 @@ import { TransactionApiService } from '../../services/transactions.api.service';
 import { CurrencyEnum, Money } from '../../models/Money/Money';
 import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
+import { Subject, takeUntil } from 'rxjs';
+import { O } from '@angular/cdk/overlay-module.d-B3qEQtts';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -28,18 +30,20 @@ import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTrans
   styleUrl: './update-transaction-group-modal.component.scss',
   standalone: true,
 })
-export class UpdateTransactionGroupModalComponent implements OnInit {
+export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
+  private dialogRef = inject(MatDialogRef<UpdateTransactionGroupModalComponent>);
+  private fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+  public data = inject<GetTransactionGroupDto>(MAT_DIALOG_DATA);
+
+  private onDestroy$ = new Subject<void>();
+
   transactionForm: FormGroup;
   public groupIconOptions: string[] = groupIconOptions;
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
   public selectedIcon: string = "";
-
-  private dialogRef = inject(MatDialogRef<UpdateTransactionGroupModalComponent>);
-  private fb = inject(FormBuilder);
-  private transactionApiService = inject(TransactionApiService);
-  public data = inject<GetTransactionGroupDto>(MAT_DIALOG_DATA);
 
   constructor() {
     this.transactionForm = this.fb.group({
@@ -49,6 +53,10 @@ export class UpdateTransactionGroupModalComponent implements OnInit {
       currency: new FormControl(this.data.limit?.currency),
       groupIcon: new FormControl(this.data.groupIcon)
     });
+  }
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
   ngOnInit(): void {
     this.selectedIcon = this.transactionForm.get('groupIcon')?.value || '';
@@ -84,7 +92,9 @@ export class UpdateTransactionGroupModalComponent implements OnInit {
           description: this.transactionForm.get('description')?.value,
           limit: limit,
           groupIcon: this.transactionForm.get('groupIcon')?.value
-        }).subscribe(() => {
+        })
+        .pipe(takeUntil(this.onDestroy$))
+        .subscribe(() => {
           this.dialogRef.close(this.transactionForm.value);
       });
     }

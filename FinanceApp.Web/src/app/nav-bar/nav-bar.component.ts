@@ -18,12 +18,12 @@ import { CommonModule } from '@angular/common';
     standalone: true
 })
 export class NavBarComponent implements OnInit {
-  showMenu = false;
-  userLoggedIn = false;
-
   private authService = inject(AuthenticationService);
   private router = inject(Router)
   private elementRef = inject(ElementRef);
+
+  showMenu = false;
+  userLoggedIn = false;
 
   constructor() {}
 
@@ -47,7 +47,6 @@ export class NavBarComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
-    // Close menu if click is outside the dropdown
     if (
       this.showMenu &&
       !this.elementRef.nativeElement.querySelector('.custom-dropdown-minimized')?.contains(event.target as Node)

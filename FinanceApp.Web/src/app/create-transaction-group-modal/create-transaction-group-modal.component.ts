@@ -29,15 +29,15 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
 })
 export class CreateTransactionGroupModalComponent implements OnInit {
+  private dialogRef = inject(MatDialogRef<CreateTransactionGroupModalComponent>);
+  private fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+
   public transactionForm: FormGroup;
   public groupIconOptions: string[] = groupIconOptions;
   public currencyOptions: string[] = Object.keys(CurrencyEnum)
   .filter(key => isNaN(Number(key))) as (keyof typeof CurrencyEnum)[];
   public selectedIcon: string = "";
-
-  private dialogRef = inject(MatDialogRef<CreateTransactionGroupModalComponent>);
-  private fb = inject(FormBuilder);
-  private transactionApiService = inject(TransactionApiService);
 
   constructor()
   {

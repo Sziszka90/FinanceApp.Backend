@@ -48,10 +48,10 @@ export class LoginComponent implements OnDestroy {
             this.loginValid = false;
           } else {
             this.loginValid = true;
+            this.authService.saveToken(data.token);
             this.authService.userLoggedIn.next(true);
+            this.router.navigate(['/']);
           }
-          this.authService.saveToken(data.token);
-          this.router.navigate(['/']);
         });
     } else {
       this.loginValid = false;
