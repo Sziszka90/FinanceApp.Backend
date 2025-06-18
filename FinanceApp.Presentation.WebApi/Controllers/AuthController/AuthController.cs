@@ -1,6 +1,7 @@
 ﻿using FinanceApp.Application.Auth;
 using FinanceApp.Application.Dtos.AuthDtos;
 using FinanceApp.Application.Dtos.UserDtos;
+using FinanceApp.Application.Models;
 using FinanceApp.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

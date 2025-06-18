@@ -58,13 +58,16 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
         case 400:
           matDialog.open(ErrorModalComponent, {
             width: '50rem',
-            data: error,
+            data: error.error,
           });
           break;
 
           case 404:
-            router.navigateByUrl('/not-found')
-            break;
+            matDialog.open(ErrorModalComponent, {
+                  width: '50rem',
+                  data: error.error,
+                });
+                break;
 
         case 401:
           if (
@@ -88,8 +91,8 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
           break;
       }
 
-      console.error('Error during an HTTP call!', error);
-      return throwError(() => error);
+      console.error('Error during an HTTP call!', error.error);
+      return throwError(() => error.error);
     })
   );
 };
