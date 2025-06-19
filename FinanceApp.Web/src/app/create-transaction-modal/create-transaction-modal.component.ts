@@ -31,13 +31,8 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     MatInputModule,
     MatIconModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     MatButtonModule,
     MatFormFieldModule,
-    MatLabel,
     MatDatepickerModule,
     ReactiveFormsModule,
     MatSelectModule,
@@ -86,7 +81,7 @@ export class CreateTransactionModalComponent implements OnDestroy {
   }
 
   onClose(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   onSubmit(): void {
@@ -105,7 +100,7 @@ export class CreateTransactionModalComponent implements OnDestroy {
         })
         .pipe(take(1))
         .pipe(takeUntil(this.onDestroy$))
-        .subscribe(() => this.dialogRef.close(this.transactionForm.value));
+        .subscribe((createdTransaction) => this.dialogRef.close(createdTransaction));
     }
   }
 }

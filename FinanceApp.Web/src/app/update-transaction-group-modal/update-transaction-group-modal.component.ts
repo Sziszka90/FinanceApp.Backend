@@ -17,7 +17,6 @@ import { CurrencyEnum, Money } from '../../models/Money/Money';
 import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { Subject, takeUntil } from 'rxjs';
-import { O } from '@angular/cdk/overlay-module.d-B3qEQtts';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -63,11 +62,7 @@ export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
   }
 
   onClose(): void {
-    this.dialogRef.close();
-  }
-
-  closeDialog() {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   onSubmit(): void {
@@ -85,17 +80,19 @@ export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
         limit.currency = limitCurrency;
       }
 
+      var updatedTransactionGroup = {
+        id: this.data.id,
+        name: this.transactionForm.get('name')?.value,
+        description: this.transactionForm.get('description')?.value,
+        limit: limit,
+        groupIcon: this.transactionForm.get('groupIcon')?.value
+      }
+
       this.transactionApiService
-        .updateTransactionGroup({
-          id: this.data.id,
-          name: this.transactionForm.get('name')?.value,
-          description: this.transactionForm.get('description')?.value,
-          limit: limit,
-          groupIcon: this.transactionForm.get('groupIcon')?.value
-        })
+        .updateTransactionGroup(updatedTransactionGroup)
         .pipe(takeUntil(this.onDestroy$))
-        .subscribe(() => {
-          this.dialogRef.close(this.transactionForm.value);
+        .subscribe((updatedTransactionGroup) => {
+          this.dialogRef.close(updatedTransactionGroup);
       });
     }
   }

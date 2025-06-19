@@ -1,15 +1,14 @@
 <div class="form-container">
   <h3 class="default-font">Update Profile</h3>
   <form class="form-element" [formGroup]="updateUserForm" (ngSubmit)="onSubmit()">
+    <label class="default-font" for="currency">Currency</label>
     <div class="form-group">
-      <label for="currency">Currency</label>
-      <select class="select" id="currency" formControlName="currency" required>
-        <option *ngFor="let option of currencyOptions" [value]="option">
+      <mat-select class="select" formControlName="currency" required>
+        <mat-option *ngFor="let option of currencyOptions" [value]="option">
           {{ option }}
-        </option>
-      </select>
+        </mat-option>
+      </mat-select>
     </div>
-
     <button class="bounce-button custom-button" type="submit">Update</button>
   </form>
 </div>

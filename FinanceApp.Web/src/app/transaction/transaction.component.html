@@ -5,9 +5,9 @@
   <div class="title">Sum of Transactions</div>
   <div class="value" id="value">{{ summary.amount }} {{ summary.currency }}</div>
 </div>
-<div *ngIf="transactions$ | async as transactions" class="table-container">
-  <div *ngIf="transactions.length > 0">
-    <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
+<div class="table-container">
+  <div *ngIf="allTransactions.length > 0">
+    <table mat-table [dataSource]="allTransactions" class="mat-elevation-z8">
       <ng-container class="column" matColumnDef="name">
         <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef> Name </th>
         <td class="default-font text-color-black" mat-cell *matCellDef="let element"> {{element.name}} </td>

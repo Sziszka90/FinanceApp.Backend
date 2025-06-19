@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -31,13 +31,8 @@ import { enumValidator } from 'src/helpers/helpers';
   selector: 'app-transaction-modal',
   imports: [
     MatInputModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     MatButtonModule,
     MatFormFieldModule,
-    MatLabel,
     MatDatepickerModule,
     ReactiveFormsModule,
     MatSelectModule,
@@ -120,26 +115,28 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
         transactionDate = date;
       }
 
+      var updatedTransaction = {
+        id: this.data.id,
+        name: this.transactionForm.get('name')?.value,
+        description: this.transactionForm.get('description')?.value,
+        value: {
+          amount: this.transactionForm.get('value')?.value,
+          currency: this.transactionForm.get('currency')!.value,
+        },
+        transactionType: this.transactionForm.get('transactionType')!.value,
+        transactionDate: transactionDate,
+        transactionGroupId: this.transactionForm.get('group')?.value.id,
+      }
+
       this.transactionApiService
-        .updateTransaction(this.data.id, {
-          id: this.data.id,
-          name: this.transactionForm.get('name')?.value,
-          description: this.transactionForm.get('description')?.value,
-          value: {
-            amount: this.transactionForm.get('value')?.value,
-            currency: this.transactionForm.get('currency')!.value,
-          },
-          transactionType: this.transactionForm.get('transactionType')!.value,
-          transactionDate: transactionDate,
-          transactionGroupId: this.transactionForm.get('group')?.value.id,
-        })
+        .updateTransaction(this.data.id, updatedTransaction)
         .pipe(takeUntil(this.onDestroy$))
-        .subscribe(() => this.dialogRef.close(this.transactionForm.value));
+        .subscribe((updatedTransaction) => this.dialogRef.close(updatedTransaction));
     }
   }
 
   onClose(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   compareCategoryObjects(object1: any, object2: any) {

@@ -10,6 +10,7 @@ import { Subscription, take } from 'rxjs';
 import { Router } from '@angular/router';
 import { CurrencyEnum } from '../../models/Money/Money';
 import { UserApiService } from '../../services/user.api.service';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-registration',
@@ -17,6 +18,7 @@ import { UserApiService } from '../../services/user.api.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    MatSelectModule
   ],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss'],

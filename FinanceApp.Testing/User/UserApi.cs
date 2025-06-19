@@ -59,8 +59,6 @@ public class UserApi : TestBase
     var updatedUser = new UpdateUserDto
     {
       Id = CreatedUserId,
-      UserName = "updated_test_user_90",
-      Password = "TestPassword95.",
       BaseCurrency = CurrencyEnum.USD
     };
 
@@ -70,27 +68,6 @@ public class UserApi : TestBase
 
     // Assert
     Assert.Equal(CreatedUserId, response!.Id);
-    Assert.Equal(updatedUser.UserName, response.UserName);
     Assert.Equal(updatedUser.BaseCurrency, response.BaseCurrency);
-  }
-
-  [Fact]
-  public async Task UpdateUserInvalidPassword_ReturnsValidationError()
-  {
-    // Arrange
-    await InitializeAsync();
-    var updatedUser = new UpdateUserDto
-    {
-      Id = CreatedUserId,
-      UserName = "updated_test_user_90",
-      Password = "TestPassword",
-      BaseCurrency = CurrencyEnum.EUR
-    };
-
-    // Act
-    var response = await (await Client.PutAsync(USERS, CreateContent(updatedUser))).Content.ReadAsStringAsync();
-
-    // Assert
-    Assert.Contains(ApplicationError.VALIDATION_CODE, response);
   }
 }

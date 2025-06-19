@@ -16,7 +16,7 @@ public static class DependencyInjection
     services.AddScoped<IUnitOfWork, UnitOfWork>();
     services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
     services.AddScoped(typeof(ITransactionGroupRepository), typeof(TransactionGroupRepository));
-    services.AddScoped(typeof(IRepository<Transaction>), typeof(TransactionRepository));
+    services.AddScoped(typeof(ITransactionRepository), typeof(TransactionRepository));
     services.AddScoped(typeof(IRepository<Investment>), typeof(GenericRepository<Investment>));
     services.AddScoped(typeof(IRepository<Saving>), typeof(GenericRepository<Saving>));
     services.AddScoped(typeof(IRepository<Domain.Entities.User>), typeof(GenericRepository<Domain.Entities.User>));

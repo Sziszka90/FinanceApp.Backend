@@ -53,7 +53,7 @@ export class CreateTransactionGroupModalComponent implements OnInit {
   ngOnInit(): void {}
 
   onClose(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   onSubmit(): void {
@@ -71,14 +71,16 @@ export class CreateTransactionGroupModalComponent implements OnInit {
         limit.currency = limitCurrency;
       }
 
-      this.transactionApiService
-        .createTransactionGroup({
+      var createdTransactionGroup = {
           name: this.transactionForm.get('name')?.value,
           description: this.transactionForm.get('description')?.value,
           limit: limit,
           groupIcon: this.transactionForm.get('groupIcon')?.value
-        }).subscribe(() => {
-          this.dialogRef.close(this.transactionForm.value);
+        };
+
+      this.transactionApiService
+        .createTransactionGroup(createdTransactionGroup).subscribe((createdTransactionGroup) => {
+          this.dialogRef.close(createdTransactionGroup);
       });
     }
   }

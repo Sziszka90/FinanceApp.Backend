@@ -13,6 +13,7 @@ using FinanceApp.Domain.Entities;
 using FinanceApp.Domain.Enums;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using Microsoft.AspNetCore.Http;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApp.Testing.Base;
@@ -173,6 +174,106 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     return result;
   }
 
+  protected async Task<List<GetTransactionDto?>> CreateMultipleTransactionAsync()
+  {
+    var createdTransactionGroups = new List<GetTransactionGroupDto>();
+    var createdTransactions = new List<GetTransactionDto?>();
+
+    List<CreateTransactionGroupDto> transactionGroupsToCreate = new List<CreateTransactionGroupDto>
+    {
+      new() {
+        Name = "TransactionGroup_1",
+        Description = "Transaction group",
+        GroupIcon = "icon",
+        Limit = new Money
+        {
+          Currency = CurrencyEnum.USD,
+          Amount = 100
+        }
+      },
+      new() {
+        Name = "TransactionGroup_2",
+        Description = "Transaction group",
+        GroupIcon = "icon",
+        Limit = new Money
+        {
+          Currency = CurrencyEnum.USD,
+          Amount = 100
+        }
+      },
+      new()
+      {
+        Name = "TransactionGroup_3",
+        Description = "Transaction group",
+        GroupIcon = "icon",
+        Limit = new Money
+        {
+          Currency = CurrencyEnum.USD,
+          Amount = 100
+        }
+      }
+    };
+
+    foreach (var transactionGroupToCreate in transactionGroupsToCreate)
+    {
+      var transactionGroupContent = CreateContent(transactionGroupToCreate);
+      var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
+      createdTransactionGroups.Add(transactionGroup!);
+    }
+
+    List<CreateTransactionDto> transactionsToCreate = new List<CreateTransactionDto>()
+    {
+      new CreateTransactionDto
+      {
+        Name = "TestTransaction_1",
+        Description = "Test Transaction",
+        Value = new Money
+        {
+          Amount = 100,
+          Currency = CurrencyEnum.HUF
+        },
+        TransactionType = TransactionTypeEnum.Expense,
+        TransactionDate = new DateTimeOffset(),
+        TransactionGroupId = createdTransactionGroups[0]!.Id.ToString()
+      },
+      new CreateTransactionDto
+      {
+        Name = "TestTransaction_2",
+        Description = "Test Transaction",
+        Value = new Money
+        {
+          Amount = 100,
+          Currency = CurrencyEnum.HUF
+        },
+        TransactionType = TransactionTypeEnum.Expense,
+        TransactionDate = new DateTimeOffset(),
+        TransactionGroupId = createdTransactionGroups[1]!.Id.ToString()
+      },
+      new CreateTransactionDto
+      {
+        Name = "TestTransaction_3",
+        Description = "Test Transaction",
+        Value = new Money
+        {
+          Amount = 100,
+          Currency = CurrencyEnum.HUF
+        },
+        TransactionType = TransactionTypeEnum.Expense,
+        TransactionDate = new DateTimeOffset(),
+        TransactionGroupId = createdTransactionGroups[2]!.Id.ToString()
+      }
+    };
+
+    foreach (var transactionToCreate in transactionsToCreate)
+    {
+      var transactionContent = CreateContent(transactionToCreate);
+      var transaction = await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContent));
+      createdTransactions.Add(transaction);
+    }
+
+    return createdTransactions;
+  }
+
   protected async Task<GetTransactionGroupDto?> CreateTransactionGroupAsync()
   {
     var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
@@ -190,56 +291,6 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     var result = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
 
     return result;
-  }
-
-  protected async Task<List<GetTransactionDto>> CreateMultipleTransactionAsync()
-  {
-    var transactionGroupContent = CreateContent(new CreateTransactionGroupDto
-    {
-      Name = "TransactionGroup",
-      Description = "Transaction group",
-      Limit = new Money
-      {
-        Currency = CurrencyEnum.USD,
-        Amount = 100
-      }
-    });
-
-    var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
-
-    var transactionList = new List<GetTransactionDto>();
-
-    var transactionContentHuf = CreateContent(new CreateTransactionDto
-    {
-      Name = "TestTransaction1",
-      Description = "Test Transaction",
-      Value = new Money
-      {
-        Amount = 1000000,
-        Currency = CurrencyEnum.HUF
-      },
-      TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = transactionGroup!.Id.ToString()
-    });
-
-    transactionList.Add((await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContentHuf)))!);
-
-    var transactionContentGbp = CreateContent(new CreateTransactionDto
-    {
-      Name = "TestTransaction2",
-      Description = "Test Transaction",
-      Value = new Money
-      {
-        Amount = 10,
-        Currency = CurrencyEnum.GBP
-      },
-      TransactionDate = new DateTimeOffset(),
-      TransactionGroupId = transactionGroup!.Id.ToString()
-    });
-
-    transactionList.Add((await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContentGbp)))!);
-
-    return transactionList;
   }
 
   protected async Task<T?> GetContentAsync<T>(HttpResponseMessage message)

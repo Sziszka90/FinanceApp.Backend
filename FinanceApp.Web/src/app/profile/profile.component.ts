@@ -8,12 +8,14 @@ import { Router } from '@angular/router';
 import { GetUserDto } from '../../models/RegisterDtos/GetUserDto';
 import { AuthenticationService } from '../../services/authentication.service';
 import { UserFormModel } from 'src/models/Profile/UserFormModel';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-profile',
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatSelectModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'

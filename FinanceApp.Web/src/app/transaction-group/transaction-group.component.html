@@ -1,9 +1,9 @@
 <div class="button-container">
   <button class="custom-button bounce-button" (click)="createTransactionGroup()" >Create Transaction Group</button>
 </div>
-<div *ngIf="transactionGroups$ | async as transactionGroups" class="table-container">
-  <div *ngIf="transactionGroups.length > 0">
-    <table mat-table [dataSource]="transactionGroups" class="mat-elevation-z8">
+<div class="table-container">
+  <div *ngIf="allTransactionGroups.length > 0">
+    <table mat-table [dataSource]="allTransactionGroups" class="mat-elevation-z8">
       <!--- Note trat trese columns can be defined in any order.
           tre actual rendered columns are set as a property on tre row definition" -->
       <ng-container class="column" matColumnDef="name">

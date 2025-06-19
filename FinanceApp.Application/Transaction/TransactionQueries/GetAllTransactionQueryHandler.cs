@@ -9,9 +9,9 @@ namespace FinanceApp.Application.Transaction.TransactionQueries;
 public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuery, Result<List<GetTransactionDto>>>
 {
   private readonly IMapper _mapper;
-  private readonly IRepository<Domain.Entities.Transaction> _transactionRepository;
+  private readonly ITransactionRepository _transactionRepository;
 
-  public GetAllTransactionQueryHandler(IMapper mapper, IRepository<Domain.Entities.Transaction> transactionRepository)
+  public GetAllTransactionQueryHandler(IMapper mapper, ITransactionRepository transactionRepository)
   {
     _mapper = mapper;
     _transactionRepository = transactionRepository;
@@ -19,7 +19,7 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
 
   public async Task<Result<List<GetTransactionDto>>> Handle(GetAllTransactionQuery request, CancellationToken cancellationToken)
   {
-    var result = await _transactionRepository.GetAllAsync(false, cancellationToken);
+    var result = await _transactionRepository.GetAllAsync(request.TransactionFilter, false, cancellationToken);
     return Result.Success(_mapper.Map<List<GetTransactionDto>>(result));
   }
 }

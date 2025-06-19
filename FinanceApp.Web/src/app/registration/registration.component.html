@@ -42,16 +42,11 @@
 
     <label class="default-font" for="currency">Currency</label>
     <div class="form-group">
-      <select
-        class="default-font select"
-        id="currency"
-        formControlName="currency"
-        required
-      >
-        <option *ngFor="let option of currencyOptions" [value]="option">
+      <mat-select class="select" formControlName="currency" required>
+        <mat-option *ngFor="let option of currencyOptions" [value]="option">
           {{ option }}
-        </option>
-      </select>
+        </mat-option>
+      </mat-select>
     </div>
 
     <button class="custom-button bounce-button default-font" type="submit" [disabled]="registrationForm.invalid">

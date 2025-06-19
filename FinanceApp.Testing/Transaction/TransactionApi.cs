@@ -115,18 +115,60 @@ public class TransactionApi : TestBase
   }
 
   [Fact]
-  public async Task GetAllTransactionSummary_ReturnsAllTransactionSummary()
+  public async Task GetAllTransaction_ByFilterTransactionGroup_ReturnsValidTransaction()
   {
     // Arrange
     await InitializeAsync();
     var transactions = await CreateMultipleTransactionAsync();
 
     // Act
+    var response = await GetContentAsync<List<GetTransactionDto>>(await Client.GetAsync(TRANSACTIONS + $"?TransactionGroupName={transactions[0]!.TransactionGroup!.Name}"));
+
+    // Assert
+    Assert.Equal(transactions[0]!.Id, response![0].Id);
+  }
+
+  [Fact]
+  public async Task GetAllTransaction_ByFilterTransactionName_ReturnsValidTransaction()
+  {
+    // Arrange
+    await InitializeAsync();
+    var transactions = await CreateMultipleTransactionAsync();
+
+    // Act
+    var response = await GetContentAsync<List<GetTransactionDto>>(await Client.GetAsync(TRANSACTIONS + $"?TransactionName={transactions[0]!.Name}"));
+
+    // Assert
+    Assert.Equal(transactions[0]!.Id, response![0].Id);
+  }
+
+  [Fact]
+  public async Task GetAllTransaction_ByFilterTransactionDateAscending_ReturnsValidTransaction()
+  {
+    // Arrange
+    await InitializeAsync();
+    var transactions = await CreateMultipleTransactionAsync();
+
+    // Act
+    var response = await GetContentAsync<List<GetTransactionDto>>(await Client.GetAsync(TRANSACTIONS + $"?OrderBy=TransactionDate&Ascending=true"));
+
+    // Assert
+    Assert.Equal(transactions[0]!.Id, response![0].Id);
+  }
+
+  [Fact]
+  public async Task GetAllTransactionSummary_ReturnsAllTransactionSummary()
+  {
+    // Arrange
+    await InitializeAsync();
+    var transaction = await CreateTransactionAsync();
+
+    // Act
     var response = await Client.GetAsync(TRANSACTIONS_SUMMARY);
     var sum = await GetContentAsync<Money>(response);
 
     // Assert
-    Assert.True(sum!.Amount < transactions[0].Value.Amount);
+    Assert.True(sum!.Amount < transaction?.Value.Amount);
   }
 
   [Fact]

@@ -41,9 +41,9 @@ public class TransactionsController : ControllerBase
   [ProducesResponseType(typeof(List<GetTransactionDto>), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetTransactionDto>>> GetTransactions()
+  public async Task<ActionResult<List<GetTransactionDto>>> GetTransactions([FromQuery] TransactionFilter? transactionFilter = null)
   {
-    var result = await _mediator.Send(new GetAllTransactionQuery());
+    var result = await _mediator.Send(new GetAllTransactionQuery(transactionFilter));
     return this.GetResult(result);
   }
 

@@ -25,7 +25,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   public summary$: Observable<Money> | undefined;
   public transactions$: Observable<GetTransactionDto[]> | undefined;
-  public allTransactions: GetTransactionDto[] | undefined;
+  public allTransactions: GetTransactionDto[] = [];
   public total: Money = {amount: 0, currency: CurrencyEnum.EUR};
 
   showSlide1: boolean = true;
@@ -47,32 +47,48 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.transactions$ = this.transactionApiService.getAllTransactions();
+    this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      this.allTransactions = value;
+    });
     this.summary$ = this.transactionApiService.getAllTransactionsSummary();
   }
 
-  deleteTransaction(row: any) {
-    this.transactionApiService.deleteTransaction(row.id).subscribe(() => {
-      this.transactions$ = this.transactionApiService.getAllTransactions();
-      this.summary$ = this.transactionApiService.getAllTransactionsSummary();
+  deleteTransaction(transactionDto: GetTransactionDto) {
+    this.transactionApiService.deleteTransaction(transactionDto.id).subscribe(() => {
+      this.allTransactions = this.allTransactions?.filter((t) => t.id !== transactionDto.id);
     });
   }
 
-  editTransaction(row: any) {
+  editTransaction(transactionDto: GetTransactionDto) {
     const dialogRef = this.matDialog.open(
       UpdateTransactionModalComponent,
       {
         width: '70vw',
         height: '90vh',
-        data: row,
+        data: transactionDto,
       }
     );
 
     dialogRef.afterClosed()
     .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.transactions$ = this.transactionApiService.getAllTransactions();
-      this.summary$ = this.transactionApiService.getAllTransactionsSummary();
-    })
+    .subscribe((updatedTransaction: GetTransactionDto) => {
+    if (updatedTransaction) {
+          this.allTransactions = this.allTransactions?.map((transaction: GetTransactionDto) => {
+            if (transaction.id === updatedTransaction.id) {
+              return {
+                ...transaction,
+                name: updatedTransaction.name,
+                description: updatedTransaction.description,
+                value: updatedTransaction.value,
+                transactionDate: updatedTransaction.transactionDate,
+                transactionType: updatedTransaction.transactionType,
+                transactionGroup: updatedTransaction.transactionGroup,
+              };
+            }
+            return transaction;
+          });
+        }
+    });
   }
 
   createTransaction() {
@@ -85,10 +101,11 @@ export class TransactionComponent implements OnInit, OnDestroy {
     )
     dialogRef.afterClosed()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.summary$ = this.transactionApiService.getAllTransactionsSummary();
-        this.transactions$ = this.transactionApiService.getAllTransactions();
-    })
+      .subscribe((createdTransaction) => {
+        if (createdTransaction) {
+          this.allTransactions = [...this.allTransactions, createdTransaction];
+        }
+      });
   };
 
   ngOnDestroy(): void {

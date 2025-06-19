@@ -45,12 +45,13 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   public transactionGroups$: Observable<GetTransactionGroupDto[]> | undefined;
+  public allTransactionGroups: GetTransactionGroupDto[] = [];
 
   touchStartX = 0;
 
   ngOnInit(): void {
     this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
-    this.transactionGroups$.subscribe(value => {console.log(value);});
+    this.transactionGroups$.pipe(takeUntil(this.destroy$)).subscribe(value => this.allTransactionGroups = value);
   }
 
   createTransactionGroup() {
@@ -64,32 +65,51 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed()
     .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
-    })
-  }
-
-  deleteTransactionGroup(row: any) {
-    this.transactionApiService.deleteTransactionGroup(row.id).subscribe(() => {
-      this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
+    .subscribe((createdTransactionGroup) => {
+      if (createdTransactionGroup) {
+        this.allTransactionGroups = [...this.allTransactionGroups, createdTransactionGroup];
+      }
     });
   }
 
-  editTransactionGroup(row: any) {
+  deleteTransactionGroup(transactionGroup: GetTransactionGroupDto) {
+    this.transactionApiService.deleteTransactionGroup(transactionGroup.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.allTransactionGroups = this.allTransactionGroups?.filter(
+          (group) => group.id !== transactionGroup.id
+        );
+      });
+  }
+
+  editTransactionGroup(transactionGroup: GetTransactionGroupDto) {
     const dialogRef = this.matDialog.open(
       UpdateTransactionGroupModalComponent,
       {
         width: '70vw',
         height: '90vh',
-        data: row,
+        data: transactionGroup,
       }
     );
 
     dialogRef.afterClosed()
     .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
-    })
+    .subscribe((updatedTransactionGroup) => {
+      if (updatedTransactionGroup) {
+        this.allTransactionGroups = this.allTransactionGroups?.map((transactionGroup) => {
+          if (transactionGroup.id === updatedTransactionGroup.id) {
+            return {
+              ...transactionGroup,
+              name: updatedTransactionGroup.name,
+              description: updatedTransactionGroup.description,
+              limit: updatedTransactionGroup.limit,
+              groupIcon: updatedTransactionGroup.groupIcon,
+            };
+          }
+          return transactionGroup;
+        });
+      }
+    });
   }
 
   ngOnDestroy(): void {
