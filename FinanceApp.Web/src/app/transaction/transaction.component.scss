@@ -7,3 +7,67 @@
   gap: 1rem;
   margin-top: 2rem;
 }
+
+.no-transactions {
+  text-align: center;
+  background-color: variables.$background-color;
+  font-size: 1.5em;
+  color: variables.$text-color;
+  width: 100%;
+}
+
+.filter-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 1rem;
+  margin: auto;
+}
+
+mat-select {
+  margin: 0rem;
+}
+
+.sort-buttons mat-icon {
+  cursor: pointer;
+  color: variables.$primary-color;
+  font-size: small;
+}
+
+.form-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sort-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.sorting-header {
+  display: flex;
+  flex-direction: row;
+}
+
+@media (min-width: 800px) {
+  .form-group {
+    flex-direction: row;
+    width: 100%;
+    margin: 0rem;
+  }
+
+  form {
+    width: 80%;
+  }
+}

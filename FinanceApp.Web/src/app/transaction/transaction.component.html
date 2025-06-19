@@ -5,9 +5,48 @@
   <div class="title">Sum of Transactions</div>
   <div class="value" id="value">{{ summary.amount }} {{ summary.currency }}</div>
 </div>
+
+<hr />
+
+<div class="filter-form-container">
+  <h3 class="default-font text-color-grey">Filter Transactions</h3>
+  <form [formGroup]="filterForm" class="search-container">
+    <div class="form-group">
+      <input
+        type="text"
+        placeholder="Search by name"
+        formControlName="name"
+        class="search-input"
+      />
+
+      <input
+        type="date"
+        placeholder="Transaction date"
+        formControlName="date"
+        class="search-input"
+      />
+
+      <mat-select class="select" formControlName="type">
+        <mat-option *ngFor="let option of typeOptions" [value]="option.name">
+          &#8226; {{ option.name }}
+        </mat-option>
+      </mat-select>
+    </div>
+
+    <div class="button-container">
+      <button type="button" class="custom-button bounce-button" (click)="applyFilters()">
+        Apply Filter
+      </button>
+      <button type="button" class="custom-button bounce-button" (click)="resetFilters()">
+        Reset Filter
+      </button>
+    </div>
+  </form>
+</div>
+
 <div class="table-container">
-  <div *ngIf="allTransactions.length > 0">
-    <table mat-table [dataSource]="allTransactions" class="mat-elevation-z8">
+  <div *ngIf="filteredTransactions.length > 0; else noTransactions">
+    <table mat-table [dataSource]="filteredTransactions" class="mat-elevation-z8">
       <ng-container class="column" matColumnDef="name">
         <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef> Name </th>
         <td class="default-font text-color-black" mat-cell *matCellDef="let element"> {{element.name}} </td>
@@ -19,7 +58,19 @@
       </ng-container>
 
       <ng-container class="column" matColumnDef="value">
-        <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef> Value </th>
+        <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef>
+          <div class="sorting-header">
+            <span class="default-font text-color-black">Value</span>
+            <div class="sort-buttons">
+              <button *ngIf="showValueAsc" mat-icon-button type="button" (click)="sortByValue('asc')">
+                <mat-icon>arrow_upward</mat-icon>
+              </button>
+              <button *ngIf="showValueDesc" mat-icon-button type="button" (click)="sortByValue('desc')">
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+            </div>
+          </div>
+        </th>
         <td class="default-font text-color-black" mat-cell *matCellDef="let element"> {{element.value.amount}} </td>
       </ng-container>
 
@@ -29,7 +80,19 @@
       </ng-container>
 
       <ng-container class="column" matColumnDef="transactionDate">
-        <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef> Transaction Date </th>
+        <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef>
+          <div class="sorting-header">
+            <span class="default-font text-color-black">Transaction Date</span>
+            <div class="sort-buttons">
+              <button *ngIf="showDateAsc" mat-icon-button type="button" (click)="sortByDate('asc')">
+                <mat-icon>arrow_upward</mat-icon>
+              </button>
+              <button *ngIf="showDateDesc" mat-icon-button type="button" (click)="sortByDate('desc')">
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+            </div>
+          </div>
+        </th>
         <td class="default-font text-color-black" mat-cell *matCellDef="let element"> {{element.transactionDate | date:'short'}} </td>
       </ng-container>
 
@@ -69,3 +132,9 @@
     </table>
   </div>
 </div>
+
+<ng-template #noTransactions>
+  <div class="default-font no-transactions">
+    No transactions found.
+  </div>
+</ng-template>

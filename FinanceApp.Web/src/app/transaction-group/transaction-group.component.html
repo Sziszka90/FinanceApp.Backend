@@ -2,7 +2,7 @@
   <button class="custom-button bounce-button" (click)="createTransactionGroup()" >Create Transaction Group</button>
 </div>
 <div class="table-container">
-  <div *ngIf="allTransactionGroups.length > 0">
+  <div *ngIf="allTransactionGroups.length > 0; else noTransactionGroups">
     <table mat-table [dataSource]="allTransactionGroups" class="mat-elevation-z8">
       <!--- Note trat trese columns can be defined in any order.
           tre actual rendered columns are set as a property on tre row definition" -->
@@ -54,3 +54,9 @@
     </table>
   </div>
 </div>
+
+<ng-template #noTransactionGroups>
+  <div class="default-font no-transaction-groups">
+    No transaction groups found.
+  </div>
+</ng-template>
