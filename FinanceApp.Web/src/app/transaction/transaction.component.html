@@ -19,12 +19,11 @@
         class="search-input"
       />
 
-      <input
-        type="date"
-        placeholder="Transaction date"
-        formControlName="date"
-        class="search-input"
-      />
+      <div class="date-picker-container">
+        <input [matDatepicker]="picker" formControlName="date" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </div>
 
       <mat-select class="select" formControlName="type">
         <mat-option *ngFor="let option of typeOptions" [value]="option.name">
@@ -34,9 +33,6 @@
     </div>
 
     <div class="button-container">
-      <button type="button" class="custom-button bounce-button" (click)="applyFilters()">
-        Apply Filter
-      </button>
       <button type="button" class="custom-button bounce-button" (click)="resetFilters()">
         Reset Filter
       </button>
@@ -93,7 +89,9 @@
             </div>
           </div>
         </th>
-        <td class="default-font text-color-black" mat-cell *matCellDef="let element"> {{element.transactionDate | date:'short'}} </td>
+        <td class="default-font text-color-black" mat-cell *matCellDef="let element">
+          {{ element.transactionDate | date:'yyyy/MM/dd' }}
+        </td>
       </ng-container>
 
       <ng-container class="column" matColumnDef="transactionType">

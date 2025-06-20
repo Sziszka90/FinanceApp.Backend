@@ -65,7 +65,7 @@ jobs:
             --image ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }} \
             --set-env-vars \
               ConnectionStrings__MsSql='${{ secrets.DB_CONNECTION_STRING }}' \
-              ExchangeRateSettings__ApiKey='${{ secrets.API_KEY }}' \
+              LLMHttpClientSettings__ApiKey='${{ secrets.OPEN_AI_API_KEY }}' \
               AuthenticationSettings__SecretKey='${{ secrets.SECRET_KEY }}' \
               AuthenticationSettings__Audience='${{ vars.AUDIENCE }}' \
               AuthenticationSettings__Issuer='${{ vars.ISSUER }}'

@@ -8,6 +8,8 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OpenAI;
+using OpenAI.Chat;
 
 namespace FinanceApp.Application;
 
@@ -15,6 +17,7 @@ public static class DependencyInjection
 {
   public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
   {
+    services.AddLLM();
     services.AddAutoMapper(config => { config.AddMaps(typeof(DependencyInjection).Assembly); });
     services.AddMediatR(config => config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
     services.AddValidators();
@@ -43,12 +46,18 @@ public static class DependencyInjection
   private static IServiceCollection AddServices(this IServiceCollection services)
   {
     services.AddScoped<IJwtService, JwtService>();
+    services.AddScoped<ILLMClient, LLMClient>();
     return services;
   }
 
-  private static IServiceCollection AddHttpClient(this IServiceCollection services)
+  private static IServiceCollection AddLLM(this IServiceCollection services)
   {
-    services.AddHttpClient<IExchangeRateHttpClient, ExchangeRateHttpClient>();
+    services.AddScoped(sp =>
+    {
+        var apiKey = sp.GetRequiredService<IConfiguration>()["LLMClientSettings:ApiKey"];
+        ChatClient client = new(model: "gpt-4o", apiKey);
+        return client;
+    });
     return services;
   }
 }

@@ -9,16 +9,12 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import {
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
   MatDialogRef,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
 import { Subject, take, takeUntil } from 'rxjs';
 import { CurrencyEnum } from '../../models/Money/Money';
@@ -86,6 +82,9 @@ export class CreateTransactionModalComponent implements OnDestroy {
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
+      const date: Date = this.transactionForm.get('transactionDate')?.value;
+      const formattedDate = new Date(date ? formatDate(date, 'yyyy-MM-dd', 'en-US') : '');
+
       this.transactionApiService
         .createTransaction({
           name: this.transactionForm.get('name')?.value,
@@ -94,7 +93,7 @@ export class CreateTransactionModalComponent implements OnDestroy {
             amount: this.transactionForm.get('value')?.value,
             currency: this.transactionForm.get('currency')!.value,
           },
-          transactionDate: this.transactionForm.get('transactionDate')?.value,
+          transactionDate: formattedDate,
           transactionType: this.transactionForm.get('transactionType')?.value,
           transactionGroupId: this.transactionForm.get('group')?.value.id,
         })

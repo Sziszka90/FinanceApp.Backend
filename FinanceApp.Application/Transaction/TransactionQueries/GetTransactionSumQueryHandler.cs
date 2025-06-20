@@ -15,7 +15,7 @@ namespace FinanceApp.Application.Transaction.TransactionQueries;
 public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuery, Result<Money>>
 {
   private readonly IMapper _mapper;
-  private readonly IExchangeRateHttpClient _exchangeRateHttpClient;
+  private readonly ILLMClient _llmClient;
   private readonly IRepository<Domain.Entities.Transaction> _transactionRepository;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly IOptions<ExchangeRateSettings> _exchangeRateOptions;
@@ -25,12 +25,12 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
     IMapper mapper,
     IRepository<Domain.Entities.Transaction> transactionRepository,
     IRepository<Domain.Entities.User> userRepository,
-    IExchangeRateHttpClient exchangeRateHttpClient,
+    ILLMClient llmClient,
     IOptions<ExchangeRateSettings> exchangeRateOptions,
     IHttpContextAccessor httpContextAccessor)
   {
     _mapper = mapper;
-    _exchangeRateHttpClient = exchangeRateHttpClient;
+    _llmClient = llmClient;
     _transactionRepository = transactionRepository;
     _userRepository = userRepository;
     _exchangeRateOptions = exchangeRateOptions;
@@ -55,32 +55,23 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
 
     var targetCurrency = (CurrencyEnum)Enum.Parse(typeof(CurrencyEnum), baseCurrency);
 
+    var exchangeRates = await _llmClient.GetExchangeDataAsync(targetCurrency);
+
+    if (!exchangeRates.IsSuccess)
+    {
+      return Result.Failure<Money>(exchangeRates.ApplicationError!);
+    }
+
     var summAmount = new Money
     {
-      Currency = targetCurrency,
-      Amount = 0
+      Amount = 0,
+      Currency = targetCurrency
     };
 
-    var dummyResult = new Money
-    {
-      Currency = targetCurrency,
-      Amount = 34242524
-    };
-
-    return Result.Success(dummyResult);
-
-  /*
     foreach (var transaction in allTransaction)
     {
       if (transaction.Value.Currency != targetCurrency)
       {
-        var exchangeRates = await _exchangeRateHttpClient.GetDataAsync(transaction.Value.Currency.ToString(), targetCurrency.ToString());
-
-        if (!exchangeRates.IsSuccess)
-        {
-          return Result.Failure<Money>(ApplicationError.DefaultError("Transaction request error"));
-        }
-
         summAmount.Amount = summAmount.Amount + (transaction.Value.Amount * (exchangeRates.Data!.Rates[targetCurrency.ToString()] / exchangeRates.Data!.Rates[transaction.Value.Currency.ToString()]));
       }
       else
@@ -91,6 +82,5 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
     }
 
     return Result.Success(summAmount);
-    */
   }
 }

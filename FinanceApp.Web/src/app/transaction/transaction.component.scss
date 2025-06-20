@@ -60,7 +60,20 @@ span {
   flex-direction: row;
 }
 
-@media (min-width: 800px) {
+.mat-datepicker-toggle {
+  color: variables.$text-color;
+}
+
+.date-picker-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+
+@media (min-width: 900px) {
   .form-group {
     flex-direction: row;
     width: 100%;

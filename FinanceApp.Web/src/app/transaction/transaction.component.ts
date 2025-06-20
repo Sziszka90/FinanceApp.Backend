@@ -13,6 +13,8 @@ import { MatTableModule } from '@angular/material/table';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-transaction',
@@ -22,6 +24,7 @@ import { MatSelectModule } from '@angular/material/select';
     CommonModule,
     MatTableModule,
     MatSelectModule,
+    MatDatepickerModule,
     ReactiveFormsModule,
   ],
   templateUrl: './transaction.component.html',
@@ -147,11 +150,13 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   applyFilters() {
     const { name, date, type } = this.filterForm.value;
+    const formattedDate = date ? formatDate(date, 'yyyy-MM-dd', 'en-US') : '';
+
     this.filteredTransactions = this.allTransactions.filter(t =>
       (!name || t.name.toLowerCase().includes(name.toLowerCase())) &&
-      (!date || (
+      (!formattedDate || (
         t.transactionDate &&
-        new Date(t.transactionDate).toISOString().slice(0, 10) === date
+        new Date(t.transactionDate).toISOString().slice(0, 10) === formattedDate
       )) &&
       (!type || t.transactionType === type)
     );

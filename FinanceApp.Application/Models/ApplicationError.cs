@@ -18,6 +18,9 @@ public class ApplicationError
   public const string INVALID_PASSWORD_MESSAGE = "Invalid password";
   public const string INVALID_PASSWORD_CODE = "INVALID_PASSWORD";
 
+  public const string INVALID_EXCHANGE_RATE_RESPONSE_MESSAGE = "Invalid exchange rate response";
+  public const string INVALID_EXCHANGE_RATE_RESPONSE_CODE = "INVALID_EXCHANGE_RATE_RESPONSE";
+
   public const string NAME_ALREADY_EXISTS_MESSAGE = "Entity with this name already exists.";
   public const string NAME_ALREADY_EXISTS_CODE = "NAME_ALREADY_EXISTS";
 
@@ -133,6 +136,18 @@ public class ApplicationError
     return new ApplicationError(INVALID_PASSWORD_MESSAGE, INVALID_PASSWORD_CODE, new Dictionary<string, object>
     {
       { "userName", userName }
+    });
+  }
+
+  /// <summary>
+  /// Error for when exchange rate response is invalid
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError InvalidExchangeRateResponseError()
+  {
+    return new ApplicationError(INVALID_EXCHANGE_RATE_RESPONSE_MESSAGE, INVALID_EXCHANGE_RATE_RESPONSE_CODE, new Dictionary<string, object>
+    {
+      { "message", "The exchange rate response is invalid or cannot be parsed." }
     });
   }
 
