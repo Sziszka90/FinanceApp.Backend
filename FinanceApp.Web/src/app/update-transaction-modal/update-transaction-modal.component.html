@@ -33,13 +33,9 @@
           Currency is required
         </div>
     </div>
-   <label for="transactionDate">Transaction Date</label>
-    <div class="form-group">
-      <mat-form-field>
-        <input matInput [matDatepicker]="picker" formControlName="transactionDate" id="transactionDate" />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+    <label for="transactionDate">Transaction Date</label>
+    <div class="date-picker-container">
+      <input mwlFlatpickr formControlName="date" />
     </div>
 
     <label for="transactionType">Transaction Type</label>

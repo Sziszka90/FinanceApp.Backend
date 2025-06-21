@@ -2,7 +2,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, of, Subject, takeUntil } from 'rxjs';
 import { TransactionApiService } from 'src/services/transactions.api.service';
 import { CurrencyEnum, Money } from 'src/models/Money/Money';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,8 +13,9 @@ import { MatTableModule } from '@angular/material/table';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { formatDate } from '@angular/common';
+import { FlatpickrDirective } from 'angularx-flatpickr';
+import { getCurrencyName } from 'src/helpers/helpers';
 
 @Component({
   selector: 'app-transaction',
@@ -24,8 +25,8 @@ import { formatDate } from '@angular/common';
     CommonModule,
     MatTableModule,
     MatSelectModule,
-    MatDatepickerModule,
     ReactiveFormsModule,
+    FlatpickrDirective
   ],
   templateUrl: './transaction.component.html',
   styleUrl: './transaction.component.scss',
@@ -83,7 +84,9 @@ export class TransactionComponent implements OnInit, OnDestroy {
       this.allTransactions = value;
       this.filteredTransactions = value;
     });
-    this.summary$ = this.transactionApiService.getAllTransactionsSummary();
+
+    var summ = {amount: 0, currency: CurrencyEnum.EUR } as Money;
+    this.summary$ = of(summ);//this.transactionApiService.getAllTransactionsSummary();
 
     this.filterForm.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -213,6 +216,10 @@ export class TransactionComponent implements OnInit, OnDestroy {
       if (valueA > valueB) return direction === 'asc' ? 1 : -1;
       return 0;
     });
+  }
+
+  getCurrencyName(currency: number): string {
+    return getCurrencyName(currency);
   }
 
   ngOnDestroy(): void {

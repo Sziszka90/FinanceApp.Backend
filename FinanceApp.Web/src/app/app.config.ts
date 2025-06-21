@@ -20,6 +20,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { AuthenticationService } from '../services/authentication.service';
 import { ErrorModalComponent } from './error-modal/error-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { provideFlatpickrDefaults } from 'angularx-flatpickr';
 
 export const provideTranslation = () => ({
   defaultLanguage: 'en',
@@ -113,5 +114,6 @@ export const appConfig: ApplicationConfig = {
     ),
     importProvidersFrom([TranslateModule.forRoot(provideTranslation())]),
     provideAnimationsAsync(),
+    provideFlatpickrDefaults()
   ],
 };

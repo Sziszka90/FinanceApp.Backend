@@ -44,6 +44,18 @@
   justify-content: space-around;
 }
 
+.date-picker-container input {
+  width: 100%;
+}
+
+.date-picker-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
 @media (max-width: 530px) {
   .form-container {
     padding: 0.5rem;

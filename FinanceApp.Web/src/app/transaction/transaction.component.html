@@ -3,7 +3,7 @@
 </div>
 <div *ngIf="summary$ | async as summary" class="summary default-font text-color-grey">
   <div class="title">Sum of Transactions</div>
-  <div class="value" id="value">{{ summary.amount }} {{ summary.currency }}</div>
+  <div class="value" id="value">{{ summary.amount }} {{ getCurrencyName(summary.currency) }}</div>
 </div>
 
 <hr />
@@ -20,9 +20,7 @@
       />
 
       <div class="date-picker-container">
-        <input [matDatepicker]="picker" formControlName="date" />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
+        <input mwlFlatpickr formControlName="date" />
       </div>
 
       <mat-select class="select" formControlName="type">

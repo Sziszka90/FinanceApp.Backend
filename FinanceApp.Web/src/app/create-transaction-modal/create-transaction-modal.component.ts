@@ -21,6 +21,7 @@ import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { MatIconModule } from '@angular/material/icon';
+import { FlatpickrDirective } from 'angularx-flatpickr';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -33,6 +34,7 @@ import { MatIconModule } from '@angular/material/icon';
     ReactiveFormsModule,
     MatSelectModule,
     CommonModule,
+    FlatpickrDirective
   ],
   templateUrl: './create-transaction-modal.component.html',
   styleUrl: './create-transaction-modal.component.scss',

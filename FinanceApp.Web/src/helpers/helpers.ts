@@ -1,4 +1,5 @@
 import { AbstractControl, ValidationErrors } from "@angular/forms";
+import { CurrencyEnum } from "src/models/Money/Money";
 
 export function enumValidator(enumObj: any) {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -10,4 +11,8 @@ export function enumValidator(enumObj: any) {
     const isValid = Object.values(enumObj).includes(value);
     return isValid ? null : { invalidEnum: true };
   };
+}
+
+export function getCurrencyName(currency: number): string {
+  return CurrencyEnum[currency];
 }

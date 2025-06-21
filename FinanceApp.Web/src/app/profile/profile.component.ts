@@ -62,8 +62,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       baseCurrency: this.updateUserForm.get('currency')?.value ?? CurrencyEnum.Unknown,
     }).pipe(take(1))
     .subscribe(() => {
-      this.authService.logout();
-      this.router.navigate(['/login'])
+      this.router.navigate(['/'])
     }
     );
 

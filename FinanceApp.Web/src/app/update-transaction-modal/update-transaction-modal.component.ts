@@ -10,13 +10,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import {
   MAT_DIALOG_DATA,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
   MatDialogRef,
-  MatDialogTitle,
 } from '@angular/material/dialog';
-import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
@@ -26,6 +22,7 @@ import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { enumValidator } from 'src/helpers/helpers';
+import { FlatpickrDirective } from 'angularx-flatpickr';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -37,6 +34,7 @@ import { enumValidator } from 'src/helpers/helpers';
     ReactiveFormsModule,
     MatSelectModule,
     CommonModule,
+    FlatpickrDirective
   ],
   templateUrl: './update-transaction-modal.component.html',
   styleUrl: './update-transaction-modal.component.scss',
