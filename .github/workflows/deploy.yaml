@@ -46,7 +46,7 @@ jobs:
       - name: Build and Push Frontend image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -f FrontendService.Dockerfile -t ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }} ./FinanceApp.Web
+          docker build -t ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }} -f ./FinanceApp.Web/FrontendService.Dockerfile ./FinanceApp.Web
           docker push ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }}
 
       - name: Build and Push .NET image
