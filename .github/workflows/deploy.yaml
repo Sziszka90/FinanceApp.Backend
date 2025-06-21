@@ -58,7 +58,7 @@ jobs:
       - name: Build and Push Gateway image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }} -f Gateway.Dockerfile .
+          docker build -t ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }} -f GatewayService.Dockerfile .
           docker push ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }}
 
       - name: Update Azure Container App (Backend)
