@@ -1,13 +1,12 @@
 ﻿using System.Text.Json;
-using FinanceApp.Application.Abstraction.HttpClients;
+using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Dtos.ExchangeRateDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Enums;
 using Microsoft.Extensions.Logging;
-using OpenAI;
 using OpenAI.Chat;
 
-namespace FinanceApp.Application.HttpClients;
+namespace FinanceApp.Application.Clients;
 
 public class LLMClient : ILLMClient
 {

@@ -2,7 +2,7 @@
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Enums;
 
-namespace FinanceApp.Application.Abstraction.HttpClients;
+namespace FinanceApp.Application.Abstraction.Clients;
 
 public interface ILLMClient
 {

@@ -1,4 +1,5 @@
-﻿using FinanceApp.Application.Dtos.UserDtos;
+﻿using System.Data;
+using FinanceApp.Application.Dtos.UserDtos;
 using FluentValidation;
 
 namespace FinanceApp.Application.User.UserCommands;

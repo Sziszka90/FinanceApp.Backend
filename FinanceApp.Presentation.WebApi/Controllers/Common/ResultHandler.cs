@@ -18,10 +18,22 @@ public static class ResultHandler
   /// <returns></returns>
   public static ActionResult GetResult<T>(this ControllerBase controller, Result<T> appResult, int succeededStatusCode = StatusCodes.Status200OK)
   {
-    if (!appResult.IsSuccess)
+
+    if(succeededStatusCode == StatusCodes.Status302Found)
     {
-      return AssignHttpCodeToError(controller, appResult.ApplicationError!);
+      if(!appResult.IsSuccess)
+      {
+        controller.Response.Headers.Location = $"https://financeapp.fun/validation-failed";
+        return controller.StatusCode(succeededStatusCode);
+      }
+      controller.Response.Headers.Location = "https://financeapp.fun/login";
+      return controller.StatusCode(succeededStatusCode);
     }
+
+    if (!appResult.IsSuccess)
+      {
+        return AssignHttpCodeToError(controller, appResult.ApplicationError!);
+      }
 
     return controller.StatusCode(succeededStatusCode, appResult.Data);
   }

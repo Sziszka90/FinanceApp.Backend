@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
-using FinanceApp.Application.Abstraction.HttpClients;
+using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Models;

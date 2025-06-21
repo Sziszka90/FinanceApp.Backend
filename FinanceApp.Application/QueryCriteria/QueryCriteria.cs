@@ -112,4 +112,22 @@ public static class UserQueryCriteria
 
     return builder.Build();
   }
+
+  public static QueryCriteria<Domain.Entities.User> FindUserEmail(CreateUserDto request)
+  {
+    var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
+
+    builder.Where(x => x.Email == request.Email);
+
+    return builder.Build();
+  }
+
+  public static QueryCriteria<Domain.Entities.User> FindUserEmail(string email)
+  {
+    var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
+
+    builder.Where(x => x.Email == email);
+
+    return builder.Build();
+  }
 }

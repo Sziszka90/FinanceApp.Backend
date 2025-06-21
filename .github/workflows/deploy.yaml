@@ -55,6 +55,12 @@ jobs:
           docker build -t ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }} .
           docker push ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }}
 
+      - name: Build and Push Gateway image
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }} -f Gateway.Dockerfile .
+          docker push ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }}
+
       - name: Update Azure Container App (Backend)
         run: |
           set -x
@@ -78,3 +84,12 @@ jobs:
             --name finance-app-frontend \
             --resource-group projects \
             --image ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }}
+
+      - name: Update Azure Container App (Gateway)
+        run: |
+          set -x
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          az containerapp update \
+            --name finance-app-gateway \
+            --resource-group projects \
+            --image ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }}

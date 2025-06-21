@@ -22,6 +22,12 @@ public class CreateUserDtoValidator : AbstractValidator<CreateUserDto>
       .WithMessage("Password must contain at least one digit.")
       .Matches("[^a-zA-Z0-9]")
       .WithMessage("Password must contain at least one special character.");
+    RuleFor(x => x.Email)
+      .NotEmpty()
+      .WithMessage("Email cannot be empty.")
+      .EmailAddress()
+      .WithMessage("A valid email address is required.");
+      
     RuleFor(x => x.BaseCurrency)
       .IsInEnum();
   }

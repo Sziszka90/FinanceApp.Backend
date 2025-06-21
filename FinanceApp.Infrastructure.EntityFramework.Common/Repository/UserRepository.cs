@@ -32,4 +32,17 @@ public class UserRepository : GenericRepository<Domain.Entities.User>, IUserRepo
     return await _filteredQueryProvider.Query<Domain.Entities.User>()
                           .FirstOrDefaultAsync(user => user.UserName == userName, cancellationToken);
   }
+
+  public async Task<Domain.Entities.User?> GetUserByEmail(string email, bool noTracking = false, CancellationToken cancellationToken = default)
+  {
+    if (noTracking)
+    {
+      return await _filteredQueryProvider.Query<Domain.Entities.User>()
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
+    }
+
+    return await _filteredQueryProvider.Query<Domain.Entities.User>()
+                          .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
+  }
 }

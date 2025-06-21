@@ -18,6 +18,9 @@ public class ApplicationError
   public const string INVALID_PASSWORD_MESSAGE = "Invalid password";
   public const string INVALID_PASSWORD_CODE = "INVALID_PASSWORD";
 
+  public const string INVALID_TOKEN_MESSAGE = "Invalid token";
+  public const string INVALID_TOKEN_CODE = "INVALID_TOKEN";
+
   public const string INVALID_EXCHANGE_RATE_RESPONSE_MESSAGE = "Invalid exchange rate response";
   public const string INVALID_EXCHANGE_RATE_RESPONSE_CODE = "INVALID_EXCHANGE_RATE_RESPONSE";
 
@@ -26,6 +29,15 @@ public class ApplicationError
 
   public const string USERNAME_ALREADY_EXISTS_MESSAGE = "User with this name already exists.";
   public const string USERNAME_ALREADY_EXISTS_CODE = "USERNAME_ALREADY_EXISTS";
+
+  public const string EMAIL_NOT_YET_CONFIRMED_MESSAGE = "Email address not yet confirmed.";
+  public const string EMAIL_NOT_YET_CONFIRMED_CODE = "EMAIL_NOT_YET_CONFIRMED";
+
+  public const string USEREMAIL_ALREADY_EXISTS_MESSAGE = "User with this email already exists.";
+  public const string USEREMAIL_ALREADY_EXISTS_CODE = "USEREMAIL_ALREADY_EXISTS";
+
+  public const string USEREMAIL_CONFIRMATION_ERROR_MESSAGE = "Email confirmation error.";
+  public const string USEREMAIL_CONFIRMATION_ERROR_CODE = "USEREMAIL_CONFIRMATION_ERROR";
 
   public const string TRANSACTION_GROUP_NOT_EXISTS_MESSAGE = "Transaction group does not exists.";
   public const string TRANSACTION_GROUP_NOT_EXISTS_CODE = "TRANSACTION_GROUP_NOT_EXISTS";
@@ -140,6 +152,15 @@ public class ApplicationError
   }
 
   /// <summary>
+  /// Error during email confirm validation
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError InvalidTokenError()
+  {
+    return new ApplicationError(INVALID_TOKEN_MESSAGE, INVALID_TOKEN_CODE);
+  }
+
+  /// <summary>
   /// Error for when exchange rate response is invalid
   /// </summary>
   /// <returns></returns>
@@ -185,6 +206,42 @@ public class ApplicationError
     return new ApplicationError(USERNAME_ALREADY_EXISTS_MESSAGE, USERNAME_ALREADY_EXISTS_CODE, new Dictionary<string, object>
     {
       { "name", name }
+    });
+  }
+
+  /// <summary>
+  /// Email address not yet confirmed error
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError EmailNotYetConfirmedError(string email)
+  {
+    return new ApplicationError(EMAIL_NOT_YET_CONFIRMED_MESSAGE, EMAIL_NOT_YET_CONFIRMED_CODE, new Dictionary<string, object>
+    {
+      { "email", email }
+    });
+  }
+
+  /// <summary>
+  /// Error for when user email already exists
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError UserEmailAlreadyExistsError(string email)
+  {
+    return new ApplicationError(USEREMAIL_ALREADY_EXISTS_MESSAGE, USEREMAIL_ALREADY_EXISTS_CODE, new Dictionary<string, object>
+    {
+      { "email", email }
+    });
+  }
+
+  /// <summary>
+  /// Email confirmation error
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError EmailConfirmationError(string email)
+  {
+    return new ApplicationError(USEREMAIL_CONFIRMATION_ERROR_MESSAGE, USEREMAIL_CONFIRMATION_ERROR_CODE, new Dictionary<string, object>
+    {
+      { "email", email }
     });
   }
 

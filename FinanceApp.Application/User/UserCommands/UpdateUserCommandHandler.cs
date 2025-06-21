@@ -36,7 +36,19 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
       return Result.Failure<GetUserDto>(ApplicationError.EntityNotFoundError());
     }
 
-    user.Update(request.UpdateUserDto.BaseCurrency);
+    var criteriaForUserName = UserQueryCriteria.FindUserName(request.UpdateUserDto.UserName);
+
+    var usersWithSameName = await _userRepository.GetQueryAsync(criteriaForUserName, cancellationToken: cancellationToken);
+
+    if (usersWithSameName.Count > 0)
+    {
+      _logger.LogError("User already exists with name:{Name}", request.UpdateUserDto.UserName);
+      return Result.Failure<GetUserDto>(ApplicationError.UserNameAlreadyExistsError(request.UpdateUserDto.UserName));
+    }
+
+    var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.UpdateUserDto.Password);
+
+    user.Update(request.UpdateUserDto.UserName, passwordHash,  request.UpdateUserDto.BaseCurrency);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

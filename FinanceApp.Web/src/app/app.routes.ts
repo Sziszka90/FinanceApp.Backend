@@ -8,6 +8,7 @@ import { LoggedInComponent } from './logged-in/logged-in.component';
 import { ProfileComponent } from './profile/profile.component';
 import { TransactionGroupComponent } from './transaction-group/transaction-group.component';
 import { TOKEN_KEY } from 'src/models/Constants/token.const';
+import { ValidationFailedComponent } from './validation-failed/validation-failed.component';
 
 // Simple AuthGuard implementation
 const AuthGuard: CanActivateFn = () => {
@@ -23,5 +24,6 @@ export const routes: Routes = [
   { path: 'registration', component: RegistrationComponent },
   { path: 'transactions', component: TransactionComponent, canActivate: [AuthGuard] },
   { path: 'transactions-groups', component: TransactionGroupComponent, canActivate: [AuthGuard] },
+  { path: 'validation-failed', component: ValidationFailedComponent },
   { path: '**', component: NotFoundComponent },
 ];
