@@ -81,6 +81,8 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
       }
     }
 
+    summAmount.Amount = Math.Round(summAmount.Amount, 2);
+
     return Result.Success(summAmount);
   }
 }
