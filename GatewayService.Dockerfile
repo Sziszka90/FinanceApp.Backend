@@ -8,6 +8,6 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY gateway-nginx.conf /etc/nginx/conf.d/
 
 # Expose the gateway port
-EXPOSE 8081
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]
