@@ -9,6 +9,8 @@ RUN npm run build:production
 # Stage 2: Serve the app with Nginx
 FROM nginx:alpine
 COPY --from=build /app/dist/browser /usr/share/nginx/html
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
 COPY default.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
