@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
 
 jobs:
   build-and-deploy:
