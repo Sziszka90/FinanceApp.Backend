@@ -24,7 +24,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     };
 
     var confirmationToken = _jwtService.GenerateToken(user.UserName);
-    var confirmationLink = $"https://financeapp.fun/users/{user.Id}/confirm-email?token={confirmationToken}";
+    var confirmationLink = $"https://financeapp.fun/api/users/{user.Id}/confirm-email?token={confirmationToken}";
 
     var model = new
     {

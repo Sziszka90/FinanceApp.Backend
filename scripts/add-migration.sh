@@ -5,7 +5,7 @@ PROVIDER=$2
 
 if [ -z "$MIGRATION_NAME" ]; then
   echo "❌ Migration name is required."
-  echo "Usage: ./scripts/run-migration.sh MigrationName [mssql|sqlite]"
+  echo "Usage: ./scripts/add-migration.sh MigrationName [mssql|sqlite]"
   exit 1
 fi
 
