@@ -25,4 +25,9 @@ public class User : BaseEntity
     PasswordHash = passwordHash;
     BaseCurrency = baseCurrency;
   }
+
+  public void UpdatePassword(string passwordHash)
+  {
+    PasswordHash = passwordHash;
+  }
 }

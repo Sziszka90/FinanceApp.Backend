@@ -62,7 +62,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-    await _smtpEmailSender.SendEmailAsync(user);
+    await _smtpEmailSender.SendEmailConfirmationAsync(user);
 
     _logger.LogInformation("User created with ID:{Id}", user.Id);
 

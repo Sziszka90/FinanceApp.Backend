@@ -80,7 +80,13 @@ jobs:
               LLMClientSettings__ApiKey='${{ secrets.OPEN_AI_API_KEY }}' \
               AuthenticationSettings__SecretKey='${{ secrets.SECRET_KEY }}' \
               AuthenticationSettings__Audience='${{ vars.AUDIENCE }}' \
-              AuthenticationSettings__Issuer='${{ vars.ISSUER }}'
+              AuthenticationSettings__Issuer='${{ vars.ISSUER }}' \
+              SmtpSettings__SmtpHost='${{ vars.SMTP_HOST }}' \
+              SmtpSettings__SmtpPort='${{ vars.SMTP_PORT }}' \
+              SmtpSettings__SmtpUser='${{ secrets.SMTP_USER }}' \
+              SmtpSettings__SmtpPass='${{ secrets.SMTP_PASS }}' \
+              SmtpSettings__FromEmail='${{ secrets.SMTP_FROM_EMAIL }}'
+
 
       - name: Update Azure Container App (Frontend)
         run: |

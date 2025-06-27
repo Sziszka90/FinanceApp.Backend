@@ -4,6 +4,9 @@ import { AuthenticationService } from '../../services/authentication.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { UserApiService } from 'src/services/user.api.service';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { ResetPasswordRequestModalComponent } from '../reset-password-request-modal/reset-password-request-modal.component';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +26,7 @@ export class LoginComponent implements OnDestroy {
   loginSubscription: Subscription | undefined;
 
   private authService = inject(AuthenticationService);
+  private matDialog = inject(MatDialog);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -30,6 +34,13 @@ export class LoginComponent implements OnDestroy {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]]
+    });
+  }
+
+  resetPassword(): void {
+    const dialogRef = this.matDialog.open(ResetPasswordRequestModalComponent, {
+      width: '400px',
+      height: 'auto',
     });
   }
 

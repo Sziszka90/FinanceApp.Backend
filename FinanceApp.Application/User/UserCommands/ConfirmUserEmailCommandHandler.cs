@@ -1,26 +1,24 @@
-using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Models;
-using FinanceApp.Application.User.UserQueries;
 
-namespace FinanceApp.User.UserQueries;
+namespace FinanceApp.Application.User.UserCommands;
 
-public class ConfirmUserEmailQueryHandler : IQueryHandler<ConfirmUserEmailQuery, Result>
+public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCommand, Result>
 {
   private readonly IUserRepository _userRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IJwtService _jwtService;
 
-  public ConfirmUserEmailQueryHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IJwtService jwtService)
+  public ConfirmUserEmailCommandHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IJwtService jwtService)
   {
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
     _jwtService = jwtService;
   }
 
-  public async Task<Result> Handle(ConfirmUserEmailQuery request, CancellationToken cancellationToken)
+  public async Task<Result> Handle(ConfirmUserEmailCommand request, CancellationToken cancellationToken)
   {
     if (request.token is null)
     {
@@ -38,6 +36,8 @@ public class ConfirmUserEmailQueryHandler : IQueryHandler<ConfirmUserEmailQuery,
     {
       return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));
     }
+
+    _jwtService.InvalidateToken(request.token);
 
     user.IsEmailConfirmed = true;
     await _userRepository.UpdateAsync(user, cancellationToken);

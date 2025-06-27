@@ -22,7 +22,7 @@ import { CurrencyEnum } from '../../models/Money/Money';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { enumValidator } from 'src/helpers/helpers';
-import { FlatpickrDirective } from 'angularx-flatpickr';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -34,7 +34,7 @@ import { FlatpickrDirective } from 'angularx-flatpickr';
     ReactiveFormsModule,
     MatSelectModule,
     CommonModule,
-    FlatpickrDirective
+    BsDatepickerModule
   ],
   templateUrl: './update-transaction-modal.component.html',
   styleUrl: './update-transaction-modal.component.scss',

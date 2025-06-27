@@ -54,6 +54,22 @@ public static class ResultHandler
   }
 
   /// <summary>
+  /// Redirect a request to a specific URL
+  /// </summary>
+  /// <param name="controller"></param>
+  /// </summary>
+  public static ActionResult RedirectToUrl(this ControllerBase controller, Result appResult, string url)
+  {
+    if(!appResult.IsSuccess)
+    {
+      controller.Response.Headers.Location = $"https://financeapp.fun/validation-failed";
+      return controller.StatusCode(StatusCodes.Status302Found);
+    }
+    controller.Response.Headers.Location = url;//"https://financeapp.fun/login";
+    return controller.StatusCode(StatusCodes.Status302Found);
+  }
+
+  /// <summary>
   /// Returns an ActionResult with the assigned StatusCodes
   /// </summary>
   /// <typeparam name="T"></typeparam>

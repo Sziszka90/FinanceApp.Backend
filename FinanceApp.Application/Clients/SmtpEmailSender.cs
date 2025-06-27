@@ -15,11 +15,11 @@ public class SmtpEmailSender : ISmtpEmailSender
     _jwtService = jwtService;
     _smtpSettings = smtpOptions.Value;
   }
-  public async Task SendEmailAsync(User user)
+  public async Task SendEmailConfirmationAsync(User user)
   {
-    using var client = new SmtpClient(_smtpSettings.Host, _smtpSettings.Port)
+    using var client = new SmtpClient(_smtpSettings.SmtpHost, _smtpSettings.SmtpPort)
     {
-      Credentials = new NetworkCredential(_smtpSettings.User, _smtpSettings.Password),
+      Credentials = new NetworkCredential(_smtpSettings.SmtpUser, _smtpSettings.SmtpPass),
       EnableSsl = true
     };
 
@@ -28,11 +28,11 @@ public class SmtpEmailSender : ISmtpEmailSender
 
     var model = new
     {
-      UserName = user.UserName,
+      user.UserName,
       ConfirmationLink = confirmationLink,
     };
 
-    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients", "EmailTemplate.html");
+    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients", "EmailConfirmationTemplate.html");
     string template = await File.ReadAllTextAsync(templatePath);
 
     // Replace placeholders in the template
@@ -50,6 +50,43 @@ public class SmtpEmailSender : ISmtpEmailSender
     };
 
     mailMessage.To.Add(user.Email);
+
+    await client.SendMailAsync(mailMessage);
+  }
+
+  public async Task SendResetPasswordAsync(string email)
+  {
+    using var client = new SmtpClient(_smtpSettings.SmtpHost, _smtpSettings.SmtpPort)
+    {
+      Credentials = new NetworkCredential(_smtpSettings.SmtpUser, _smtpSettings.SmtpPass),
+      EnableSsl = true
+    };
+
+    var resetPasswordToken = _jwtService.GenerateToken(email);
+    var resetPasswordLink = $"https://financeapp.fun/reset-password?token={resetPasswordToken}";
+
+    var model = new
+    {
+      ResetPasswordLink = resetPasswordLink,
+    };
+
+    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients", "EmailResetPasswordTemplate.html");
+    string template = await File.ReadAllTextAsync(templatePath);
+
+    // Replace placeholders in the template
+    string body = template
+      .Replace("@Model.ResetPasswordLink", model.ResetPasswordLink)
+      .Replace("@DateTime.Now.Year", DateTime.Now.Year.ToString());
+
+    var mailMessage = new MailMessage
+    {
+      From = new MailAddress(_smtpSettings.FromEmail),
+      Subject = "Email Reset Password",
+      Body = body,
+      IsBodyHtml = true,
+    };
+
+    mailMessage.To.Add(email);
 
     await client.SendMailAsync(mailMessage);
   }

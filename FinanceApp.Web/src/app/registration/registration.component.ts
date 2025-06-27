@@ -37,6 +37,7 @@ export class RegistrationComponent implements OnDestroy {
   constructor() {
     this.registrationForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
       password: [
         '',
         [
@@ -58,6 +59,7 @@ export class RegistrationComponent implements OnDestroy {
       this.registrationSubscription = this.apiService
         .register({
           userName: this.registrationForm.get('userName')?.value,
+          email: this.registrationForm.get('email')?.value,
           password: this.registrationForm.get('password')?.value,
           baseCurrency: this.registrationForm.get('currency')?.value,
         })

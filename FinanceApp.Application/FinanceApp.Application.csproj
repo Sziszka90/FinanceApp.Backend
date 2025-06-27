@@ -22,4 +22,10 @@
     <ProjectReference Include="..\FinanceApp.Domain\FinanceApp.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Clients/EmailTemplate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

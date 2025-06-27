@@ -23,7 +23,7 @@ public class UsersController : ControllerBase
     _mediator = mediator;
   }
 
-  [HttpGet("{id}/confirm-email")]
+  [HttpPost("{id}/confirm-email")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
@@ -31,7 +31,31 @@ public class UsersController : ControllerBase
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<IActionResult> ConfirmEmail([FromRoute] Guid id, [FromQuery] string token)
   {
-    var result = await _mediator.Send(new ConfirmUserEmailQuery(id, token));
+    var result = await _mediator.Send(new ConfirmUserEmailCommand(id, token));
+    return this.RedirectToUrl(result, "https://financeapp.fun/login");
+  }
+
+  [HttpPost("forgot-password")]
+  [Produces("application/json")]
+  [Consumes("application/json")]
+  [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<IActionResult> ForgotPassword([FromBody] string email)
+  {
+    var result = await _mediator.Send(new ForgotPasswordCommand(email));
+    return this.GetResult(result);
+  }
+
+  [HttpPost("update-password")]
+  [Produces("application/json")]
+  [Consumes("application/json")]
+  [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto updatePasswordDto)
+  {
+    var result = await _mediator.Send(new UpdatePasswordCommand(updatePasswordDto));
     return this.GetResult(result);
   }
 
@@ -45,7 +69,7 @@ public class UsersController : ControllerBase
   public async Task<ActionResult<GetUserDto>> GetUser([FromRoute] Guid id)
   {
     var result = await _mediator.Send(new GetUserByIdQuery(id));
-    return this.GetResult(result, StatusCodes.Status302Found);
+    return this.GetResult(result);
   }
 
   [HttpGet]

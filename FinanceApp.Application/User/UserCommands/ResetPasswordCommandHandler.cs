@@ -1,0 +1,41 @@
+using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Abstraction.Services;
+using FinanceApp.Application.Abstractions.CQRS;
+using FinanceApp.Application.Models;
+
+namespace FinanceApp.Application.User.UserCommands;
+
+public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand, Result>
+{
+  private readonly IUserRepository _userRepository;
+
+  private readonly IJwtService _jwtService;
+
+  public ResetPasswordCommandHandler(
+    IUserRepository userRepository,
+    IJwtService jwtService)
+  {
+    _userRepository = userRepository;
+    _jwtService = jwtService;
+  }
+
+  public async Task<Result> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+  {
+
+    if (request.token is null)
+    {
+      return Result.Failure(ApplicationError.InvalidTokenError());
+    }
+
+    var validationResult = _jwtService.ValidateToken(request.token);
+
+    if (!validationResult)
+    {
+      return Result.Failure(ApplicationError.InvalidTokenError());
+    }
+
+    _jwtService.InvalidateToken(request.token);
+
+    return Result.Success();
+  }
+}

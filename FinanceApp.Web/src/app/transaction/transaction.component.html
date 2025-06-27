@@ -1,9 +1,10 @@
 <div class="button-container">
   <button class="custom-button bounce-button" (click)="createTransaction()" >Create Transaction</button>
+  <button class="custom-button bounce-button" (click)="getSummary()">Show Summary</button>
 </div>
-<div *ngIf="summary$ | async as summary" class="summary default-font text-color-grey">
+<div *ngIf="showSummary" class="summary default-font text-color-grey">
   <div class="title">Sum of Transactions</div>
-  <div class="value" id="value">{{ summary.amount }} {{ getCurrencyName(summary.currency) }}</div>
+  <div class="value" id="value">{{ summary?.amount }} {{ summary?.currency }}</div>
 </div>
 
 <hr />
@@ -19,8 +20,9 @@
         class="search-input"
       />
 
-      <div class="date-picker-container">
-        <input mwlFlatpickr formControlName="date" />
+      <div class="input-with-icon">
+        <input bsDatepicker formControlName="date" type="text" placeholder="Select a date" />
+        <i class="fa fa-calendar"></i>
       </div>
 
       <mat-select class="select" formControlName="type">

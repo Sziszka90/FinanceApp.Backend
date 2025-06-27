@@ -2,9 +2,9 @@ namespace FinanceApp.Application.Models;
 
 public class SmtpSettings
 {
-  public string Host { get; set; } = string.Empty;
-  public int Port { get; set; }
-  public string User { get; set; } = string.Empty;
-  public string Password { get; set; } = string.Empty;
+  public string SmtpHost { get; set; } = string.Empty;
+  public int SmtpPort { get; set; }
+  public string SmtpUser { get; set; } = string.Empty;
+  public string SmtpPass { get; set; } = string.Empty;
   public string FromEmail { get; set; } = string.Empty;
 }

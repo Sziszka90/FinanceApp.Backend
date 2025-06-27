@@ -5,7 +5,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { CurrencyEnum } from '../../models/Money/Money';
 import { Subscription, take } from 'rxjs';
 import { Router } from '@angular/router';
-import { GetUserDto } from '../../models/RegisterDtos/GetUserDto';
+import { GetUserDto } from '../../models/UserDtos/GetUserDto';
 import { AuthenticationService } from '../../services/authentication.service';
 import { UserFormModel } from 'src/models/Profile/UserFormModel';
 import { MatSelectModule } from '@angular/material/select';
@@ -59,6 +59,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const subscription = this.userApiService
     .updateUser({
       id: this.user?.id,
+      userName: this.updateUserForm.get('userName')?.value ?? this.user?.userName,
+      email: this.updateUserForm.get('email')?.value ?? this.user?.email,
+      password: this.updateUserForm.get('password')?.value ?? "",
       baseCurrency: this.updateUserForm.get('currency')?.value ?? CurrencyEnum.Unknown,
     }).pipe(take(1))
     .subscribe(() => {

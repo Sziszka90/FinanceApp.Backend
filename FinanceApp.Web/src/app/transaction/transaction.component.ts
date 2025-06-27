@@ -14,8 +14,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { MatSelectModule } from '@angular/material/select';
 import { formatDate } from '@angular/common';
-import { FlatpickrDirective } from 'angularx-flatpickr';
 import { getCurrencyName } from 'src/helpers/helpers';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 @Component({
   selector: 'app-transaction',
@@ -26,7 +26,7 @@ import { getCurrencyName } from 'src/helpers/helpers';
     MatTableModule,
     MatSelectModule,
     ReactiveFormsModule,
-    FlatpickrDirective
+    BsDatepickerModule,
   ],
   templateUrl: './transaction.component.html',
   styleUrl: './transaction.component.scss',
@@ -44,11 +44,10 @@ export class TransactionComponent implements OnInit, OnDestroy {
   public filteredTransactions: GetTransactionDto[] = [];
   public total: Money = {amount: 0, currency: CurrencyEnum.EUR};
 
-  typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
+  public showSummary = false;
+  public summary: Money | null = null;
 
-  showSlide1: boolean = true;
-  showSlide2: boolean = false;
-  touchStartX = 0;
+  typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
 
   filterForm: FormGroup;
 
@@ -84,9 +83,6 @@ export class TransactionComponent implements OnInit, OnDestroy {
       this.allTransactions = value;
       this.filteredTransactions = value;
     });
-
-    var summ = {amount: 0, currency: CurrencyEnum.EUR } as Money;
-    this.summary$ = of(summ);//this.transactionApiService.getAllTransactionsSummary();
 
     this.filterForm.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -218,8 +214,16 @@ export class TransactionComponent implements OnInit, OnDestroy {
     });
   }
 
-  getCurrencyName(currency: number): string {
-    return getCurrencyName(currency);
+  getSummary(): void {
+    this.transactionApiService.getAllTransactionsSummary().subscribe((data) => {
+      this.summary = data;
+      this.showSummary = true;
+
+      // Hide the summary after 5 seconds
+      setTimeout(() => {
+        this.showSummary = false;
+      }, 5000);
+    });
   }
 
   ngOnDestroy(): void {

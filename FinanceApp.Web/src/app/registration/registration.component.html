@@ -19,6 +19,24 @@
       </div>
     </div>
 
+    <label class="default-font" for="email">Email</label>
+    <div class="form-group">
+      <input
+        class="default-font"
+        id="email"
+        type="text"
+        formControlName="email"
+        required
+        placeholder="Email"
+      />
+      <div class="error-font" *ngIf="registrationForm.get('email')?.hasError('required') && registrationForm.get('email')?.touched">
+        Email is required
+      </div>
+      <div class="error-font" *ngIf="registrationForm.get('email')?.hasError('email') && registrationForm.get('email')?.touched">
+        Invalid email format
+      </div>
+    </div>
+
     <label class="default-font" for="password">Password</label>
     <div class="form-group">
       <input

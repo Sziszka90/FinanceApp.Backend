@@ -111,6 +111,37 @@ label {
   text-align: center;
 }
 
+bs-datepicker-container {
+  background-color: variables.$text-color;
+  z-index: 9999;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+}
+
+.input-with-icon {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding-right: 5rem;
+  box-sizing: border-box;
+}
+
+.input-with-icon i {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #888;
+  text-align: right;
+}
+
 @keyframes bounce {
   0% {
     transform: translateY(0);

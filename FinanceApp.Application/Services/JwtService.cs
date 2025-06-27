@@ -12,6 +12,8 @@ namespace FinanceApp.Application.Services;
 public class JwtService : IJwtService
 {
   private readonly AuthenticationSettings _authenticationSettings;
+  private static readonly HashSet<string> _invalidatedTokens = new();
+
 
   public JwtService(IOptions<AuthenticationSettings> authenticationOptions)
   {
@@ -64,6 +66,43 @@ public class JwtService : IJwtService
     catch
     {
       return false;
+    }
+  }
+
+  public void InvalidateToken(string token)
+  {
+    _invalidatedTokens.Add(token);
+  }
+
+  public bool IsTokenInvalidated(string token)
+  {
+    return _invalidatedTokens.Contains(token);
+  }
+
+  public string? GetUserNameFromToken(string token)
+  {
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var key = Encoding.UTF8.GetBytes(_authenticationSettings.SecretKey);
+    try
+    {
+      var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+      {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = _authenticationSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = _authenticationSettings.Audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+      }, out SecurityToken validatedToken);
+
+      // Get the username from the 'sub' claim
+      return principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+    }
+    catch
+    {
+      return null;
     }
   }
 }

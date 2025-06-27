@@ -16,12 +16,9 @@
     <div class="container">
         <h1>Email address confirmation</h1>
         <p>Dear @Model.UserName! Please confirm your email address!</p>
-        @if (Model.ConfirmationLink != null)
-        {
-            <p style="margin-top:24px;">
-                <a href="@Model.ConfirmationLink" style="display:inline-block;padding:12px 24px;background:#2d7ff9;color:#fff;text-decoration:none;border-radius:4px;font-weight:bold;">Confirm your email</a>
-            </p>
-        }
+          <p style="margin-top:24px;">
+              <a href="@Model.ConfirmationLink" style="display:inline-block;padding:12px 24px;background:#2d7ff9;color:#fff;text-decoration:none;border-radius:4px;font-weight:bold;">Confirm your email</a>
+          </p>
         <div class="footer">
             This is an automated message from FinanceApp.<br>
             &copy; @DateTime.Now.Year FinanceApp
