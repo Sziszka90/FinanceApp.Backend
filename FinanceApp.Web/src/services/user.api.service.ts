@@ -18,22 +18,22 @@ export class UserApiService {
   constructor(private http: HttpClient) { }
 
   register(createUserDto: CreateUserDto): Observable<GetUserDto> {
-    return this.http.post<GetUserDto>(`${this.apiUrl}/users`, createUserDto);
+    return this.http.post<GetUserDto>(`api/users`, createUserDto);
   }
 
   getActiveUser(): Observable<GetUserDto> {
-      return this.http.get<GetUserDto>(`${this.apiUrl}/users`);
+      return this.http.get<GetUserDto>(`api/users`);
   }
 
   updateUser(updatedUser: UpdateUserDto): Observable<GetUserDto> {
-    return this.http.put<GetUserDto>(`${this.apiUrl}/users`, updatedUser);
+    return this.http.put<GetUserDto>(`api/users`, updatedUser);
   }
 
   updatePassword(updatePasswordDto: UpdatePasswordDto): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/users/update-password`, updatePasswordDto);
+    return this.http.post<void>(`api/users/update-password`, updatePasswordDto);
   }
 
   forgotPassword(email: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/users/forgot-password`, { email });
+    return this.http.post<void>(`api/users/forgot-password`, { email });
   }
 }
