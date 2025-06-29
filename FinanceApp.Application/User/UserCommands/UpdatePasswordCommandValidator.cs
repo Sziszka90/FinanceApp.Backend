@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace FinanceApp.Application.User.UserCommands;
 
-public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
+public class UpdatePasswordCommandValidator : AbstractValidator<UpdatePasswordCommand>
 {
-  public UpdateUserCommandValidator(IValidator<UpdateUserDto> updateUserDto)
+  public UpdatePasswordCommandValidator(IValidator<UpdatePasswordDto> updatePasswordDto)
   {
-    RuleFor(x => x.UpdateUserDto)
-      .SetValidator(updateUserDto);
+    RuleFor(x => x.UpdatePasswordDto)
+      .SetValidator(updatePasswordDto);
   }
 }

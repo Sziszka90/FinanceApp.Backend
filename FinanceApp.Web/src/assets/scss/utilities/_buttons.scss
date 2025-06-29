@@ -28,6 +28,27 @@
   margin: 0.5rem;
 }
 
+.custom-button-inverse {
+  padding: 1rem;
+  background-color: white;
+  font-size: 1rem;
+  border: 3px solid variables.$text-color;
+  border-radius: 20px;
+  outline: none;
+  max-width: 100%;
+  transition: border-color 0.3s;
+  align-items: center;
+  color: white;
+  width: 60%;
+  margin: 0.5rem;
+  color: variables.$background-color;
+}
+
+.custom-button-inverse:active {
+  background-color: variables.$primary-color;
+}
+
+
 .custom-button:active {
   background-color: variables.$secondary-color;
 }

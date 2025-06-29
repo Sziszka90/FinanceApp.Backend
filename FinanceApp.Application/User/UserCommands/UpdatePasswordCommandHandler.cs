@@ -44,19 +44,19 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
       return Result.Failure(ApplicationError.InvalidTokenError());
     }
 
-    var userName = _jwtService.GetUserNameFromToken(request.UpdatePasswordDto.Token);
+    var email = _jwtService.GetUserEmailFromToken(request.UpdatePasswordDto.Token);
 
-    if (userName is null)
+    if (email is null)
     {
-      _logger.LogError("Token does not contain a valid user name.");
+      _logger.LogError("Token does not contain a valid email.");
       return Result.Failure(ApplicationError.InvalidTokenError());
     }
 
-    var user = await _userRepository.GetByUserNameAsync(userName, cancellationToken: cancellationToken);
+    var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken: cancellationToken);
 
     if (user is null)
     {
-      _logger.LogError("User not found with name:{Name}", userName);
+      _logger.LogError("User not found with email:{Email}", email);
       return Result.Failure(ApplicationError.UserNotFoundError());
     }
 

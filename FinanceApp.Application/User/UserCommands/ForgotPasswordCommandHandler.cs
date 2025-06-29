@@ -1,5 +1,4 @@
 using FinanceApp.Application.Abstraction.Repositories;
-using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Models;
 
@@ -20,8 +19,7 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
 
   public async Task<Result> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
   {
-
-    await _smtpEmailSender.SendResetPasswordAsync(request.Email);
+    await _smtpEmailSender.SendForgotPasswordAsync(request.EmailDto.Email);
 
     return Result.Success();
   }

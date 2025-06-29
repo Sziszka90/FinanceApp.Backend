@@ -20,11 +20,11 @@ public class JwtService : IJwtService
     _authenticationSettings = authenticationOptions.Value;
   }
 
-  public string GenerateToken(string username)
+  public string GenerateToken(string email)
   {
     var claims = new[]
     {
-      new Claim(JwtRegisteredClaimNames.Sub, username),
+      new Claim(JwtRegisteredClaimNames.Sub, email),
       new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid()
                                                  .ToString())
     };
@@ -79,7 +79,7 @@ public class JwtService : IJwtService
     return _invalidatedTokens.Contains(token);
   }
 
-  public string? GetUserNameFromToken(string token)
+  public string? GetUserEmailFromToken(string token)
   {
     var tokenHandler = new JwtSecurityTokenHandler();
     var key = Encoding.UTF8.GetBytes(_authenticationSettings.SecretKey);
@@ -97,8 +97,9 @@ public class JwtService : IJwtService
         ClockSkew = TimeSpan.Zero
       }, out SecurityToken validatedToken);
 
-      // Get the username from the 'sub' claim
-      return principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+      // Get the email from the 'sub' claim
+      var result = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+      return result;
     }
     catch
     {

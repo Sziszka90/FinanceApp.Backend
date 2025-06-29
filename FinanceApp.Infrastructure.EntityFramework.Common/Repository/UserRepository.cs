@@ -33,7 +33,7 @@ public class UserRepository : GenericRepository<Domain.Entities.User>, IUserRepo
                           .FirstOrDefaultAsync(user => user.UserName == userName, cancellationToken);
   }
 
-  public async Task<Domain.Entities.User?> GetUserByEmail(string email, bool noTracking = false, CancellationToken cancellationToken = default)
+  public async Task<Domain.Entities.User?> GetUserByEmailAsync(string email, bool noTracking = false, CancellationToken cancellationToken = default)
   {
     if (noTracking)
     {

@@ -23,7 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Clients/EmailTemplate.html">
+    <None Update="Clients/EmailConfirmationTemplate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Clients/ForgotPasswordTemplate.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

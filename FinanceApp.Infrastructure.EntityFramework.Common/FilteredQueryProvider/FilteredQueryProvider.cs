@@ -22,30 +22,30 @@ public class FilteredQueryProvider : IFilteredQueryProvider
 
   public IQueryable<T> Query<T>() where T : BaseEntity
   {
-    var userName = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+    var userEmail = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
     var set = _dbContext.Set<T>();
 
-    if (userName == null || !typeof(IUserOwned).IsAssignableFrom(typeof(T)))
+    if (userEmail == null || !typeof(IUserOwned).IsAssignableFrom(typeof(T)))
       return set;
 
-    var predicate = WhereUserName<T>(userName);
+    var predicate = WhereUserEmail<T>(userEmail);
     var lambda = IncludeUser<T>();
 
     return set.Include(lambda).Where(predicate);
   }
 
-  private Expression<Func<T, bool>> WhereUserName<T>(string userName)
+  private Expression<Func<T, bool>> WhereUserEmail<T>(string userEmail)
   {
     var parameter = Expression.Parameter(typeof(T), "e");
 
     var userProperty = Expression.Property(parameter, "User");
 
-    var userNameProperty = Expression.Property(userProperty, "UserName");
+    var userEmailProperty = Expression.Property(userProperty, "Email");
 
-    var userNameConstant = Expression.Constant(userName);
+    var userEmailConstant = Expression.Constant(userEmail);
 
-    var comparison = Expression.Equal(userNameProperty, userNameConstant);
+    var comparison = Expression.Equal(userEmailProperty, userEmailConstant);
 
     var predicate = Expression.Lambda<Func<T, bool>>(comparison, parameter);
 

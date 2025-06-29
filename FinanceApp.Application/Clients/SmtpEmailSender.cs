@@ -54,7 +54,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     await client.SendMailAsync(mailMessage);
   }
 
-  public async Task SendResetPasswordAsync(string email)
+  public async Task SendForgotPasswordAsync(string email)
   {
     using var client = new SmtpClient(_smtpSettings.SmtpHost, _smtpSettings.SmtpPort)
     {
@@ -70,7 +70,7 @@ public class SmtpEmailSender : ISmtpEmailSender
       ResetPasswordLink = resetPasswordLink,
     };
 
-    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients", "EmailResetPasswordTemplate.html");
+    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients", "ForgotPasswordTemplate.html");
     string template = await File.ReadAllTextAsync(templatePath);
 
     // Replace placeholders in the template

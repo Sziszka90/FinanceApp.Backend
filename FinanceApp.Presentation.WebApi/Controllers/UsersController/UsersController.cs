@@ -23,10 +23,10 @@ public class UsersController : ControllerBase
     _mediator = mediator;
   }
 
-  [HttpPost("{id}/confirm-email")]
+  [HttpGet("{id}/confirm-email")]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<IActionResult> ConfirmEmail([FromRoute] Guid id, [FromQuery] string token)
@@ -38,10 +38,10 @@ public class UsersController : ControllerBase
   [HttpPost("forgot-password")]
   [Produces("application/json")]
   [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<IActionResult> ForgotPassword([FromBody] string email)
+  public async Task<IActionResult> ForgotPassword([FromBody] EmailDto email)
   {
     var result = await _mediator.Send(new ForgotPasswordCommand(email));
     return this.GetResult(result);

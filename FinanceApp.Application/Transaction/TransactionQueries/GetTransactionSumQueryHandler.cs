@@ -43,10 +43,10 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
 
     var allTransaction = await _transactionRepository.GetAllAsync(false, cancellationToken);
 
-    var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
+    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-    var criteria = UserQueryCriteria.FindUserName(currentUserName!);
+    var criteria = UserQueryCriteria.FindUserEmail(userEmail!);
 
     var user = await _userRepository.GetQueryAsync(criteria, cancellationToken: cancellationToken);
 

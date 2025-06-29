@@ -83,7 +83,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
     var loginContent = CreateContent(new LoginRequestDto
     {
-      UserName = user!.UserName,
+      Email = user!.Email,
       Password = "TestPassword90."
     });
 

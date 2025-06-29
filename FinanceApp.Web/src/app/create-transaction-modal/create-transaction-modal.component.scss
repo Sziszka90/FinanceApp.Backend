@@ -20,37 +20,6 @@ p {
   justify-content: center;
 }
 
-.modal-header {
-  display: flex;
-  flex-direction: column ;
-  justify-content: center;
-  align-items: center;
-}
-
-.form-container {
-  width: 100%;
-  height: 100%;
-  margin: 1rem;
-}
-
-.main-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 80%;
-  margin: auto;
-  margin-top: 2rem;
-}
-
-.button-container {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 1rem;
-  margin: 2rem;
-}
-
 mat-select {
   padding: 1rem;
   width: 100%;

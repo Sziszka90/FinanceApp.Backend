@@ -29,27 +29,27 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
   /// <inheritdoc />
   public async Task<Result<LoginResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
   {
-    var user = await _userRepository.GetByUserNameAsync(request.LoginRequestDto.UserName, cancellationToken: cancellationToken);
+    var user = await _userRepository.GetUserByEmailAsync(request.LoginRequestDto.Email, cancellationToken: cancellationToken);
 
     if (user is null)
     {
-      _logger.LogError("User not found with name:{Name}", request.LoginRequestDto.UserName);
+      _logger.LogError("User not found with email:{Email}", request.LoginRequestDto.Email);
       return Result.Failure<LoginResponseDto>(ApplicationError.UserNotFoundError());
     }
 
     if(!user.IsEmailConfirmed)
     {
-      _logger.LogError("User with name:{Name} has not confirmed email", request.LoginRequestDto.UserName);
+      _logger.LogError("User with email:{Email} has not confirmed email", request.LoginRequestDto.Email);
       return Result.Failure<LoginResponseDto>(ApplicationError.EmailNotYetConfirmedError(user.Email));
     }
 
     if (!BCrypt.Net.BCrypt.Verify(request.LoginRequestDto.Password, user.PasswordHash))
     {
-      _logger.LogError("Invalid password for user:{Name}", request.LoginRequestDto.UserName);
+      _logger.LogError("Invalid password for user:{Email}", request.LoginRequestDto.Email);
       return Result.Failure<LoginResponseDto>(ApplicationError.InvalidPasswordError());
     }
 
-    var token = _jwtService.GenerateToken(request.LoginRequestDto.UserName);
+    var token = _jwtService.GenerateToken(request.LoginRequestDto.Email);
 
     _logger.LogInformation("Login successful!");
 

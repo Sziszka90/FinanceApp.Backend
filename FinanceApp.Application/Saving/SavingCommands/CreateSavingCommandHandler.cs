@@ -49,16 +49,16 @@ public class CreateSavingCommandHandler : ICommandHandler<CreateSavingCommand, R
 
     var httpContext = _httpContextAccessor.HttpContext;
 
-    var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
+    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-    if (currentUserName is null)
+    if (userEmail is null)
     {
       _logger.LogError("User is not logged in");
       return Result.Failure<GetSavingDto>(ApplicationError.UserNotFoundError());
     }
 
-    var user = await _userRepository.GetByUserNameAsync(currentUserName!);
+    var user = await _userRepository.GetUserByEmailAsync(userEmail!);
 
     var saving = await _savingRepository.CreateAsync(new Domain.Entities.Saving(
                                                        request.CreateSavingDto.Name,

@@ -4,9 +4,8 @@ import { AuthenticationService } from '../../services/authentication.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { UserApiService } from 'src/services/user.api.service';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ResetPasswordRequestModalComponent } from '../reset-password-request-modal/reset-password-request-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ForgotPasswordRequestModalComponent } from '../forgot-password-modal/forgot-password-modal.component';
 
 @Component({
   selector: 'app-login',
@@ -32,13 +31,13 @@ export class LoginComponent implements OnDestroy {
 
   constructor() {
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]]
     });
   }
 
-  resetPassword(): void {
-    const dialogRef = this.matDialog.open(ResetPasswordRequestModalComponent, {
+  forgotPassword(): void {
+    const dialogRef = this.matDialog.open(ForgotPasswordRequestModalComponent, {
       width: '400px',
       height: 'auto',
     });
@@ -52,7 +51,7 @@ export class LoginComponent implements OnDestroy {
     if (this.loginForm.valid) {
       this.loginValid = true;
       this.loginSubscription = this.authService
-        .login({ userName: this.loginForm.value.username, password: this.loginForm.value.password })
+        .login({ email: this.loginForm.value.email, password: this.loginForm.value.password })
         .pipe(take(1))
         .subscribe((data) => {
           if (data.token == '') {

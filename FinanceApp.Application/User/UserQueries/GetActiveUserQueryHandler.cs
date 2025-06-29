@@ -26,10 +26,10 @@ public class GetActiveUserQueryHandler : IQueryHandler<GetActiveUserQuery, Resul
   {
     var httpContext = _httpContextAccessor.HttpContext;
 
-    var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
+    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-    var criteria = UserQueryCriteria.FindUserName(currentUserName!);
+    var criteria = UserQueryCriteria.FindUserEmail(userEmail!);
 
     var user = await _userRepository.GetQueryAsync(criteria, cancellationToken: cancellationToken);
     return Result.Success(_mapper.Map<GetUserDto>(user[0]));

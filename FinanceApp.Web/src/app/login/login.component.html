@@ -2,20 +2,20 @@
   <form class="form-element" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <h3 class="default-font">Log In</h3>
     <div class="error-message default-font" *ngIf="!loginValid">
-      The username and password were not recognized
+      The email and password were not recognized
     </div>
-    <label class="default-font" for="username">User Name</label>
+    <label class="default-font" for="email">User Email</label>
     <div class="form-group">
       <input
         class="default-font"
-        id="username"
-        formControlName="username"
+        id="email"
+        formControlName="email"
         required
-        placeholder="User Name"
+        placeholder="Email"
       />
       <div class="error-message default-font"
-           *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
-        Please provide a valid User Name address
+           *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+        Please provide a valid email address
       </div>
     </div>
     <label class="default-font" for="password">Password</label>
@@ -34,11 +34,9 @@
       </div>
     </div>
     <div class="button-container">
-      <button class="custom-button bounce-button default-font" type="button" routerLink="/registration">Registration</button>
       <button class="custom-button bounce-button default-font" type="submit" [disabled]="!loginForm.valid">Login</button>
+      <button class="custom-button-inverse bounce-button default-font" type="button" routerLink="/registration">Registration</button>
+      <button class="custom-button-inverse bounce-button" type="button" (click)="forgotPassword()">Forgot Password</button>
     </div>
   </form>
-  <div class="button-container">
-    <button class="custom-button bounce-button" (click)="resetPassword()">Reset Password</button>
-  </div>
 </div>

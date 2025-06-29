@@ -65,16 +65,16 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
 
     var httpContext = _httpContextAccessor.HttpContext;
 
-    var currentUserName = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
+    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-    if (currentUserName is null)
+    if (userEmail is null)
     {
       _logger.LogError("User is not logged in");
       return Result.Failure<GetTransactionDto>(ApplicationError.UserNotFoundError());
     }
 
-    var user = await _userRepository.GetByUserNameAsync(currentUserName!);
+    var user = await _userRepository.GetUserByEmailAsync(userEmail!);
 
     var transaction = await _transactionRepository.CreateAsync(new Domain.Entities.Transaction(
                                                                     request.CreateTransactionDto.Name,
