@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
@@ -9,18 +9,19 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
 import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
 import { UpdateTransactionModalComponent } from '../update-transaction-modal/update-transaction-modal.component';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { MatSelectModule } from '@angular/material/select';
 import { formatDate } from '@angular/common';
-import { getCurrencyName } from 'src/helpers/helpers';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 @Component({
   selector: 'app-transaction',
   imports: [
     MatIconModule,
+    MatSortModule,
     MatButtonModule,
     CommonModule,
     MatTableModule,
@@ -37,11 +38,11 @@ export class TransactionComponent implements OnInit, OnDestroy {
   public transactionApiService = inject(TransactionApiService);
   public matDialog = inject(MatDialog);
   public fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
 
   public summary$: Observable<Money> | undefined;
   public transactions$: Observable<GetTransactionDto[]> | undefined;
   public allTransactions: GetTransactionDto[] = [];
-  public filteredTransactions: GetTransactionDto[] = [];
   public total: Money = {amount: 0, currency: CurrencyEnum.EUR};
 
   public showSummary = false;
@@ -51,7 +52,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   filterForm: FormGroup;
 
-  displayedColumnsFull: string[] = [
+  displayedColumns: string[] = [
     'name',
     'description',
     'value',
@@ -61,11 +62,6 @@ export class TransactionComponent implements OnInit, OnDestroy {
     'group',
     'actions',
   ];
-
-  showDateAsc = true;
-  showDateDesc = true;
-  showValueAsc = true;
-  showValueDesc = true;
 
   private destroy$ = new Subject<void>();
 
@@ -78,10 +74,21 @@ export class TransactionComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'value': return item.value.amount;
+        case 'currency': return item.value.currency;
+        case 'transactionDate': return new Date(item.transactionDate);
+        case 'group': return item.transactionGroup?.name ?? '';
+        default: return (item as any)[property];
+      }
+    };
+
     this.transactions$ = this.transactionApiService.getAllTransactions();
     this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.allTransactions = value;
-      this.filteredTransactions = value;
+      this.dataSource.data = value;
+      this.setupCustomFilterPredicate();
     });
 
     this.filterForm.valueChanges
@@ -89,10 +96,45 @@ export class TransactionComponent implements OnInit, OnDestroy {
       .subscribe(() => this.applyFilters());
   }
 
+  setupCustomFilterPredicate() {
+    this.dataSource.filterPredicate = (data: GetTransactionDto, filter: string) => {
+      const filterObj = JSON.parse(filter);
+      const { name, date, type } = filterObj;
+
+      return (!name || data.name.toLowerCase().includes(name.toLowerCase())) &&
+             (!date || (
+               data.transactionDate &&
+               new Date(data.transactionDate).toISOString().slice(0, 10) === date
+             )) &&
+             (!type || data.transactionType === type);
+    };
+  }
+
+  dataSource = new MatTableDataSource<GetTransactionDto>([]);
+
+  @ViewChild(MatSort) sort!: MatSort;
+
+  ngAfterViewChecked() {
+    if (this.sort && this.dataSource.sort !== this.sort) {
+      this.dataSource.sort = this.sort;
+    }
+  }
+
+  applyFilters() {
+    const { name, date, type } = this.filterForm.value;
+    const formattedDate = date ? formatDate(date, 'yyyy-MM-dd', 'en-US') : '';
+
+    this.dataSource.filter = JSON.stringify({ name, date: formattedDate, type });
+
+    if (this.sort.active && this.sort.direction !== '') {
+      this.dataSource.data = [...this.dataSource.filteredData];
+    }
+  }
+
   deleteTransaction(transactionDto: GetTransactionDto) {
     this.transactionApiService.deleteTransaction(transactionDto.id).subscribe(() => {
       this.allTransactions = this.allTransactions?.filter((t) => t.id !== transactionDto.id);
-      this.filteredTransactions = this.allTransactions
+      this.dataSource.data = this.allTransactions
     });
   }
 
@@ -125,7 +167,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
           return transaction;
         });
       }
-      this.filteredTransactions = this.allTransactions;
+      this.dataSource.data = this.allTransactions;
     });
   }
 
@@ -142,76 +184,14 @@ export class TransactionComponent implements OnInit, OnDestroy {
       .subscribe((createdTransaction) => {
         if (createdTransaction) {
           this.allTransactions = [...this.allTransactions, createdTransaction];
-          this.filteredTransactions = this.allTransactions;
+          this.dataSource.data = this.allTransactions;
         }
       });
   };
 
-  applyFilters() {
-    const { name, date, type } = this.filterForm.value;
-    const formattedDate = date ? formatDate(date, 'yyyy-MM-dd', 'en-US') : '';
-
-    this.filteredTransactions = this.allTransactions.filter(t =>
-      (!name || t.name.toLowerCase().includes(name.toLowerCase())) &&
-      (!formattedDate || (
-        t.transactionDate &&
-        new Date(t.transactionDate).toISOString().slice(0, 10) === formattedDate
-      )) &&
-      (!type || t.transactionType === type)
-    );
-  }
-
   resetFilters() {
     this.filterForm.reset();
-    this.showDateAsc = true;
-    this.showDateDesc = true;
-    this.showValueAsc = true;
-    this.showValueDesc = true;
-    this.filteredTransactions = this.allTransactions;
-  }
-
-  sortByDate(direction: 'asc' | 'desc') {
-    this.showValueAsc = true;
-    this.showValueDesc = true;
-
-    if(direction === 'asc') {
-      this.showDateAsc = false;
-      this.showDateDesc = true;
-    }
-
-    if(direction === 'desc') {
-      this.showDateAsc = true;
-      this.showDateDesc = false;
-    }
-
-    this.filteredTransactions = [...this.filteredTransactions].sort((a, b) => {
-      const dateA = new Date(a.transactionDate).getTime();
-      const dateB = new Date(b.transactionDate).getTime();
-      return direction === 'asc' ? dateA - dateB : dateB - dateA;
-    });
-  }
-
-  sortByValue(direction: 'asc' | 'desc') {
-    this.showDateAsc = true;
-    this.showDateDesc = true;
-
-    if(direction === 'asc') {
-      this.showValueAsc = false;
-      this.showValueDesc = true;
-    }
-
-    if(direction === 'desc') {
-      this.showValueAsc = true;
-      this.showValueDesc = false;
-    }
-
-    this.filteredTransactions = [...this.filteredTransactions].sort((a, b) => {
-      const valueA = a.value.amount || 0;
-      const valueB = b.value.amount || 0;
-      if (valueA < valueB) return direction === 'asc' ? -1 : 1;
-      if (valueA > valueB) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
+    this.dataSource.filter = "";
   }
 
   getSummary(): void {

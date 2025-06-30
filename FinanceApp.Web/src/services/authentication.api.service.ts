@@ -11,11 +11,11 @@ import { LoginRequestDto } from '../models/LoginDtos/LoginRequestDto';
 export class AuthenticationApiService {
 
    // API base URL
-   private apiUrl = environment.apiUrl;
+   private apiUrl = environment?.apiUrl ?? '';
 
    constructor(private http: HttpClient) { }
 
   login(loginRequestDto: LoginRequestDto): Observable<LoginResponseDto> {
-      return this.http.post<LoginResponseDto>(`api/auth/login`, loginRequestDto);
+      return this.http.post<LoginResponseDto>(`${this.apiUrl}/api/auth/login`, loginRequestDto);
   }
 }

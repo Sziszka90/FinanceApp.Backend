@@ -13,27 +13,27 @@ import { UpdatePasswordDto } from 'src/models/UserDtos/UpdatePasswordDto';
 export class UserApiService {
 
   // API base URL
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment?.apiUrl ?? '';
 
   constructor(private http: HttpClient) { }
 
   register(createUserDto: CreateUserDto): Observable<GetUserDto> {
-    return this.http.post<GetUserDto>(`api/users`, createUserDto);
+    return this.http.post<GetUserDto>(`${this.apiUrl}/api/users`, createUserDto);
   }
 
   getActiveUser(): Observable<GetUserDto> {
-      return this.http.get<GetUserDto>(`api/users`);
+      return this.http.get<GetUserDto>(`${this.apiUrl}/api/users`);
   }
 
   updateUser(updatedUser: UpdateUserDto): Observable<GetUserDto> {
-    return this.http.put<GetUserDto>(`api/users`, updatedUser);
+    return this.http.put<GetUserDto>(`${this.apiUrl}/api/users`, updatedUser);
   }
 
   updatePassword(updatePasswordDto: UpdatePasswordDto): Observable<void> {
-    return this.http.post<void>(`api/users/update-password`, updatePasswordDto);
+    return this.http.post<void>(`${this.apiUrl}/api/users/update-password`, updatePasswordDto);
   }
 
   forgotPassword(email: string): Observable<void> {
-    return this.http.post<void>(`api/users/forgot-password`, { email });
+    return this.http.post<void>(`${this.apiUrl}/api/users/forgot-password`, { email });
   }
 }

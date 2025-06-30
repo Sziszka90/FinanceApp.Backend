@@ -118,6 +118,7 @@ bs-datepicker-container {
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   padding: 1rem;
+  cursor: pointer;
 }
 
 .input-with-icon {
@@ -130,6 +131,7 @@ bs-datepicker-container {
   width: 100%;
   padding-right: 5rem;
   box-sizing: border-box;
+  cursor: pointer;
 }
 
 .input-with-icon i {

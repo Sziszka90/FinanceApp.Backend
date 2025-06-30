@@ -8,5 +8,5 @@ export interface UpdateTransactionDto {
     value: Money,
     transactionType: TransactionTypeEnum,
     transactionDate?: Date,
-    transactionGroupId: string
+    transactionGroupId?: string
 }

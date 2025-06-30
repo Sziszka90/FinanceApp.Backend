@@ -23,6 +23,7 @@ import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTrans
 import { TransactionTypeEnum } from 'src/models/Enums/TransactionType.enum';
 import { enumValidator } from 'src/helpers/helpers';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { UpdateTransactionDto } from 'src/models/TransactionDtos/UpdateTransactionDto';
 
 @Component({
   selector: 'app-transaction-modal',
@@ -113,7 +114,7 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
         transactionDate = date;
       }
 
-      var updatedTransaction = {
+      var updatedTransaction: UpdateTransactionDto = {
         id: this.data.id,
         name: this.transactionForm.get('name')?.value,
         description: this.transactionForm.get('description')?.value,
@@ -123,7 +124,7 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
         },
         transactionType: this.transactionForm.get('transactionType')!.value,
         transactionDate: transactionDate,
-        transactionGroupId: this.transactionForm.get('group')?.value.id,
+        transactionGroupId: this.transactionForm.get('group')?.value.id ? this.transactionForm.get('group')?.value.id : null,
       }
 
       this.transactionApiService
