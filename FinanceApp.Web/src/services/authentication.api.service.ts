@@ -10,8 +10,6 @@ import { LoginRequestDto } from '../models/LoginDtos/LoginRequestDto';
 })
 export class AuthenticationApiService {
 
-   // API base URL
-   private apiUrl = environment.apiUrl;
 
    constructor(private http: HttpClient) { }
 
