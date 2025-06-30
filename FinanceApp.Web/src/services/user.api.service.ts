@@ -12,9 +12,6 @@ import { UpdatePasswordDto } from 'src/models/UserDtos/UpdatePasswordDto';
 })
 export class UserApiService {
 
-  // API base URL
-  private apiUrl = environment.apiUrl;
-
   constructor(private http: HttpClient) { }
 
   register(createUserDto: CreateUserDto): Observable<GetUserDto> {
