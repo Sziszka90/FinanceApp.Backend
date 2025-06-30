@@ -15,9 +15,6 @@ import { UpdateTransactionGroupDto } from 'src/models/TransactionGroupDtos/Updat
 })
 export class TransactionApiService {
 
-  // API base URL
-  private apiUrl = environment.apiUrl;
-
   constructor(private http: HttpClient) { }
 
   // Method to get data from the backend
