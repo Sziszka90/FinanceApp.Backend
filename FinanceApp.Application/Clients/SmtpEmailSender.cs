@@ -24,7 +24,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     };
 
     var confirmationToken = _jwtService.GenerateToken(user.UserName);
-    var confirmationLink = $"https://financeapp.fun/api/users/{user.Id}/confirm-email?token={confirmationToken}";
+    var confirmationLink = $"https://www.financeapp.fun/api/users/{user.Id}/confirm-email?token={confirmationToken}";
 
     var model = new
     {
@@ -63,7 +63,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     };
 
     var resetPasswordToken = _jwtService.GenerateToken(email);
-    var resetPasswordLink = $"https://financeapp.fun/reset-password?token={resetPasswordToken}";
+    var resetPasswordLink = $"https://www.financeapp.fun/reset-password?token={resetPasswordToken}";
 
     var model = new
     {

@@ -32,7 +32,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> ConfirmEmail([FromRoute] Guid id, [FromQuery] string token)
   {
     var result = await _mediator.Send(new ConfirmUserEmailCommand(id, token));
-    return this.RedirectToUrl(result, "https://financeapp.fun/login");
+    return this.RedirectToUrl(result, "https://www.financeapp.fun/login");
   }
 
   [HttpPost("forgot-password")]

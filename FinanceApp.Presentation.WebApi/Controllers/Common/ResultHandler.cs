@@ -23,10 +23,10 @@ public static class ResultHandler
     {
       if(!appResult.IsSuccess)
       {
-        controller.Response.Headers.Location = $"https://financeapp.fun/validation-failed";
+        controller.Response.Headers.Location = $"https://www.financeapp.fun/validation-failed";
         return controller.StatusCode(succeededStatusCode);
       }
-      controller.Response.Headers.Location = "https://financeapp.fun/login";
+      controller.Response.Headers.Location = "https://www.financeapp.fun/login";
       return controller.StatusCode(succeededStatusCode);
     }
 
@@ -62,10 +62,10 @@ public static class ResultHandler
   {
     if(!appResult.IsSuccess)
     {
-      controller.Response.Headers.Location = $"https://financeapp.fun/validation-failed";
+      controller.Response.Headers.Location = $"https://www.financeapp.fun/validation-failed";
       return controller.StatusCode(StatusCodes.Status302Found);
     }
-    controller.Response.Headers.Location = url;//"https://financeapp.fun/login";
+    controller.Response.Headers.Location = url;
     return controller.StatusCode(StatusCodes.Status302Found);
   }
 
