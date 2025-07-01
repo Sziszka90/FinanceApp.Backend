@@ -84,7 +84,7 @@ jobs:
               SmtpSettings__SmtpHost='${{ vars.SMTP_HOST }}' \
               SmtpSettings__SmtpPort='${{ vars.SMTP_PORT }}' \
               SmtpSettings__SmtpUser='${{ secrets.SMTP_USER }}' \
-              SmtpSettings__SmtpPass='${{ secrets.SMTP_PASS }}' \
+              SmtpSettings__SmtpPass='${{ secrets.SMTP_PASSWORD }}' \
               SmtpSettings__FromEmail='${{ secrets.SMTP_FROM_EMAIL }}'
 
 
