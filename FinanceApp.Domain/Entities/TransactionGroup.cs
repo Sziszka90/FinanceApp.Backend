@@ -21,11 +21,6 @@ public class TransactionGroup : BaseEntity, IUserOwned
   public string? GroupIcon { get; set; }
 
   /// <summary>
-  /// Limit on the current expense group
-  /// </summary>
-  public Money? Limit { get; set; }
-
-  /// <summary>
   /// User which owns the entity
   /// </summary>
   public User User { get; set; }
@@ -34,13 +29,11 @@ public class TransactionGroup : BaseEntity, IUserOwned
     string name,
     string? description,
     string? groupIcon,
-    User user,
-    Money? limit)
+    User user)
   {
     Name = name;
     Description = description;
     GroupIcon = groupIcon;
-    Limit = limit;
     User = user;
   }
 
@@ -49,12 +42,10 @@ public class TransactionGroup : BaseEntity, IUserOwned
   public void Update(
     string name,
     string? description,
-    string? groupIcon,
-    Money? limit)
+    string? groupIcon)
   {
     Name = name;
     Description = description;
     GroupIcon = groupIcon;
-    Limit = limit;
   }
 }

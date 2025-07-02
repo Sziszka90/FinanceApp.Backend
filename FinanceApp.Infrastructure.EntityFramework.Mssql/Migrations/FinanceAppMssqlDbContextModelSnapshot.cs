@@ -22,70 +22,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Investment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("Modified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Investment", (string)null);
-                });
-
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Saving", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DueDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("Modified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Saving", (string)null);
-                });
-
             modelBuilder.Entity("FinanceApp.Domain.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -193,76 +129,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     b.ToTable("User", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Investment", b =>
-                {
-                    b.HasOne("FinanceApp.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.OwnsOne("FinanceApp.Domain.Entities.Money", "Value", b1 =>
-                        {
-                            b1.Property<Guid>("InvestmentId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("Value_Amount");
-
-                            b1.Property<int>("Currency")
-                                .HasColumnType("int")
-                                .HasColumnName("Value_Currency");
-
-                            b1.HasKey("InvestmentId");
-
-                            b1.ToTable("Investment");
-
-                            b1.WithOwner()
-                                .HasForeignKey("InvestmentId");
-                        });
-
-                    b.Navigation("User");
-
-                    b.Navigation("Value")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Saving", b =>
-                {
-                    b.HasOne("FinanceApp.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.OwnsOne("FinanceApp.Domain.Entities.Money", "Value", b1 =>
-                        {
-                            b1.Property<Guid>("SavingId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("Value_Amount");
-
-                            b1.Property<int>("Currency")
-                                .HasColumnType("int")
-                                .HasColumnName("Value_Currency");
-
-                            b1.HasKey("SavingId");
-
-                            b1.ToTable("Saving");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SavingId");
-                        });
-
-                    b.Navigation("User");
-
-                    b.Navigation("Value")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FinanceApp.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("FinanceApp.Domain.Entities.TransactionGroup", "TransactionGroup")
@@ -311,29 +177,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.OwnsOne("FinanceApp.Domain.Entities.Money", "Limit", b1 =>
-                        {
-                            b1.Property<Guid>("TransactionGroupId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("Limit_Amount");
-
-                            b1.Property<int>("Currency")
-                                .HasColumnType("int")
-                                .HasColumnName("Limit_Currency");
-
-                            b1.HasKey("TransactionGroupId");
-
-                            b1.ToTable("TransactionGroup");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TransactionGroupId");
-                        });
-
-                    b.Navigation("Limit");
 
                     b.Navigation("User");
                 });

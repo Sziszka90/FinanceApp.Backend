@@ -6,17 +6,11 @@ namespace FinanceApp.Application.Validators;
 
 public class CreateTransactionGroupDtoValidator : AbstractValidator<CreateTransactionGroupDto>
 {
-  public CreateTransactionGroupDtoValidator(IValidator<Money> moneyValidator)
+  public CreateTransactionGroupDtoValidator()
   {
     RuleFor(x => x.Name)
       .NotEmpty();
     RuleFor(x => x.Description)
       .MaximumLength(200);
-
-    When(x => x.Limit is not null, () =>
-                                   {
-                                     RuleFor(x => x.Limit)
-                                       .SetValidator(moneyValidator!);
-                                   });
   }
 }

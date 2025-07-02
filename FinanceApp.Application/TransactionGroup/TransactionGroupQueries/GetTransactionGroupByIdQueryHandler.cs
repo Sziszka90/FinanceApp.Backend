@@ -19,7 +19,7 @@ public class GetTransactionGroupByIdQueryHandler : IQueryHandler<GetTransactionG
 
   public async Task<Result<GetTransactionGroupDto>> Handle(GetTransactionGroupByIdQuery request, CancellationToken cancellationToken)
   {
-    var result = await _transactionGroupRepository.GetByIdWithLimitAndIconAsync(request.Id, cancellationToken);
+    var result = await _transactionGroupRepository.GetByIdAsync(request.Id, cancellationToken);
     return Result.Success(_mapper.Map<GetTransactionGroupDto>(result));
   }
 }

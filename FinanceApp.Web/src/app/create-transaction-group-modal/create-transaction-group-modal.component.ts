@@ -11,7 +11,6 @@ import {
 } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
-import { CurrencyEnum, Money } from 'src/models/Money/Money';
 import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,8 +34,6 @@ export class CreateTransactionGroupModalComponent implements OnInit {
 
   public transactionForm: FormGroup;
   public groupIconOptions: string[] = groupIconOptions;
-  public currencyOptions: string[] = Object.keys(CurrencyEnum)
-  .filter(key => isNaN(Number(key))) as (keyof typeof CurrencyEnum)[];
   public selectedIcon: string = "";
 
   constructor()
@@ -44,8 +41,6 @@ export class CreateTransactionGroupModalComponent implements OnInit {
     this.transactionForm = this.fb.group({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),
-      value: new FormControl(),
-      currency: new FormControl(),
       groupIcon: new FormControl('')
     });
   }
@@ -58,23 +53,9 @@ export class CreateTransactionGroupModalComponent implements OnInit {
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
-
-      var limit: Money | undefined = { amount: 0, currency: CurrencyEnum.EUR};
-
-      var limitCurrency = this.transactionForm.get('currency')!.value;
-      var limitValue = this.transactionForm.get('value')!.value;
-
-      if(limitValue === null) {
-        limit = undefined;
-      } else {
-        limit.amount = limitValue;
-        limit.currency = limitCurrency;
-      }
-
       var createdTransactionGroup = {
           name: this.transactionForm.get('name')?.value,
           description: this.transactionForm.get('description')?.value,
-          limit: limit,
           groupIcon: this.transactionForm.get('groupIcon')?.value
         };
 

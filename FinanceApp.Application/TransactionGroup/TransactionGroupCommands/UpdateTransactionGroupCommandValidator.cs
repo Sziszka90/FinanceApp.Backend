@@ -1,4 +1,3 @@
-using FinanceApp.Application.Dtos;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.TransactionGroup.TransactionGroupCommands;
 using FluentValidation;

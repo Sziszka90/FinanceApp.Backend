@@ -5,5 +5,4 @@ export interface GetTransactionGroupDto {
     name: string;
     description?: string;
     groupIcon?: string;
-    limit?: Money;
 }

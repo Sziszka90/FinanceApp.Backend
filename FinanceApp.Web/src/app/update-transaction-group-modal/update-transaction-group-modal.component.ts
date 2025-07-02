@@ -48,8 +48,6 @@ export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
     this.transactionForm = this.fb.group({
       name: new FormControl(this.data.name, Validators.required),
       description: new FormControl(this.data.description),
-      value: new FormControl(this.data.limit?.amount),
-      currency: new FormControl(this.data.limit?.currency),
       groupIcon: new FormControl(this.data.groupIcon)
     });
   }
@@ -67,24 +65,10 @@ export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
-
-      var limit: Money | undefined = { amount: 0, currency: CurrencyEnum.EUR};
-
-      var limitCurrency = this.transactionForm.get('currency')!.value;
-      var limitValue = this.transactionForm.get('value')!.value;
-
-      if(limitValue === null) {
-        limit = undefined;
-      } else {
-        limit.amount = limitValue;
-        limit.currency = limitCurrency;
-      }
-
       var updatedTransactionGroup = {
         id: this.data.id,
         name: this.transactionForm.get('name')?.value,
         description: this.transactionForm.get('description')?.value,
-        limit: limit,
         groupIcon: this.transactionForm.get('groupIcon')?.value
       }
 

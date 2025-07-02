@@ -21,10 +21,9 @@ public class TransactionGroupRepository : GenericRepository<TransactionGroup>, I
     _dbContext = dbContext;
   }
 
-  public async Task<TransactionGroup?> GetByIdWithLimitAndIconAsync(Guid id, CancellationToken cancellationToken = default)
+  public async Task<TransactionGroup?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
   {
     return await _filteredQueryProvider.Query<TransactionGroup>()
-                          .Include(tg => tg.Limit)
                           .FirstOrDefaultAsync(tg => tg.Id == id);
   }
 }

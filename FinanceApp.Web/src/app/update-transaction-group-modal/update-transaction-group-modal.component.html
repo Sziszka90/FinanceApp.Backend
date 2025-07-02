@@ -15,18 +15,6 @@
     <div class="form-group">
       <input id="description" type="text" formControlName="description" />
     </div>
-    <label for="value">Limit</label>
-    <div class="form-group">
-      <input id="value" type="number" formControlName="value" />
-    </div>
-    <label for="currency">Limit Currency</label>
-    <div class="form-group">
-      <mat-select class="select" formControlName="currency">
-        <mat-option *ngFor="let option of currencyOptions" [value]="option">
-          &#8226; {{ option }}
-        </mat-option>
-      </mat-select>
-    </div>
     <label class="default-font" for="groupIcon">Group Icon</label>
     <div class="form-group">
       <mat-select class="select" formControlName="groupIcon" required>

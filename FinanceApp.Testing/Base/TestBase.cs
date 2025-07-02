@@ -2,18 +2,13 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FinanceApp.Application.Dtos;
 using FinanceApp.Application.Dtos.AuthDtos;
-using FinanceApp.Application.Dtos.InvestmentDtos;
-using FinanceApp.Application.Dtos.SavingDtos;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Domain.Entities;
 using FinanceApp.Domain.Enums;
 using FinanceApp.Infrastructure.EntityFramework.Context;
-using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApp.Testing.Base;
@@ -93,40 +88,6 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       new AuthenticationHeaderValue("Bearer", response!.Token);
   }
 
-  protected async Task<GetInvestmentDto?> CreateInvestmentAsync()
-  {
-    var investmentContent = CreateContent(new CreateInvestmentDto
-    {
-      Name = "TestInvestment",
-      Value = new Money
-      {
-        Currency = CurrencyEnum.USD,
-        Amount = 1000
-      },
-      Description = "Test Investment"
-    });
-
-    var result = await GetContentAsync<GetInvestmentDto>(await Client.PostAsync(INVESTMENTS, investmentContent));
-    return result;
-  }
-
-  protected async Task<GetSavingDto?> CreateSavingAsync()
-  {
-    var savingContent = CreateContent(new CreateSavingDto
-    {
-      Name = "TestSaving",
-      Value = new Money
-      {
-        Currency = CurrencyEnum.USD,
-        Amount = 1000
-      },
-      Description = "Test Saving"
-    });
-
-    var result = await GetContentAsync<GetSavingDto>(await Client.PostAsync(SAVINGS, savingContent));
-    return result;
-  }
-
   protected async Task<GetUserDto?> CreateUserAsync()
   {
     var userContent = CreateContent(new CreateUserDto
@@ -147,11 +108,6 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       Name = "TransactionGroup",
       Description = "Transaction group",
       GroupIcon = "icon",
-      Limit = new Money
-      {
-        Currency = CurrencyEnum.USD,
-        Amount = 100
-      }
     });
 
     var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
@@ -184,33 +140,18 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       new() {
         Name = "TransactionGroup_1",
         Description = "Transaction group",
-        GroupIcon = "icon",
-        Limit = new Money
-        {
-          Currency = CurrencyEnum.USD,
-          Amount = 100
-        }
+        GroupIcon = "icon"
       },
       new() {
         Name = "TransactionGroup_2",
         Description = "Transaction group",
-        GroupIcon = "icon",
-        Limit = new Money
-        {
-          Currency = CurrencyEnum.USD,
-          Amount = 100
-        }
+        GroupIcon = "icon"
       },
       new()
       {
         Name = "TransactionGroup_3",
         Description = "Transaction group",
-        GroupIcon = "icon",
-        Limit = new Money
-        {
-          Currency = CurrencyEnum.USD,
-          Amount = 100
-        }
+        GroupIcon = "icon"
       }
     };
 
@@ -280,11 +221,6 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     {
       Name = "TransactionGroup",
       Description = "Transaction group",
-      Limit = new Money
-      {
-        Currency = CurrencyEnum.USD,
-        Amount = 100
-      },
       GroupIcon = "icon"
     });
 

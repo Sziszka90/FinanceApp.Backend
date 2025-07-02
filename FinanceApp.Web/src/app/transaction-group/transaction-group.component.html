@@ -21,20 +21,6 @@
         <td class="default-font text-color-black" mat-cell *matCellDef="let element"><i class="{{element.groupIcon}}"></i></td>
       </ng-container>
 
-      <ng-container class="column" matColumnDef="value">
-        <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef>Limit</th>
-        <td class="default-font text-color-black" mat-cell *matCellDef="let element">
-          {{ element.limit ? element.limit.amount : '' }}
-        </td>
-      </ng-container>
-
-      <ng-container class="column" matColumnDef="currency">
-        <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef>Currency</th>
-        <td class="default-font text-color-black" mat-cell *matCellDef="let element">
-          {{ element.limit ? element.limit.currency : '' }}
-        </td>
-      </ng-container>
-
       <ng-container class="column" matColumnDef="actions">
         <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef>Actions</th>
         <td class="default-font text-color-black" mat-cell *matCellDef="let row">

@@ -1,4 +1,3 @@
-using FinanceApp.Application.Dtos;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Application.User.UserCommands;
 using FinanceApp.Application.User.UserQueries;
@@ -95,19 +94,6 @@ public class UsersController : ControllerBase
   {
     var result = await _mediator.Send(new CreateUserCommand(createUserDto));
     return this.GetResult(result, StatusCodes.Status201Created);
-  }
-
-  [HttpPut]
-  [Authorize]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(GetSavingDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetUserDto>> UpdateSaving([FromBody] UpdateUserDto updateUserDto)
-  {
-    var result = await _mediator.Send(new UpdateUserCommand(updateUserDto));
-    return this.GetResult(result);
   }
 
   [HttpDelete("{id}")]

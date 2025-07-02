@@ -60,7 +60,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     .updateUser({
       id: this.user?.id,
       userName: this.updateUserForm.get('userName')?.value ?? this.user?.userName,
-      email: this.updateUserForm.get('email')?.value ?? this.user?.email,
       password: this.updateUserForm.get('password')?.value ?? "",
       baseCurrency: this.updateUserForm.get('currency')?.value ?? CurrencyEnum.Unknown,
     }).pipe(take(1))

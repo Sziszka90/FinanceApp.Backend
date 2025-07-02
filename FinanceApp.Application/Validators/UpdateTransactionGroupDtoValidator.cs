@@ -12,11 +12,5 @@ public class UpdateTransactionGroupDtoValidator : AbstractValidator<UpdateTransa
       .NotEmpty();
     RuleFor(x => x.Description)
       .MaximumLength(200);
-
-    When(x => x.Limit is not null, () =>
-                                   {
-                                     RuleFor(x => x.Limit)
-                                       .SetValidator(moneyValidator!);
-                                   });
   }
 }

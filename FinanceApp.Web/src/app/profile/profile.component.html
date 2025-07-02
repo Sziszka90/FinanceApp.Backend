@@ -21,24 +21,6 @@
       </div>
     </div>
 
-    <label class="default-font" for="email">Email</label>
-    <div class="form-group">
-      <input
-        class="default-font"
-        id="email"
-        type="text"
-        formControlName="email"
-        required
-        placeholder="Email"
-      />
-      <div class="error-font" *ngIf="updateUserForm.get('email')?.hasError('required') && updateUserForm.get('email')?.touched">
-        Email is required
-      </div>
-      <div class="error-font" *ngIf="updateUserForm.get('email')?.hasError('email') && updateUserForm.get('email')?.touched">
-        Invalid email format
-      </div>
-    </div>
-
     <label class="default-font" for="password">Password</label>
     <div class="form-group">
       <input
@@ -60,6 +42,7 @@
       </div>
     </div>
 
+    <label class="default-font" for="currency">Currency</label>
     <div class="form-group">
       <mat-select class="select" formControlName="currency" required>
         <mat-option *ngFor="let option of currencyOptions" [value]="option">

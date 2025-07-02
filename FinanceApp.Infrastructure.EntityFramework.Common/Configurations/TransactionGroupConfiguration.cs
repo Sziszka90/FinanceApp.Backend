@@ -8,11 +8,5 @@ public class TransactionGroupConfiguration : IEntityTypeConfiguration<Transactio
 {
   /// <inheritdoc />
   public void Configure(EntityTypeBuilder<TransactionGroup> builder)
-  {
-        builder.OwnsOne(e => e.Limit, owned =>
-        {
-          owned.Property(v => v.Amount).HasColumnName("Limit_Amount");
-          owned.Property(v => v.Currency).HasColumnName("Limit_Currency");
-        });
-  }
+  {}
 }

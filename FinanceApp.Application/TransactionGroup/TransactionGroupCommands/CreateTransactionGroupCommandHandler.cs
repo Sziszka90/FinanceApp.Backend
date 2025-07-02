@@ -5,7 +5,6 @@ using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
-using FinanceApp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -63,9 +62,7 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
                                                                             request.CreateTransactionGroupDto.Name,
                                                                             request.CreateTransactionGroupDto.Description,
                                                                             request.CreateTransactionGroupDto.GroupIcon,
-                                                                            user!,
-                                                                            request.CreateTransactionGroupDto.Limit
-                                                                            ), cancellationToken);
+                                                                            user!), cancellationToken);
 
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -8,8 +8,6 @@ public abstract class FinanceAppDbContext : DbContext
 {
   public DbSet<Transaction> Transaction => Set<Transaction>();
    public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
-  public DbSet<Saving> Saving => Set<Saving>();
-  public DbSet<Investment> Investment => Set<Investment>();
   public DbSet<Domain.Entities.User> User => Set<Domain.Entities.User>();
 
   protected FinanceAppDbContext(

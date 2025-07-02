@@ -37,8 +37,6 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     'name',
     'description',
     'icon',
-    'value',
-    'currency',
     'actions',
   ];
 
@@ -102,7 +100,6 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
               ...transactionGroup,
               name: updatedTransactionGroup.name,
               description: updatedTransactionGroup.description,
-              limit: updatedTransactionGroup.limit,
               groupIcon: updatedTransactionGroup.groupIcon,
             };
           }

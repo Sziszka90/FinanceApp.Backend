@@ -29,7 +29,7 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
   /// <inheritdoc />
   public async Task<Result<GetTransactionGroupDto>> Handle(UpdateTransactionGroupCommand request, CancellationToken cancellationToken)
   {
-    var transactionGroup = await _transactionGroupRepository.GetByIdWithLimitAndIconAsync(request.UpdateTransactionGroupDto.Id, cancellationToken);
+    var transactionGroup = await _transactionGroupRepository.GetByIdAsync(request.UpdateTransactionGroupDto.Id, cancellationToken);
 
     if (transactionGroup is null)
     {
@@ -47,8 +47,7 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
 
     transactionGroup!.Update(request.UpdateTransactionGroupDto.Name,
                              request.UpdateTransactionGroupDto.Description,
-                             request.UpdateTransactionGroupDto.GroupIcon,
-                             request.UpdateTransactionGroupDto.Limit);
+                             request.UpdateTransactionGroupDto.GroupIcon);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
