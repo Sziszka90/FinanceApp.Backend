@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment'
+        description: "Target environment"
         required: true
-        default: 'production'
+        default: "production"
 
 jobs:
   build:
@@ -82,6 +82,7 @@ jobs:
       - name: Run EF Core Migrations (custom script)
         env:
           ConnectionStrings__MsSql: ${{ secrets.DB_CONNECTION_STRING }}
+          DatabaseProvider: mssql
         run: |
           chmod +x ./scripts/run-migration.sh
           ./scripts/run-migration.sh mssql
