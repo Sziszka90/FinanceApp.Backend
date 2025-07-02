@@ -82,7 +82,7 @@ jobs:
       - name: Run EF Core Migrations (custom script)
         run: |
           chmod +x ./scripts/run-migration.sh
-          ./scripts/run-migration.sh mssql ${{ secrets.DB_CONNECTION_STRING }}
+          ./scripts/run-migration.sh mssql '${{ secrets.DB_CONNECTION_STRING }}'
 
       - name: Update Azure Container App (Backend)
         run: |
