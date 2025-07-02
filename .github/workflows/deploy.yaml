@@ -69,6 +69,7 @@ jobs:
 
       - name: Run EF Core Migrations (custom script)
         run: |
+          ls
           chmod +x ./scripts/run-migration.sh
           ./scripts/run-migration.sh mssql
 
