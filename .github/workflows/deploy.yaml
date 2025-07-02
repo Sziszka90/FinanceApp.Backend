@@ -14,7 +14,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
@@ -91,7 +92,7 @@ jobs:
           az containerapp update \
             --name finance-app-backend \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }} \
+            --image ghcr.io/$OWNER/finance-app-backend:${{ needs.build.outputs.tag }} \
             --set-env-vars \
               ConnectionStrings__MsSql='${{ secrets.DB_CONNECTION_STRING }}' \
               LLMClientSettings__ApiKey='${{ secrets.OPEN_AI_API_KEY }}' \
@@ -111,7 +112,7 @@ jobs:
           az containerapp update \
             --name finance-app-frontend \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }}
+            --image ghcr.io/$OWNER/finance-app-frontend:${{ needs.build.outputs.tag }}
 
       - name: Update Azure Container App (Gateway)
         run: |
@@ -120,4 +121,4 @@ jobs:
           az containerapp update \
             --name finance-app-gateway \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }}
+            --image ghcr.io/$OWNER/finance-app-gateway:${{ needs.build.outputs.tag }}
