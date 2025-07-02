@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment'
+        description: "Target environment"
         required: true
-        default: 'production'
+        default: "production"
 
 jobs:
   build-and-deploy:
@@ -67,6 +67,11 @@ jobs:
           docker build -t ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }} -f GatewayService.Dockerfile .
           docker push ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }}
 
+      - name: Run EF Core Migrations (custom script)
+        run: |
+          chmod +x ./scripts/run-migration.sh
+          ./scripts/run-migration.sh mssql
+
       - name: Update Azure Container App (Backend)
         run: |
           set -x
@@ -86,7 +91,6 @@ jobs:
               SmtpSettings__SmtpUser='${{ secrets.SMTP_USER }}' \
               SmtpSettings__SmtpPass='${{ secrets.SMTP_PASSWORD }}' \
               SmtpSettings__FromEmail='${{ secrets.SMTP_FROM_EMAIL }}'
-
 
       - name: Update Azure Container App (Frontend)
         run: |
