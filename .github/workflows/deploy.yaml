@@ -80,8 +80,9 @@ jobs:
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Run EF Core Migrations (custom script)
+        env:
+          ConnectionStrings__MsSql: ${{ secrets.DB_CONNECTION_STRING }}
         run: |
-          ls
           chmod +x ./scripts/run-migration.sh
           ./scripts/run-migration.sh mssql
 
