@@ -80,12 +80,9 @@ jobs:
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Run EF Core Migrations (custom script)
-        env:
-          ConnectionStrings__MsSql: ${{ secrets.DB_CONNECTION_STRING }}
-          DatabaseProvider: mssql
         run: |
           chmod +x ./scripts/run-migration.sh
-          ./scripts/run-migration.sh mssql
+          ./scripts/run-migration.sh mssql ${{ secrets.DB_CONNECTION_STRING }}
 
       - name: Update Azure Container App (Backend)
         run: |

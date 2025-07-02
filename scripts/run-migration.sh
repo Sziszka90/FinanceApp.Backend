@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 PROVIDER="$1"
+CONNECTION="$2"
 
 # Default to MSSQL
 if [ -z "$PROVIDER" ]; then
@@ -19,14 +20,22 @@ case "$PROVIDER" in
     ;;
   *)
     echo "❌ Unknown provider: '$PROVIDER'"
-    echo "Usage: ./scripts/run-migrations.sh [mssql|sqlite]"
+    echo "Usage: ./scripts/run-migration.sh [mssql|sqlite] [connectionString]"
     exit 1
     ;;
 esac
 
 echo "📦 Applying migrations for '$PROVIDER'..."
 
-dotnet ef database update \
-  --project "$PROJECT" \
-  --startup-project FinanceApp.Presentation.WebApi \
-  --context "$CONTEXT"
+if [ -z "$CONNECTION" ]; then
+  dotnet ef database update \
+    --project "$PROJECT" \
+    --startup-project FinanceApp.Presentation.WebApi \
+    --context "$CONTEXT"
+else
+  dotnet ef database update \
+    --project "$PROJECT" \
+    --startup-project FinanceApp.Presentation.WebApi \
+    --context "$CONTEXT" \
+    --connection "$CONNECTION"
+fi
