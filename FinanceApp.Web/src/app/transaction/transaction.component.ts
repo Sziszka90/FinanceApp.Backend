@@ -73,21 +73,26 @@ export class TransactionComponent implements OnInit, OnDestroy {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.dataSource().sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case 'value': return item.value.amount;
-        case 'currency': return item.value.currency;
-        case 'transactionDate': return new Date(item.transactionDate);
-        case 'group': return item.transactionGroup?.name ?? '';
-        default: return (item as any)[property];
-      }
-    };
+    this.dataSource.update(ds => {
+      ds.sortingDataAccessor = (item, property) => {
+        switch (property) {
+          case 'value': return item.value.amount;
+          case 'currency': return item.value.currency;
+          case 'transactionDate': return new Date(item.transactionDate);
+          case 'group': return item.transactionGroup?.name ?? '';
+          default: return (item as any)[property];
+        }
+      };
+      return ds;
+    });
 
     this.transactions$ = this.transactionApiService.getAllTransactions();
     this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.allTransactions.set(value);
-      this.dataSource().data = value;
-      this.dataSource.set(new MatTableDataSource<GetTransactionDto>(value));
+      this.dataSource.update(ds => {
+        ds.data = value;
+        return ds;
+      });
       this.setupCustomFilterPredicate();
     });
 
@@ -207,6 +212,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
     this.filterForm.reset();
     this.dataSource.update(ds => {
       ds.filter = "";
+      ds.data = this.allTransactions();
       return ds;
     });
   }

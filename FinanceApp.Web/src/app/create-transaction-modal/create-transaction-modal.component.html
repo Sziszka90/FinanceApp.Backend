@@ -35,7 +35,7 @@
     </div>
     <label for="transactionDate">Transaction Date</label>
     <div class="input-with-icon">
-      <input bsDatepicker formControlName="date" type="text" placeholder="Select a date" />
+      <input bsDatepicker formControlName="transactionDate" type="text" placeholder="Select a date" />
       <i class="fa fa-calendar"></i>
     </div>
 
@@ -54,7 +54,7 @@
     <label for="group">Group</label>
     <div class="form-group">
       <mat-select class="select" formControlName="group">
-        <mat-option *ngFor="let option of groupOptions" [value]="option">
+        <mat-option *ngFor="let option of groupOptions()" [value]="option">
           &#8226; {{ option.name }}
         </mat-option>
       </mat-select>

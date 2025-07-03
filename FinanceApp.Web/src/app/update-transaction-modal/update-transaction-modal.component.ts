@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -47,8 +47,6 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
   private transactionApiService = inject(TransactionApiService);
   public data = inject(MAT_DIALOG_DATA);
 
-
-
   transactionForm: FormGroup = this.fb.group({
     name: new FormControl(this.data.name, Validators.required),
     description: new FormControl(this.data.description),
@@ -68,7 +66,7 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
         : ''
     ),
   });
-  groupOptions: GetTransactionGroupDto[] = [];
+  groupOptions = signal<GetTransactionGroupDto[]>([]);
   typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
@@ -85,12 +83,10 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
     this.transactionApiService
     .getAllTransactionGroups()
     .pipe(take(1))
+    .pipe(takeUntil(this.onDestroy$))
     .subscribe((data) => {
-      this.groupOptions = data;
-      this.groupOptions.push({
-        id: '',
-        name: 'No group',
-      });
+      this.groupOptions.set(data);
+      this.groupOptions.update(groups => [...groups, { id: '', name: 'No group' }]);
     });
   }
 

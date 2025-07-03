@@ -57,7 +57,7 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
       CreateTransactionGroupModalComponent,
       {
         width: '70vw',
-        height: '90vh',
+        height: '80vh',
       }
     );
 

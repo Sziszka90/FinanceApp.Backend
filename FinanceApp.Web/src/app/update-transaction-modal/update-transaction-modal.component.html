@@ -54,7 +54,7 @@
     <label for="group">Group</label>
     <div class="form-group">
       <mat-select class="select" formControlName="group">
-        <mat-option *ngFor="let option of groupOptions" [value]="option">
+        <mat-option *ngFor="let option of groupOptions()" [value]="option">
           &#8226; {{ option.name }}
         </mat-option>
       </mat-select>

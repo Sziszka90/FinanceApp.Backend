@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -57,7 +57,7 @@ export class CreateTransactionModalComponent implements OnDestroy {
     group: new FormControl(''),
   });
 
-  groupOptions: GetTransactionGroupDto[] = [];
+  groupOptions = signal<GetTransactionGroupDto[]>([]);
   typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
@@ -69,8 +69,9 @@ export class CreateTransactionModalComponent implements OnDestroy {
       .pipe(take(1))
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((data) => {
-        this.groupOptions = data;
-      });
+        this.groupOptions.set(data);
+        this.groupOptions.update(groups => [...groups, { id: '', name: 'No group' }]);
+    });
   }
 
   onSubmit(): void {
