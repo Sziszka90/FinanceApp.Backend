@@ -29,7 +29,7 @@ import { Subject, takeUntil } from 'rxjs';
   styleUrl: './update-transaction-group-modal.component.scss',
   standalone: true,
 })
-export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
+export class UpdateTransactionGroupModalComponent implements OnDestroy {
   private dialogRef = inject(MatDialogRef<UpdateTransactionGroupModalComponent>);
   private fb = inject(FormBuilder);
   private transactionApiService = inject(TransactionApiService);
@@ -45,12 +45,7 @@ export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
-  public selectedIcon: string = "";
   private onDestroy$ = new Subject<void>();
-
-  ngOnInit(): void {
-    this.selectedIcon = this.transactionForm.get('groupIcon')?.value || '';
-  }
 
   onSubmit(): void {
     if (this.transactionForm.valid) {

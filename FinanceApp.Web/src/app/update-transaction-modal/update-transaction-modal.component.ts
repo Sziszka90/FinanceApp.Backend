@@ -77,7 +77,7 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.transactionForm.get('group')?.setValue(this.data.transactionGroup);
     this.transactionForm.get('currency')?.setValue(this.data.value.currency);
-    this.transactionForm.get('transactionType')?.setValue(null);
+    this.transactionForm.get('transactionType')?.setValue(this.data.transactionType);
     this.transactionForm.get('transactionDate')?.setValue(new Date(this.data.transactionDate));
 
     this.transactionApiService
