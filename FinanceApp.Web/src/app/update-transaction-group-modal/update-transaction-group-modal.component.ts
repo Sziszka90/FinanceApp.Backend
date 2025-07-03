@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -13,7 +13,7 @@ import {
 } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
-import { CurrencyEnum, Money } from '../../models/Money/Money';
+import { CurrencyEnum } from '../../models/Money/Money';
 import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { Subject, takeUntil } from 'rxjs';
@@ -35,32 +35,21 @@ export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
   private transactionApiService = inject(TransactionApiService);
   public data = inject<GetTransactionGroupDto>(MAT_DIALOG_DATA);
 
-  private onDestroy$ = new Subject<void>();
+  transactionForm: FormGroup = this.fb.group({
+    name: new FormControl(this.data.name, Validators.required),
+    description: new FormControl(this.data.description),
+    groupIcon: new FormControl(this.data.groupIcon)
+  });
 
-  transactionForm: FormGroup;
   public groupIconOptions: string[] = groupIconOptions;
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
   public selectedIcon: string = "";
+  private onDestroy$ = new Subject<void>();
 
-  constructor() {
-    this.transactionForm = this.fb.group({
-      name: new FormControl(this.data.name, Validators.required),
-      description: new FormControl(this.data.description),
-      groupIcon: new FormControl(this.data.groupIcon)
-    });
-  }
-  ngOnDestroy(): void {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
-  }
   ngOnInit(): void {
     this.selectedIcon = this.transactionForm.get('groupIcon')?.value || '';
-  }
-
-  onClose(): void {
-    this.dialogRef.close(false);
   }
 
   onSubmit(): void {
@@ -83,5 +72,14 @@ export class UpdateTransactionGroupModalComponent implements OnInit, OnDestroy {
 
   compareCategoryObjects(object1: any, object2: any) {
     return object1 && object2 && object1.id == object2.id;
+  }
+
+  onClose(): void {
+    this.dialogRef.close(false);
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 }

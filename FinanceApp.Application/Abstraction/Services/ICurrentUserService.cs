@@ -1,4 +1,3 @@
-
 namespace FinanceApp.Application.Abstraction.Services;
 
 public interface ICurrentUserService

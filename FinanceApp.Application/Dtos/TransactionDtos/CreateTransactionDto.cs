@@ -1,5 +1,4 @@
 ﻿using FinanceApp.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 
 namespace FinanceApp.Application.Dtos.TransactionDtos;
 

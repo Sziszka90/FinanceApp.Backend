@@ -1,8 +1,8 @@
-import { Component, inject, OnDestroy, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, Signal, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { Observable, of, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { TransactionApiService } from 'src/services/transactions.api.service';
 import { CurrencyEnum, Money } from 'src/models/Money/Money';
 import { MatDialog } from '@angular/material/dialog';
@@ -38,19 +38,24 @@ export class TransactionComponent implements OnInit, OnDestroy {
   public transactionApiService = inject(TransactionApiService);
   public matDialog = inject(MatDialog);
   public fb = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef);
 
   public summary$: Observable<Money> | undefined;
   public transactions$: Observable<GetTransactionDto[]> | undefined;
-  public allTransactions: GetTransactionDto[] = [];
-  public total: Money = {amount: 0, currency: CurrencyEnum.EUR};
+  public allTransactions = signal<GetTransactionDto[]>([]);
+  public total = signal<Money>({amount: 0, currency: CurrencyEnum.EUR});
 
-  public showSummary = false;
-  public summary: Money | null = null;
+  public showSummary = signal<boolean>(false);
+  public summary = signal<Money | null>(null);
+
+  dataSource = signal<MatTableDataSource<GetTransactionDto>>(new MatTableDataSource<GetTransactionDto>([]));
 
   typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
 
-  filterForm: FormGroup;
+  filterForm: FormGroup = this.fb.group({
+    name: [''],
+    date: [''],
+    type: []
+  });
 
   displayedColumns: string[] = [
     'name',
@@ -65,16 +70,10 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor() {
-    this.filterForm = this.fb.group({
-      name: [''],
-      date: [''],
-      type: []
-    });
-  }
+  @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.dataSource.sortingDataAccessor = (item, property) => {
+    this.dataSource().sortingDataAccessor = (item, property) => {
       switch (property) {
         case 'value': return item.value.amount;
         case 'currency': return item.value.currency;
@@ -86,8 +85,9 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
     this.transactions$ = this.transactionApiService.getAllTransactions();
     this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe((value) => {
-      this.allTransactions = value;
-      this.dataSource.data = value;
+      this.allTransactions.set(value);
+      this.dataSource().data = value;
+      this.dataSource.set(new MatTableDataSource<GetTransactionDto>(value));
       this.setupCustomFilterPredicate();
     });
 
@@ -96,45 +96,53 @@ export class TransactionComponent implements OnInit, OnDestroy {
       .subscribe(() => this.applyFilters());
   }
 
-  setupCustomFilterPredicate() {
-    this.dataSource.filterPredicate = (data: GetTransactionDto, filter: string) => {
-      const filterObj = JSON.parse(filter);
-      const { name, date, type } = filterObj;
-
-      return (!name || data.name.toLowerCase().includes(name.toLowerCase())) &&
-             (!date || (
-               data.transactionDate &&
-               new Date(data.transactionDate).toISOString().slice(0, 10) === date
-             )) &&
-             (!type || data.transactionType === type);
-    };
+  ngAfterViewChecked() {
+    if (this.sort && this.dataSource().sort !== this.sort) {
+      this.dataSource.update(ds => {
+        ds.sort = this.sort;
+        return ds;
+      });
+    }
   }
 
-  dataSource = new MatTableDataSource<GetTransactionDto>([]);
+  setupCustomFilterPredicate() {
+    this.dataSource.update(ds => {
+      ds.filterPredicate = (data: GetTransactionDto, filter: string) => {
+        const filterObj = JSON.parse(filter);
+        const { name, date, type } = filterObj;
 
-  @ViewChild(MatSort) sort!: MatSort;
-
-  ngAfterViewChecked() {
-    if (this.sort && this.dataSource.sort !== this.sort) {
-      this.dataSource.sort = this.sort;
-    }
+        return (!name || data.name.toLowerCase().includes(name.toLowerCase())) &&
+              (!date || (
+                data.transactionDate &&
+                new Date(data.transactionDate).toISOString().slice(0, 10) === date
+              )) &&
+              (!type || data.transactionType === type);
+      };
+      return ds; // important: return the same object
+    });
   }
 
   applyFilters() {
     const { name, date, type } = this.filterForm.value;
     const formattedDate = date ? formatDate(date, 'yyyy-MM-dd', 'en-US') : '';
 
-    this.dataSource.filter = JSON.stringify({ name, date: formattedDate, type });
+    this.dataSource.update(ds => {
+      ds.filter = JSON.stringify({ name, date: formattedDate, type });
+      return ds;
+    });
 
     if (this.sort.active && this.sort.direction !== '') {
-      this.dataSource.data = [...this.dataSource.filteredData];
+      this.dataSource().data = [...this.dataSource().filteredData];
     }
   }
 
   deleteTransaction(transactionDto: GetTransactionDto) {
     this.transactionApiService.deleteTransaction(transactionDto.id).subscribe(() => {
-      this.allTransactions = this.allTransactions?.filter((t) => t.id !== transactionDto.id);
-      this.dataSource.data = this.allTransactions
+      this.allTransactions.update(transactions => transactions.filter((t) => t.id !== transactionDto.id));
+      this.dataSource.update(ds => {
+        ds.data = this.allTransactions();
+        return ds;
+      });
     });
   }
 
@@ -152,7 +160,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe((updatedTransaction: GetTransactionDto) => {
     if (updatedTransaction) {
-        this.allTransactions = this.allTransactions?.map((transaction: GetTransactionDto) => {
+        this.allTransactions?.update(transactions => transactions.map((transaction: GetTransactionDto) => {
           if (transaction.id === updatedTransaction.id) {
             return {
               ...transaction,
@@ -165,9 +173,12 @@ export class TransactionComponent implements OnInit, OnDestroy {
             };
           }
           return transaction;
-        });
+        }));
       }
-      this.dataSource.data = this.allTransactions;
+      this.dataSource.update(ds => {
+        ds.data = this.allTransactions();
+        return ds;
+      });
     });
   }
 
@@ -183,25 +194,31 @@ export class TransactionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((createdTransaction) => {
         if (createdTransaction) {
-          this.allTransactions = [...this.allTransactions, createdTransaction];
-          this.dataSource.data = this.allTransactions;
+          this.allTransactions.update(transactions => [...transactions, createdTransaction]);
+          this.dataSource.update(ds => {
+            ds.data = this.allTransactions();
+            return ds;
+          });
         }
       });
   };
 
   resetFilters() {
     this.filterForm.reset();
-    this.dataSource.filter = "";
+    this.dataSource.update(ds => {
+      ds.filter = "";
+      return ds;
+    });
   }
 
   getSummary(): void {
     this.transactionApiService.getAllTransactionsSummary().subscribe((data) => {
-      this.summary = data;
-      this.showSummary = true;
+      this.summary.set(data);
+      this.showSummary.set(true);
 
       // Hide the summary after 5 seconds
       setTimeout(() => {
-        this.showSummary = false;
+        this.showSummary.set(false);
       }, 5000);
     });
   }

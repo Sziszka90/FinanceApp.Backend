@@ -15,4 +15,12 @@ public interface ITransactionRepository : IRepository<Domain.Entities.Transactio
         bool noTracking = false,
         CancellationToken cancellationToken = default
     );
+
+  /// <summary>
+  /// Delete all transactions associated with a specific user ID.
+  /// </summary>
+  /// <param name="userId"></param>
+  /// <param name="cancellationToken"></param>
+  /// <returns></returns>
+  Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 }

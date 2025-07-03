@@ -1,5 +1,3 @@
-using FinanceApp.Domain.Entities;
-
 namespace FinanceApp.Application.Dtos.TransactionGroupDtos;
 
 public class CreateTransactionGroupDto

@@ -18,10 +18,7 @@ export class ResetPasswordComponent {
 
   private token: string = "";
 
-  public resetPasswordForm: FormGroup;
-
-  constructor() {
-    this.resetPasswordForm = this.fb.group({
+  public resetPasswordForm: FormGroup = this.fb.group({
       password: [
         '',
         [
@@ -40,7 +37,12 @@ export class ResetPasswordComponent {
       ]
     },
     { validators: this.passwordsMatchValidator }
-    );
+  );
+
+  ngOnInit(): void {
+    this.route.queryParamMap.subscribe((params) => {
+      this.token = params.get('token') ?? "";
+    });
   }
 
   passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -48,12 +50,6 @@ export class ResetPasswordComponent {
     const confirmPassword = control.get('confirmPassword')?.value;
 
     return password === confirmPassword ? null : { passwordsMismatch: true };
-  }
-
-  ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => {
-      this.token = params.get('token') ?? "";
-    });
   }
 
   onSubmit() {

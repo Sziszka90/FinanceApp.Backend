@@ -1,5 +1,4 @@
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
-using FinanceApp.Domain.Entities;
 using FluentValidation;
 
 namespace FinanceApp.Application.Validators;

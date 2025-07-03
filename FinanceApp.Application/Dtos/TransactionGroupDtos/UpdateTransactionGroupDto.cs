@@ -1,6 +1,3 @@
-using FinanceApp.Domain.Entities;
-using Microsoft.AspNetCore.Http;
-
 namespace FinanceApp.Application.Dtos.TransactionGroupDtos;
 
 public class UpdateTransactionGroupDto

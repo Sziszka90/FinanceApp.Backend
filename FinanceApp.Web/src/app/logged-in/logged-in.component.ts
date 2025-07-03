@@ -17,9 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class LoggedInComponent {
   public router = inject(Router);
   public authService = inject(AuthenticationService);
-
-  constructor() {}
-
+  
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);

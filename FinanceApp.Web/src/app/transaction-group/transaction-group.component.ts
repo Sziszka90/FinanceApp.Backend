@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateTransactionGroupModalComponent } from '../create-transaction-group-modal/create-transaction-group-modal.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,16 +40,16 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     'actions',
   ];
 
-  private destroy$ = new Subject<void>();
-
   public transactionGroups$: Observable<GetTransactionGroupDto[]> | undefined;
-  public allTransactionGroups: GetTransactionGroupDto[] = [];
+  public allTransactionGroups = signal<GetTransactionGroupDto[]>([]);
+
+  private destroy$ = new Subject<void>();
 
   touchStartX = 0;
 
   ngOnInit(): void {
     this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
-    this.transactionGroups$.pipe(takeUntil(this.destroy$)).subscribe(value => this.allTransactionGroups = value);
+    this.transactionGroups$.pipe(takeUntil(this.destroy$)).subscribe(value => this.allTransactionGroups.set(value));
   }
 
   createTransactionGroup() {
@@ -65,7 +65,7 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe((createdTransactionGroup) => {
       if (createdTransactionGroup) {
-        this.allTransactionGroups = [...this.allTransactionGroups, createdTransactionGroup];
+        this.allTransactionGroups.update(groups => [...groups, createdTransactionGroup]);
       }
     });
   }
@@ -74,9 +74,9 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     this.transactionApiService.deleteTransactionGroup(transactionGroup.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.allTransactionGroups = this.allTransactionGroups?.filter(
+        this.allTransactionGroups.update(groups => groups.filter(
           (group) => group.id !== transactionGroup.id
-        );
+        ));
       });
   }
 
@@ -94,7 +94,7 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe((updatedTransactionGroup) => {
       if (updatedTransactionGroup) {
-        this.allTransactionGroups = this.allTransactionGroups?.map((transactionGroup) => {
+        this.allTransactionGroups.update(groups => groups.map((transactionGroup) => {
           if (transactionGroup.id === updatedTransactionGroup.id) {
             return {
               ...transactionGroup,
@@ -104,7 +104,7 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
             };
           }
           return transactionGroup;
-        });
+        }));
       }
     });
   }

@@ -7,6 +7,11 @@ namespace FinanceApp.Application.QueryCriteria;
 
 public static class TransactionQueryCriteria
 {
+  /// <summary>
+  /// Finds transactions with the same name as the one provided in the request.
+  /// </summary>
+  /// <param name="request"></param>
+  /// <returns>QueryCriteria<Domain.Entities.Transaction></returns>
   public static QueryCriteria<Domain.Entities.Transaction> FindDuplicatedName(CreateTransactionDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.Transaction>();
@@ -16,6 +21,11 @@ public static class TransactionQueryCriteria
     return builder.Build();
   }
 
+  /// <summary>
+  /// Finds transactions with the same name as the one provided in the request.
+  /// </summary>
+  /// <param name="request"></param>
+  /// <returns>QueryCriteria<Domain.Entities.TransactionGroup></returns>
   public static QueryCriteria<Domain.Entities.TransactionGroup> FindDuplicatedName(CreateTransactionGroupDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.TransactionGroup>();
@@ -25,6 +35,11 @@ public static class TransactionQueryCriteria
     return builder.Build();
   }
 
+  /// <summary>
+  /// Finds transactions with the same name as the one provided in the request.
+  /// </summary>
+  /// <param name="request"></param>
+  /// <returns>QueryCriteria<Domain.Entities.Transaction></returns>
   public static QueryCriteria<Domain.Entities.Transaction> FindDuplicatedNameExludingId(UpdateTransactionDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.Transaction>();
@@ -48,6 +63,11 @@ public static class TransactionQueryCriteria
 
 public static class UserQueryCriteria
 {
+  /// <summary>
+  /// Finds a user by username.
+  /// </summary>
+  /// <param name="request"></param>
+  /// <returns>QueryCriteria<Domain.Entities.User></returns>
   public static QueryCriteria<Domain.Entities.User> FindUserName(CreateUserDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
@@ -57,6 +77,11 @@ public static class UserQueryCriteria
     return builder.Build();
   }
 
+  /// <summary>
+  /// Finds a user by username.
+  /// </summary>
+  /// <param name="userName"></param>
+  /// <returns>QueryCriteria<Domain.Entities.User></returns>
   public static QueryCriteria<Domain.Entities.User> FindUserName(string userName)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
@@ -66,6 +91,11 @@ public static class UserQueryCriteria
     return builder.Build();
   }
 
+  /// <summary>
+  /// Finds a user by email.
+  /// </summary>
+  /// <param name="request"></param>
+  /// <returns>QueryCriteria<Domain.Entities.User></returns>
   public static QueryCriteria<Domain.Entities.User> FindUserEmail(CreateUserDto request)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
@@ -75,6 +105,11 @@ public static class UserQueryCriteria
     return builder.Build();
   }
 
+  /// <summary>
+  /// Finds a user by email.
+  /// </summary>
+  /// <param name="email"></param>
+  /// <returns>QueryCriteria<Domain.Entities.User></returns>
   public static QueryCriteria<Domain.Entities.User> FindUserEmail(string email)
   {
     var builder = new QueryCriteriaBuilder<Domain.Entities.User>();

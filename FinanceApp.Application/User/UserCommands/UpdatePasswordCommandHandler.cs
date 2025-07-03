@@ -2,27 +2,22 @@ using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
-using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Application.Models;
-using FinanceApp.Application.QueryCriteria;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.User.UserCommands;
 
 public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordCommand, Result>
 {
-  private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IUserRepository _userRepository;
   private readonly ILogger<UpdatePasswordCommandHandler> _logger;
   private IJwtService _jwtService;
-  public UpdatePasswordCommandHandler(IMapper mapper,
-                                  IUnitOfWork unitOfWork,
+  public UpdatePasswordCommandHandler(IUnitOfWork unitOfWork,
                                   IUserRepository userRepository,
                                   ILogger<UpdatePasswordCommandHandler> logger,
                                   IJwtService jwtService)
   {
-    _mapper = mapper;
     _unitOfWork = unitOfWork;
     _userRepository = userRepository;
     _logger = logger;

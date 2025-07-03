@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using FinanceApp.Application.Dtos.TransactionGroupDtos;
+﻿using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.TransactionGroup.TransactionGroupCommands;
 using FinanceApp.Application.TransactionGroup.TransactionGroupQueries;
 using FinanceApp.Presentation.WebApi.Controllers.Common;

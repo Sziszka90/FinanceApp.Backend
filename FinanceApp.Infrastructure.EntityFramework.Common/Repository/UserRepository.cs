@@ -8,7 +8,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 public class UserRepository : GenericRepository<Domain.Entities.User>, IUserRepository
 {
   private readonly IFilteredQueryProvider _filteredQueryProvider;
-  private readonly FinanceAppDbContext _dbContext;
 
   /// <inheritdoc />
   public UserRepository(
@@ -16,32 +15,17 @@ public class UserRepository : GenericRepository<Domain.Entities.User>, IUserRepo
     IFilteredQueryProvider filteredQueryProvider
   ) : base(dbContext, filteredQueryProvider)
   {
-    _dbContext = dbContext;
     _filteredQueryProvider = filteredQueryProvider;
   }
 
-  public async Task<Domain.Entities.User?> GetByUserNameAsync(string userName, bool noTracking = false, CancellationToken cancellationToken = default)
+  public async Task<Domain.Entities.User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default)
   {
-    if (noTracking)
-    {
-      return await _filteredQueryProvider.Query<Domain.Entities.User>()
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync(user => user.UserName == userName, cancellationToken);
-    }
-
     return await _filteredQueryProvider.Query<Domain.Entities.User>()
                           .FirstOrDefaultAsync(user => user.UserName == userName, cancellationToken);
   }
 
-  public async Task<Domain.Entities.User?> GetUserByEmailAsync(string email, bool noTracking = false, CancellationToken cancellationToken = default)
+  public async Task<Domain.Entities.User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
   {
-    if (noTracking)
-    {
-      return await _filteredQueryProvider.Query<Domain.Entities.User>()
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
-    }
-
     return await _filteredQueryProvider.Query<Domain.Entities.User>()
                           .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
   }

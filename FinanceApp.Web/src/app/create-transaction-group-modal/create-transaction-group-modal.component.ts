@@ -32,24 +32,16 @@ export class CreateTransactionGroupModalComponent implements OnInit {
   private fb = inject(FormBuilder);
   private transactionApiService = inject(TransactionApiService);
 
-  public transactionForm: FormGroup;
-  public groupIconOptions: string[] = groupIconOptions;
-  public selectedIcon: string = "";
-
-  constructor()
-  {
-    this.transactionForm = this.fb.group({
+  public transactionForm: FormGroup = this.fb.group({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),
       groupIcon: new FormControl('')
     });
-  }
+
+  public groupIconOptions: string[] = groupIconOptions;
+  public selectedIcon: string = "";
 
   ngOnInit(): void {}
-
-  onClose(): void {
-    this.dialogRef.close(false);
-  }
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
@@ -64,5 +56,9 @@ export class CreateTransactionGroupModalComponent implements OnInit {
           this.dialogRef.close(createdTransactionGroup);
       });
     }
+  }
+
+  onClose(): void {
+    this.dialogRef.close(false);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import {
   MatDialogRef,
 } from '@angular/material/dialog';
-import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule, formatDate } from '@angular/common';
@@ -47,24 +47,23 @@ export class CreateTransactionModalComponent implements OnDestroy {
 
   private onDestroy$ = new Subject<void>();
 
-  transactionForm: FormGroup;
+  transactionForm: FormGroup = this.fb.group({
+    name: new FormControl('', Validators.required),
+    description: new FormControl(''),
+    value: new FormControl(0, [Validators.required, Validators.min(0)]),
+    currency: new FormControl('', Validators.required),
+    transactionDate: new FormControl(new Date()),
+    transactionType: new FormControl('', Validators.required),
+    group: new FormControl(''),
+  });
+
   groupOptions: GetTransactionGroupDto[] = [];
   typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
 
-  constructor() {
-    this.transactionForm = this.fb.group({
-      name: new FormControl('', Validators.required),
-      description: new FormControl(''),
-      value: new FormControl(0, [Validators.required, Validators.min(0)]),
-      currency: new FormControl('', Validators.required),
-      transactionDate: new FormControl(new Date()),
-      transactionType: new FormControl('', Validators.required),
-      group: new FormControl(''),
-    });
-
+  ngOnInit() {
     this.transactionApiService
       .getAllTransactionGroups()
       .pipe(take(1))
@@ -72,14 +71,6 @@ export class CreateTransactionModalComponent implements OnDestroy {
       .subscribe((data) => {
         this.groupOptions = data;
       });
-  }
-  ngOnDestroy(): void {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
-  }
-
-  onClose(): void {
-    this.dialogRef.close(false);
   }
 
   onSubmit(): void {
@@ -103,5 +94,14 @@ export class CreateTransactionModalComponent implements OnDestroy {
         .pipe(takeUntil(this.onDestroy$))
         .subscribe((createdTransaction) => this.dialogRef.close(createdTransaction));
     }
+  }
+
+  onClose(): void {
+    this.dialogRef.close(false);
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 }

@@ -21,9 +21,16 @@ public class TransactionGroupRepository : GenericRepository<TransactionGroup>, I
     _dbContext = dbContext;
   }
 
-  public async Task<TransactionGroup?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+  public new async Task<TransactionGroup?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
   {
     return await _filteredQueryProvider.Query<TransactionGroup>()
                           .FirstOrDefaultAsync(tg => tg.Id == id);
+  }
+
+  public async Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+  {
+    await _dbContext.TransactionGroup
+        .Where(g => g.User.Id == userId)
+        .ExecuteDeleteAsync(cancellationToken);
   }
 }

@@ -1,5 +1,4 @@
-﻿using FinanceApp.Application.Abstraction.Services;
-using FinanceApp.Infrastructure.EntityFramework.Interfaces;
+﻿using FinanceApp.Infrastructure.EntityFramework.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Context.ContextFactories;
@@ -7,7 +6,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Context.ContextFactories;
 public class ScopedContextFactory<TContext> : IDbContextFactory<TContext>, IScopedContextFactory<TContext> where TContext : FinanceAppDbContext
 {
   private readonly IDbContextFactory<TContext> _pooledFactory;
-  
+
   public ScopedContextFactory(
     IDbContextFactory<TContext> pooledFactory)
   {

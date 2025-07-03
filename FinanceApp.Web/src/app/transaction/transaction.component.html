@@ -2,9 +2,9 @@
   <button class="custom-button bounce-button" (click)="createTransaction()" >Create Transaction</button>
   <button class="custom-button bounce-button" (click)="getSummary()">Show Summary</button>
 </div>
-<div *ngIf="showSummary" class="summary default-font text-color-grey">
+<div *ngIf="showSummary()" class="summary default-font text-color-grey">
   <div class="title">Sum of Transactions</div>
-  <div class="value" id="value">{{ summary?.amount }} {{ summary?.currency }}</div>
+  <div class="value" id="value">{{ summary()?.amount }} {{ summary()?.currency }}</div>
 </div>
 
 <hr />
@@ -41,8 +41,8 @@
 </div>
 
 <div class="table-container">
-  <div *ngIf="dataSource.data.length > 0; else noTransactions">
-    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+  <div *ngIf="dataSource().data.length > 0; else noTransactions">
+    <table mat-table [dataSource]="dataSource()" matSort class="mat-elevation-z8">
       <!-- Name Column -->
       <ng-container class="column" matColumnDef="name">
         <th class="default-font text-color-black" mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>

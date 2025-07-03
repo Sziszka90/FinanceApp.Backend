@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mail;
+using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Entities;

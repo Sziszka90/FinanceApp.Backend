@@ -1,5 +1,4 @@
 using FinanceApp.Application.Abstraction.Repositories;
-using FinanceApp.Domain.Entities;
 using FinanceApp.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 using FinanceApp.Infrastructure.EntityFramework.Context;

@@ -1,6 +1,5 @@
 using System.Net;
 using FinanceApp.Application.Dtos.UserDtos;
-using FinanceApp.Application.Models;
 using FinanceApp.Domain.Enums;
 using FinanceApp.Testing.Base;
 

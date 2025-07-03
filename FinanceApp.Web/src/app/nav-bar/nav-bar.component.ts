@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router, RouterLink } from '@angular/router';
@@ -22,15 +22,13 @@ export class NavBarComponent implements OnInit {
   private router = inject(Router)
   private elementRef = inject(ElementRef);
 
-  showMenu = false;
-  userLoggedIn = false;
-
-  constructor() {}
+  showMenu = signal<boolean>(false);
+  userLoggedIn = signal<boolean>(false);
 
   ngOnInit() {
-    this.userLoggedIn = this.authService.isAuthenticated();
+    this.userLoggedIn.set(this.authService.isAuthenticated());
     this.authService.userLoggedIn.subscribe((isLoggedIn) => {
-      this.userLoggedIn = isLoggedIn;
+      this.userLoggedIn.set(isLoggedIn);
     });
   }
 
@@ -43,7 +41,7 @@ export class NavBarComponent implements OnInit {
   }
 
   menuToggle() {
-    this.showMenu = !this.showMenu;
+    this.showMenu.set(!this.showMenu());
   }
 
   @HostListener('document:click', ['$event'])
@@ -52,7 +50,7 @@ export class NavBarComponent implements OnInit {
       this.showMenu &&
       !this.elementRef.nativeElement.querySelector('.custom-dropdown-minimized')?.contains(event.target as Node)
     ) {
-      this.showMenu = false;
+      this.showMenu.set(false);
     }
   }
 }

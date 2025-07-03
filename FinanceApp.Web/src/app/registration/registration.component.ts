@@ -28,14 +28,7 @@ export class RegistrationComponent implements OnDestroy {
   private apiService = inject(UserApiService)
   private router = inject(Router);
 
-  registrationForm: FormGroup;
-  registrationSubscription: Subscription | undefined;
-  currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
-    isNaN(Number(key))
-  );
-
-  constructor() {
-    this.registrationForm = this.fb.group({
+  registrationForm: FormGroup = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       password: [
@@ -48,11 +41,12 @@ export class RegistrationComponent implements OnDestroy {
       ],
       currency: ['', [Validators.required]],
     });
-  }
 
-  ngOnDestroy(): void {
-    this.registrationSubscription?.unsubscribe();
-  }
+  registrationSubscription: Subscription | undefined;
+  
+  currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
+    isNaN(Number(key))
+  );
 
   onSubmit() {
     if (this.registrationForm.valid) {
@@ -68,5 +62,9 @@ export class RegistrationComponent implements OnDestroy {
     } else {
       this.registrationForm.markAllAsTouched();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.registrationSubscription?.unsubscribe();
   }
 }

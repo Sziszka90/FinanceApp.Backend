@@ -22,7 +22,7 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     _filteredQueryProvider = filteredQueryProvider;
   }
 
-  public new async Task<List<Transaction>> GetAllAsync(TransactionFilter transactionFilter, bool noTracking = false, CancellationToken cancellationToken = default)
+  public async Task<List<Transaction>> GetAllAsync(TransactionFilter transactionFilter, bool noTracking = true, CancellationToken cancellationToken = default)
   {
     var query = _filteredQueryProvider.Query<Transaction>().Include(x => x.TransactionGroup)
       .Where(x => (transactionFilter.TransactionGroupName == null || (x.TransactionGroup != null && x.TransactionGroup.Name == transactionFilter.TransactionGroupName))
@@ -64,5 +64,12 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     return await _filteredQueryProvider.Query<Transaction>()
                           .Include(y => y.TransactionGroup)
                           .FirstOrDefaultAsync(y => y.Id == id, cancellationToken);
+  }
+
+  public async Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+  {
+    await _dbContext.Transaction
+        .Where(g => g.User.Id == userId)
+        .ExecuteDeleteAsync(cancellationToken);
   }
 }

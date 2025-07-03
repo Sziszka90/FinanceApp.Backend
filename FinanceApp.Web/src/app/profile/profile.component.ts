@@ -6,7 +6,6 @@ import { CurrencyEnum } from '../../models/Money/Money';
 import { Subscription, take } from 'rxjs';
 import { Router } from '@angular/router';
 import { GetUserDto } from '../../models/UserDtos/GetUserDto';
-import { AuthenticationService } from '../../services/authentication.service';
 import { UserFormModel } from 'src/models/Profile/UserFormModel';
 import { MatSelectModule } from '@angular/material/select';
 
@@ -21,33 +20,26 @@ import { MatSelectModule } from '@angular/material/select';
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  updateUserForm : FormGroup<UserFormModel>;
-  user!: GetUserDto;
-  currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
-      isNaN(Number(key)));
-  subscriptions: Subscription | undefined;
-
   private userApiService = inject(UserApiService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
-  private authService = inject(AuthenticationService);
 
+  updateUserForm : FormGroup<UserFormModel> = this.fb.group<UserFormModel>({
+    currency: new FormControl(CurrencyEnum.Unknown, [Validators.required]),
+  });
 
-  constructor() {
-    this.updateUserForm = this.fb.group<UserFormModel>({
-        currency: new FormControl(CurrencyEnum.Unknown, [Validators.required]),
-      });
-  }
+  user!: GetUserDto;
+
+  currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
+      isNaN(Number(key)));
+
+  subscriptions: Subscription | undefined;
 
   ngOnInit(): void {
     this.userApiService.getActiveUser().pipe(take(1)).subscribe((user) => {
       this.user = user;
       this.updateUserForm.get('currency')?.setValue(user.baseCurrency);
     });
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions?.unsubscribe();
   }
 
   onSubmit() {
@@ -69,5 +61,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     );
 
     this.subscriptions?.add(subscription);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions?.unsubscribe();
   }
 }

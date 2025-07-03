@@ -23,7 +23,7 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   }
 
   /// <inheritdoc />
-  public async Task<List<T>> GetAllAsync(bool noTracking = false, CancellationToken cancellationToken = default)
+  public async Task<List<T>> GetAllAsync(bool noTracking = true, CancellationToken cancellationToken = default)
   {
     if (noTracking)
     {
@@ -37,7 +37,7 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   }
 
   /// <inheritdoc />
-  public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default)
+  public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate, bool noTracking = true, CancellationToken cancellationToken = default)
   {
     if (noTracking)
     {

@@ -47,61 +47,51 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
   private transactionApiService = inject(TransactionApiService);
   public data = inject(MAT_DIALOG_DATA);
 
-  private onDestroy$ = new Subject<void>();
 
-  transactionForm: FormGroup;
+
+  transactionForm: FormGroup = this.fb.group({
+    name: new FormControl(this.data.name, Validators.required),
+    description: new FormControl(this.data.description),
+    value: new FormControl(this.data.value.amount, [
+      Validators.required,
+      Validators.min(0),
+    ]),
+    currency: new FormControl(this.data.value.currency, Validators.required),
+    transactionDate: new FormControl(this.data.transactionDate),
+    transactionType: new FormControl(
+      null,
+      [Validators.required, enumValidator(TransactionTypeEnum)]
+    ),
+    group: new FormControl(
+      this.data.transactionGroup != null
+        ? this.data.transactionGroup.Name
+        : ''
+    ),
+  });
   groupOptions: GetTransactionGroupDto[] = [];
   typeOptions: {name: string, value: TransactionTypeEnum}[] = [{name: "Expense", value: TransactionTypeEnum.Expense}, {name: "Income", value: TransactionTypeEnum.Income}];
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );
 
-  constructor() {
-    this.transactionForm = this.fb.group({
-      name: new FormControl(this.data.name, Validators.required),
-      description: new FormControl(this.data.description),
-      value: new FormControl(this.data.value.amount, [
-        Validators.required,
-        Validators.min(0),
-      ]),
-      currency: new FormControl(this.data.value.currency, Validators.required),
-      transactionDate: new FormControl(this.data.transactionDate),
-      transactionType: new FormControl(
-        null,
-        [Validators.required, enumValidator(TransactionTypeEnum)]
-      ),
-      group: new FormControl(
-        this.data.transactionGroup != null
-          ? this.data.transactionGroup.Name
-          : ''
-      ),
-    });
+  private onDestroy$ = new Subject<void>();
 
+  ngOnInit(): void {
     this.transactionForm.get('group')?.setValue(this.data.transactionGroup);
     this.transactionForm.get('currency')?.setValue(this.data.value.currency);
     this.transactionForm.get('transactionType')?.setValue(null);
     this.transactionForm.get('transactionDate')?.setValue(new Date(this.data.transactionDate));
 
     this.transactionApiService
-      .getAllTransactionGroups()
-      .pipe(take(1))
-      .subscribe((data) => {
-        this.groupOptions = data;
-        this.groupOptions.push({
-          id: '',
-          name: 'No group',
-        });
+    .getAllTransactionGroups()
+    .pipe(take(1))
+    .subscribe((data) => {
+      this.groupOptions = data;
+      this.groupOptions.push({
+        id: '',
+        name: 'No group',
       });
-  }
-  ngOnDestroy(): void {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
-  }
-
-  ngOnInit(): void {}
-
-  closeDialog() {
-    this.dialogRef.close();
+    });
   }
 
   onSubmit(): void {
@@ -138,7 +128,16 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
     this.dialogRef.close(false);
   }
 
+  closeDialog() {
+    this.dialogRef.close();
+  }
+
   compareCategoryObjects(object1: any, object2: any) {
     return object1 && object2 && object1.id == object2.id;
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 }

@@ -1,4 +1,4 @@
-using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Models;
 
@@ -6,14 +6,11 @@ namespace FinanceApp.Application.User.UserCommands;
 
 public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand, Result>
 {
-  private readonly IUserRepository _userRepository;
   private readonly ISmtpEmailSender _smtpEmailSender;
 
   public ForgotPasswordCommandHandler(
-    IUserRepository userRepository,
     ISmtpEmailSender smtpEmailSender)
   {
-    _userRepository = userRepository;
     _smtpEmailSender = smtpEmailSender;
   }
 

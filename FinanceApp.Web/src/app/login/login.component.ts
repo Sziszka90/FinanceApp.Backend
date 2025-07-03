@@ -20,21 +20,19 @@ import { ForgotPasswordRequestModalComponent } from '../forgot-password-modal/fo
   ],
 })
 export class LoginComponent implements OnDestroy {
-  loginForm: FormGroup;
-  loginValid = true;
-  loginSubscription: Subscription | undefined;
-
   private authService = inject(AuthenticationService);
   private matDialog = inject(MatDialog);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
-  constructor() {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
-    });
-  }
+  loginForm: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]]
+  });
+
+  loginValid = true;
+
+  loginSubscription: Subscription | undefined;
 
   forgotPassword(): void {
     const dialogRef = this.matDialog.open(ForgotPasswordRequestModalComponent, {
@@ -43,11 +41,7 @@ export class LoginComponent implements OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.loginSubscription?.unsubscribe();
-  }
-
-  public onSubmit(): void {
+  onSubmit(): void {
     if (this.loginForm.valid) {
       this.loginValid = true;
       this.loginSubscription = this.authService
@@ -67,5 +61,9 @@ export class LoginComponent implements OnDestroy {
       this.loginValid = false;
       this.loginForm.markAllAsTouched();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.loginSubscription?.unsubscribe();
   }
 }

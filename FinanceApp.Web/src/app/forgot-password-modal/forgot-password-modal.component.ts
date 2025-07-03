@@ -14,17 +14,10 @@ export class ForgotPasswordRequestModalComponent {
   private userApiService = inject(UserApiService);
   private matDialogRef = inject(MatDialogRef<ForgotPasswordRequestModalComponent>);
   private fb = inject(FormBuilder);
-  public emailForm: FormGroup;
-
-  constructor() {
-    this.emailForm = this.fb.group({
+  
+  public emailForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]]
   });
-  }
-
-  onCancel(): void {
-    this.matDialogRef.close();
-  }
 
   onSubmit(): void {
     if (this.emailForm.valid) {
@@ -32,5 +25,9 @@ export class ForgotPasswordRequestModalComponent {
         this.matDialogRef.close();
       });
     }
+  }
+
+  onCancel(): void {
+    this.matDialogRef.close();
   }
 }
