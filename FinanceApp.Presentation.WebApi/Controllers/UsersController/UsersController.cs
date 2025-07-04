@@ -96,6 +96,19 @@ public class UsersController : ControllerBase
     return this.GetResult(result, StatusCodes.Status201Created);
   }
 
+  [HttpPut]
+  [Authorize]
+  [Produces("application/json")]
+  [Consumes("application/json")]
+  [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<ActionResult<GetUserDto>> UpdateUser([FromBody] UpdateUserDto updateUserDto)
+  {
+    var result = await _mediator.Send(new UpdateUserCommand(updateUserDto));
+    return this.GetResult(result);
+  }
+
   [HttpDelete("{id}")]
   [Authorize]
   [Produces("application/json")]

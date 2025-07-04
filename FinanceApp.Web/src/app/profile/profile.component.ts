@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { GetUserDto } from '../../models/UserDtos/GetUserDto';
 import { UserFormModel } from 'src/models/Profile/UserFormModel';
 import { MatSelectModule } from '@angular/material/select';
+import { AuthenticationService } from 'src/services/authentication.service';
 
 @Component({
   selector: 'app-profile',
@@ -21,6 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   private userApiService = inject(UserApiService);
+  private authService = inject(AuthenticationService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
@@ -61,6 +63,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       baseCurrency: this.updateUserForm.get('currency')?.value ?? CurrencyEnum.Unknown,
     }).pipe(take(1))
     .subscribe(() => {
+      this.authService.logout();
       this.router.navigate(['/'])
     }
     );
