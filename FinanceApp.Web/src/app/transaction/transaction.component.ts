@@ -155,7 +155,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(
       UpdateTransactionModalComponent,
       {
-        width: '70vw',
+        width: '80vw',
         height: '90vh',
         data: transactionDto,
       }
@@ -191,8 +191,8 @@ export class TransactionComponent implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(
       CreateTransactionModalComponent,
       {
-        width: '70vw',
-        height: '90vh'
+        width: '80vw',
+        height: '90vh',
       }
     )
     dialogRef.afterClosed()
