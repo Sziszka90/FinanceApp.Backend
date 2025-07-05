@@ -1,5 +1,6 @@
 <div class="form-container">
-  <form class="form-element" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <app-loader *ngIf="loading"></app-loader>
+  <form *ngIf="!loading" class="form-element" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <h3 class="default-font">Log In</h3>
     <div class="error-message default-font" *ngIf="!loginValid">
       The email and password were not recognized

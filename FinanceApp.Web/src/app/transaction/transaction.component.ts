@@ -46,6 +46,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   public showSummary = signal<boolean>(false);
   public summary = signal<Money | null>(null);
+  public loading = signal<boolean>(false);
 
   dataSource = signal<MatTableDataSource<GetTransactionDto>>(new MatTableDataSource<GetTransactionDto>([]));
 
@@ -87,7 +88,9 @@ export class TransactionComponent implements OnInit, OnDestroy {
     });
 
     this.transactions$ = this.transactionApiService.getAllTransactions();
+    this.loading.set(true);
     this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      this.loading.set(false);
       this.allTransactions.set(value);
       this.dataSource.update(ds => {
         ds.data = value;

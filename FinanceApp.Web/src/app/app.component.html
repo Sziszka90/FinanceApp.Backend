@@ -1,12 +1,2 @@
 <app-nav-bar></app-nav-bar>
 <router-outlet></router-outlet>
-
-<div class="chat-bubble" (click)="toggleChatWindow()" (mousedown)="startDrag($event)" (mouseup)="stopDrag()" (mousemove)="drag($event)" (touchstart)="startTouch($event)" (touchmove)="moveTouch($event)" (touchend)="endTouch()">
-  💬
-</div>
-
-<div class="chat-window" *ngIf="isChatWindowOpen">
-  <h3>Chat</h3>
-  <textarea placeholder="Type your message..."></textarea>
-  <button (click)="sendMessage()">Send</button>
-</div>

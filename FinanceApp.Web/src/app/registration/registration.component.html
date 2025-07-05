@@ -1,4 +1,5 @@
 <div class="form-container">
+  <app-loader *ngIf="loading()"></app-loader>
   <form class="form-element" [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
     <h3 class="default-font">Registration</h3>
     <label class="default-font" for="userName">User Name</label>

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { Subscription, take } from 'rxjs';
 import { AuthenticationService } from '../../services/authentication.service';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Router, RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ForgotPasswordRequestModalComponent } from '../forgot-password-modal/forgot-password-modal.component';
+import { LoaderComponent } from '../loader/loader.component';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ import { ForgotPasswordRequestModalComponent } from '../forgot-password-modal/fo
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
+    LoaderComponent
   ],
 })
 export class LoginComponent implements OnDestroy {
@@ -31,6 +33,7 @@ export class LoginComponent implements OnDestroy {
   });
 
   loginValid = true;
+  loading = signal(false);
 
   loginSubscription: Subscription | undefined;
 
@@ -44,10 +47,12 @@ export class LoginComponent implements OnDestroy {
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.loginValid = true;
+      this.loading.set(true);
       this.loginSubscription = this.authService
         .login({ email: this.loginForm.value.email, password: this.loginForm.value.password })
         .pipe(take(1))
         .subscribe((data) => {
+          this.loading.set(false);
           if (data.token == '') {
             this.loginValid = false;
           } else {
