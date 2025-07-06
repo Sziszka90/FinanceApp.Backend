@@ -16,12 +16,15 @@ public static class ApiExtensions
 
     var exchangeRateSection = builder.Configuration.GetSection("ExchangeRateSettings");
 
+    var saltEdgeSection = builder.Configuration.GetSection("SaltEdgeSettings");
+
     var smtpSection = builder.Configuration.GetSection("SmtpSettings");
     var smtpSettings = smtpSection.Get<SmtpSettings>();
 
     builder.Services.Configure<AuthenticationSettings>(authenticationSection);
     builder.Services.Configure<ExchangeRateSettings>(exchangeRateSection);
     builder.Services.Configure<SmtpSettings>(smtpSection);
+    builder.Services.Configure<SaltEdgeSettings>(saltEdgeSection);
 
     builder.Services.AddCors(options =>
                              {

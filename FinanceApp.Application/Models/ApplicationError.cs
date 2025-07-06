@@ -60,6 +60,15 @@ public class ApplicationError
   public const string VALIDATION_MESSAGE = "Validation failed.";
   public const string VALIDATION_CODE = "VALIDATION_FAILED";
 
+  public const string SALT_EDGE_USER_CREATION_MESSAGE = "Failed to create user in Salt Edge.";
+  public const string SALT_EDGE_USER_CREATION_CODE = "SALT_EDGE_USER_CREATION_FAILED";
+
+  public const string SALT_EDGE_USER_CONNECTION_MESSAGE = "Failed to create connection in Salt Edge.";
+  public const string SALT_EDGE_USER_CONNECTION_CODE = "SALT_EDGE_USER_CONNECTION_FAILED";
+
+  public const string SALT_EDGE_USER_MISSING_ID_MESSAGE = "Missing Salt Edge identifier for user.";
+  public const string SALT_EDGE_USER_MISSING_ID_CODE = "SALT_EDGE_USER_MISSING_ID_FAILED";
+
   /// <summary>
   /// Machine readable error code
   /// </summary>
@@ -273,6 +282,41 @@ public class ApplicationError
   public static ApplicationError ExternalCallError()
   {
     return new ApplicationError(DBCONNERR_MESSAGE, DBCONNERR_CODE);
+  }
+
+  /// <summary>
+  /// Salt Edge user creation error
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError SaltEdgeUserCreationError(string email)
+  {
+    return new ApplicationError(SALT_EDGE_USER_CREATION_MESSAGE, SALT_EDGE_USER_CREATION_CODE, new Dictionary<string, object>
+    {
+      { "email", email }
+    });
+  }
+
+  /// <summary>
+  /// Salt Edge user connection error
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError SaltEdgeUserConnectionError()
+  {
+    return new ApplicationError(SALT_EDGE_USER_CONNECTION_MESSAGE, SALT_EDGE_USER_CONNECTION_CODE);
+  }
+
+  /// <summary>
+  /// Missing Salt Edge identifier error
+  /// </summary>
+  /// <param name="constraintName"></param>
+  /// <param name="tableName"></param>
+  /// <returns></returns>
+  public static ApplicationError MissingSaltEdgeIdentifierError(string email)
+  {
+    return new ApplicationError(SALT_EDGE_USER_MISSING_ID_MESSAGE, SALT_EDGE_USER_MISSING_ID_CODE, new Dictionary<string, object>
+    {
+      { "Email", email }
+    });
   }
 
   /// <summary>

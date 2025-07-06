@@ -96,6 +96,18 @@ public class UsersController : ControllerBase
     return this.GetResult(result, StatusCodes.Status201Created);
   }
 
+  [HttpPost]
+  [Produces("application/json")]
+  [Consumes("application/json")]
+  [ProducesResponseType(typeof(void), StatusCodes.Status201Created)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<ActionResult<GetUserDto>> CreateConnectionWithBank()
+  {
+    var result = await _mediator.Send(new CreateConnectionWithBankCommand());
+    return this.RedirectToUrl(result, result.Data!.Data.ConnectUrl);
+  }
+
   [HttpPut]
   [Authorize]
   [Produces("application/json")]

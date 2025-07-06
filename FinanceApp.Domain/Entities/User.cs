@@ -30,12 +30,18 @@ public class User : BaseEntity
   /// </summary>
   public CurrencyEnum BaseCurrency { get; set; }
 
-  public User(string userName, string email, string passwordHash, CurrencyEnum baseCurrency)
+  /// <summary>
+  /// SaltEdge identifier for the user
+  /// </summary>
+  public string SaltEdgeIdentifier { get; set; }
+
+  public User(string userName, string email, string passwordHash, CurrencyEnum baseCurrency, string saltEdgeIdentifier)
   {
     UserName = userName;
     Email = email;
     PasswordHash = passwordHash;
     BaseCurrency = baseCurrency;
+    SaltEdgeIdentifier = saltEdgeIdentifier;
   }
 
   public void Update(string userName, string passwordHash, CurrencyEnum baseCurrency)
