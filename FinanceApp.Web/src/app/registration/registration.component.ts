@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { CurrencyEnum } from '../../models/Money/Money';
 import { UserApiService } from '../../services/user.api.service';
 import { MatSelectModule } from '@angular/material/select';
+import { LoaderComponent } from '../loader/loader.component';
 
 @Component({
   selector: 'app-registration',
@@ -18,7 +19,8 @@ import { MatSelectModule } from '@angular/material/select';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatSelectModule
+    MatSelectModule,
+    LoaderComponent
   ],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss'],
@@ -29,18 +31,20 @@ export class RegistrationComponent implements OnDestroy {
   private router = inject(Router);
 
   registrationForm: FormGroup = this.fb.group({
-      userName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern('^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$'),
-          Validators.minLength(8),
-        ],
+    userName: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern('^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$'),
+        Validators.minLength(8),
       ],
-      currency: ['', [Validators.required]],
-    });
+    ],
+    currency: ['', [Validators.required]],
+  });
+
+  loading = signal<boolean>(false);
 
   registrationSubscription: Subscription | undefined;
   
@@ -50,6 +54,7 @@ export class RegistrationComponent implements OnDestroy {
 
   onSubmit() {
     if (this.registrationForm.valid) {
+      this.loading.set(true);
       this.registrationSubscription = this.apiService
         .register({
           userName: this.registrationForm.get('userName')?.value,
@@ -58,7 +63,15 @@ export class RegistrationComponent implements OnDestroy {
           baseCurrency: this.registrationForm.get('currency')?.value,
         })
         .pipe(take(1))
-        .subscribe(() => this.router.navigate(['/login']));
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.router.navigate(['/login']);
+          },
+          error: () => {
+            this.loading.set(false);
+          }
+        });
     } else {
       this.registrationForm.markAllAsTouched();
     }

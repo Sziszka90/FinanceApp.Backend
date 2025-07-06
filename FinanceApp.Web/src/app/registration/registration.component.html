@@ -1,5 +1,5 @@
-<div class="form-container">
-  <app-loader *ngIf="loading()"></app-loader>
+<app-loader *ngIf="loading()"></app-loader>
+<div *ngIf="!loading()" class="form-container">
   <form class="form-element" [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
     <h3 class="default-font">Registration</h3>
     <label class="default-font" for="userName">User Name</label>
@@ -60,8 +60,8 @@
     </div>
 
     <label class="default-font" for="currency">Currency</label>
-    <div class="form-group">
-      <mat-select class="select" formControlName="currency" required>
+    <div class="select">
+      <mat-select formControlName="currency" required>
         <mat-option *ngFor="let option of currencyOptions" [value]="option">
           {{ option }}
         </mat-option>

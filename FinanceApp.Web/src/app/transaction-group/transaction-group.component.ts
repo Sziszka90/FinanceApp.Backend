@@ -47,9 +47,15 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
 
   touchStartX = 0;
 
+  loading = signal<boolean>(false);
+
   ngOnInit(): void {
+    this.loading.set(true);
     this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
-    this.transactionGroups$.pipe(takeUntil(this.destroy$)).subscribe(value => this.allTransactionGroups.set(value));
+    this.transactionGroups$.pipe(takeUntil(this.destroy$)).subscribe(value => {
+      this.allTransactionGroups.set(value);
+      this.loading.set(false);
+    });
   }
 
   createTransactionGroup() {

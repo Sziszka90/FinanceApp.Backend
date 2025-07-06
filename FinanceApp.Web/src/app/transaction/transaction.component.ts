@@ -16,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { formatDate } from '@angular/common';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { LoaderComponent } from '../loader/loader.component';
 
 @Component({
   selector: 'app-transaction',
@@ -28,6 +29,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
     MatSelectModule,
     ReactiveFormsModule,
     BsDatepickerModule,
+    LoaderComponent
   ],
   templateUrl: './transaction.component.html',
   styleUrl: './transaction.component.scss',
@@ -87,17 +89,24 @@ export class TransactionComponent implements OnInit, OnDestroy {
       return ds;
     });
 
+    this.loading.set(true);
+
     this.transactions$ = this.transactionApiService.getAllTransactions();
     this.loading.set(true);
-    this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe((value) => {
-      this.loading.set(false);
-      this.allTransactions.set(value);
-      this.dataSource.update(ds => {
-        ds.data = value;
-        return ds;
-      });
-      this.setupCustomFilterPredicate();
-    });
+    this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe(
+      (value: GetTransactionDto[]) => {
+        this.loading.set(false);
+        this.allTransactions.set(value);
+        this.dataSource.update(ds => {
+          ds.data = value;
+          return ds;
+        });
+        this.setupCustomFilterPredicate();
+      },
+      (error) => {
+        this.loading.set(false);
+      }
+    );
 
     this.filterForm.valueChanges
       .pipe(takeUntil(this.destroy$))

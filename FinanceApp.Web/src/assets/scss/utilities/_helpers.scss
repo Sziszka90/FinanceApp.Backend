@@ -15,7 +15,7 @@
 }
 
 .select {
-  width: 100%;
+  width: 50%;
   padding: 0.75rem 1rem;
   border: 1px solid #ccc;
   border-radius: 2rem;
@@ -159,6 +159,12 @@ bs-datepicker-container {
   }
   100% {
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 500px) {
+  .select {
+    width: 100%;
   }
 }
 

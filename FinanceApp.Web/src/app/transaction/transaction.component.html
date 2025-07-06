@@ -41,7 +41,7 @@
 </div>
 
 <app-loader *ngIf="loading()"></app-loader>
-<div class="table-container">
+<div *ngIf="!loading()" class="table-container">
   <div *ngIf="dataSource().data.length > 0; else noTransactions">
     <table mat-table [dataSource]="dataSource()" matSort class="mat-elevation-z8">
       <!-- Name Column -->

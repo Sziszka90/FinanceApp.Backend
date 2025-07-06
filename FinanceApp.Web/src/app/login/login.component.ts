@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
-import { Subscription, take } from 'rxjs';
+import { catchError, Subscription, take, throwError } from 'rxjs';
 import { AuthenticationService } from '../../services/authentication.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -32,8 +32,8 @@ export class LoginComponent implements OnDestroy {
     password: ['', [Validators.required]]
   });
 
-  loginValid = true;
-  loading = signal(false);
+  loginValid = signal<boolean>(true);
+  loading = signal<boolean>(false);
 
   loginSubscription: Subscription | undefined;
 
@@ -46,24 +46,29 @@ export class LoginComponent implements OnDestroy {
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      this.loginValid = true;
+      this.loginValid.set(true);
       this.loading.set(true);
       this.loginSubscription = this.authService
-        .login({ email: this.loginForm.value.email, password: this.loginForm.value.password })
-        .pipe(take(1))
-        .subscribe((data) => {
-          this.loading.set(false);
-          if (data.token == '') {
-            this.loginValid = false;
-          } else {
-            this.loginValid = true;
-            this.authService.saveToken(data.token);
-            this.authService.userLoggedIn.next(true);
-            this.router.navigate(['/']);
+        .login(this.loginForm.value)
+        .pipe(
+          take(1)
+        ).subscribe({
+          next: (data: { token: string }) => {
+            this.loading.set(false);
+            if (data.token == '') {
+              this.loginValid.set(false);
+            } else {
+              this.loginValid.set(true);
+              this.authService.saveToken(data.token);
+              this.authService.userLoggedIn.next(true);
+              this.router.navigate(['/']);
+            }
+          },
+          error: () => {
+            this.loading.set(false);
           }
-        });
+        })
     } else {
-      this.loginValid = false;
       this.loginForm.markAllAsTouched();
     }
   }
