@@ -10,10 +10,11 @@ import { Observable, Subject, takeUntil } from 'rxjs';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
 import { UpdateTransactionGroupModalComponent } from '../update-transaction-group-modal/update-transaction-group-modal.component';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { LoaderComponent } from '../loader/loader.component';
 
 @Component({
   selector: 'app-transaction-group',
-  imports: [MatIconModule, MatButtonModule, CommonModule, MatTableModule],
+  imports: [MatIconModule, MatButtonModule, CommonModule, MatTableModule, LoaderComponent],
   templateUrl: './transaction-group.component.html',
   styleUrl: './transaction-group.component.scss',
   animations: [
@@ -52,9 +53,15 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loading.set(true);
     this.transactionGroups$ = this.transactionApiService.getAllTransactionGroups();
-    this.transactionGroups$.pipe(takeUntil(this.destroy$)).subscribe(value => {
-      this.allTransactionGroups.set(value);
-      this.loading.set(false);
+    this.transactionGroups$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (value) => {
+        this.allTransactionGroups.set(value);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Error fetching transaction groups:', error);
+        this.loading.set(false);
+      }
     });
   }
 

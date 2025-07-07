@@ -94,4 +94,16 @@ public class TransactionsController : ControllerBase
     var result = await _mediator.Send(new DeleteTransactionCommand(id));
     return this.GetResult(result, StatusCodes.Status204NoContent);
   }
+
+  [HttpPost("upload-csv")]
+  [Produces("application/json")]
+  [Consumes("multipart/form-data")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<IActionResult> UploadCsv([FromForm] UploadCsvFileDto uploadCsvFileDto)
+  {
+    var result = await _mediator.Send(new UploadCsvCommand(uploadCsvFileDto));
+    return this.GetResult(result);
+  }
 }

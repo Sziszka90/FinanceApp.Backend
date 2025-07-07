@@ -60,14 +60,11 @@ public class ApplicationError
   public const string VALIDATION_MESSAGE = "Validation failed.";
   public const string VALIDATION_CODE = "VALIDATION_FAILED";
 
-  public const string SALT_EDGE_USER_CREATION_MESSAGE = "Failed to create user in Salt Edge.";
-  public const string SALT_EDGE_USER_CREATION_CODE = "SALT_EDGE_USER_CREATION_FAILED";
+  public const string FILE_EMPTY_ERROR_MESSAGE = "File is empty.";
+  public const string FILE_EMPTY_ERROR_CODE = "FILE_EMPTY";
 
-  public const string SALT_EDGE_USER_CONNECTION_MESSAGE = "Failed to create connection in Salt Edge.";
-  public const string SALT_EDGE_USER_CONNECTION_CODE = "SALT_EDGE_USER_CONNECTION_FAILED";
-
-  public const string SALT_EDGE_USER_MISSING_ID_MESSAGE = "Missing Salt Edge identifier for user.";
-  public const string SALT_EDGE_USER_MISSING_ID_CODE = "SALT_EDGE_USER_MISSING_ID_FAILED";
+  public const string INVALID_FILE_TYPE_ERROR_MESSAGE = "Invalid file type.";
+  public const string INVALID_FILE_TYPE_ERROR_CODE = "INVALID_FILE_TYPE";
 
   /// <summary>
   /// Machine readable error code
@@ -285,41 +282,6 @@ public class ApplicationError
   }
 
   /// <summary>
-  /// Salt Edge user creation error
-  /// </summary>
-  /// <returns></returns>
-  public static ApplicationError SaltEdgeUserCreationError(string email)
-  {
-    return new ApplicationError(SALT_EDGE_USER_CREATION_MESSAGE, SALT_EDGE_USER_CREATION_CODE, new Dictionary<string, object>
-    {
-      { "email", email }
-    });
-  }
-
-  /// <summary>
-  /// Salt Edge user connection error
-  /// </summary>
-  /// <returns></returns>
-  public static ApplicationError SaltEdgeUserConnectionError()
-  {
-    return new ApplicationError(SALT_EDGE_USER_CONNECTION_MESSAGE, SALT_EDGE_USER_CONNECTION_CODE);
-  }
-
-  /// <summary>
-  /// Missing Salt Edge identifier error
-  /// </summary>
-  /// <param name="constraintName"></param>
-  /// <param name="tableName"></param>
-  /// <returns></returns>
-  public static ApplicationError MissingSaltEdgeIdentifierError(string email)
-  {
-    return new ApplicationError(SALT_EDGE_USER_MISSING_ID_MESSAGE, SALT_EDGE_USER_MISSING_ID_CODE, new Dictionary<string, object>
-    {
-      { "Email", email }
-    });
-  }
-
-  /// <summary>
   /// Error when Validation fails
   /// </summary>
   /// <returns></returns>
@@ -339,5 +301,27 @@ public class ApplicationError
     var details = validationFailures.DistinctBy(x => $"{x.ErrorCode}-{x.FormattedMessagePlaceholderValues["PropertyName"]}-{x.ErrorMessage}")
                                     .ToUniqueDictionaryWithCounters(x => $"{x.ErrorCode}_{x.FormattedMessagePlaceholderValues["PropertyName"]}", x => x.ErrorMessage as object);
     return new ApplicationError(VALIDATION_MESSAGE, VALIDATION_CODE, details);
+  }
+
+  /// <summary>
+  /// Error for when file is empty
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError FileEmptyError()
+  {
+    return new ApplicationError(FILE_EMPTY_ERROR_MESSAGE, FILE_EMPTY_ERROR_CODE);
+  }
+
+  /// <summary>
+  /// Error for when file type is invalid
+  /// </summary>
+  /// <param name="fileType"></param>
+  /// <returns></returns>
+  public static ApplicationError InvalidFileTypeError(string fileType)
+  {
+    return new ApplicationError(INVALID_FILE_TYPE_ERROR_MESSAGE, INVALID_FILE_TYPE_ERROR_CODE, new Dictionary<string, object>
+    {
+      { "fileType", fileType }
+    });
   }
 }

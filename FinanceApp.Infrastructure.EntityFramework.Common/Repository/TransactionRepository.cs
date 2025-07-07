@@ -1,3 +1,4 @@
+using EFCore.BulkExtensions;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Domain.Entities;
@@ -71,5 +72,11 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     await _dbContext.Transaction
         .Where(g => g.User.Id == userId)
         .ExecuteDeleteAsync(cancellationToken);
+  }
+
+  public async Task<List<Transaction>?> CreateMultipleTransactionsAsync(List<Transaction> transactions, CancellationToken cancellationToken = default)
+  {
+    await _dbContext.BulkInsertAsync(transactions, cancellationToken: cancellationToken);
+    return transactions;
   }
 }

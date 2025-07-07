@@ -7,15 +7,11 @@ namespace FinanceApp.Application.User.UserCommands;
 
 public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand, Result>
 {
-  private readonly IUserRepository _userRepository;
-
   private readonly IJwtService _jwtService;
 
   public ResetPasswordCommandHandler(
-    IUserRepository userRepository,
     IJwtService jwtService)
   {
-    _userRepository = userRepository;
     _jwtService = jwtService;
   }
 

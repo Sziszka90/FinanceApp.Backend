@@ -23,4 +23,12 @@ public interface ITransactionRepository : IRepository<Domain.Entities.Transactio
   /// <param name="cancellationToken"></param>
   /// <returns></returns>
   Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
+  /// <summary>
+  /// Creates new transactions in bulk operation.
+  /// </summary>
+  /// <param name="transactions">The transactions to create.</param>
+  /// <param name="cancellationToken">Cancellation token.</param>
+  /// <returns>The created transactions.</returns>
+  Task<List<Domain.Entities.Transaction>?> CreateMultipleTransactionsAsync(List<Domain.Entities.Transaction> transactions, CancellationToken cancellationToken = default);
 }

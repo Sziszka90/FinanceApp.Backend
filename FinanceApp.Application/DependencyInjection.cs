@@ -3,8 +3,6 @@ using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Behaviors;
 using FinanceApp.Application.Clients;
-using FinanceApp.Application.Clients.HttpClients;
-using FinanceApp.Application.Models;
 using FinanceApp.Application.Services;
 using FluentValidation;
 using MediatR;
@@ -55,18 +53,6 @@ public static class DependencyInjection
   {
     services.AddScoped<ILLMClient, LLMClient>();
     services.AddScoped<ISmtpEmailSender, SmtpEmailSender>();
-
-    services.AddHttpClient<SaltEdgeClient>((sp, client) =>
-    {
-      var config = sp.GetRequiredService<SaltEdgeSettings>();
-      var baseUrl = config.BaseUrl ?? string.Empty;
-      client.BaseAddress = new Uri(baseUrl);
-      client.DefaultRequestHeaders.Add("Accept", "application/json");
-
-      client.DefaultRequestHeaders.Add("App-id", config.AppId);
-      client.DefaultRequestHeaders.Add("Secret", config.Secret);
-    });
-
     return services;
   }
 

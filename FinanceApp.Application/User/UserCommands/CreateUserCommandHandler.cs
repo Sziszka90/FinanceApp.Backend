@@ -2,7 +2,6 @@ using AutoMapper;
 using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
-using FinanceApp.Application.Dtos.SaltEdgeDtos;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
@@ -17,21 +16,18 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly ILogger<CreateUserCommandHandler> _logger;
   private readonly ISmtpEmailSender _smtpEmailSender;
-  private readonly ISaltEdgeClient _saltEdgeClient;
 
   public CreateUserCommandHandler(IMapper mapper,
                                   IUnitOfWork unitOfWork,
                                   IRepository<Domain.Entities.User> userRepository,
                                   ILogger<CreateUserCommandHandler> logger,
-                                  ISmtpEmailSender smtpEmailSender,
-                                  ISaltEdgeClient saltEdgeClientq)
+                                  ISmtpEmailSender smtpEmailSender)
   {
     _mapper = mapper;
     _unitOfWork = unitOfWork;
     _userRepository = userRepository;
     _logger = logger;
     _smtpEmailSender = smtpEmailSender;
-    _saltEdgeClient = saltEdgeClientq;
   }
 
   /// <inheritdoc />
@@ -57,22 +53,13 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
       return Result.Failure<GetUserDto>(ApplicationError.UserEmailAlreadyExistsError(request.CreateUserDto.Email));
     }
 
-    var saltEdgeUserResult = await CreateSaltEdgeUserIdentifier(request.CreateUserDto.Email);
-
-    if (!saltEdgeUserResult.IsSuccess)
-    {
-      _logger.LogError("Failed to create Salt Edge user for email:{Email}", request.CreateUserDto.Email);
-      return Result.Failure<GetUserDto>(saltEdgeUserResult.ApplicationError!);
-    }
-
     var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.CreateUserDto.Password);
 
     var user = await _userRepository.CreateAsync(new Domain.Entities.User(
                                                    request.CreateUserDto.UserName,
                                                    request.CreateUserDto.Email,
                                                    passwordHash,
-                                                   request.CreateUserDto.BaseCurrency,
-                                                   saltEdgeUserResult.Data!.Data.Id), cancellationToken);
+                                                   request.CreateUserDto.BaseCurrency), cancellationToken);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -81,18 +68,5 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     _logger.LogInformation("User created with ID:{Id}", user.Id);
 
     return Result.Success(_mapper.Map<GetUserDto>(user));
-  }
-
-  private async Task<Result<CreateUserDataResponseDto>> CreateSaltEdgeUserIdentifier(string userEmail)
-  {
-    var createUserDto = new CreateUserDataRequestDto
-    {
-      Data = new CreateDataDto
-      {
-        Identifier = userEmail,
-      }
-    };
-
-    return await _saltEdgeClient.CreateUserAsync(createUserDto);
   }
 }
