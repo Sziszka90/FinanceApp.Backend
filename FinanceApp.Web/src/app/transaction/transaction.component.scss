@@ -81,9 +81,10 @@ span {
 }
 
 .table-container {
-  overflow-x: hidden; 
+  overflow-x: auto;
   overflow-y: auto;
-  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
 }
 
 .table-scroll-top {
@@ -102,6 +103,10 @@ span {
 mat-table {
   margin-top: 20px; 
   min-width: 100%;
+  touch-action: pan-x pan-y;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table-scroll-top::-webkit-scrollbar, .table-container::-webkit-scrollbar {

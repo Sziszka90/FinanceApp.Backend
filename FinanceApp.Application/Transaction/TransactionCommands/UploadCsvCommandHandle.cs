@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
@@ -85,7 +86,8 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
         if (string.IsNullOrWhiteSpace(line)) continue;
         var columns = line.Split(',');
 
-        var amount = decimal.TryParse(CleanCsvField(columns[3]), out var parsedAmount) ? parsedAmount : 0;
+        var amount = decimal.TryParse(CleanCsvField(columns[3]), NumberStyles.Number | NumberStyles.AllowThousands,
+          new CultureInfo("hu-HU"), out var parsedAmount) ? parsedAmount : 0;
 
         var transaction = new Domain.Entities.Transaction(
           CleanCsvField(columns[5]) != "" ? CleanCsvField(columns[5]) : "Unknown",
