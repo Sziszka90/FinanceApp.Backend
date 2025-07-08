@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.TransactionGroup.TransactionGroupCommands;
 
-public record UpdateTransactionGroupCommand(UpdateTransactionGroupDto UpdateTransactionGroupDto) : ICommand<Result<GetTransactionGroupDto>>;
+public record UpdateTransactionGroupCommand(Guid Id, UpdateTransactionGroupDto UpdateTransactionGroupDto) : ICommand<Result<GetTransactionGroupDto>>;

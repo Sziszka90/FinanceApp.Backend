@@ -6,6 +6,9 @@
   align-items: center;
   background-color: variables.$green-color;
   padding: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo-container {

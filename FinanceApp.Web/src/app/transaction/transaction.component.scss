@@ -60,6 +60,64 @@ span {
   flex-direction: row;
 }
 
+.drag-drop-container {
+  border: 1px solid variables.$primary-color; 
+  border-radius: 8px;
+  width: 60%;
+  margin: 1rem auto;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  color: variables.$text-color;
+}
+
+.drag-drop-container:hover {
+  background-color: variables.$primary-color;
+}
+
+.drag-drop-container:hover button{
+  background-color: variables.$background-color;
+}
+
+.table-container {
+  overflow-x: hidden; 
+  overflow-y: auto;
+  touch-action: pan-x;
+}
+
+.table-scroll-top {
+  overflow-x: auto; 
+  overflow-y: hidden;
+  height: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 95%;
+  margin: auto;
+  display: block;
+  touch-action: pan-x;
+}
+
+mat-table {
+  margin-top: 20px; 
+  min-width: 100%;
+}
+
+.table-scroll-top::-webkit-scrollbar, .table-container::-webkit-scrollbar {
+  height: 12px;
+  border-radius: 6px;
+}
+
+.table-scroll-top::-webkit-scrollbar-thumb, .table-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 6px;
+}
+
+.table-scroll-top::-webkit-scrollbar-thumb:hover, .table-container::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
 @media (min-width: 900px) {
   .form-group {
     flex-direction: row;
@@ -68,6 +126,12 @@ span {
   }
 
   form {
+    width: 80%;
+  }
+}
+
+@media (max-width: 900px) {
+  .drag-drop-container {
     width: 80%;
   }
 }

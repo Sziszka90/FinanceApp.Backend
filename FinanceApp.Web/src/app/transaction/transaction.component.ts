@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, Signal, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, Signal, signal, ElementRef } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
@@ -74,6 +74,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('tableContainer') tableContainer!: ElementRef;
 
   ngOnInit(): void {
     this.dataSource.update(ds => {
@@ -239,6 +240,61 @@ export class TransactionComponent implements OnInit, OnDestroy {
         this.showSummary.set(false);
       }, 5000);
     });
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer?.files.length) {
+      const file = event.dataTransfer.files[0];
+      this.handleFile(file);
+    }
+  }
+
+  onFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      const file = input.files[0];
+      this.handleFile(file);
+    }
+  }
+
+  private handleFile(file: File): void {
+    if (file.type === 'text/csv') {
+      this.transactionApiService.uploadCsv(file).subscribe({
+        next: (transactions) => {
+          this.allTransactions.set(transactions);
+          this.dataSource.update(ds => {
+            ds.data = transactions;
+            return ds;
+          });
+          console.log('CSV file uploaded successfully');
+        },
+        error: (err) => {
+          console.error('Error uploading CSV file:', err);
+        }
+      });
+    } else {
+      console.error('Invalid file type. Please upload a CSV file.');
+    }
+  }
+
+  syncScroll(event: Event): void {
+    const target = event.target as HTMLElement;
+    const topScroll = document.querySelector('.table-scroll-top') as HTMLElement;
+    const bottomScroll = this.tableContainer.nativeElement;
+
+    if (target === topScroll) {
+      bottomScroll.scrollLeft = target.scrollLeft;
+    } else if (target === bottomScroll) {
+      topScroll.scrollLeft = target.scrollLeft;
+    }
   }
 
   ngOnDestroy(): void {

@@ -71,15 +71,15 @@ public class TransactionsController : ControllerBase
     return this.GetResult(result, StatusCodes.Status201Created);
   }
 
-  [HttpPut]
+  [HttpPut("{id}")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(GetTransactionDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetTransactionDto>> UpdateTransaction([FromBody] UpdateTransactionDto updateTransactionDto)
+  public async Task<ActionResult<GetTransactionDto>> UpdateTransaction([FromRoute] Guid id, [FromBody] UpdateTransactionDto updateTransactionDto)
   {
-    var result = await _mediator.Send(new UpdateTransactionCommand(updateTransactionDto));
+    var result = await _mediator.Send(new UpdateTransactionCommand(id, updateTransactionDto));
     return this.GetResult(result);
   }
 

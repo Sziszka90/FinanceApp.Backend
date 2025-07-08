@@ -110,7 +110,7 @@ export class UpdateTransactionModalComponent implements OnInit, OnDestroy {
         },
         transactionType: this.transactionForm.get('transactionType')!.value,
         transactionDate: transactionDate,
-        transactionGroupId: this.transactionForm.get('group')?.value.id ? this.transactionForm.get('group')?.value.id : null,
+        transactionGroupId: this.transactionForm.get('group')?.value?.id ? this.transactionForm.get('group')?.value.id : null,
       }
 
       this.transactionApiService

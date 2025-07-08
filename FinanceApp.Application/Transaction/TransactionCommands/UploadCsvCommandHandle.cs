@@ -88,7 +88,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
         var amount = decimal.TryParse(CleanCsvField(columns[3]), out var parsedAmount) ? parsedAmount : 0;
 
         var transaction = new Domain.Entities.Transaction(
-          CleanCsvField(columns[5]),
+          CleanCsvField(columns[5]) != "" ? CleanCsvField(columns[5]) : "Unknown",
           CleanCsvField(columns[9]),
           amount < 0 ? TransactionTypeEnum.Expense : TransactionTypeEnum.Income,
           new Money

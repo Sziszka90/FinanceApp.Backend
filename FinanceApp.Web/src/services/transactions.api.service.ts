@@ -36,7 +36,7 @@ export class TransactionApiService {
 
   updateTransaction(id: string, updateTransactionDto: UpdateTransactionDto): Observable<GetTransactionDto> {
     console.log(updateTransactionDto);
-    return this.http.put<GetTransactionDto>(`${this.apiUrl}/api/transactions`, updateTransactionDto);
+    return this.http.put<GetTransactionDto>(`${this.apiUrl}/api/transactions/${id}`, updateTransactionDto);
   }
 
   deleteTransaction(id: string): Observable<any> {
@@ -55,11 +55,18 @@ export class TransactionApiService {
     return this.http.post<GetTransactionGroupDto>(`${this.apiUrl}/api/transactiongroups/`, createTransactionGroupDto);
   }
 
-  updateTransactionGroup(updateTransactionGroupDto:UpdateTransactionGroupDto): Observable<GetTransactionGroupDto> {
-    return this.http.put<GetTransactionGroupDto>(`${this.apiUrl}/api/transactiongroups/`, updateTransactionGroupDto);
+  updateTransactionGroup(id: string, updateTransactionGroupDto:UpdateTransactionGroupDto): Observable<GetTransactionGroupDto> {
+    return this.http.put<GetTransactionGroupDto>(`${this.apiUrl}/api/transactiongroups/${id}`, updateTransactionGroupDto);
   }
 
   deleteTransactionGroup(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/api/transactiongroups/${id}`);
+  }
+
+  uploadCsv(file: File): Observable<GetTransactionDto[]> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<GetTransactionDto[]>(`${this.apiUrl}/api/transactions/upload-csv`, formData);
   }
 }

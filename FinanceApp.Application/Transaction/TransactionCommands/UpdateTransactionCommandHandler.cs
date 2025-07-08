@@ -53,12 +53,12 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
       return Result.Failure<GetTransactionDto>(ApplicationError.NameAlreadyExistsError(request.UpdateTransactionDto.Name));
     }
 
-    var transaction = await _transactionRepository.GetByIdAsync(request.UpdateTransactionDto.Id, cancellationToken);
+    var transaction = await _transactionRepository.GetByIdAsync(request.Id, cancellationToken);
 
     if (transaction is null)
     {
-      _logger.LogError("Transaction not found with ID:{Id}", request.UpdateTransactionDto.Id);
-      return Result.Failure<GetTransactionDto>(ApplicationError.EntityNotFoundError(request.UpdateTransactionDto.Id.ToString()));
+      _logger.LogError("Transaction not found with ID:{Id}", request.Id);
+      return Result.Failure<GetTransactionDto>(ApplicationError.EntityNotFoundError(request.Id.ToString()));
     }
 
     transaction.Update(
@@ -74,7 +74,7 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-    _logger.LogInformation("Transaction updated with ID:{Id}", request.UpdateTransactionDto.Id);
+    _logger.LogInformation("Transaction updated with ID:{Id}", request.Id);
 
     return Result.Success(_mapper.Map<GetTransactionDto>(transaction));
   }

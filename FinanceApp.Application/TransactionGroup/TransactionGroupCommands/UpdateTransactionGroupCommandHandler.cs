@@ -29,11 +29,11 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
   /// <inheritdoc />
   public async Task<Result<GetTransactionGroupDto>> Handle(UpdateTransactionGroupCommand request, CancellationToken cancellationToken)
   {
-    var transactionGroup = await _transactionGroupRepository.GetByIdAsync(request.UpdateTransactionGroupDto.Id, cancellationToken);
+    var transactionGroup = await _transactionGroupRepository.GetByIdAsync(request.Id, cancellationToken);
 
     if (transactionGroup is null)
     {
-      _logger.LogError("Transaction Group not found with ID:{Id}", request.UpdateTransactionGroupDto.Id);
+      _logger.LogError("Transaction Group not found with ID:{Id}", request.Id);
       return Result.Failure<GetTransactionGroupDto>(ApplicationError.EntityNotFoundError());
     }
 
@@ -51,7 +51,7 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-    _logger.LogInformation("Transaction Group updated with ID:{Id}", request.UpdateTransactionGroupDto.Id);
+    _logger.LogInformation("Transaction Group updated with ID:{Id}", request.Id);
 
     return Result.Success(_mapper.Map<GetTransactionGroupDto>(await _transactionGroupRepository.UpdateAsync(transactionGroup, cancellationToken)));
   }

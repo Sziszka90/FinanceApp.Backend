@@ -57,7 +57,7 @@ export class UpdateTransactionGroupModalComponent implements OnDestroy {
       }
 
       this.transactionApiService
-        .updateTransactionGroup(updatedTransactionGroup)
+        .updateTransactionGroup(this.data.id, updatedTransactionGroup)
         .pipe(takeUntil(this.onDestroy$))
         .subscribe((updatedTransactionGroup) => {
           this.dialogRef.close(updatedTransactionGroup);
