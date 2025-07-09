@@ -1,13 +1,16 @@
 ﻿using System.Reflection;
 using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Services;
+using FinanceApp.Application.BackgroundJobs;
 using FinanceApp.Application.Behaviors;
 using FinanceApp.Application.Clients;
+using FinanceApp.Application.Models;
 using FinanceApp.Application.Services;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using OpenAI.Chat;
 
 namespace FinanceApp.Application;
@@ -24,6 +27,7 @@ public static class DependencyInjection
     services.AddBehaviors();
     services.AddHttpClient();
     services.AddServices();
+    services.AddHostedServices();
     return services;
   }
 
@@ -53,6 +57,8 @@ public static class DependencyInjection
   {
     services.AddScoped<ILLMClient, LLMClient>();
     services.AddScoped<ISmtpEmailSender, SmtpEmailSender>();
+    services.AddScoped<IExchangeRateClient, ExchangeRateClient>();
+
     return services;
   }
 
@@ -64,6 +70,23 @@ public static class DependencyInjection
       ChatClient client = new(model: "gpt-4o", apiKey);
       return client;
     });
+    return services;
+  }
+
+  public static IServiceCollection AddHttpClient(this IServiceCollection services)
+  {
+    services.AddHttpClient<IExchangeRateClient, ExchangeRateClient>((sp, client) =>
+    {
+      var exchangeRateSettings = sp.GetRequiredService<IOptions<ExchangeRateSettings>>().Value;
+      client.BaseAddress = new Uri(exchangeRateSettings.ApiUrl);
+      client.DefaultRequestHeaders.Add("Accept", "application/json");
+    });
+    return services;
+  }
+
+  private static IServiceCollection AddHostedServices(this IServiceCollection services)
+  {
+    services.AddHostedService<ExchangeRateBackgroundJob>();
     return services;
   }
 }

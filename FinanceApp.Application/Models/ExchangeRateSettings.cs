@@ -5,10 +5,15 @@ public class ExchangeRateSettings
   /// <summary>
   /// Represents the settings for exchange rate API integration.
   /// </summary>
-  public string Endpoint { get; set; } = string.Empty;
+  public string ApiUrl { get; set; } = string.Empty;
 
   /// <summary>
-  /// The API key used for authenticating requests to the exchange rate API.
+  /// The application ID used for authenticating requests to the exchange rate API.
   /// </summary>
-  public string ApiKey { get; set; } = string.Empty;
+  public string AppId { get; set; } = string.Empty;
+
+  /// <summary>
+  /// The API endpoint for fetching exchange rates.
+  /// </summary>
+  public string ApiEndpoint { get; set; } = string.Empty;
 }

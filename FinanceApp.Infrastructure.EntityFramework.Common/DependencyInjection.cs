@@ -1,4 +1,5 @@
 using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.EntityFramework.Common.Repository;
 using FinanceApp.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 using FinanceApp.Infrastructure.EntityFramework.Context;
@@ -18,6 +19,7 @@ public static class DependencyInjection
     services.AddScoped(typeof(ITransactionRepository), typeof(TransactionRepository));
     services.AddScoped(typeof(IRepository<Domain.Entities.User>), typeof(GenericRepository<Domain.Entities.User>));
     services.AddScoped<IUserRepository, UserRepository>();
+    services.AddScoped<IExchangeRateRepository, ExchangeRateRepository>();
 
     return services;
   }

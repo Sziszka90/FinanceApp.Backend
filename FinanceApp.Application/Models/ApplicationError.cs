@@ -24,6 +24,9 @@ public class ApplicationError
   public const string INVALID_EXCHANGE_RATE_RESPONSE_MESSAGE = "Invalid exchange rate response";
   public const string INVALID_EXCHANGE_RATE_RESPONSE_CODE = "INVALID_EXCHANGE_RATE_RESPONSE";
 
+  public const string MISSING_EXCHANGE_RATES_MESSAGE = "Missing exchange rates.";
+  public const string MISSING_EXCHANGE_RATES_CODE = "MISSING_EXCHANGE_RATES";
+
   public const string NAME_ALREADY_EXISTS_MESSAGE = "Entity with this name already exists.";
   public const string NAME_ALREADY_EXISTS_CODE = "NAME_ALREADY_EXISTS";
 
@@ -276,9 +279,12 @@ public class ApplicationError
   /// External call error
   /// </summary>
   /// <returns></returns>
-  public static ApplicationError ExternalCallError()
+  public static ApplicationError ExternalCallError(string message)
   {
-    return new ApplicationError(DBCONNERR_MESSAGE, DBCONNERR_CODE);
+    return new ApplicationError(EXT_CALL_MESSAGE, EXT_CALL_CODE, new Dictionary<string, object>
+    {
+      { "message", message }
+    });
   }
 
   /// <summary>
@@ -323,5 +329,14 @@ public class ApplicationError
     {
       { "fileType", fileType }
     });
+  }
+
+  /// <summary>
+  /// Error for when exchange rates are missing
+  /// </summary>
+  /// <returns></returns>
+  public static ApplicationError MissingExchangeRatesError()
+  {
+    return new ApplicationError(MISSING_EXCHANGE_RATES_MESSAGE, MISSING_EXCHANGE_RATES_CODE);
   }
 }

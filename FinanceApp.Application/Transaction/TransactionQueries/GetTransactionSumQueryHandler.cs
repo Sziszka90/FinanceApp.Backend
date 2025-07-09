@@ -15,26 +15,24 @@ namespace FinanceApp.Application.Transaction.TransactionQueries;
 public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuery, Result<Money>>
 {
   private readonly IMapper _mapper;
-  private readonly ILLMClient _llmClient;
   private readonly IRepository<Domain.Entities.Transaction> _transactionRepository;
   private readonly IRepository<Domain.Entities.User> _userRepository;
-  private readonly IOptions<ExchangeRateSettings> _exchangeRateOptions;
   private readonly IHttpContextAccessor _httpContextAccessor;
+
+  private readonly IExchangeRateRepository _exchangeRateRepository;
 
   public GetTransactionSumQueryHandler(
     IMapper mapper,
     IRepository<Domain.Entities.Transaction> transactionRepository,
     IRepository<Domain.Entities.User> userRepository,
-    ILLMClient llmClient,
-    IOptions<ExchangeRateSettings> exchangeRateOptions,
+    IExchangeRateRepository exchangeRateRepository,
     IHttpContextAccessor httpContextAccessor)
   {
     _mapper = mapper;
-    _llmClient = llmClient;
     _transactionRepository = transactionRepository;
     _userRepository = userRepository;
-    _exchangeRateOptions = exchangeRateOptions;
     _httpContextAccessor = httpContextAccessor;
+    _exchangeRateRepository = exchangeRateRepository;
   }
 
   public async Task<Result<Money>> Handle(GetTransactionSumQuery request, CancellationToken cancellationToken)
@@ -50,29 +48,20 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
 
     var user = await _userRepository.GetQueryAsync(criteria, cancellationToken: cancellationToken);
 
-    var baseCurrency = user[0]
-                       .BaseCurrency.ToString();
-
-    var targetCurrency = (CurrencyEnum)Enum.Parse(typeof(CurrencyEnum), baseCurrency);
-
-    var exchangeRates = await _llmClient.GetExchangeDataAsync(targetCurrency);
-
-    if (!exchangeRates.IsSuccess)
-    {
-      return Result.Failure<Money>(exchangeRates.ApplicationError!);
-    }
+    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(cancellationToken);
 
     var summAmount = new Money
     {
       Amount = 0,
-      Currency = targetCurrency
+      Currency = user[0].BaseCurrency
     };
 
     foreach (var transaction in allTransaction)
     {
-      if (transaction.Value.Currency != targetCurrency)
+      if (transaction.Value.Currency != user[0].BaseCurrency)
       {
-        summAmount.Amount = summAmount.Amount + (transaction.Value.Amount * (exchangeRates.Data!.Rates[targetCurrency.ToString()] / exchangeRates.Data!.Rates[transaction.Value.Currency.ToString()]));
+        summAmount.Amount =
+        summAmount.Amount + (transaction.Value.Amount * exchangeRates.Where(er => er.BaseCurrency == transaction.Value.Currency.ToString() && er.TargetCurrency == user[0].BaseCurrency.ToString()).Select(er => er.Rate).FirstOrDefault());
       }
       else
       {
