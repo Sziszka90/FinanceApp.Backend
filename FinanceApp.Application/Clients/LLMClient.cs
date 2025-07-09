@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using FinanceApp.Application.Abstraction.Clients;
-using FinanceApp.Application.Dtos.ExchangeRateDtos;
+using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Models;
-using FinanceApp.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using OpenAI.Chat;
 
@@ -12,23 +12,42 @@ public class LLMClient : ILLMClient
 {
   private readonly ILogger<LLMClient> _logger;
   private readonly ChatClient _client;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
 
   public LLMClient(
     ChatClient client,
-    ILogger<LLMClient> logger)
+    ILogger<LLMClient> logger,
+    ITransactionGroupRepository transactionGroupRepository)
   {
     _client = client;
     _logger = logger;
+    _transactionGroupRepository = transactionGroupRepository;
   }
 
-  public async Task<Result<ExchangeRateResponseDto>> GetExchangeDataAsync(CurrencyEnum targetCurrency)
+  public async Task<Result<List<Domain.Entities.TransactionGroup>>> CreateTransactionGroup(List<string> transactionNames, Domain.Entities.User user, CancellationToken cancellationToken = default)
   {
-    var prompt = "You are a financial API that always answers exchange rate in the same JSON format as a list or array. " +
-                 "Provide the current foreign exchange rates as a JSON object with a base currency and rates for USD, EUR, GBP, and HUF. The JSON should look like this: " +
-                  $"{{ \"base\": \"{targetCurrency}\", \"rates\": {{ \"USD\": 0.0028, \"EUR\": 0.0024, \"GBP\": 0.0021, \"HUF\": 1 }} }}" +
-                  "Only return the JSON response without any additional text or explanation. Without line breaks or markdown code blocks. ";
+    var systemPrompt = """
+      You are a financial assistant creating transaction groups for bank transactions.
+      Your task is to analyse the provided transaction names and categorise them into appropriate groups based on their nature.
+      Such as salary, groceries, utilities, car, home, travel, food, electronics, entertainment, etc.
+      Group name and description should be general and not specific to any bank, store or country.
+      For example, if the transaction name is "Groceries", the description should be "Payment for groceries".
+      If the transaction name is "Entertainment", the description should be "Expense for entertainment".
+      You should return the same length of transaction groups as the number of transaction names provided.
+      The JSON should look like this:
+      [
+      { "name": "Groceries", "description": "Payment for groceries" }
+      { "name": "Entertainment", "description": "Expense for entertainment" }
+      { "name": "Car", "description": "Car cost and fuel" }
+      { "name": "Transport", "description": "Transport costs like ticket or pass" }
+      { "name": "Food", "description": "Canteen or Restaurant payment" }
+      ]
+      Only return the JSON response in a list without any additional text or explanation. Without line breaks or markdown code blocks.
+      """;
 
-    ChatCompletion completion = await _client.CompleteChatAsync(prompt);
+    var transactionNamesPrompt = $"Return transaction groups for the following transactions: {string.Join("; ", transactionNames)}. They are divided by ;";
+
+    ChatCompletion completion = await _client.CompleteChatAsync(systemPrompt + transactionNamesPrompt);
 
     var responseText = completion.Content[0].Text;
 
@@ -38,14 +57,16 @@ public class LLMClient : ILLMClient
       WriteIndented = false
     };
 
-    var exchangeRateResponse = JsonSerializer.Deserialize<ExchangeRateResponseDto>(responseText, options);
+    var transactionGroups = JsonSerializer.Deserialize<List<GetTransactionGroupDto>>(responseText, options);
 
-    if (exchangeRateResponse == null)
+    if (transactionGroups == null)
     {
-      _logger.LogError("Failed to deserialize exchange rate response: {ResponseText}", responseText);
-      return Result.Failure<ExchangeRateResponseDto>(ApplicationError.InvalidExchangeRateResponseError());
+      _logger.LogError("Failed to deserialize transaction group response: {ResponseText}", responseText);
+      return Result.Failure<List<Domain.Entities.TransactionGroup>>(ApplicationError.ExternalCallError("Failed to parse transaction group response from LLM."));
     }
 
-    return Result.Success(exchangeRateResponse);
+    var transactionGroupEntities = transactionGroups.Select(tg => new Domain.Entities.TransactionGroup(tg.Name, tg.Description, null, user)).ToList();
+
+    return Result.Success(transactionGroupEntities);
   }
 }

@@ -1,17 +1,16 @@
-﻿using FinanceApp.Application.Dtos.ExchangeRateDtos;
+﻿using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Models;
-using FinanceApp.Domain.Enums;
 
 namespace FinanceApp.Application.Abstraction.Clients;
 
 public interface ILLMClient
 {
   /// <summary>
-  /// Retrieves exchange rate data for a specified target currency.
-  /// The response is expected to be in a specific JSON format.
-  /// The method uses a language model to generate the exchange rate data.
+  /// Creates a transaction group based on the provided prompt.
   /// </summary>
-  /// <param name="targetCurrency"></param>
-  /// <returns>Result<ExchangeRateResponseDto></returns>
-  public Task<Result<ExchangeRateResponseDto>> GetExchangeDataAsync(CurrencyEnum targetCurrency);
+  /// <param name="prompt"></param>
+  /// <param name="user"></param>
+  /// <param name="cancellationToken"></param>
+  /// <returns>Result<List<TransactionGroup>></returns>
+  public Task<Result<List<Domain.Entities.TransactionGroup>>> CreateTransactionGroup(List<string> transactionNames, Domain.Entities.User user, CancellationToken cancellationToken = default);
 }

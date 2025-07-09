@@ -98,9 +98,9 @@ mat-table {
 }
 
 th.mat-header-cell {
-  position: sticky;
+  position: sticky !important;
   top: 0;
-  z-index: 2;
+  z-index: 2000;
   background: #fff;
 }
 

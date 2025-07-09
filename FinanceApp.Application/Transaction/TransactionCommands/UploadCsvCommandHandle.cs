@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Security.Claims;
 using AutoMapper;
+using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionDtos;
@@ -18,19 +19,29 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
   private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly IUserRepository _userRepository;
   private readonly ITransactionRepository _transactionRepository;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
+  private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IMapper _mapper;
+
+  private readonly ILLMClient _llmClient;
 
   public UploadCsvCommandHandler(ILogger<UploadCsvCommandHandler> logger,
                                      IHttpContextAccessor httpContextAccessor,
                                      IUserRepository userRepository,
                                      ITransactionRepository transactionRepository,
-                                     IMapper mapper)
+                                     IMapper mapper,
+                                     ILLMClient llmClient,
+                                     ITransactionGroupRepository transactionGroupRepository,
+                                     IExchangeRateRepository exchangeRateRepository)
   {
     _logger = logger;
     _httpContextAccessor = httpContextAccessor;
     _userRepository = userRepository;
     _transactionRepository = transactionRepository;
     _mapper = mapper;
+    _llmClient = llmClient;
+    _transactionGroupRepository = transactionGroupRepository;
+    _exchangeRateRepository = exchangeRateRepository;
   }
 
   // Helper to clean up quoted/escaped CSV fields
@@ -106,10 +117,55 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
       }
     }
 
+    var existingTransactionGroups = await _transactionGroupRepository.GetAllAsync(cancellationToken: cancellationToken);
+
+    var transactionGroupResult = await _llmClient.CreateTransactionGroup(transactions.Select(t => t.Name).ToList(), user!, cancellationToken);
+
+    var transactionGroupsToCreate = transactionGroupResult.Data!
+      .Where(tg => !existingTransactionGroups.Any(etg => etg.Name == tg.Name))
+      .GroupBy(tg => tg.Name)
+      .Select(g => g.First())
+      .ToList();
+
+    var createdTransactionGroups = await _transactionGroupRepository.CreateTransactionGroupsAsync(transactionGroupsToCreate, cancellationToken);
+
+    var orderedTransactionGroups = new List<Domain.Entities.TransactionGroup>();
+
+    foreach (var transactionGroup in transactionGroupResult.Data!)
+    {
+      var existingGroup = existingTransactionGroups.FirstOrDefault(x => x.Name == transactionGroup.Name) ?? createdTransactionGroups.FirstOrDefault(x => x.Name == transactionGroup.Name);
+      orderedTransactionGroups.Add(existingGroup!);
+    }
+
+    foreach (var (transaction, index) in transactions.Select((transaction, index) => (transaction, index)))
+    {
+      transaction.TransactionGroup = orderedTransactionGroups[index];
+    }
+
     var result = await _transactionRepository.CreateMultipleTransactionsAsync(transactions, cancellationToken);
 
+    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(cancellationToken);
+
+    foreach (var transaction in result!)
+    {
+      if (transaction.Value.Currency != user!.BaseCurrency)
+      {
+
+        transaction.Value.Amount = ConvertToUserCurrency(transaction.Value.Amount, transaction.Value.Currency, user.BaseCurrency, exchangeRates);
+        transaction.Value.Currency = user.BaseCurrency;
+      }
+    }
     var createdTransactions = _mapper.Map<List<GetTransactionDto>>(result);
 
     return Result.Success(createdTransactions);
+  }
+
+  private decimal ConvertToUserCurrency(decimal amount, CurrencyEnum fromCurrency, CurrencyEnum toCurrency, List<FinanceApp.Domain.Entities.ExchangeRate> rates)
+  {
+    if (fromCurrency == toCurrency)
+      return Math.Round(amount, 2);
+    var rate = rates.FirstOrDefault(r => r.BaseCurrency == fromCurrency.ToString() && r.TargetCurrency == toCurrency.ToString());
+
+    return Math.Round(amount * rate!.Rate, 2);
   }
 }

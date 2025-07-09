@@ -267,6 +267,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   private handleFile(file: File): void {
     if (file.type === 'text/csv') {
+      this.loading.set(true);
       this.transactionApiService.uploadCsv(file).subscribe({
         next: (transactions) => {
           this.allTransactions.set(transactions);
@@ -274,9 +275,11 @@ export class TransactionComponent implements OnInit, OnDestroy {
             ds.data = transactions;
             return ds;
           });
+          this.loading.set(false);
           console.log('CSV file uploaded successfully');
         },
         error: (err) => {
+          this.loading.set(false);
           console.error('Error uploading CSV file:', err);
         }
       });

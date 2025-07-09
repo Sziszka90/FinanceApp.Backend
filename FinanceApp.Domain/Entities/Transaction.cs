@@ -75,4 +75,9 @@ public class Transaction : BaseEntity, IUserOwned
     TransactionGroup = transactionGroup;
     TransactionType = transactionType;
   }
+
+  public void Deconstruct(out object transaction, out object idx)
+  {
+    throw new NotImplementedException();
+  }
 }

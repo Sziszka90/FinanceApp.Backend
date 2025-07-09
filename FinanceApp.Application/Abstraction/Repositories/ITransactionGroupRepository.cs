@@ -17,4 +17,21 @@ public interface ITransactionGroupRepository : IRepository<Domain.Entities.Trans
   /// <param name="cancellationToken"></param>
   /// <returns></returns>
   public Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
+  /// <summary>
+  /// Retrieves all transaction groups.
+  /// </summary>
+  /// <param name="noTracking"></param>
+  /// <param name="cancellationToken"></param>
+  /// <returns></returns>
+  public new Task<List<Domain.Entities.TransactionGroup>> GetAllAsync(bool noTracking = true, CancellationToken cancellationToken = default);
+
+
+  /// <summary>
+  /// Creates a list of transaction groups.
+  /// </summary>
+  /// <param name="transactionGroups"></param>
+  /// <param name="cancellationToken"></param>
+  /// <returns></returns>
+  public Task<List<Domain.Entities.TransactionGroup>> CreateTransactionGroupsAsync(List<Domain.Entities.TransactionGroup> transactionGroups, CancellationToken cancellationToken = default);
 }

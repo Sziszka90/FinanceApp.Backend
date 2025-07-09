@@ -67,7 +67,7 @@ public static class DependencyInjection
     services.AddScoped(sp =>
     {
       var apiKey = sp.GetRequiredService<IConfiguration>()["LLMClientSettings:ApiKey"];
-      ChatClient client = new(model: "gpt-4o", apiKey);
+      ChatClient client = new(model: "gpt-4-1106-preview", apiKey);
       return client;
     });
     return services;

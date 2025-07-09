@@ -11,6 +11,13 @@
   margin: 1rem;
 }
 
+tr {
+  &:hover {
+    background-color: variables.$green-color !important;
+  }
+  background-color: variables.$text-color !important;
+}
+
 td {
   padding-top: 0.5rem !important;
   padding-bottom: 0.5rem !important;

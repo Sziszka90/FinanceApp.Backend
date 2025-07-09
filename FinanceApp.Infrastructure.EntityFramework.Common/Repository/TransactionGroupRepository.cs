@@ -1,3 +1,4 @@
+using EFCore.BulkExtensions;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Domain.Entities;
 using FinanceApp.Infrastructure.EntityFramework.Common.Interfaces;
@@ -25,6 +26,27 @@ public class TransactionGroupRepository : GenericRepository<TransactionGroup>, I
   {
     return await _filteredQueryProvider.Query<TransactionGroup>()
                           .FirstOrDefaultAsync(tg => tg.Id == id);
+  }
+
+  public new async Task<List<TransactionGroup>> GetAllAsync(bool noTracking = true, CancellationToken cancellationToken = default)
+  {
+    if (noTracking)
+    {
+      return await _filteredQueryProvider.Query<TransactionGroup>()
+                            .AsNoTracking()
+                            .Include(tg => tg.User)
+                            .ToListAsync(cancellationToken);
+    }
+
+    return await _filteredQueryProvider.Query<TransactionGroup>()
+                          .Include(tg => tg.User)
+                          .ToListAsync(cancellationToken);
+  }
+
+  public async Task<List<TransactionGroup>> CreateTransactionGroupsAsync(List<TransactionGroup> transactionGroups, CancellationToken cancellationToken = default)
+  {
+    await _dbContext.BulkInsertAsync(transactionGroups, cancellationToken: cancellationToken);
+    return transactionGroups;
   }
 
   public async Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
