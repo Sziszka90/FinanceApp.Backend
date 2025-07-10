@@ -11,7 +11,7 @@ import {
 } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../services/transactions.api.service';
-import { groupIconOptions } from 'src/models/Constants/group-icon-options.const';
+import { Icons } from 'src/models/Constants/group-icon-options.const';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -38,7 +38,7 @@ export class CreateTransactionGroupModalComponent implements OnInit {
       groupIcon: new FormControl('')
     });
 
-  public groupIconOptions: string[] = groupIconOptions;
+  public groupIconOptions: string[] = Object.values(Icons);
   public selectedIcon: string = "";
 
   ngOnInit(): void {}

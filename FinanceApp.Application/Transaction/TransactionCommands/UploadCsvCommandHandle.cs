@@ -118,28 +118,17 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     }
 
     var existingTransactionGroups = await _transactionGroupRepository.GetAllAsync(cancellationToken: cancellationToken);
+    var existingTransactionGroupNames = existingTransactionGroups.Select(tg => tg.Name).ToList();
 
-    var transactionGroupResult = await _llmClient.CreateTransactionGroup(transactions.Select(t => t.Name).ToList(), user!, cancellationToken);
+    var resultDictionaryList = (await _llmClient.CreateTransactionGroup(transactions.Select(t => t.Name).ToList(), existingTransactionGroupNames, user!, cancellationToken)).Data;
 
-    var transactionGroupsToCreate = transactionGroupResult.Data!
-      .Where(tg => !existingTransactionGroups.Any(etg => etg.Name == tg.Name))
-      .GroupBy(tg => tg.Name)
-      .Select(g => g.First())
-      .ToList();
-
-    var createdTransactionGroups = await _transactionGroupRepository.CreateTransactionGroupsAsync(transactionGroupsToCreate, cancellationToken);
-
-    var orderedTransactionGroups = new List<Domain.Entities.TransactionGroup>();
-
-    foreach (var transactionGroup in transactionGroupResult.Data!)
+    foreach (var transaction in transactions)
     {
-      var existingGroup = existingTransactionGroups.FirstOrDefault(x => x.Name == transactionGroup.Name) ?? createdTransactionGroups.FirstOrDefault(x => x.Name == transactionGroup.Name);
-      orderedTransactionGroups.Add(existingGroup!);
-    }
+      var groupName = resultDictionaryList!.FirstOrDefault(dict => dict.ContainsKey(transaction.Name));
+      var groupNameValue = groupName?.Values.FirstOrDefault();
+      var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == groupNameValue);
 
-    foreach (var (transaction, index) in transactions.Select((transaction, index) => (transaction, index)))
-    {
-      transaction.TransactionGroup = orderedTransactionGroups[index];
+      transaction.TransactionGroup = group;
     }
 
     var result = await _transactionRepository.CreateMultipleTransactionsAsync(transactions, cancellationToken);
