@@ -168,8 +168,8 @@ export class TransactionComponent implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(
       UpdateTransactionModalComponent,
       {
-        width: '80vw',
-        height: '90vh',
+        autoFocus: true,
+        maxHeight: '90vh',
         data: transactionDto,
       }
     );
@@ -204,8 +204,8 @@ export class TransactionComponent implements OnInit, OnDestroy {
     const dialogRef = this.matDialog.open(
       CreateTransactionModalComponent,
       {
-        width: '80vw',
-        height: '90vh',
+        autoFocus: true,
+        maxHeight: '90vh',
       }
     )
     dialogRef.afterClosed()

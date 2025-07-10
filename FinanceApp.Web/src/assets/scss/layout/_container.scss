@@ -7,11 +7,9 @@
   text-align: center;
   align-items: center;
   background-color: variables.$text-color;
-  margin: 1rem auto;
   padding: 2rem 1.5rem;
   box-shadow: 0 4px 24px rgba(0,0,0,0.10);
   border-radius: 12px;
-  width: 80%;
 }
 
 .modal-header {
@@ -34,8 +32,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 80%;
-  margin: 2rem auto;
+  margin: 2rem;
 }
 
 .form-element {
@@ -43,7 +40,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin-bottom: 1rem;
+  padding: 1rem;
 }
 
 .form-group {
@@ -96,10 +93,7 @@
   }
 
   .main-container {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 1rem;
     max-width: 100%;
   }
 }
