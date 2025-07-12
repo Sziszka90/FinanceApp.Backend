@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.TransactionApi.TransactionCommands.UploadCsv;
 
-public record UploadCsvCommand(UploadCsvFileDto uploadCsvFileDto) : ICommand<Result<List<GetTransactionDto>>>;
+public record UploadCsvCommand(UploadCsvFileDto uploadCsvFileDto, CancellationToken CancellationToken) : ICommand<Result<List<GetTransactionDto>>>;

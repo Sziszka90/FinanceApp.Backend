@@ -58,14 +58,14 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
         case 400:
           matDialog.open(ErrorModalComponent, {
             width: '50rem',
-            data: error.error,
+            data: error.error ?? error.message,
           });
           break;
 
           case 404:
             matDialog.open(ErrorModalComponent, {
                   width: '50rem',
-                  data: error.error,
+                  data: error.error ?? error.message,
                 });
                 break;
 
@@ -76,7 +76,7 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
           ) {
             matDialog.open(ErrorModalComponent, {
               width: '50rem',
-              data: error.error ?? error,
+              data: error.error ?? error ?? error.message,
             });
           } else {
             router.navigateByUrl('/login');

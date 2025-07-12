@@ -1,4 +1,3 @@
-using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
@@ -9,29 +8,26 @@ namespace FinanceApp.Application.UserApi.UserCommands.UpdatePassword;
 
 public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordCommand, Result>
 {
-  private readonly IUnitOfWork _unitOfWork;
-  private readonly IUserRepository _userRepository;
   private readonly ILogger<UpdatePasswordCommandHandler> _logger;
-  private IJwtService _jwtService;
-  public UpdatePasswordCommandHandler(IUnitOfWork unitOfWork,
-                                  IUserRepository userRepository,
-                                  ILogger<UpdatePasswordCommandHandler> logger,
-                                  IJwtService jwtService)
+  private readonly IUserRepository _userRepository;
+  private readonly IUnitOfWork _unitOfWork;
+  private readonly IJwtService _jwtService;
+
+  public UpdatePasswordCommandHandler(
+    ILogger<UpdatePasswordCommandHandler> logger,
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
+    IJwtService jwtService)
   {
-    _unitOfWork = unitOfWork;
-    _userRepository = userRepository;
     _logger = logger;
+    _userRepository = userRepository;
+    _unitOfWork = unitOfWork;
     _jwtService = jwtService;
   }
 
   /// <inheritdoc />
   public async Task<Result> Handle(UpdatePasswordCommand request, CancellationToken cancellationToken)
   {
-    if (request.UpdatePasswordDto.Token is null)
-    {
-      return Result.Failure(ApplicationError.InvalidTokenError());
-    }
-
     var validationResult = _jwtService.ValidateToken(request.UpdatePasswordDto.Token);
     if (!validationResult)
     {
@@ -47,7 +43,7 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
       return Result.Failure(ApplicationError.InvalidTokenError());
     }
 
-    var user = await _userRepository.GetUserByEmailAsync(email, cancellationToken: cancellationToken);
+    var user = await _userRepository.GetUserByEmailAsync(email, noTracking: false, cancellationToken: cancellationToken);
 
     if (user is null)
     {
@@ -59,11 +55,13 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
 
     user.UpdatePassword(passwordHash);
 
-    await _userRepository.UpdateAsync(user);
-
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+    _logger.LogDebug("Password updated successfully for user with email:{Email}", email);
+
     _jwtService.InvalidateToken(request.UpdatePasswordDto.Token);
+
+    _logger.LogDebug("Token invalidated successfully after password update for user with email:{Email}", email);
 
     return Result.Success();
 

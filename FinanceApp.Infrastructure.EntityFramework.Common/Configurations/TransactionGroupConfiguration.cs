@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Common.Configurations;
 
-public class TransactionGroupConfiguration : IEntityTypeConfiguration<TransactionGroup>
+public class TransactionGroupConfiguration : BaseEntityTypeConfiguration<TransactionGroup>
 {
   /// <inheritdoc />
-  public void Configure(EntityTypeBuilder<TransactionGroup> builder)
-  {}
+  protected override void ConfigureSpecificProperties(EntityTypeBuilder<TransactionGroup> builder)
+  {
+    builder.ToTable(nameof(TransactionGroup));
+  }
 }

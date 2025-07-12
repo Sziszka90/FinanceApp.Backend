@@ -11,20 +11,17 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 public sealed class UnitOfWork : IUnitOfWork
 {
   private readonly FinanceAppDbContext _dbContext;
-  private readonly IServiceProvider _serviceProvider;
-
-  private bool _disposed;
 
   internal IDbContextTransaction? Transaction => _dbContext?.Database?.CurrentTransaction;
 
-  public UnitOfWork(FinanceAppDbContext dbContext, IServiceProvider serviceProvider)
+  private bool _disposed;
+
+  public UnitOfWork(FinanceAppDbContext dbContext)
   {
     _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-    _serviceProvider = serviceProvider;
   }
 
   /// <inheritdoc />
-  /// <seealso cref="Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(System.Threading.CancellationToken)" />
   public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
   {
     await _dbContext.SaveChangesAsync(cancellationToken);
@@ -51,6 +48,7 @@ public sealed class UnitOfWork : IUnitOfWork
     await _dbContext.Database.CommitTransactionAsync(cancellationToken);
   }
 
+  /// <inheritdoc />
   public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
   {
     if (_dbContext.Database.CurrentTransaction != null)
@@ -87,7 +85,6 @@ public sealed class UnitOfWork : IUnitOfWork
 
   private HashSet<EntityEntry<BaseEntity>> GetToValidateIncludingNavigation()
   {
-    // Get all Changed Entities from the Change Tracker as Array.
     var selfChanged = _dbContext
                       .ChangeTracker
                       .Entries<BaseEntity>()
@@ -95,28 +92,22 @@ public sealed class UnitOfWork : IUnitOfWork
                       .Where(x => x.State is EntityState.Modified or EntityState.Added or EntityState.Deleted)
                       .ToArray();
 
-    // init of the return value, using Dictionary since its already ensures uniqueness so no multiple validation.
     HashSet<EntityEntry<BaseEntity>> toValidate = [];
 
-    // iterate over every changed entity
     foreach (var entry in selfChanged)
     {
-      // add it to the result if not deleted, deleted only cause validation of related.
       if (entry.State != EntityState.Deleted)
       {
         toValidate.Add(entry);
       }
 
-      // iterate over all References from this entity to others.
       foreach (var reference in entry.References)
       {
-        // if the ref is Modified its already in list and go next
         if (reference.IsModified)
         {
           continue;
         }
 
-        // if the reference is not in add it and by safe cast.
         if (reference.TargetEntry?.Entity is BaseEntity baseEntity)
         {
           toValidate.Add(_dbContext.Entry(baseEntity));

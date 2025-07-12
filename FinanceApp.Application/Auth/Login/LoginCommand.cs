@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.AuthApi.Login;
 
-public record LoginCommand(LoginRequestDto LoginRequestDto) : ICommand<Result<LoginResponseDto>>;
+public record LoginCommand(LoginRequestDto LoginRequestDto, CancellationToken CancellationToken) : ICommand<Result<LoginResponseDto>>;

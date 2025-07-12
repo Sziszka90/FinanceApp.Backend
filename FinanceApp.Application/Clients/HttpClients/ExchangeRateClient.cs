@@ -1,6 +1,7 @@
 using FinanceApp.Application.Clients.HttpClients;
 using FinanceApp.Application.Dtos.ExchangeRateDtos;
 using FinanceApp.Application.Models;
+using FinanceApp.Application.Models.Options;
 using FinanceApp.Domain.Entities;
 using FinanceApp.Domain.Enums;
 using Microsoft.Extensions.Logging;

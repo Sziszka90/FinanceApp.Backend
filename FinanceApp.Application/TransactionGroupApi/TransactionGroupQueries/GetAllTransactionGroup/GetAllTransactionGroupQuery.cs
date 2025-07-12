@@ -5,4 +5,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroup;
 
-public record GetAllTransactionGroupQuery : IQuery<Result<List<GetTransactionGroupDto>>>;
+public record GetAllTransactionGroupQuery(CancellationToken CancellationToken) : IQuery<Result<List<GetTransactionGroupDto>>>;

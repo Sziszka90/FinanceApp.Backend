@@ -71,13 +71,8 @@ public class Transaction : BaseEntity, IUserOwned
     Name = name;
     Description = description;
     Value = value;
-    TransactionDate = transactionDate;
     TransactionGroup = transactionGroup;
     TransactionType = transactionType;
-  }
-
-  public void Deconstruct(out object transaction, out object idx)
-  {
-    throw new NotImplementedException();
+    TransactionDate = transactionDate;
   }
 }

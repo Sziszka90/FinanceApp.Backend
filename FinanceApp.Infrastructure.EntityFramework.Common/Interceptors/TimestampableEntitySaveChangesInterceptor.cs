@@ -8,17 +8,17 @@ public class TimestampableEntitySaveChangesInterceptor : SaveChangesInterceptor
 {
   public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
   {
-    UpdateEntitie(eventData.Context);
+    UpdateEntity(eventData.Context);
     return base.SavingChanges(eventData, result);
   }
 
   public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = new())
   {
-    UpdateEntitie(eventData.Context);
+    UpdateEntity(eventData.Context);
     return base.SavingChangesAsync(eventData, result, cancellationToken);
   }
 
-  private static void UpdateEntitie(DbContext? context)
+  private static void UpdateEntity(DbContext? context)
   {
     if (context is null)
     {

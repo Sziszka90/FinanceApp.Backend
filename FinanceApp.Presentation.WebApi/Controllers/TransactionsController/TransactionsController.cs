@@ -1,12 +1,15 @@
 ﻿using FinanceApp.Application.Dtos.TransactionDtos;
-using FinanceApp.Application.Transaction.TransactionCommands;
-using FinanceApp.Application.Transaction.TransactionQueries;
+using FinanceApp.Application.TransactionApi.TransactionCommands.CreateTransaction;
+using FinanceApp.Application.TransactionApi.TransactionCommands.DeleteTransaction;
+using FinanceApp.Application.TransactionApi.TransactionCommands.UpdateTransaction;
+using FinanceApp.Application.TransactionApi.TransactionCommands.UploadCsv;
+using FinanceApp.Application.TransactionApi.TransactionQueries.GetAllTransaction;
+using FinanceApp.Application.TransactionApi.TransactionQueries.GetTransactionById;
+using FinanceApp.Application.TransactionApi.TransactionQueries.GetTransactionSum;
 using FinanceApp.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace FinanceApp.Presentation.WebApi.Controllers.TransactionsController;
 
@@ -29,9 +32,9 @@ public class TransactionsController : ControllerBase
   [ProducesResponseType(typeof(List<GetTransactionDto>), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetTransactionDto>>> GetTransactionsSummary()
+  public async Task<ActionResult<List<GetTransactionDto>>> GetTransactionsSummary(CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new GetTransactionSumQuery());
+    var result = await _mediator.Send(new GetTransactionSumQuery(cancellationToken));
     return this.GetResult(result);
   }
 
@@ -41,9 +44,9 @@ public class TransactionsController : ControllerBase
   [ProducesResponseType(typeof(List<GetTransactionDto>), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<List<GetTransactionDto>>> GetTransactions([FromQuery] TransactionFilter? transactionFilter = null)
+  public async Task<ActionResult<List<GetTransactionDto>>> GetTransactions(CancellationToken cancellationToken, TransactionFilter? transactionFilter = null)
   {
-    var result = await _mediator.Send(new GetAllTransactionQuery(transactionFilter));
+    var result = await _mediator.Send(new GetAllTransactionQuery(cancellationToken, transactionFilter));
     return this.GetResult(result);
   }
 
@@ -53,9 +56,9 @@ public class TransactionsController : ControllerBase
   [ProducesResponseType(typeof(GetTransactionDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetTransactionDto>> GetTransactions([FromRoute] Guid id)
+  public async Task<ActionResult<GetTransactionDto>> GetTransactions([FromRoute] Guid id, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new GetTransactionByIdQuery(id));
+    var result = await _mediator.Send(new GetTransactionByIdQuery(id, cancellationToken));
     return this.GetResult(result);
   }
 
@@ -65,9 +68,9 @@ public class TransactionsController : ControllerBase
   [ProducesResponseType(typeof(GetTransactionDto), StatusCodes.Status201Created)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetTransactionDto>> CreateTransaction([FromBody] CreateTransactionDto createTransactionDto)
+  public async Task<ActionResult<GetTransactionDto>> CreateTransaction([FromBody] CreateTransactionDto createTransactionDto, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new CreateTransactionCommand(createTransactionDto));
+    var result = await _mediator.Send(new CreateTransactionCommand(createTransactionDto, cancellationToken));
     return this.GetResult(result, StatusCodes.Status201Created);
   }
 
@@ -77,9 +80,9 @@ public class TransactionsController : ControllerBase
   [ProducesResponseType(typeof(GetTransactionDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetTransactionDto>> UpdateTransaction([FromRoute] Guid id, [FromBody] UpdateTransactionDto updateTransactionDto)
+  public async Task<ActionResult<GetTransactionDto>> UpdateTransaction([FromRoute] Guid id, [FromBody] UpdateTransactionDto updateTransactionDto, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new UpdateTransactionCommand(id, updateTransactionDto));
+    var result = await _mediator.Send(new UpdateTransactionCommand(id, updateTransactionDto, cancellationToken));
     return this.GetResult(result);
   }
 
@@ -89,9 +92,9 @@ public class TransactionsController : ControllerBase
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult> DeleteTransaction([FromRoute] Guid id)
+  public async Task<ActionResult> DeleteTransaction([FromRoute] Guid id, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new DeleteTransactionCommand(id));
+    var result = await _mediator.Send(new DeleteTransactionCommand(id, cancellationToken));
     return this.GetResult(result, StatusCodes.Status204NoContent);
   }
 
@@ -101,9 +104,9 @@ public class TransactionsController : ControllerBase
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<IActionResult> UploadCsv([FromForm] UploadCsvFileDto uploadCsvFileDto)
+  public async Task<IActionResult> UploadCsv([FromForm] UploadCsvFileDto uploadCsvFileDto, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new UploadCsvCommand(uploadCsvFileDto));
+    var result = await _mediator.Send(new UploadCsvCommand(uploadCsvFileDto, cancellationToken));
     return this.GetResult(result);
   }
 }

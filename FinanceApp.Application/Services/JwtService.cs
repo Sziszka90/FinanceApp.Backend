@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using FinanceApp.Application.Abstraction.Services;
-using FinanceApp.Application.Models;
+using FinanceApp.Application.Models.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
@@ -20,6 +20,7 @@ public class JwtService : IJwtService
     _authenticationSettings = authenticationOptions.Value;
   }
 
+  /// <inheritdoc />
   public string GenerateToken(string email)
   {
     var claims = new[]
@@ -42,6 +43,7 @@ public class JwtService : IJwtService
     return new JwtSecurityTokenHandler().WriteToken(token);
   }
 
+  /// <inheritdoc />
   public bool ValidateToken(string token)
   {
     var tokenHandler = new JwtSecurityTokenHandler();
@@ -69,16 +71,19 @@ public class JwtService : IJwtService
     }
   }
 
+  /// <inheritdoc />
   public void InvalidateToken(string token)
   {
     _invalidatedTokens.Add(token);
   }
+
 
   public bool IsTokenInvalidated(string token)
   {
     return _invalidatedTokens.Contains(token);
   }
 
+  /// <inheritdoc />
   public string? GetUserEmailFromToken(string token)
   {
     var tokenHandler = new JwtSecurityTokenHandler();
@@ -97,7 +102,6 @@ public class JwtService : IJwtService
         ClockSkew = TimeSpan.Zero
       }, out SecurityToken validatedToken);
 
-      // Get the email from the 'sub' claim
       var result = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
       return result;
     }

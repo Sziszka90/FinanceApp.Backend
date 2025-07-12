@@ -2,6 +2,7 @@ using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Application.Models;
+using FinanceApp.Domain.Entities;
 
 namespace FinanceApp.Application.QueryCriteria;
 
@@ -11,10 +12,10 @@ public static class TransactionQueryCriteria
   /// Finds transactions with the same name as the one provided in the request.
   /// </summary>
   /// <param name="request"></param>
-  /// <returns>QueryCriteria<Domain.Entities.Transaction></returns>
-  public static QueryCriteria<Domain.Entities.Transaction> FindDuplicatedName(CreateTransactionDto request)
+  /// <returns>QueryCriteria<Transaction></returns>
+  public static QueryCriteria<Transaction> FindDuplicatedName(CreateTransactionDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.Transaction>();
+    var builder = new QueryCriteriaBuilder<Transaction>();
 
     builder.Where(x => x.Name == request.Name);
 
@@ -25,10 +26,10 @@ public static class TransactionQueryCriteria
   /// Finds transactions with the same name as the one provided in the request.
   /// </summary>
   /// <param name="request"></param>
-  /// <returns>QueryCriteria<Domain.Entities.TransactionGroup></returns>
-  public static QueryCriteria<Domain.Entities.TransactionGroup> FindDuplicatedName(CreateTransactionGroupDto request)
+  /// <returns>QueryCriteria<TransactionGroup></returns>
+  public static QueryCriteria<TransactionGroup> FindDuplicatedName(CreateTransactionGroupDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.TransactionGroup>();
+    var builder = new QueryCriteriaBuilder<TransactionGroup>();
 
     builder.Where(x => x.Name == request.Name);
 
@@ -39,10 +40,10 @@ public static class TransactionQueryCriteria
   /// Finds transactions with the same name as the one provided in the request.
   /// </summary>
   /// <param name="request"></param>
-  /// <returns>QueryCriteria<Domain.Entities.Transaction></returns>
-  public static QueryCriteria<Domain.Entities.Transaction> FindDuplicatedNameExludingId(UpdateTransactionDto request)
+  /// <returns>QueryCriteria<Transaction></returns>
+  public static QueryCriteria<Transaction> FindDuplicatedNameExludingId(UpdateTransactionDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.Transaction>();
+    var builder = new QueryCriteriaBuilder<Transaction>();
 
     builder.Where(x => x.Name == request.Name);
     builder.Where(x => x.Id != request.Id);
@@ -50,9 +51,14 @@ public static class TransactionQueryCriteria
     return builder.Build();
   }
 
-  public static QueryCriteria<Domain.Entities.TransactionGroup> FindDuplicatedNameExludingId(UpdateTransactionGroupDto request)
+  /// <summary>
+  /// Finds transaction groups with the same name as the one provided in the request, excluding the specified ID.
+  /// </summary>
+  /// <param name="request"></param>
+  /// <returns>QueryCriteria<TransactionGroup></returns>
+  public static QueryCriteria<TransactionGroup> FindDuplicatedNameExludingId(UpdateTransactionGroupDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.TransactionGroup>();
+    var builder = new QueryCriteriaBuilder<TransactionGroup>();
 
     builder.Where(x => x.Name == request.Name);
     builder.Where(x => x.Id != request.Id);
@@ -67,10 +73,10 @@ public static class UserQueryCriteria
   /// Finds a user by username.
   /// </summary>
   /// <param name="request"></param>
-  /// <returns>QueryCriteria<Domain.Entities.User></returns>
-  public static QueryCriteria<Domain.Entities.User> FindUserName(CreateUserDto request)
+  /// <returns>QueryCriteria<User></returns>
+  public static QueryCriteria<User> FindUserName(CreateUserDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
+    var builder = new QueryCriteriaBuilder<User>();
 
     builder.Where(x => x.UserName == request.UserName);
 
@@ -81,10 +87,10 @@ public static class UserQueryCriteria
   /// Finds a user by username.
   /// </summary>
   /// <param name="userName"></param>
-  /// <returns>QueryCriteria<Domain.Entities.User></returns>
-  public static QueryCriteria<Domain.Entities.User> FindUserName(string userName)
+  /// <returns>QueryCriteria<User></returns>
+  public static QueryCriteria<User> FindUserName(string userName)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
+    var builder = new QueryCriteriaBuilder<User>();
 
     builder.Where(x => x.UserName == userName);
 
@@ -95,10 +101,10 @@ public static class UserQueryCriteria
   /// Finds a user by email.
   /// </summary>
   /// <param name="request"></param>
-  /// <returns>QueryCriteria<Domain.Entities.User></returns>
-  public static QueryCriteria<Domain.Entities.User> FindUserEmail(CreateUserDto request)
+  /// <returns>QueryCriteria<User></returns>
+  public static QueryCriteria<User> FindUserEmail(CreateUserDto request)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
+    var builder = new QueryCriteriaBuilder<User>();
 
     builder.Where(x => x.Email == request.Email);
 
@@ -109,10 +115,10 @@ public static class UserQueryCriteria
   /// Finds a user by email.
   /// </summary>
   /// <param name="email"></param>
-  /// <returns>QueryCriteria<Domain.Entities.User></returns>
-  public static QueryCriteria<Domain.Entities.User> FindUserEmail(string email)
+  /// <returns>QueryCriteria<User></returns>
+  public static QueryCriteria<User> FindUserEmail(string email)
   {
-    var builder = new QueryCriteriaBuilder<Domain.Entities.User>();
+    var builder = new QueryCriteriaBuilder<User>();
 
     builder.Where(x => x.Email == email);
 

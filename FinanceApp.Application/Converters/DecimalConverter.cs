@@ -8,7 +8,6 @@ public class DecimalConverter : JsonConverter<decimal>
 {
   public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
   {
-    // If the value is a string, try to parse it as a decimal
     if (reader.TokenType == JsonTokenType.String)
     {
       var value = reader.GetString();
@@ -20,7 +19,6 @@ public class DecimalConverter : JsonConverter<decimal>
       throw new JsonException($"Unable to convert \"{value}\" to decimal.");
     }
 
-    // If the token is not a string, use the default behavior to read the decimal
     return reader.GetDecimal();
   }
 

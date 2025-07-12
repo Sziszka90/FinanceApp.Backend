@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Services;
-using FinanceApp.Application.BackgroundJobs;
+using FinanceApp.Application.BackgroundJobs.ExchangeRate;
 using FinanceApp.Application.Behaviors;
 using FinanceApp.Application.Clients;
-using FinanceApp.Application.Models;
+using FinanceApp.Application.Models.Options;
 using FinanceApp.Application.Services;
 using FluentValidation;
 using MediatR;
@@ -73,7 +73,7 @@ public static class DependencyInjection
     return services;
   }
 
-  public static IServiceCollection AddHttpClient(this IServiceCollection services)
+  private static IServiceCollection AddHttpClient(this IServiceCollection services)
   {
     services.AddHttpClient<IExchangeRateClient, ExchangeRateClient>((sp, client) =>
     {

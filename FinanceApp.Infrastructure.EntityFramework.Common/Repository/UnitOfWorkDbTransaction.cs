@@ -15,21 +15,12 @@ public class UnitOfWorkDbTransaction : IUnitOfWorkDbTransaction
   }
 
   /// <inheritdoc />
-  /// <remarks>
-  /// See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and
-  /// examples.
-  /// </remarks>
   public async Task CommitAsync(CancellationToken cancellationToken = default)
   {
     await UnitOfWork.CommitTransactionAsync(cancellationToken);
   }
 
   /// <inheritdoc />
-  /// ///
-  /// <remarks>
-  /// See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and
-  /// examples.
-  /// </remarks>
   public async Task RollbackAsync(CancellationToken cancellationToken = default)
   {
     await UnitOfWork.RollbackTransactionAsync(cancellationToken);

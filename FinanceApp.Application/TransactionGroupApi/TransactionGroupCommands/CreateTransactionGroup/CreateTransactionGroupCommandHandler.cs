@@ -12,32 +12,36 @@ namespace FinanceApp.Application.TransactionGroupApi.TransactionGroupCommands.Cr
 
 public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransactionGroupCommand, Result<GetTransactionGroupDto>>
 {
-  private readonly IMapper _mapper;
-  private readonly IUnitOfWork _unitOfWork;
-  private readonly IRepository<Domain.Entities.TransactionGroup> _transactionGroupRepository;
   private readonly ILogger<CreateTransactionGroupCommandHandler> _logger;
+  private readonly IMapper _mapper;
+  private readonly IRepository<Domain.Entities.TransactionGroup> _transactionGroupRepository;
   private readonly IUserRepository _userRepository;
+  private readonly IUnitOfWork _unitOfWork;
   private readonly IHttpContextAccessor _httpContextAccessor;
 
-  public CreateTransactionGroupCommandHandler(IMapper mapper,
-                                         IUnitOfWork unitOfWork,
-                                         IRepository<Domain.Entities.TransactionGroup> transactionGroupRepository,
-                                         ILogger<CreateTransactionGroupCommandHandler> logger,
-                                         IUserRepository userRepository,
-                                         IHttpContextAccessor httpContextAccessor)
+  public CreateTransactionGroupCommandHandler(
+    ILogger<CreateTransactionGroupCommandHandler> logger,
+    IMapper mapper,
+    IRepository<Domain.Entities.TransactionGroup> transactionGroupRepository,
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
+    IHttpContextAccessor httpContextAccessor)
   {
-    _mapper = mapper;
-    _unitOfWork = unitOfWork;
-    _transactionGroupRepository = transactionGroupRepository;
     _logger = logger;
+    _mapper = mapper;
+    _transactionGroupRepository = transactionGroupRepository;
     _userRepository = userRepository;
+    _unitOfWork = unitOfWork;
     _httpContextAccessor = httpContextAccessor;
   }
 
   /// <inheritdoc />
   public async Task<Result<GetTransactionGroupDto>> Handle(CreateTransactionGroupCommand request, CancellationToken cancellationToken)
   {
-    var transactionGroup = await _transactionGroupRepository.GetQueryAsync(TransactionQueryCriteria.FindDuplicatedName(request.CreateTransactionGroupDto), cancellationToken: cancellationToken);
+    var transactionGroup = await _transactionGroupRepository.GetQueryAsync(
+      TransactionQueryCriteria.FindDuplicatedName(request.CreateTransactionGroupDto),
+      noTracking: true,
+      cancellationToken: cancellationToken);
 
     if (transactionGroup.Count > 0)
     {
@@ -50,13 +54,13 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
     var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-    if (userEmail is null)
-    {
-      _logger.LogError("User is not logged in");
-      return Result.Failure<GetTransactionGroupDto>(ApplicationError.UserNotFoundError());
-    }
+    var user = await _userRepository.GetUserByEmailAsync(userEmail!, noTracking: true, cancellationToken: cancellationToken);
 
-    var user = await _userRepository.GetUserByEmailAsync(userEmail!);
+    if (user is null)
+    {
+      _logger.LogError("User not found with email:{Email}", userEmail);
+      return Result.Failure<GetTransactionGroupDto>(ApplicationError.UserNotFoundError(userEmail!));
+    }
 
     var result = await _transactionGroupRepository.CreateAsync(new Domain.Entities.TransactionGroup(
                                                                             request.CreateTransactionGroupDto.Name,
@@ -67,8 +71,8 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-    _logger.LogInformation("Transaction Group created with ID:{Id}", result.Id);
-    var asd = _mapper.Map<GetTransactionGroupDto>(result);
+    _logger.LogDebug("Transaction Group created with ID:{Id}", result.Id);
+
     return Result.Success(_mapper.Map<GetTransactionGroupDto>(result));
   }
 }

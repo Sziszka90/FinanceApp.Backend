@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.TransactionApi.TransactionCommands.UpdateTransaction;
 
-public record UpdateTransactionCommand(Guid Id, UpdateTransactionDto UpdateTransactionDto) : ICommand<Result<GetTransactionDto>>;
+public record UpdateTransactionCommand(Guid Id, UpdateTransactionDto UpdateTransactionDto, CancellationToken CancellationToken) : ICommand<Result<GetTransactionDto>>;

@@ -7,23 +7,24 @@ namespace FinanceApp.Application.TransactionApi.TransactionCommands.DeleteTransa
 
 public class DeleteTransactionCommandHandler : ICommandHandler<DeleteTransactionCommand, Result>
 {
+  private readonly ILogger<DeleteTransactionCommandHandler> _logger;
   private readonly IRepository<Domain.Entities.Transaction> _transactionRepository;
   private readonly IUnitOfWork _unitOfWork;
-  private readonly ILogger<DeleteTransactionCommandHandler> _logger;
 
-  public DeleteTransactionCommandHandler(IRepository<Domain.Entities.Transaction> transactionRepository,
-                                     IUnitOfWork unitOfWork,
-                                     ILogger<DeleteTransactionCommandHandler> logger)
+  public DeleteTransactionCommandHandler(
+    ILogger<DeleteTransactionCommandHandler> logger,
+    IRepository<Domain.Entities.Transaction> transactionRepository,
+    IUnitOfWork unitOfWork)
   {
+    _logger = logger;
     _transactionRepository = transactionRepository;
     _unitOfWork = unitOfWork;
-    _logger = logger;
   }
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteTransactionCommand request, CancellationToken cancellationToken)
   {
-    var transaction = await _transactionRepository.GetByIdAsync(request.Id, cancellationToken);
+    var transaction = await _transactionRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
 
     if (transaction is null)
     {
@@ -31,10 +32,10 @@ public class DeleteTransactionCommandHandler : ICommandHandler<DeleteTransaction
       return Result.Failure(ApplicationError.EntityNotFoundError(request.Id.ToString()));
     }
 
-    await _transactionRepository.DeleteAsync(request.Id, cancellationToken);
+    await _transactionRepository.DeleteAsync(transaction, cancellationToken);
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-    _logger.LogInformation("Transaction deleted with ID:{Id}", request.Id);
+    _logger.LogDebug("Transaction deleted with ID:{Id}", request.Id);
 
     return Result.Success();
   }

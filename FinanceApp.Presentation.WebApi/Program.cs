@@ -39,23 +39,25 @@ builder.Services.AddLogging(config =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseApi(builder.Configuration);
 app.UseSwaggerConfiguration();
 
 // Map each probe separately
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
-    Predicate = check => check.Tags.Contains("liveness")
+  Predicate = check => check.Tags.Contains("liveness")
 });
 
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
-    Predicate = check => check.Tags.Contains("readiness")
+  Predicate = check => check.Tags.Contains("readiness")
 });
 
 app.MapHealthChecks("/health/startup", new HealthCheckOptions
 {
-    Predicate = check => check.Tags.Contains("startup")
+  Predicate = check => check.Tags.Contains("startup")
 });
 
 app.Run();

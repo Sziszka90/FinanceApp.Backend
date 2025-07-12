@@ -11,7 +11,7 @@ public static class EnumerableExtensions
   /// <param name="list"></param>
   /// <param name="keySelector"></param>
   /// <param name="valueSelector"></param>
-  /// <returns></returns>
+  /// <returns>Dictionary</returns>
   public static Dictionary<string, TElement> ToUniqueDictionaryWithCounters<TSource, TElement>(this IEnumerable<TSource> list, Func<TSource, string> keySelector, Func<TSource, TElement> valueSelector)
   {
     var dictionary = new Dictionary<string, TElement>();

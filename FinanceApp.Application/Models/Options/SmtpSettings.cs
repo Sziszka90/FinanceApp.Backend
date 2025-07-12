@@ -1,4 +1,4 @@
-namespace FinanceApp.Application.Models;
+namespace FinanceApp.Application.Models.Options;
 
 public class SmtpSettings
 {

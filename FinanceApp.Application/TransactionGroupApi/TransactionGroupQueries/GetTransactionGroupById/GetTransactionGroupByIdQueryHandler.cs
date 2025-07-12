@@ -11,7 +11,9 @@ public class GetTransactionGroupByIdQueryHandler : IQueryHandler<GetTransactionG
   private readonly IMapper _mapper;
   private readonly ITransactionGroupRepository _transactionGroupRepository;
 
-  public GetTransactionGroupByIdQueryHandler(IMapper mapper, ITransactionGroupRepository transactionGroupRepository)
+  public GetTransactionGroupByIdQueryHandler(
+    IMapper mapper,
+    ITransactionGroupRepository transactionGroupRepository)
   {
     _mapper = mapper;
     _transactionGroupRepository = transactionGroupRepository;
@@ -19,7 +21,7 @@ public class GetTransactionGroupByIdQueryHandler : IQueryHandler<GetTransactionG
 
   public async Task<Result<GetTransactionGroupDto>> Handle(GetTransactionGroupByIdQuery request, CancellationToken cancellationToken)
   {
-    var result = await _transactionGroupRepository.GetByIdAsync(request.Id, cancellationToken);
+    var result = await _transactionGroupRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
     return Result.Success(_mapper.Map<GetTransactionGroupDto>(result));
   }
 }

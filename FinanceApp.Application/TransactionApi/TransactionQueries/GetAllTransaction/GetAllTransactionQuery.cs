@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.TransactionApi.TransactionQueries.GetAllTransaction;
 
-public record GetAllTransactionQuery(TransactionFilter? TransactionFilter) : IQuery<Result<List<GetTransactionDto>>>;
+public record GetAllTransactionQuery(CancellationToken CancellationToken, TransactionFilter? TransactionFilter) : IQuery<Result<List<GetTransactionDto>>>;

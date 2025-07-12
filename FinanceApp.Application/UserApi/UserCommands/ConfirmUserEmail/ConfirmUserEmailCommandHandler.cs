@@ -2,17 +2,24 @@ using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Models;
+using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.UserApi.UserCommands.ConfirmUserEmail;
 
 public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCommand, Result>
 {
+  private readonly ILogger<ConfirmUserEmailCommandHandler> _logger;
   private readonly IUserRepository _userRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IJwtService _jwtService;
 
-  public ConfirmUserEmailCommandHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IJwtService jwtService)
+  public ConfirmUserEmailCommandHandler(
+    ILogger<ConfirmUserEmailCommandHandler> logger,
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
+    IJwtService jwtService)
   {
+    _logger = logger;
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
     _jwtService = jwtService;
@@ -20,28 +27,29 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
 
   public async Task<Result> Handle(ConfirmUserEmailCommand request, CancellationToken cancellationToken)
   {
-    if (request.token is null)
-    {
-      return Result.Failure(ApplicationError.InvalidTokenError());
-    }
-
-    var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
+    var user = await _userRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken);
 
     if (user is null)
+    {
+       _logger.LogError("User not found with ID:{Id}", request.Id);
       return Result.Failure(ApplicationError.UserNotFoundError());
+    }
 
-    var validationResult = _jwtService.ValidateToken(request.token);
+    var validationResult = _jwtService.ValidateToken(request.Token);
 
     if (!validationResult)
     {
+      _logger.LogError("Invalid token for user with ID:{Id}", request.Id);
       return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));
     }
 
-    _jwtService.InvalidateToken(request.token);
+    _jwtService.InvalidateToken(request.Token);
 
     user.IsEmailConfirmed = true;
     await _userRepository.UpdateAsync(user, cancellationToken);
     await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+    _logger.LogDebug("Email confirmed for user with ID:{Id}", request.Id);
 
     return Result.Success();
   }

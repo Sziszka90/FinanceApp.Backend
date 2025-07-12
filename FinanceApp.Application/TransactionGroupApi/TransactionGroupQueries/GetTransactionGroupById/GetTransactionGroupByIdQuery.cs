@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.TransactionGroupApi.TransactionGroupQueries.GetTransactionGroupById;
 
-public record GetTransactionGroupByIdQuery(Guid Id) : IQuery<Result<GetTransactionGroupDto>>;
+public record GetTransactionGroupByIdQuery(Guid Id, CancellationToken CancellationToken) : IQuery<Result<GetTransactionGroupDto>>;

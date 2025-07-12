@@ -23,7 +23,7 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     _filteredQueryProvider = filteredQueryProvider;
   }
 
-  public async Task<List<Transaction>> GetAllAsync(TransactionFilter transactionFilter, bool noTracking = true, CancellationToken cancellationToken = default)
+  public async Task<List<Transaction>> GetAllByFilterAsync(TransactionFilter transactionFilter, bool noTracking = false, CancellationToken cancellationToken = default)
   {
     var query = _filteredQueryProvider.Query<Transaction>().Include(x => x.TransactionGroup)
       .Where(x => (transactionFilter.TransactionGroupName == null || (x.TransactionGroup != null && x.TransactionGroup.Name == transactionFilter.TransactionGroupName))
@@ -60,23 +60,30 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     return await query.ToListAsync(cancellationToken);
   }
 
-  public new async Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+  public new async Task<Transaction?> GetByIdAsync(Guid id, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    return await _filteredQueryProvider.Query<Transaction>()
+    var query = _filteredQueryProvider.Query<Transaction>()
                           .Include(y => y.TransactionGroup)
-                          .FirstOrDefaultAsync(y => y.Id == id, cancellationToken);
-  }
+                          .Where(y => y.Id == id);
 
-  public async Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
-  {
-    await _dbContext.Transaction
-        .Where(g => g.User.Id == userId)
-        .ExecuteDeleteAsync(cancellationToken);
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.FirstOrDefaultAsync(cancellationToken);
   }
 
   public async Task<List<Transaction>?> CreateMultipleTransactionsAsync(List<Transaction> transactions, CancellationToken cancellationToken = default)
   {
     await _dbContext.BulkInsertAsync(transactions, cancellationToken: cancellationToken);
     return transactions;
+  }
+
+  public async Task DeleteAllByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+  {
+    var query = _filteredQueryProvider.Query<Transaction>().Where(x => x.User.Id == userId);
+
+    _dbContext.Transaction.RemoveRange(await query.ToListAsync(cancellationToken));
   }
 }

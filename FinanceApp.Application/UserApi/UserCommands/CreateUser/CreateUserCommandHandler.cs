@@ -12,26 +12,27 @@ namespace FinanceApp.Application.UserApi.UserCommands.CreateUser;
 
 public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Result<GetUserDto>>
 {
+  private readonly ILogger<CreateUserCommandHandler> _logger;
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly ITransactionGroupRepository _transactionGroupRepository;
-  private readonly ILogger<CreateUserCommandHandler> _logger;
   private readonly ISmtpEmailSender _smtpEmailSender;
 
-  public CreateUserCommandHandler(IMapper mapper,
-                                  IUnitOfWork unitOfWork,
-                                  IRepository<Domain.Entities.User> userRepository,
-                                  ITransactionGroupRepository transactionGroupRepository,
-                                  ILogger<CreateUserCommandHandler> logger,
-                                  ISmtpEmailSender smtpEmailSender)
+  public CreateUserCommandHandler(
+    ILogger<CreateUserCommandHandler> logger,
+    IMapper mapper,
+    IRepository<Domain.Entities.User> userRepository,
+    ITransactionGroupRepository transactionGroupRepository,
+    IUnitOfWork unitOfWork,
+    ISmtpEmailSender smtpEmailSender)
   {
-    _mapper = mapper;
-    _unitOfWork = unitOfWork;
-    _userRepository = userRepository;
     _logger = logger;
-    _smtpEmailSender = smtpEmailSender;
+    _mapper = mapper;
+    _userRepository = userRepository;
     _transactionGroupRepository = transactionGroupRepository;
+    _unitOfWork = unitOfWork;
+    _smtpEmailSender = smtpEmailSender;
   }
 
   /// <inheritdoc />
@@ -39,7 +40,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
   {
     var criteriaForUserName = UserQueryCriteria.FindUserName(request.CreateUserDto);
 
-    var usersWithSameName = await _userRepository.GetQueryAsync(criteriaForUserName, cancellationToken: cancellationToken);
+    var usersWithSameName = await _userRepository.GetQueryAsync(criteriaForUserName, noTracking: true, cancellationToken: cancellationToken);
 
     if (usersWithSameName.Count > 0)
     {
@@ -49,7 +50,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
 
     var criteriaForEmail = UserQueryCriteria.FindUserEmail(request.CreateUserDto);
 
-    var userWithSameEmail = await _userRepository.GetQueryAsync(criteriaForEmail, cancellationToken: cancellationToken);
+    var userWithSameEmail = await _userRepository.GetQueryAsync(criteriaForEmail, noTracking: true, cancellationToken: cancellationToken);
 
     if (userWithSameEmail.Count > 0)
     {
@@ -71,9 +72,11 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+    _logger.LogDebug("User created with ID:{Id}", user.Id);
+
     await _smtpEmailSender.SendEmailConfirmationAsync(user);
 
-    _logger.LogInformation("User created with ID:{Id}", user.Id);
+    _logger.LogInformation("Email confirmation sent to user with ID:{Id}", user.Id);
 
     return Result.Success(_mapper.Map<GetUserDto>(user));
   }

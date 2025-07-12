@@ -33,6 +33,9 @@ public class ApplicationError
   public const string USERNAME_ALREADY_EXISTS_MESSAGE = "User with this name already exists.";
   public const string USERNAME_ALREADY_EXISTS_CODE = "USERNAME_ALREADY_EXISTS";
 
+  public const string USERNAME_NOT_LOGGED_IN_MESSAGE = "User is not logged in.";
+  public const string USERNAME_NOT_LOGGED_IN_CODE = "USERNAME_NOT_LOGGED_IN";
+
   public const string EMAIL_NOT_YET_CONFIRMED_MESSAGE = "Email address not yet confirmed.";
   public const string EMAIL_NOT_YET_CONFIRMED_CODE = "EMAIL_NOT_YET_CONFIRMED";
 
@@ -44,6 +47,9 @@ public class ApplicationError
 
   public const string TRANSACTION_GROUP_NOT_EXISTS_MESSAGE = "Transaction group does not exists.";
   public const string TRANSACTION_GROUP_NOT_EXISTS_CODE = "TRANSACTION_GROUP_NOT_EXISTS";
+
+  public const string TRANSACTION_ID_REQUIRED_MESSAGE = "Transaction ID is required.";
+  public const string TRANSACTION_ID_REQUIRED_CODE = "TRANSACTION_ID_REQUIRED";
 
   public const string DBUPDATEERROR_MESSAGE = "Error while saving changes.";
   public const string DBUPDATEERROR_CODE = "DB_UPDATE_ERROR";
@@ -69,6 +75,9 @@ public class ApplicationError
   public const string INVALID_FILE_TYPE_ERROR_MESSAGE = "Invalid file type.";
   public const string INVALID_FILE_TYPE_ERROR_CODE = "INVALID_FILE_TYPE";
 
+  public const string TOKEN_NOT_PROVIDED_MESSAGE = "Token not provided.";
+  public const string ID_NOT_PROVIDED_MESSAGE = "User ID not provided.";
+
   /// <summary>
   /// Machine readable error code
   /// </summary>
@@ -89,10 +98,7 @@ public class ApplicationError
   /// </summary>
   public Dictionary<string, object> Details { get; set; } = new();
 
-  /// <summary>
-  /// Error for when writing to DB fails
-  /// </summary>
-  public static ApplicationError DbUpdateError => new(DBUPDATEERROR_MESSAGE, DBUPDATEERROR_CODE);
+  public ApplicationError() { }
 
   /// <summary>
   /// Constructor
@@ -109,11 +115,11 @@ public class ApplicationError
     Path = path;
   }
 
-  public ApplicationError() { }
-
   /// <summary>
   /// Default error for when we receive an exception
+  /// <param name="exceptionMessage"></param>
   /// </summary>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError DefaultError(string exceptionMessage)
   {
     return new ApplicationError(DEFAULT_MESSAGE, DEFAULT_CODE, new Dictionary<string, object>
@@ -123,9 +129,20 @@ public class ApplicationError
   }
 
   /// <summary>
+  /// Error for when writing to DB fails
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError DbUpdateError()
+  {
+    return new ApplicationError(DBUPDATEERROR_MESSAGE, DBUPDATEERROR_CODE);
+  }
+
+  /// <summary>
   /// Error for when an entity is not found
   /// </summary>
-  /// <returns></returns>
+  /// <param name="entityId"></param>
+  /// <param name="entityType"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError EntityNotFoundError(string entityId = "", string entityType = "")
   {
     return new ApplicationError(ENTITYNOTFOUND_MESSAGE, ENTITYNOTFOUND_CODE, new Dictionary<string, object>
@@ -138,7 +155,9 @@ public class ApplicationError
   /// <summary>
   /// Error for when a user is not found
   /// </summary>
-  /// <returns></returns>
+  /// <param name="userId"></param>
+  /// <param name="userName"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError UserNotFoundError(string userId = "", string userName = "")
   {
     return new ApplicationError(USERNOTFOUND_MESSAGE, USERNOTFOUND_CODE, new Dictionary<string, object>
@@ -149,9 +168,19 @@ public class ApplicationError
   }
 
   /// <summary>
+  /// User not logged in error
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError UserNotLoggedInError()
+  {
+    return new ApplicationError(USERNAME_NOT_LOGGED_IN_MESSAGE, USERNAME_NOT_LOGGED_IN_CODE);
+  }
+
+  /// <summary>
   /// Error for when password is invalid
   /// </summary>
-  /// <returns></returns>
+  /// <param name="userName"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError InvalidPasswordError(string userName = "")
   {
     return new ApplicationError(INVALID_PASSWORD_MESSAGE, INVALID_PASSWORD_CODE, new Dictionary<string, object>
@@ -163,29 +192,17 @@ public class ApplicationError
   /// <summary>
   /// Error during email confirm validation
   /// </summary>
-  /// <returns></returns>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError InvalidTokenError()
   {
     return new ApplicationError(INVALID_TOKEN_MESSAGE, INVALID_TOKEN_CODE);
   }
 
   /// <summary>
-  /// Error for when exchange rate response is invalid
-  /// </summary>
-  /// <returns></returns>
-  public static ApplicationError InvalidExchangeRateResponseError()
-  {
-    return new ApplicationError(INVALID_EXCHANGE_RATE_RESPONSE_MESSAGE, INVALID_EXCHANGE_RATE_RESPONSE_CODE, new Dictionary<string, object>
-    {
-      { "message", "The exchange rate response is invalid or cannot be parsed." }
-    });
-  }
-
-  /// <summary>
   /// Error when a null value was inserted into a nun-nullable field
   /// </summary>
   /// <param name="fieldName"></param>
-  /// <returns></returns>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError DbNullError(string fieldName)
   {
     return new ApplicationError(DBNULLERROR_MESSAGE, DBNULLERROR_CODE, new Dictionary<string, object>
@@ -197,7 +214,8 @@ public class ApplicationError
   /// <summary>
   /// Error for when name already exists
   /// </summary>
-  /// <returns></returns>
+  /// <param name="name"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError NameAlreadyExistsError(string name)
   {
     return new ApplicationError(NAME_ALREADY_EXISTS_MESSAGE, NAME_ALREADY_EXISTS_CODE, new Dictionary<string, object>
@@ -209,7 +227,8 @@ public class ApplicationError
   /// <summary>
   /// Error for when user name already exists
   /// </summary>
-  /// <returns></returns>
+  /// <param name="name"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError UserNameAlreadyExistsError(string name)
   {
     return new ApplicationError(USERNAME_ALREADY_EXISTS_MESSAGE, USERNAME_ALREADY_EXISTS_CODE, new Dictionary<string, object>
@@ -221,7 +240,8 @@ public class ApplicationError
   /// <summary>
   /// Email address not yet confirmed error
   /// </summary>
-  /// <returns></returns>
+  /// <param name="email"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError EmailNotYetConfirmedError(string email)
   {
     return new ApplicationError(EMAIL_NOT_YET_CONFIRMED_MESSAGE, EMAIL_NOT_YET_CONFIRMED_CODE, new Dictionary<string, object>
@@ -233,7 +253,8 @@ public class ApplicationError
   /// <summary>
   /// Error for when user email already exists
   /// </summary>
-  /// <returns></returns>
+  /// <param name="email"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError UserEmailAlreadyExistsError(string email)
   {
     return new ApplicationError(USEREMAIL_ALREADY_EXISTS_MESSAGE, USEREMAIL_ALREADY_EXISTS_CODE, new Dictionary<string, object>
@@ -245,7 +266,8 @@ public class ApplicationError
   /// <summary>
   /// Email confirmation error
   /// </summary>
-  /// <returns></returns>
+  /// <param name="email"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError EmailConfirmationError(string email)
   {
     return new ApplicationError(USEREMAIL_CONFIRMATION_ERROR_MESSAGE, USEREMAIL_CONFIRMATION_ERROR_CODE, new Dictionary<string, object>
@@ -257,7 +279,8 @@ public class ApplicationError
   /// <summary>
   /// Error for when transaction group does not exists
   /// </summary>
-  /// <returns></returns>
+  /// <param name="groupId"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError TransactionGroupNotExists(string groupId)
   {
     return new ApplicationError(TRANSACTION_GROUP_NOT_EXISTS_MESSAGE, TRANSACTION_GROUP_NOT_EXISTS_CODE, new Dictionary<string, object>
@@ -269,7 +292,7 @@ public class ApplicationError
   /// <summary>
   /// Error when DB connection fails
   /// </summary>
-  /// <returns></returns>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError DbConnectionError()
   {
     return new ApplicationError(DBCONNERR_MESSAGE, DBCONNERR_CODE);
@@ -278,7 +301,8 @@ public class ApplicationError
   /// <summary>
   /// External call error
   /// </summary>
-  /// <returns></returns>
+  /// <param name="message"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError ExternalCallError(string message)
   {
     return new ApplicationError(EXT_CALL_MESSAGE, EXT_CALL_CODE, new Dictionary<string, object>
@@ -290,7 +314,8 @@ public class ApplicationError
   /// <summary>
   /// Error when Validation fails
   /// </summary>
-  /// <returns></returns>
+  /// <param name="validationFailures"></param>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError ValidationError(List<ValidationFailure> validationFailures)
   {
     // Catching null references.
@@ -312,7 +337,7 @@ public class ApplicationError
   /// <summary>
   /// Error for when file is empty
   /// </summary>
-  /// <returns></returns>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError FileEmptyError()
   {
     return new ApplicationError(FILE_EMPTY_ERROR_MESSAGE, FILE_EMPTY_ERROR_CODE);
@@ -322,7 +347,7 @@ public class ApplicationError
   /// Error for when file type is invalid
   /// </summary>
   /// <param name="fileType"></param>
-  /// <returns></returns>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError InvalidFileTypeError(string fileType)
   {
     return new ApplicationError(INVALID_FILE_TYPE_ERROR_MESSAGE, INVALID_FILE_TYPE_ERROR_CODE, new Dictionary<string, object>
@@ -334,7 +359,7 @@ public class ApplicationError
   /// <summary>
   /// Error for when exchange rates are missing
   /// </summary>
-  /// <returns></returns>
+  /// <returns>ApplicationError</returns>
   public static ApplicationError MissingExchangeRatesError()
   {
     return new ApplicationError(MISSING_EXCHANGE_RATES_MESSAGE, MISSING_EXCHANGE_RATES_CODE);

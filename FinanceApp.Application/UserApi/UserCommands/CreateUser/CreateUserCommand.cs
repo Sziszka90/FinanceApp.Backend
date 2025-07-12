@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.UserApi.UserCommands.CreateUser;
 
-public record CreateUserCommand(CreateUserDto CreateUserDto) : ICommand<Result<GetUserDto>>;
+public record CreateUserCommand(CreateUserDto CreateUserDto, CancellationToken CancellationToken) : ICommand<Result<GetUserDto>>;

@@ -96,17 +96,10 @@ public interface IRepository<T> where T : BaseEntity
   Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
   /// <summary>
-  /// Removes an entity from the repository by its key identifier.
-  /// </summary>
-  /// <param name="id">The identifier of the entity to delete</param>
-  /// <param name="cancellationToken">Cancellation token</param>
-  /// <returns></returns>
-  Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-
-  /// <summary>
   /// Removes an entity from the repository.
   /// </summary>
-  /// <param name="entity">The entity to delete.</param>
+  /// <param name="entity">The entity to delete</param>
+  /// <param name="cancellationToken">Cancellation token</param>
   /// <returns></returns>
-  Task DeleteAsync(T entity);
+  Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 }

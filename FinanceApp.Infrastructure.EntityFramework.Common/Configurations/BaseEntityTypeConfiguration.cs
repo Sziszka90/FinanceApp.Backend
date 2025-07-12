@@ -9,7 +9,6 @@ public abstract class BaseEntityTypeConfiguration<TDerived> : IEntityTypeConfigu
    public void Configure(EntityTypeBuilder<TDerived> builder)
   {
     builder.HasKey(e => e.Id);
-
     ConfigureSpecificProperties(builder);
   }
 

@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.UserApi.UserQueries.GetActiveUser;
 
-public record GetActiveUserQuery : IQuery<Result<GetUserDto>>;
+public record GetActiveUserQuery(CancellationToken CancellationToken) : IQuery<Result<GetUserDto>>;

@@ -3,4 +3,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.UserApi.UserCommands.ResetPassword;
 
-public record ResetPasswordCommand(string token) : ICommand<Result>;
+public record ResetPasswordCommand(string Token, CancellationToken CancellationToken) : ICommand<Result>;

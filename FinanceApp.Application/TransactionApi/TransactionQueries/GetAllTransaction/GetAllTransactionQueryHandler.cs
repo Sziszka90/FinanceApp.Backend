@@ -4,6 +4,7 @@ using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Models;
+using FinanceApp.Domain.Entities;
 using FinanceApp.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -12,22 +13,28 @@ namespace FinanceApp.Application.TransactionApi.TransactionQueries.GetAllTransac
 
 public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuery, Result<List<GetTransactionDto>>>
 {
+  private readonly ILogger<GetAllTransactionQueryHandler> _logger;
   private readonly IMapper _mapper;
   private readonly ITransactionRepository _transactionRepository;
   private readonly IExchangeRateRepository _exchangeRateRepository;
-  private readonly IHttpContextAccessor _httpContextAccessor;
-  private readonly ILogger<GetAllTransactionQueryHandler> _logger;
-
   private readonly IUserRepository _userRepository;
+  private readonly IHttpContextAccessor _httpContextAccessor;
 
-  public GetAllTransactionQueryHandler(IMapper mapper, ITransactionRepository transactionRepository, IExchangeRateRepository exchangeRateRepository, IHttpContextAccessor httpContextAccessor, IUserRepository userRepository, ILogger<GetAllTransactionQueryHandler> logger)
+  public GetAllTransactionQueryHandler(
+    ILogger<GetAllTransactionQueryHandler> logger,
+    IMapper mapper,
+    ITransactionRepository transactionRepository,
+    IExchangeRateRepository exchangeRateRepository,
+    IUserRepository userRepository,
+    IHttpContextAccessor httpContextAccessor
+  )
   {
+    _logger = logger;
     _mapper = mapper;
     _transactionRepository = transactionRepository;
     _exchangeRateRepository = exchangeRateRepository;
-    _httpContextAccessor = httpContextAccessor;
-    _logger = logger;
     _userRepository = userRepository;
+    _httpContextAccessor = httpContextAccessor;
   }
 
   public async Task<Result<List<GetTransactionDto>>> Handle(GetAllTransactionQuery request, CancellationToken cancellationToken)
@@ -36,23 +43,32 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
 
     var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-    var user = await _userRepository.GetUserByEmailAsync(userEmail!);
+    var user = await _userRepository.GetUserByEmailAsync(userEmail!, noTracking: true, cancellationToken: cancellationToken);
 
-    if (user == null)
+    if (user is null)
     {
       _logger.LogWarning("User not found.");
       return Result.Failure<List<GetTransactionDto>>(ApplicationError.UserNotFoundError());
     }
 
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(cancellationToken);
+    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
 
-    if (exchangeRates == null || exchangeRates.Count == 0)
+    if (exchangeRates is null || exchangeRates.Count == 0)
     {
       _logger.LogWarning("No exchange rates found.");
       return Result.Failure<List<GetTransactionDto>>(ApplicationError.MissingExchangeRatesError());
     }
 
-    var result = await _transactionRepository.GetAllAsync(request.TransactionFilter, false, cancellationToken);
+    List<Transaction> result;
+
+    if (request.TransactionFilter is null)
+    {
+      result = await _transactionRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
+    }
+    else
+    {
+      result = await _transactionRepository.GetAllByFilterAsync(request.TransactionFilter, noTracking: true, cancellationToken: cancellationToken);
+    }
 
     foreach (var transaction in result)
     {
@@ -64,6 +80,7 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
       }
     }
 
+    _logger.LogDebug("Retrieved {Count} transactions for user {UserEmail}", result.Count, userEmail);
     return Result.Success(_mapper.Map<List<GetTransactionDto>>(result));
   }
 

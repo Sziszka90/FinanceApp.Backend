@@ -1,12 +1,13 @@
+using FinanceApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Common.Configurations;
 
-public class UserConfiguration : BaseEntityTypeConfiguration<Domain.Entities.User>
+public class UserConfiguration : BaseEntityTypeConfiguration<User>
 {
   /// <inheritdoc />
-  protected override void ConfigureSpecificProperties(EntityTypeBuilder<Domain.Entities.User> builder)
+  protected override void ConfigureSpecificProperties(EntityTypeBuilder<User> builder)
   {
     builder.ToTable(nameof(User));
   }

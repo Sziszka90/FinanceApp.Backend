@@ -14,12 +14,15 @@ public class FilteredQueryProvider : IFilteredQueryProvider
   private readonly FinanceAppDbContext _dbContext;
   private readonly IHttpContextAccessor? _httpContextAccessor;
 
-  public FilteredQueryProvider(FinanceAppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+  public FilteredQueryProvider(
+    FinanceAppDbContext dbContext,
+    IHttpContextAccessor httpContextAccessor)
   {
     _dbContext = dbContext;
     _httpContextAccessor = httpContextAccessor;
   }
 
+  /// <inheritdoc />
   public IQueryable<T> Query<T>() where T : BaseEntity
   {
     var userEmail = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
@@ -38,17 +41,11 @@ public class FilteredQueryProvider : IFilteredQueryProvider
   private Expression<Func<T, bool>> WhereUserEmail<T>(string userEmail)
   {
     var parameter = Expression.Parameter(typeof(T), "e");
-
     var userProperty = Expression.Property(parameter, "User");
-
     var userEmailProperty = Expression.Property(userProperty, "Email");
-
     var userEmailConstant = Expression.Constant(userEmail);
-
     var comparison = Expression.Equal(userEmailProperty, userEmailConstant);
-
     var predicate = Expression.Lambda<Func<T, bool>>(comparison, parameter);
-
     return predicate;
   }
 

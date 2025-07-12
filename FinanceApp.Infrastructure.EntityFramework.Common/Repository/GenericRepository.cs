@@ -19,7 +19,6 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   {
     _filteredQueryProvider = filteredQueryProvider;
     _dbContext = dbContext;
-
   }
 
   /// <inheritdoc />
@@ -53,7 +52,7 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   }
 
   /// <inheritdoc />
-  public async Task<List<T>> GetQueryAsync(QueryCriteria<T> criteria, bool noTracking = true, CancellationToken cancellationToken = default)
+  public async Task<List<T>> GetQueryAsync(QueryCriteria<T> criteria, bool noTracking = false, CancellationToken cancellationToken = default)
   {
     var query = _filteredQueryProvider.Query<T>()
                          .AsQueryable();
@@ -91,38 +90,68 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   }
 
   /// <inheritdoc />
-  public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+  public async Task<T?> GetByIdAsync(Guid id, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    return await _filteredQueryProvider.Query<T>()
-                          .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    var query = _filteredQueryProvider.Query<T>();
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
   }
 
   /// <inheritdoc />
-  public async Task<T> GetSingleAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+  public async Task<T> GetSingleAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    return await _filteredQueryProvider.Query<T>()
-                          .SingleAsync(predicate, cancellationToken);
+    var query = _filteredQueryProvider.Query<T>();
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.SingleAsync(predicate, cancellationToken);
   }
 
   /// <inheritdoc />
-  public async Task<T?> GetSingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+  public async Task<T?> GetSingleOrDefaultAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    return await _filteredQueryProvider.Query<T>()
-                          .SingleOrDefaultAsync(predicate, cancellationToken);
+    var query = _filteredQueryProvider.Query<T>();
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.SingleOrDefaultAsync(predicate, cancellationToken);
   }
 
   /// <inheritdoc />
-  public async Task<T> GetFirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+  public async Task<T> GetFirstAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    return await _filteredQueryProvider.Query<T>()
-                          .FirstAsync(predicate, cancellationToken);
+    var query = _filteredQueryProvider.Query<T>();
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.FirstAsync(predicate, cancellationToken);
   }
 
   /// <inheritdoc />
-  public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+  public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    return await _filteredQueryProvider.Query<T>()
-                          .FirstOrDefaultAsync(predicate, cancellationToken);
+    var query = _filteredQueryProvider.Query<T>();
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.FirstOrDefaultAsync(predicate, cancellationToken);
   }
 
   /// <inheritdoc />
@@ -136,7 +165,7 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   /// <inheritdoc />
   public virtual async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
   {
-    var existingEntity = await GetByIdAsync(entity.Id, cancellationToken) ?? throw new KeyNotFoundException($"The entity of type '{typeof(T).Name}' with id '{entity.Id}' was not found");
+    var existingEntity = await GetByIdAsync(entity.Id, cancellationToken: cancellationToken) ?? throw new KeyNotFoundException($"The entity of type '{typeof(T).Name}' with id '{entity.Id}' was not found");
 
     entity.Created = existingEntity.Created;
 
@@ -147,15 +176,7 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   }
 
   /// <inheritdoc />
-  public virtual async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
-  {
-    var existingEntity = await GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException($"The entity of type '{typeof(T).Name}' with id '{id}' was not found");
-    ;
-    await DeleteAsync(existingEntity);
-  }
-
-  /// <inheritdoc />
-  public virtual Task DeleteAsync(T entity)
+  public virtual Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
   {
     _dbContext.Set<T>()
              .Remove(entity);

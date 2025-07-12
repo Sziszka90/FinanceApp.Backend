@@ -8,26 +8,35 @@ namespace FinanceApp.Application.UserApi.UserCommands.DeleteUser;
 
 public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Result>
 {
-  private readonly IMapper _mapper;
-  private readonly IUnitOfWork _unitOfWork;
-  private readonly IRepository<Domain.Entities.User> _userRepository;
-  private readonly ILogger<DeleteUserCommandHandler> _logger;
 
-  public DeleteUserCommandHandler(IMapper mapper,
-                                  IUnitOfWork unitOfWork,
-                                  IRepository<Domain.Entities.User> userRepository,
-                                  ILogger<DeleteUserCommandHandler> logger)
+  private readonly ILogger<DeleteUserCommandHandler> _logger;
+  private readonly IMapper _mapper;
+  private readonly IRepository<Domain.Entities.User> _userRepository;
+  private readonly IUnitOfWork _unitOfWork;
+  private readonly ITransactionRepository _transactionRepository;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
+
+  public DeleteUserCommandHandler(
+    ILogger<DeleteUserCommandHandler> logger,
+    IRepository<Domain.Entities.User> userRepository,
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    ITransactionRepository transactionRepository,
+    ITransactionGroupRepository transactionGroupRepository
+  )
   {
-    _mapper = mapper;
-    _unitOfWork = unitOfWork;
-    _userRepository = userRepository;
     _logger = logger;
+    _mapper = mapper;
+    _userRepository = userRepository;
+    _unitOfWork = unitOfWork;
+    _transactionRepository = transactionRepository;
+    _transactionGroupRepository = transactionGroupRepository;
   }
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
   {
-    var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
+    var user = await _userRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
 
     if (user is null)
     {
@@ -35,11 +44,15 @@ public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Resul
       return Result.Failure(ApplicationError.UserNotFoundError(request.Id.ToString()));
     }
 
-    await _userRepository.DeleteAsync(request.Id, cancellationToken);
+    await _transactionRepository.DeleteAllByUserIdAsync(user.Id, cancellationToken);
+    await _transactionGroupRepository.DeleteAllByUserIdAsync(user.Id, cancellationToken);
+
+    await _userRepository.DeleteAsync(user, cancellationToken);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-    _logger.LogInformation("User deleted with ID:{Id}", user.Id);
+    _logger.LogDebug("User deleted with ID:{Id}", user.Id);
+    _logger.LogDebug("User related transactions and groups deleted for user with ID:{Id}", user.Id);
 
     return Result.Success();
   }

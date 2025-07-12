@@ -4,11 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Common.Configurations;
 
-public class ExchangeRateConfiguration : IEntityTypeConfiguration<ExchangeRate>
+public class ExchangeRateConfiguration : BaseEntityTypeConfiguration<ExchangeRate>
 {
   /// <inheritdoc />
-  public void Configure(EntityTypeBuilder<ExchangeRate> builder)
+  protected override void ConfigureSpecificProperties(EntityTypeBuilder<ExchangeRate> builder)
   {
+    builder.ToTable(nameof(ExchangeRate));
     builder.HasKey(x => x.Id);
     builder.Property(x => x.BaseCurrency).IsRequired().HasMaxLength(3);
     builder.Property(x => x.TargetCurrency).IsRequired().HasMaxLength(3);

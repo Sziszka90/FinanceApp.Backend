@@ -3,4 +3,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.UserApi.UserCommands.ConfirmUserEmail;
 
-public record ConfirmUserEmailCommand(Guid Id, string token) : ICommand<Result>;
+public record ConfirmUserEmailCommand(Guid Id, string Token, CancellationToken CancellationToken) : ICommand<Result>;

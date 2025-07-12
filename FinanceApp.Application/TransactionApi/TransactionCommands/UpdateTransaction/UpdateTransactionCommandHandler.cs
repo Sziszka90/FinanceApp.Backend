@@ -4,6 +4,7 @@ using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
+using FinanceApp.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.TransactionApi.TransactionCommands.UpdateTransaction;
@@ -12,15 +13,16 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
 {
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
-  private readonly IRepository<Domain.Entities.Transaction> _transactionRepository;
-  private readonly IRepository<Domain.Entities.TransactionGroup> _transactionGroupRepository;
+  private readonly IRepository<Transaction> _transactionRepository;
+  private readonly IRepository<TransactionGroup> _transactionGroupRepository;
   private readonly ILogger<UpdateTransactionCommandHandler> _logger;
 
-  public UpdateTransactionCommandHandler(IMapper mapper,
-                                     IUnitOfWork unitOfWork,
-                                     IRepository<Domain.Entities.Transaction> transactionRepository,
-                                     IRepository<Domain.Entities.TransactionGroup> transactionGroupRepository,
-                                     ILogger<UpdateTransactionCommandHandler> logger)
+  public UpdateTransactionCommandHandler(
+    IMapper mapper,
+    IUnitOfWork unitOfWork,
+    IRepository<Transaction> transactionRepository,
+    IRepository<TransactionGroup> transactionGroupRepository,
+    ILogger<UpdateTransactionCommandHandler> logger)
   {
     _mapper = mapper;
     _unitOfWork = unitOfWork;
@@ -32,11 +34,11 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
   /// <inheritdoc />
   public async Task<Result<GetTransactionDto>> Handle(UpdateTransactionCommand request, CancellationToken cancellationToken)
   {
-    Domain.Entities.TransactionGroup? transactionGroup = null;
+    TransactionGroup? transactionGroup = null;
 
     if (request.UpdateTransactionDto.TransactionGroupId is not null)
     {
-      transactionGroup = await _transactionGroupRepository.GetByIdAsync((Guid)request.UpdateTransactionDto.TransactionGroupId, cancellationToken);
+      transactionGroup = await _transactionGroupRepository.GetByIdAsync((Guid)request.UpdateTransactionDto.TransactionGroupId, noTracking: true, cancellationToken: cancellationToken);
 
       if (transactionGroup is null)
       {
@@ -45,15 +47,7 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
       }
     }
 
-    var transactionWithSameName = await _transactionRepository.GetQueryAsync(TransactionQueryCriteria.FindDuplicatedNameExludingId(request.UpdateTransactionDto), cancellationToken: cancellationToken);
-
-    if (transactionWithSameName.Count > 0)
-    {
-      _logger.LogError("Transaction already exists with Name:{Name}", request.UpdateTransactionDto.Name);
-      return Result.Failure<GetTransactionDto>(ApplicationError.NameAlreadyExistsError(request.UpdateTransactionDto.Name));
-    }
-
-    var transaction = await _transactionRepository.GetByIdAsync(request.Id, cancellationToken);
+    var transaction = await _transactionRepository.GetByIdAsync(request.Id, noTracking: false, cancellationToken: cancellationToken);
 
     if (transaction is null)
     {
@@ -70,11 +64,9 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
       transactionGroup
     );
 
-    await _transactionRepository.UpdateAsync(transaction, cancellationToken);
-
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-    _logger.LogInformation("Transaction updated with ID:{Id}", request.Id);
+    _logger.LogDebug("Transaction updated with ID:{Id}", request.Id);
 
     return Result.Success(_mapper.Map<GetTransactionDto>(transaction));
   }

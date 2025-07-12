@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.UserApi.UserQueries.GetUserById;
 
-public record GetUserByIdQuery(Guid Id) : IQuery<Result<GetUserDto>>;
+public record GetUserByIdQuery(Guid Id, CancellationToken CancellationToken) : IQuery<Result<GetUserDto>>;

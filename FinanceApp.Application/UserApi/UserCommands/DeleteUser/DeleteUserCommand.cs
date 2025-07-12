@@ -3,4 +3,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.UserApi.UserCommands.DeleteUser;
 
-public record DeleteUserCommand(Guid Id) : ICommand<Result>;
+public record DeleteUserCommand(Guid Id, CancellationToken CancellationToken) : ICommand<Result>;

@@ -10,26 +10,28 @@ namespace FinanceApp.Application.TransactionGroupApi.TransactionGroupCommands.Up
 
 public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransactionGroupCommand, Result<GetTransactionGroupDto>>
 {
-  private readonly IMapper _mapper;
-  private readonly IUnitOfWork _unitOfWork;
-  private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly ILogger<UpdateTransactionGroupCommandHandler> _logger;
+  private readonly IMapper _mapper;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
+  private readonly IUnitOfWork _unitOfWork;
 
-  public UpdateTransactionGroupCommandHandler(IMapper mapper,
-                                         IUnitOfWork unitOfWork,
-                                         ITransactionGroupRepository transactionGroupRepository,
-                                         ILogger<UpdateTransactionGroupCommandHandler> logger)
+  public UpdateTransactionGroupCommandHandler(
+    ILogger<UpdateTransactionGroupCommandHandler> logger,
+    IMapper mapper,
+    IUnitOfWork unitOfWork,
+    ITransactionGroupRepository transactionGroupRepository
+  )
   {
-    _mapper = mapper;
-    _unitOfWork = unitOfWork;
-    _transactionGroupRepository = transactionGroupRepository;
     _logger = logger;
+    _mapper = mapper;
+    _transactionGroupRepository = transactionGroupRepository;
+    _unitOfWork = unitOfWork;
   }
 
   /// <inheritdoc />
   public async Task<Result<GetTransactionGroupDto>> Handle(UpdateTransactionGroupCommand request, CancellationToken cancellationToken)
   {
-    var transactionGroup = await _transactionGroupRepository.GetByIdAsync(request.Id, cancellationToken);
+    var transactionGroup = await _transactionGroupRepository.GetByIdAsync(request.Id, noTracking: false, cancellationToken);
 
     if (transactionGroup is null)
     {
@@ -37,7 +39,10 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
       return Result.Failure<GetTransactionGroupDto>(ApplicationError.EntityNotFoundError());
     }
 
-    var transactionGroupWithSameName = await _transactionGroupRepository.GetQueryAsync(TransactionQueryCriteria.FindDuplicatedNameExludingId(request.UpdateTransactionGroupDto), cancellationToken: cancellationToken);
+    var transactionGroupWithSameName = await _transactionGroupRepository.GetQueryAsync(
+      TransactionQueryCriteria.FindDuplicatedNameExludingId(request.UpdateTransactionGroupDto),
+      noTracking: true,
+      cancellationToken: cancellationToken);
 
     if (transactionGroupWithSameName.Count > 0)
     {
@@ -51,8 +56,8 @@ public class UpdateTransactionGroupCommandHandler : ICommandHandler<UpdateTransa
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-    _logger.LogInformation("Transaction Group updated with ID:{Id}", request.Id);
+    _logger.LogDebug("Transaction Group updated with ID:{Id}", request.Id);
 
-    return Result.Success(_mapper.Map<GetTransactionGroupDto>(await _transactionGroupRepository.UpdateAsync(transactionGroup, cancellationToken)));
+    return Result.Success(_mapper.Map<GetTransactionGroupDto>(transactionGroup));
   }
 }

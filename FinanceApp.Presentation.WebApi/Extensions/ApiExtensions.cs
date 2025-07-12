@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
 using FinanceApp.Application.Models;
+using FinanceApp.Application.Models.Options;
 using FinanceApp.Presentation.WebApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
