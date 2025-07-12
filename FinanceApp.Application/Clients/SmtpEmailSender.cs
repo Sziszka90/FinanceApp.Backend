@@ -4,19 +4,25 @@ using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Entities;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 public class SmtpEmailSender : ISmtpEmailSender
 {
-  private readonly SmtpSettings _smtpSettings;
+  private readonly ILogger<ISmtpEmailSender> _logger;
   private readonly IJwtService _jwtService;
+  private readonly SmtpSettings _smtpSettings;
 
-  public SmtpEmailSender(IOptions<SmtpSettings> smtpOptions, IJwtService jwtService)
+  public SmtpEmailSender(
+    ILogger<ISmtpEmailSender> logger,
+    IJwtService jwtService,
+    IOptions<SmtpSettings> smtpOptions)
   {
+    _logger = logger;
     _jwtService = jwtService;
     _smtpSettings = smtpOptions.Value;
   }
-  public async Task SendEmailConfirmationAsync(User user)
+  public async Task<Result<bool>> SendEmailConfirmationAsync(User user)
   {
     using var client = new SmtpClient(_smtpSettings.SmtpHost, _smtpSettings.SmtpPort)
     {
@@ -36,7 +42,6 @@ public class SmtpEmailSender : ISmtpEmailSender
     var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients", "EmailConfirmationTemplate.html");
     string template = await File.ReadAllTextAsync(templatePath);
 
-    // Replace placeholders in the template
     string body = template
       .Replace("@Model.UserName", user.UserName)
       .Replace("@Model.ConfirmationLink", model.ConfirmationLink)
@@ -52,10 +57,20 @@ public class SmtpEmailSender : ISmtpEmailSender
 
     mailMessage.To.Add(user.Email);
 
-    await client.SendMailAsync(mailMessage);
+    try
+    {
+      await client.SendMailAsync(mailMessage);
+      _logger.LogInformation("Email confirmation sent to {Email}", user.Email);
+      return Result.Success(true);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Error occurred while sending email confirmation to {Email}", user.Email);
+      return Result.Failure<bool>(ApplicationError.ExternalCallError("Email confirmation failed."));
+    }
   }
 
-  public async Task SendForgotPasswordAsync(string email)
+  public async Task<Result<bool>> SendForgotPasswordAsync(string email)
   {
     using var client = new SmtpClient(_smtpSettings.SmtpHost, _smtpSettings.SmtpPort)
     {
@@ -89,6 +104,17 @@ public class SmtpEmailSender : ISmtpEmailSender
 
     mailMessage.To.Add(email);
 
-    await client.SendMailAsync(mailMessage);
+    try
+    {
+      await client.SendMailAsync(mailMessage);
+      _logger.LogInformation("Password reset email sent to {Email}", email);
+      return Result.Success(true);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Error occurred while sending password reset email to {Email}", email);
+      return Result.Failure<bool>(ApplicationError.ExternalCallError("Password reset email sending failed."));
+    }
+
   }
 }

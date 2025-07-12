@@ -6,11 +6,11 @@ namespace FinanceApp.Application.Abstraction.Clients;
 public interface ILLMClient
 {
   /// <summary>
-  /// Creates a transaction group based on the provided prompt.
+  /// Matches transaction names with existing groups.
   /// </summary>
-  /// <param name="prompt"></param>
-  /// <param name="user"></param>
+  /// <param name="transactionNames"></param>
   /// <param name="transactionGroups"></param>
-  /// <returns>Result<List<TransactionGroup>></returns>
+  /// <param name="user"></param>
+  /// <returns>Matched Dictionary</returns>
   public Task<Result<List<Dictionary<string, string>>>> MatchTransactionGroup(List<string> transactionNames, List<string> existingGroups, User user);
 }

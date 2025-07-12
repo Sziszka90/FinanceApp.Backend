@@ -1,4 +1,4 @@
-using System.Text.Json;
+using FinanceApp.Application.Clients.HttpClients;
 using FinanceApp.Application.Dtos.ExchangeRateDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Entities;
@@ -8,49 +8,28 @@ using Microsoft.Extensions.Options;
 
 namespace FinanceApp.Application.Abstraction.Clients;
 
-public class ExchangeRateClient : IExchangeRateClient
+public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchangeRateClient
 {
-  private readonly ILogger<IExchangeRateClient> _logger;
-  private readonly HttpClient _httpClient;
   private readonly ExchangeRateSettings _exchangeRateSettings;
 
   public ExchangeRateClient(
     ILogger<IExchangeRateClient> logger,
     HttpClient httpClient,
-    IOptions<ExchangeRateSettings> exchangeRateOptions)
+    IOptions<ExchangeRateSettings> exchangeRateOptions) : base(logger, httpClient)
   {
-    _logger = logger;
-    _httpClient = httpClient;
     _exchangeRateSettings = exchangeRateOptions.Value;
   }
 
-  public async Task<Result<List<ExchangeRate>>> GetExchangeRatesAsync(CancellationToken cancellationToken = default)
+  public async Task<Result<List<ExchangeRate>>> GetExchangeRatesAsync()
   {
-    var response = await _httpClient.GetAsync(_exchangeRateSettings.ApiEndpoint + _exchangeRateSettings.AppId, cancellationToken);
+    var response = await GetAsync<ExchangeRateResponseDto>(_exchangeRateSettings.ApiEndpoint + _exchangeRateSettings.AppId);
 
-    if (!response.IsSuccessStatusCode)
+    if (!response.IsSuccess)
     {
-      _logger.LogError("Failed to fetch exchange rates from external service. Status code: {StatusCode}", response.StatusCode);
-      return Result.Failure<List<ExchangeRate>>(ApplicationError.ExternalCallError("Exchange rate service call failed."));
+      return Result.Failure<List<ExchangeRate>>(response.ApplicationError!);
     }
 
-    var options = new JsonSerializerOptions
-    {
-      PropertyNameCaseInsensitive = true
-    };
-
-    var content = await response.Content.ReadAsStringAsync();
-    var exchangeRateData = JsonSerializer.Deserialize<ExchangeRateResponseDto>(content, options);
-
-    _logger.LogInformation("Exchange rate data fetched successfully: {Content}", content);
-
-    if (exchangeRateData is null || exchangeRateData.Rates is null)
-    {
-      _logger.LogError("Invalid exchange rate response: {Content}", content);
-      return Result.Failure<List<ExchangeRate>>(ApplicationError.ExternalCallError("Invalid exchange rate response."));
-    }
-
-    var allRates = CalculateAllRatesFromUsdBase(exchangeRateData.Rates);
+    var allRates = CalculateAllRatesFromUsdBase(response.Data!.Rates);
 
     return Result.Success(allRates);
   }

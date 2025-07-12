@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using FinanceApp.Application.Abstraction.Clients;
-using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Models;
+using FinanceApp.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using OpenAI.Chat;
 
@@ -9,21 +9,23 @@ namespace FinanceApp.Application.Clients;
 
 public class LLMClient : ILLMClient
 {
-  private readonly ILogger<LLMClient> _logger;
+  private readonly ILogger<ILLMClient> _logger;
   private readonly ChatClient _client;
-  private readonly ITransactionGroupRepository _transactionGroupRepository;
+  private readonly JsonSerializerOptions _options = new()
+  {
+    PropertyNameCaseInsensitive = true,
+    WriteIndented = false
+  };
 
   public LLMClient(
-    ChatClient client,
-    ILogger<LLMClient> logger,
-    ITransactionGroupRepository transactionGroupRepository)
+    ILogger<ILLMClient> logger,
+    ChatClient client)
   {
-    _client = client;
     _logger = logger;
-    _transactionGroupRepository = transactionGroupRepository;
+    _client = client;
   }
 
-  public async Task<Result<List<Dictionary<string, string>>>> CreateTransactionGroup(List<string> transactionNames, List<string> existingGroups, Domain.Entities.User user, CancellationToken cancellationToken = default)
+  public async Task<Result<List<Dictionary<string, string>>>> MatchTransactionGroup(List<string> transactionNames, List<string> existingGroups, User user)
   {
     var prompt = """
       You are a financial assistant creating transaction groups for bank transactions.
@@ -39,23 +41,25 @@ public class LLMClient : ILLMClient
       """ +
       $"Return transaction groups for the following transactions: {string.Join("; ", transactionNames)}. They are divided by ;";
 
-    ChatCompletion completion = await _client.CompleteChatAsync(prompt);
-
-    var responseText = completion.Content[0].Text;
-
-    JsonSerializerOptions options = new()
+    try
     {
-      PropertyNameCaseInsensitive = true,
-      WriteIndented = false
-    };
+      ChatCompletion completion = await _client.CompleteChatAsync(prompt);
 
-    var result = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(responseText, options);
+      var responseText = completion.Content[0].Text;
 
-    if (result == null)
-    {
-      _logger.LogError("Failed to deserialize transaction group response: {ResponseText}", responseText);
-      return Result.Failure<List<Dictionary<string, string>>>(ApplicationError.ExternalCallError("Failed to parse transaction group response from LLM."));
+      var result = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(responseText, _options);
+
+      if (result is null)
+      {
+        _logger.LogError("Failed to deserialize transaction group response: {ResponseText}", responseText);
+        return Result.Failure<List<Dictionary<string, string>>>(ApplicationError.ExternalCallError("Failed to parse transaction group response from LLM."));
+      }
+      return Result.Success(result);
     }
-    return Result.Success(result);
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Error occurred while matching transaction groups with LLM.");
+      return Result.Failure<List<Dictionary<string, string>>>(ApplicationError.ExternalCallError("Failed to match transaction groups with LLM."));
+    }
   }
 }

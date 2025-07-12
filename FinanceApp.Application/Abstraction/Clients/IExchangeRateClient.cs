@@ -8,7 +8,6 @@ public interface IExchangeRateClient
   /// <summary>
   /// Gets the exchange rate for a specific currency.
   /// </summary>
-  /// <param name="cancellationToken">The cancellation token.</param>
   /// <returns>The exchange rates</returns>
-  Task<Result<List<ExchangeRate>>> GetExchangeRatesAsync(CancellationToken cancellationToken = default);
+  Task<Result<List<ExchangeRate>>> GetExchangeRatesAsync();
 }

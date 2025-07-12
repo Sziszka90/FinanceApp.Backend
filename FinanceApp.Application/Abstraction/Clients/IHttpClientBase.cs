@@ -1,3 +1,5 @@
+using FinanceApp.Application.Models;
+
 namespace FinanceApp.Application.Abstraction.Clients;
 
 public interface IHttpClientBase
@@ -7,8 +9,8 @@ public interface IHttpClientBase
   /// </summary>
   /// <typeparam name="TResponse">The type of the response.</typeparam>
   /// <param name="endpoint">The endpoint to send the request to.</param>
-  /// <returns>The response from the GET request.</returns>
-  Task<TResponse?> GetAsync<TResponse>(string endpoint);
+  /// <returns>The response from the GET request</returns>
+  Task<Result<TResponse>> GetAsync<TResponse>(string endpoint);
 
   /// <summary>
   /// Sends a GET request to the specified endpoint with the provided data and returns the response.
@@ -17,8 +19,8 @@ public interface IHttpClientBase
   /// <typeparam name="TResponse">The type of the response.</typeparam>
   /// <param name="endpoint">The endpoint to send the request to.</param>
   /// <param name="data">The data to include in the GET request.</param>
-  /// <returns>The response from the GET request.</returns>
-  Task<TResponse?> GetAsync<TRequest, TResponse>(string endpoint, TRequest data);
+  /// <returns>The response from the GET request</returns>
+  Task<Result<TResponse>> GetAsync<TRequest, TResponse>(string endpoint, TRequest data);
 
   /// <summary>
   /// Sends a POST request to the specified endpoint with the provided data and returns the response.
@@ -27,6 +29,6 @@ public interface IHttpClientBase
   /// <typeparam name="TResponse">The type of the response.</typeparam>
   /// <param name="endpoint">The endpoint to send the request to.</param>
   /// <param name="data">The data to include in the POST request.</param>
-  /// <returns>The response from the POST request.</returns>
-  Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data);
+  /// <returns>The response from the POST request</returns>
+  Task<Result<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest data);
 }
