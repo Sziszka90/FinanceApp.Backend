@@ -1,4 +1,4 @@
-using DomainEntities = FinanceApp.Domain.Entities;
+using FinanceApp.Domain.Entities;
 
 namespace FinanceApp.Application.Abstraction.Clients;
 
@@ -9,7 +9,7 @@ public interface ISmtpEmailSender
   /// </summary>
   /// <param name="user"></param>
   /// <returns></returns>
-  Task SendEmailConfirmationAsync(DomainEntities.User user);
+  Task SendEmailConfirmationAsync(User user);
 
   /// <summary>
   /// Sends a password reset email to the user.

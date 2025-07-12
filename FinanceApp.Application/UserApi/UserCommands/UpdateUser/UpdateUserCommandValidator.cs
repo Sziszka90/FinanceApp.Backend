@@ -1,0 +1,13 @@
+using FinanceApp.Application.Dtos.UserDtos;
+using FluentValidation;
+
+namespace FinanceApp.Application.UserApi.UserCommands.UpdateUser;
+
+public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
+{
+  public UpdateUserCommandValidator(IValidator<UpdateUserDto> updateUserDto)
+  {
+    RuleFor(x => x.UpdateUserDto)
+      .SetValidator(updateUserDto);
+  }
+}

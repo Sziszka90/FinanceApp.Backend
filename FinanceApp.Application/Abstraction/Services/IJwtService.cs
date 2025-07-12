@@ -20,13 +20,14 @@ public interface IJwtService
   /// Invalidates the given JWT token, preventing it from being used for authentication.
   /// </summary>
   /// <param name="token"></param>
+  /// <returns></returns>
   public void InvalidateToken(string token);
 
   /// <summary>
   /// Checks if the given JWT token has been invalidated.
   /// </summary>
   /// <param name="token"></param>
-  /// <returns>bool</returns>
+  /// <returns>Boolean - success or failure</returns>
   public bool IsTokenInvalidated(string token);
 
   /// <summary>

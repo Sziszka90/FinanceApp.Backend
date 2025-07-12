@@ -1,4 +1,5 @@
 using FinanceApp.Application.Dtos.TransactionDtos;
+using FinanceApp.Domain.Entities;
 
 namespace FinanceApp.Application.Abstraction.Repositories;
 
@@ -7,10 +8,11 @@ public interface ITransactionRepository : IRepository<Domain.Entities.Transactio
   /// <summary>
   /// Retrieves all transactions.
   /// </summary>
-  /// <param name="id"></param>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
-  Task<List<Domain.Entities.Transaction>> GetAllAsync(
+  /// <param name="transactionFilter">Optional filter for transactions.</param>
+  /// <param name="noTracking">If set to true, disables EF Core tracking mechanism.</param>
+  /// <param name="cancellationToken">Cancellation token.</param>
+  /// <returns>List of existing transactions</returns>
+  Task<List<Transaction>> GetAllAsync(
         TransactionFilter? transactionFilter,
         bool noTracking = false,
         CancellationToken cancellationToken = default
@@ -30,5 +32,5 @@ public interface ITransactionRepository : IRepository<Domain.Entities.Transactio
   /// <param name="transactions">The transactions to create.</param>
   /// <param name="cancellationToken">Cancellation token.</param>
   /// <returns>The created transactions.</returns>
-  Task<List<Domain.Entities.Transaction>?> CreateMultipleTransactionsAsync(List<Domain.Entities.Transaction> transactions, CancellationToken cancellationToken = default);
+  Task<List<Transaction>?> CreateMultipleTransactionsAsync(List<Transaction> transactions, CancellationToken cancellationToken = default);
 }

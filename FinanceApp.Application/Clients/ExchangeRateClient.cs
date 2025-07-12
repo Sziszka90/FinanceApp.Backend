@@ -1,8 +1,8 @@
 using System.Text.Json;
-using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Dtos.ExchangeRateDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Entities;
+using FinanceApp.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -10,22 +10,21 @@ namespace FinanceApp.Application.Abstraction.Clients;
 
 public class ExchangeRateClient : IExchangeRateClient
 {
+  private readonly ILogger<IExchangeRateClient> _logger;
   private readonly HttpClient _httpClient;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
-
   private readonly ExchangeRateSettings _exchangeRateSettings;
 
-  private readonly ILogger<ExchangeRateClient> _logger;
-
-  public ExchangeRateClient(HttpClient httpClient, IExchangeRateRepository exchangeRateRepository, ILogger<ExchangeRateClient> logger, IOptions<ExchangeRateSettings> exchangeRateOptions)
+  public ExchangeRateClient(
+    ILogger<IExchangeRateClient> logger,
+    HttpClient httpClient,
+    IOptions<ExchangeRateSettings> exchangeRateOptions)
   {
-    _httpClient = httpClient;
-    _exchangeRateRepository = exchangeRateRepository;
     _logger = logger;
+    _httpClient = httpClient;
     _exchangeRateSettings = exchangeRateOptions.Value;
   }
 
-  public async Task<Result<List<ExchangeRate>>> GetExchangeRateAsync(CancellationToken cancellationToken = default)
+  public async Task<Result<List<ExchangeRate>>> GetExchangeRatesAsync(CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.GetAsync(_exchangeRateSettings.ApiEndpoint + _exchangeRateSettings.AppId, cancellationToken);
 
@@ -37,13 +36,15 @@ public class ExchangeRateClient : IExchangeRateClient
 
     var options = new JsonSerializerOptions
     {
-        PropertyNameCaseInsensitive = true
+      PropertyNameCaseInsensitive = true
     };
 
     var content = await response.Content.ReadAsStringAsync();
-    var exchangeRateData = System.Text.Json.JsonSerializer.Deserialize<ExchangeRateResponseDto>(content, options);
+    var exchangeRateData = JsonSerializer.Deserialize<ExchangeRateResponseDto>(content, options);
 
-    if (exchangeRateData == null || exchangeRateData.Rates == null)
+    _logger.LogInformation("Exchange rate data fetched successfully: {Content}", content);
+
+    if (exchangeRateData is null || exchangeRateData.Rates is null)
     {
       _logger.LogError("Invalid exchange rate response: {Content}", content);
       return Result.Failure<List<ExchangeRate>>(ApplicationError.ExternalCallError("Invalid exchange rate response."));
@@ -51,49 +52,35 @@ public class ExchangeRateClient : IExchangeRateClient
 
     var allRates = CalculateAllRatesFromUsdBase(exchangeRateData.Rates);
 
-    var result = await _exchangeRateRepository.CreateBatchedExchangeRatesAsync(allRates, cancellationToken);
-
-    return Result.Success(result);
-
+    return Result.Success(allRates);
   }
 
-  /// <summary>
-  /// Given a dictionary of rates with USD as the base, calculates all rates for each currency pair (USD, EUR, GBP, HUF).
-  /// </summary>
-  public List<Domain.Entities.ExchangeRate> CalculateAllRatesFromUsdBase(Dictionary<string, decimal> usdRates)
+  private List<ExchangeRate> CalculateAllRatesFromUsdBase(Dictionary<string, decimal> usdRates)
   {
-    var currencies = new[] { "USD", "EUR", "GBP", "HUF" };
-    var pairs = new List<Domain.Entities.ExchangeRate>();
+    var currencies = Enum.GetNames(typeof(CurrencyEnum)).Where(c => c != nameof(CurrencyEnum.Unknown)).ToArray();
+    var pairs = new List<ExchangeRate>();
     foreach (var baseCurrency in currencies)
     {
       foreach (var targetCurrency in currencies)
       {
         if (baseCurrency == targetCurrency) continue;
         decimal rate = 0;
-        if (baseCurrency == "USD")
+        if (baseCurrency == CurrencyEnum.USD.ToString())
         {
-          // Direct rate from USD to target
           rate = usdRates.TryGetValue(targetCurrency, out var r) ? r : 0;
         }
-        else if (targetCurrency == "USD")
+        else if (targetCurrency == CurrencyEnum.USD.ToString())
         {
-          // Inverse rate from base to USD
           rate = usdRates.TryGetValue(baseCurrency, out var r) && r != 0 ? 1 / r : 0;
         }
         else
         {
-          // Cross rate: base -> USD -> target
           if (usdRates.TryGetValue(baseCurrency, out var baseToUsd) && baseToUsd != 0 && usdRates.TryGetValue(targetCurrency, out var usdToTarget))
           {
             rate = usdToTarget / baseToUsd;
           }
         }
-        pairs.Add(new Domain.Entities.ExchangeRate
-        {
-          BaseCurrency = baseCurrency,
-          TargetCurrency = targetCurrency,
-          Rate = rate
-        });
+        pairs.Add(new ExchangeRate(baseCurrency, targetCurrency, rate));
       }
     }
     return pairs;

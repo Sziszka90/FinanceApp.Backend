@@ -1,14 +1,17 @@
+using FinanceApp.Domain.Entities;
+
 namespace FinanceApp.Application.Abstraction.Repositories;
 
-public interface ITransactionGroupRepository : IRepository<Domain.Entities.TransactionGroup>
+public interface ITransactionGroupRepository : IRepository<TransactionGroup>
 {
   /// <summary>
   /// Retrieves a transaction group by its ID.
   /// </summary>
   /// <param name="id"></param>
+  /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken"></param>
   /// <returns>TransactionGroup</returns>
-  public new Task<Domain.Entities.TransactionGroup?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+  public new Task<TransactionGroup?> GetByIdAsync(Guid id, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
   /// Delete all transaction groups associated with a specific user ID.
@@ -23,8 +26,8 @@ public interface ITransactionGroupRepository : IRepository<Domain.Entities.Trans
   /// </summary>
   /// <param name="noTracking"></param>
   /// <param name="cancellationToken"></param>
-  /// <returns></returns>
-  public new Task<List<Domain.Entities.TransactionGroup>> GetAllAsync(bool noTracking = true, CancellationToken cancellationToken = default);
+  /// <returns>List of existing TransactionGroups</returns>
+  public new Task<List<TransactionGroup>> GetAllAsync(bool noTracking = false, CancellationToken cancellationToken = default);
 
 
   /// <summary>
@@ -32,6 +35,6 @@ public interface ITransactionGroupRepository : IRepository<Domain.Entities.Trans
   /// </summary>
   /// <param name="transactionGroups"></param>
   /// <param name="cancellationToken"></param>
-  /// <returns></returns>
-  public Task<List<Domain.Entities.TransactionGroup>> CreateTransactionGroupsAsync(List<Domain.Entities.TransactionGroup> transactionGroups, CancellationToken cancellationToken = default);
+  /// <returns>List of created TransactionGroups</returns>
+  public Task<List<TransactionGroup>> CreateTransactionGroupsAsync(List<TransactionGroup> transactionGroups, CancellationToken cancellationToken = default);
 }
