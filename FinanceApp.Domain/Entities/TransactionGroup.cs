@@ -37,6 +37,7 @@ public class TransactionGroup : BaseEntity, IUserOwned
     User = user;
   }
 
+  #pragma warning disable CS8618
   protected TransactionGroup() { }
 
   public void Update(

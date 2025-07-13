@@ -58,6 +58,7 @@ public class Transaction : BaseEntity, IUserOwned
     User = user;
   }
 
+  #pragma warning disable CS8618
   protected Transaction() { }
 
   public void Update(

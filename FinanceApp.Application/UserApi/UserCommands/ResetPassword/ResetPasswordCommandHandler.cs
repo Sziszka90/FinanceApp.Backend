@@ -18,19 +18,19 @@ public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand,
     _jwtService = jwtService;
   }
 
-  public async Task<Result> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+  public Task<Result> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
   {
     var validationResult = _jwtService.ValidateToken(request.Token);
 
     if (!validationResult)
     {
       _logger.LogError("Invalid token provided for password reset.");
-      return Result.Failure(ApplicationError.InvalidTokenError());
+      return Task.FromResult(Result.Failure(ApplicationError.InvalidTokenError()));
     }
 
     _jwtService.InvalidateToken(request.Token);
     _logger.LogDebug("Token invalidated successfully for password reset.");
 
-    return Result.Success();
+    return Task.FromResult(Result.Success());
   }
 }

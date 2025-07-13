@@ -6,12 +6,10 @@ using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.BackgroundJobs.ExchangeRate;
 
+
 public class ExchangeRateBackgroundJob : BackgroundService
 {
   private readonly ILogger<ExchangeRateBackgroundJob> _logger;
-  private IExchangeRateRepository _exchangeRateRepository;
-  private IUnitOfWork _unitOfWork;
-  private IExchangeRateClient _exchangeRateClient;
   private readonly IServiceProvider _serviceProvider;
 
   public ExchangeRateBackgroundJob(
@@ -34,17 +32,17 @@ public class ExchangeRateBackgroundJob : BackgroundService
       while (retryCount < maxRetries && !success && !cancellationToken.IsCancellationRequested)
       {
         using var scope = _serviceProvider.CreateScope();
-        _exchangeRateRepository = scope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
-        _unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        _exchangeRateClient = scope.ServiceProvider.GetRequiredService<IExchangeRateClient>();
-        var rates = await _exchangeRateClient.GetExchangeRatesAsync();
+
+        var exchangeRateRepository = scope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var exchangeRateClient = scope.ServiceProvider.GetRequiredService<IExchangeRateClient>();
+        var rates = await exchangeRateClient.GetExchangeRatesAsync();
 
         if (rates.IsSuccess)
         {
-          //await _exchangeRateRepository.BatchCreateExchangeRatesAsync(rates.Data!, cancellationToken);
-          //await _unitOfWork.SaveChangesAsync(cancellationToken);
-          //_logger.LogDebug("Exchange rates updated successfully.");
-          _logger.LogDebug("Exchange rate request is disabled for now.");
+          await exchangeRateRepository.BatchCreateExchangeRatesAsync(rates.Data!, cancellationToken);
+          await unitOfWork.SaveChangesAsync(cancellationToken);
+          _logger.LogDebug("Exchange rates updated successfully.");
           success = true;
         }
         else
