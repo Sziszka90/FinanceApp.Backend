@@ -85,8 +85,6 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       Password = "TestPassword90."
     });
 
-
-
     var response = await GetContentAsync<LoginResponseDto>(await Client.PostAsync("/api/auth/login", loginContent));
 
     Client.DefaultRequestHeaders.Authorization =

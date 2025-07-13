@@ -1,3 +1,4 @@
+#pragma warning disable CS0618
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
@@ -13,9 +14,9 @@ public class MockJwtAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
                           UrlEncoder encoder,
                           ISystemClock clock)
     : base(options, logger, encoder, clock)
-{ }
+  { }
 
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+  protected override Task<AuthenticateResult> HandleAuthenticateAsync()
   {
     var claims = new[] {
       new Claim(ClaimTypes.Name, "Test User"),
