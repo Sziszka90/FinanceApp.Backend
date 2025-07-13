@@ -10,7 +10,7 @@ public interface ITransactionGroupRepository : IRepository<TransactionGroup>
   /// <param name="transactionGroups"></param>
   /// <param name="cancellationToken"></param>
   /// <returns>List of created TransactionGroups</returns>
-  public Task<List<TransactionGroup>> CreateTransactionGroupsAsync(List<TransactionGroup> transactionGroups, CancellationToken cancellationToken = default);
+  Task<List<TransactionGroup>> BatchCreateTransactionGroupsAsync(List<TransactionGroup> transactionGroups, CancellationToken cancellationToken = default);
 
   /// <summary>
   /// Deletes all transaction groups related to a specific user.

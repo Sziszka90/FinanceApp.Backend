@@ -12,17 +12,20 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
   private readonly IUserRepository _userRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IJwtService _jwtService;
+  private readonly IBcryptService _bcryptService;
 
   public UpdatePasswordCommandHandler(
     ILogger<UpdatePasswordCommandHandler> logger,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IJwtService jwtService)
+    IJwtService jwtService,
+    IBcryptService bcryptService)
   {
     _logger = logger;
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
     _jwtService = jwtService;
+    _bcryptService = bcryptService;
   }
 
   /// <inheritdoc />
@@ -51,7 +54,7 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
       return Result.Failure(ApplicationError.UserNotFoundError());
     }
 
-    var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.UpdatePasswordDto.Password);
+    var passwordHash = _bcryptService.Hash(request.UpdatePasswordDto.Password);
 
     user.UpdatePassword(passwordHash);
 

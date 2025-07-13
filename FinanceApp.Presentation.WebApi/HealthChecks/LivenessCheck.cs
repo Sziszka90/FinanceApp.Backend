@@ -1,13 +1,29 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using FinanceApp.Infrastructure.EntityFramework.Context;
 
 namespace FinanceApp.Presentation.WebApi.HealthChecks;
 
 public class LivenessCheck : IHealthCheck
 {
-  public Task<HealthCheckResult> CheckHealthAsync(
+  private readonly FinanceAppDbContext _dbContext;
+
+  public LivenessCheck(FinanceAppDbContext dbContext)
+  {
+    _dbContext = dbContext;
+  }
+
+  public async Task<HealthCheckResult> CheckHealthAsync(
       HealthCheckContext context,
       CancellationToken cancellationToken = default)
   {
-    return Task.FromResult(HealthCheckResult.Healthy("Liveness check passed."));
+    try
+    {
+      await _dbContext.Database.CanConnectAsync(cancellationToken);
+      return HealthCheckResult.Healthy("Liveness check passed. Database reachable.");
+    }
+    catch
+    {
+      return HealthCheckResult.Unhealthy("Liveness check failed. Database not reachable.");
+    }
   }
 }

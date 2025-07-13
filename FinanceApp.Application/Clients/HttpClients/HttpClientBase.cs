@@ -41,7 +41,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
         return Result.Failure<TResponse>(ApplicationError.ExternalCallError("Failed to deserialize response."));
       }
 
-      _logger.LogInformation("Data fetched successfully: {Content}", content);
+      _logger.LogDebug("Data fetched successfully: {Content}", content);
       return Result.Success(result);
     }
     catch (Exception ex)
@@ -77,7 +77,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
         return Result.Failure<TResponse>(ApplicationError.ExternalCallError("Failed to deserialize response."));
       }
 
-      _logger.LogInformation("Data fetched successfully: {Content}", content);
+      _logger.LogDebug("Data fetched successfully: {Content}", content);
       return Result.Success(result);
     }
     catch (Exception ex)
@@ -111,7 +111,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
         return Result.Failure<TResponse>(ApplicationError.ExternalCallError("Failed to deserialize response."));
       }
 
-      _logger.LogInformation("Data posted successfully: {Content}", responseContent);
+      _logger.LogDebug("Data posted successfully: {Content}", responseContent);
       return Result.Success(result);
     }
     catch (Exception ex)

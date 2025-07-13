@@ -61,6 +61,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
   public async Task InitializeAsync()
   {
     CreateDatabaseSchema();
+    await GenerateExchangeRatesAsync();
     await GetTokenAsync();
   }
 
@@ -76,16 +77,45 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     var user = await CreateUserAsync();
     CreatedUserId = user!.Id;
 
+    await ConfirmUserEmailAsync();
+
     var loginContent = CreateContent(new LoginRequestDto
     {
       Email = user!.Email,
       Password = "TestPassword90."
     });
 
+
+
     var response = await GetContentAsync<LoginResponseDto>(await Client.PostAsync("/api/auth/login", loginContent));
 
     Client.DefaultRequestHeaders.Authorization =
       new AuthenticationHeaderValue("Bearer", response!.Token);
+  }
+
+  private async Task GenerateExchangeRatesAsync()
+  {
+    using var scope = _factory.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<FinanceAppDbContext>();
+    var exchangeRate = new ExchangeRate(
+      CurrencyEnum.HUF.ToString(),
+      CurrencyEnum.EUR.ToString(),
+      404.8m
+    );
+    dbContext.ExchangeRate.Add(exchangeRate);
+    await dbContext.SaveChangesAsync();
+  }
+
+  protected async Task ConfirmUserEmailAsync()
+  {
+    using var scope = _factory.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<FinanceAppDbContext>();
+    var user = await dbContext.User.FindAsync(CreatedUserId);
+    if (user != null)
+    {
+      user.IsEmailConfirmed = true;
+      await dbContext.SaveChangesAsync();
+    }
   }
 
   protected async Task<GetUserDto?> CreateUserAsync()
@@ -94,10 +124,12 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     {
       UserName = "test_user90",
       Password = "TestPassword90.",
+      Email = "test_user90@example.com",
       BaseCurrency = CurrencyEnum.EUR
     });
 
     var result = await GetContentAsync<GetUserDto>(await Client.PostAsync(USERS, userContent));
+
     return result;
   }
 

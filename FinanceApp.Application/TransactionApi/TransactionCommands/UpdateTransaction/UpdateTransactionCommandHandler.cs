@@ -3,7 +3,6 @@ using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Models;
-using FinanceApp.Application.QueryCriteria;
 using FinanceApp.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -38,7 +37,7 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
 
     if (request.UpdateTransactionDto.TransactionGroupId is not null)
     {
-      transactionGroup = await _transactionGroupRepository.GetByIdAsync((Guid)request.UpdateTransactionDto.TransactionGroupId, noTracking: true, cancellationToken: cancellationToken);
+      transactionGroup = await _transactionGroupRepository.GetByIdAsync((Guid)request.UpdateTransactionDto.TransactionGroupId, noTracking: false, cancellationToken: cancellationToken);
 
       if (transactionGroup is null)
       {

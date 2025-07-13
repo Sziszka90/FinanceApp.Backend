@@ -31,7 +31,7 @@ public class ExchangeRateRepository : IExchangeRateRepository
   }
 
   /// <inheritdoc />
-  public async Task<List<ExchangeRate>> CreateBatchedExchangeRatesAsync(List<ExchangeRate> rates, CancellationToken cancellationToken = default)
+  public async Task<List<ExchangeRate>> BatchCreateExchangeRatesAsync(List<ExchangeRate> rates, CancellationToken cancellationToken = default)
   {
     await _dbContext.BulkInsertAsync(rates, cancellationToken: cancellationToken);
     return rates;

@@ -12,14 +12,17 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
   private readonly ILogger<LoginCommandHandler> _logger;
   private readonly IUserRepository _userRepository;
   private readonly IJwtService _jwtService;
+  private readonly IBcryptService _bcryptService;
 
   public LoginCommandHandler(ILogger<LoginCommandHandler> logger,
                              IUserRepository userRepository,
-                             IJwtService jwtService)
+                             IJwtService jwtService,
+                             IBcryptService bcryptService)
   {
     _logger = logger;
     _userRepository = userRepository;
     _jwtService = jwtService;
+    _bcryptService = bcryptService;
   }
 
   /// <inheritdoc />
@@ -39,7 +42,7 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
       return Result.Failure<LoginResponseDto>(ApplicationError.EmailNotYetConfirmedError(user.Email));
     }
 
-    if (!BCrypt.Net.BCrypt.Verify(request.LoginRequestDto.Password, user.PasswordHash))
+    if (!_bcryptService.Verify(request.LoginRequestDto.Password, user.PasswordHash))
     {
       _logger.LogWarning("Invalid password for user:{Email}", request.LoginRequestDto.Email);
       return Result.Failure<LoginResponseDto>(ApplicationError.InvalidPasswordError());
@@ -47,7 +50,7 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
 
     var token = _jwtService.GenerateToken(request.LoginRequestDto.Email);
 
-    _logger.LogInformation("Login successful!");
+    _logger.LogDebug("Login successful!");
 
     return Result.Success(new LoginResponseDto
     {

@@ -76,27 +76,23 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
     var matchedTransactionGroups = (await _llmClient.MatchTransactionGroup(transactions.Select(t => t.Name).ToList(), existingTransactionGroupNames, user!)).Data;
 
+    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
+
     foreach (var transaction in transactions)
     {
       var groupName = matchedTransactionGroups!.FirstOrDefault(dict => dict.ContainsKey(transaction.Name))!.Values.FirstOrDefault();
       var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == groupName);
 
       transaction.TransactionGroup = group;
-    }
 
-    var createdTransactions = await _transactionRepository.CreateMultipleTransactionsAsync(transactions, cancellationToken);
-
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-
-    foreach (var transaction in createdTransactions!)
-    {
       if (transaction.Value.Currency != user!.BaseCurrency)
       {
-
         transaction.Value.Amount = ConvertToUserCurrency(transaction.Value.Amount, transaction.Value.Currency, user.BaseCurrency, exchangeRates);
         transaction.Value.Currency = user.BaseCurrency;
       }
     }
+
+    var createdTransactions = await _transactionRepository.BatchCreateTransactionsAsync(transactions, cancellationToken);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

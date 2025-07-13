@@ -22,7 +22,7 @@ public class TransactionGroupRepository : GenericRepository<TransactionGroup>, I
     _dbContext = dbContext;
   }
 
-  public async Task<List<TransactionGroup>> CreateTransactionGroupsAsync(List<TransactionGroup> transactionGroups, CancellationToken cancellationToken = default)
+  public async Task<List<TransactionGroup>> BatchCreateTransactionGroupsAsync(List<TransactionGroup> transactionGroups, CancellationToken cancellationToken = default)
   {
     await _dbContext.BulkInsertAsync(transactionGroups, cancellationToken: cancellationToken);
     return transactionGroups;

@@ -1,8 +1,6 @@
 using System.Security.Claims;
-using FinanceApp.Application.Abstraction.Repositories;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Models;
-using FinanceApp.Domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -12,20 +10,14 @@ namespace FinanceApp.Application.TransactionApi.TransactionCommands.CreateTransa
 public class CreateTransactionCommandValidator : AbstractValidator<CreateTransactionCommand>
 {
   private readonly ILogger<CreateTransactionCommandValidator> _logger;
-  private readonly IRepository<TransactionGroup> _transactionGroupRepository;
-  private readonly IUserRepository _userRepository;
   private readonly IHttpContextAccessor _httpContextAccessor;
 
   public CreateTransactionCommandValidator(
     ILogger<CreateTransactionCommandValidator> logger,
     IValidator<CreateTransactionDto> createTransactionDtoValidator,
-    IRepository<TransactionGroup> transactionGroupRepository,
-    IUserRepository userRepository,
     IHttpContextAccessor httpContextAccessor)
   {
     _logger = logger;
-    _transactionGroupRepository = transactionGroupRepository;
-    _userRepository = userRepository;
     _httpContextAccessor = httpContextAccessor;
 
     RuleFor(x => x.CreateTransactionDto)

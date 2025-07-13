@@ -36,7 +36,7 @@ public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Resul
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
   {
-    var user = await _userRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
+    var user = await _userRepository.GetByIdAsync(request.Id, noTracking: false, cancellationToken: cancellationToken);
 
     if (user is null)
     {

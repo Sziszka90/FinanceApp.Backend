@@ -1,6 +1,7 @@
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Application.Models;
@@ -18,6 +19,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
   private readonly IRepository<Domain.Entities.User> _userRepository;
   private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly ISmtpEmailSender _smtpEmailSender;
+  private readonly IBcryptService _bcryptService;
 
   public CreateUserCommandHandler(
     ILogger<CreateUserCommandHandler> logger,
@@ -25,7 +27,8 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     IRepository<Domain.Entities.User> userRepository,
     ITransactionGroupRepository transactionGroupRepository,
     IUnitOfWork unitOfWork,
-    ISmtpEmailSender smtpEmailSender)
+    ISmtpEmailSender smtpEmailSender,
+    IBcryptService bcryptService)
   {
     _logger = logger;
     _mapper = mapper;
@@ -33,6 +36,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     _transactionGroupRepository = transactionGroupRepository;
     _unitOfWork = unitOfWork;
     _smtpEmailSender = smtpEmailSender;
+    _bcryptService = bcryptService;
   }
 
   /// <inheritdoc />
@@ -58,7 +62,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
       return Result.Failure<GetUserDto>(ApplicationError.UserEmailAlreadyExistsError(request.CreateUserDto.Email));
     }
 
-    var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.CreateUserDto.Password);
+    var passwordHash = _bcryptService.Hash(request.CreateUserDto.Password);
 
     var user = await _userRepository.CreateAsync(new Domain.Entities.User(
                                                    request.CreateUserDto.UserName,
@@ -66,15 +70,24 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
                                                    passwordHash,
                                                    request.CreateUserDto.BaseCurrency), cancellationToken);
 
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
+    _logger.LogDebug("User created with ID:{Id}", user.Id);
+
     var defaultGroups = CreateDefaultTransactionGroups(user);
 
-    await _transactionGroupRepository.CreateTransactionGroupsAsync(defaultGroups, cancellationToken);
+    await _transactionGroupRepository.BatchCreateTransactionGroupsAsync(defaultGroups, cancellationToken);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
     _logger.LogDebug("User created with ID:{Id}", user.Id);
 
-    await _smtpEmailSender.SendEmailConfirmationAsync(user);
+    var emailConfirmationResult = await _smtpEmailSender.SendEmailConfirmationAsync(user);
+
+    if (!emailConfirmationResult.IsSuccess)
+    {
+      _logger.LogError("Failed to send email confirmation to user with ID:{Id}", user.Id);
+      return Result.Failure<GetUserDto>(ApplicationError.EmailConfirmationError(user.Email));
+    }
 
     _logger.LogInformation("Email confirmation sent to user with ID:{Id}", user.Id);
 
@@ -83,25 +96,26 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
 
   private List<Domain.Entities.TransactionGroup> CreateDefaultTransactionGroups(Domain.Entities.User user)
   {
-    var groups = new List<Domain.Entities.TransactionGroup>();
-
-    groups.Add(new Domain.Entities.TransactionGroup("Groceries", "Payment for groceries", Icons.IconGroceries, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Entertainment", "Expense for entertainment", Icons.IconEntertainment, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Car", "Car cost and fuel", Icons.IconCar, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Transport", "Transport costs like ticket or pass", Icons.IconTransport, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Health", "Medical and health-related expenses", Icons.IconHealth, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Utilities", "Utility bills and services", Icons.IconUtilities, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Education", "Education and learning expenses", Icons.IconEducation, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Travel", "Travel and vacation expenses", Icons.IconTravel, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Dining", "Restaurant and dining out", Icons.IconDining, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Gifts", "Gifts and donations", Icons.IconGifts, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Salary", "Income from salary or wages", Icons.IconSalary, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Home", "Home maintenance and rent", Icons.IconHome, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Personal Care", "Personal care and hygiene", Icons.IconPersonalCare, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Clothing", "Clothing and accessories", Icons.IconClothing, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Phone & Internet", "Phone, internet, and communication", Icons.IconPhoneInternet, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Taxes", "Tax payments and refunds", Icons.IconTaxes, user));
-    groups.Add(new Domain.Entities.TransactionGroup("Miscellaneous", "Other uncategorized expenses", Icons.IconMiscellaneous, user));
+    var groups = new List<Domain.Entities.TransactionGroup>
+    {
+      new Domain.Entities.TransactionGroup("Groceries", "Payment for groceries", Icons.IconGroceries, user),
+      new Domain.Entities.TransactionGroup("Entertainment", "Expense for entertainment", Icons.IconEntertainment, user),
+      new Domain.Entities.TransactionGroup("Car", "Car cost and fuel", Icons.IconCar, user),
+      new Domain.Entities.TransactionGroup("Transport", "Transport costs like ticket or pass", Icons.IconTransport, user),
+      new Domain.Entities.TransactionGroup("Health", "Medical and health-related expenses", Icons.IconHealth, user),
+      new Domain.Entities.TransactionGroup("Utilities", "Utility bills and services", Icons.IconUtilities, user),
+      new Domain.Entities.TransactionGroup("Education", "Education and learning expenses", Icons.IconEducation, user),
+      new Domain.Entities.TransactionGroup("Travel", "Travel and vacation expenses", Icons.IconTravel, user),
+      new Domain.Entities.TransactionGroup("Dining", "Restaurant and dining out", Icons.IconDining, user),
+      new Domain.Entities.TransactionGroup("Gifts", "Gifts and donations", Icons.IconGifts, user),
+      new Domain.Entities.TransactionGroup("Salary", "Income from salary or wages", Icons.IconSalary, user),
+      new Domain.Entities.TransactionGroup("Home", "Home maintenance and rent", Icons.IconHome, user),
+      new Domain.Entities.TransactionGroup("Personal Care", "Personal care and hygiene", Icons.IconPersonalCare, user),
+      new Domain.Entities.TransactionGroup("Clothing", "Clothing and accessories", Icons.IconClothing, user),
+      new Domain.Entities.TransactionGroup("Phone & Internet", "Phone, internet, and communication", Icons.IconPhoneInternet, user),
+      new Domain.Entities.TransactionGroup("Taxes", "Tax payments and refunds", Icons.IconTaxes, user),
+      new Domain.Entities.TransactionGroup("Miscellaneous", "Other uncategorized expenses", Icons.IconMiscellaneous, user)
+    };
 
     return groups;
   }

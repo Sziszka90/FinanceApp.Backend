@@ -10,7 +10,7 @@ public interface IExchangeRateRepository
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken"></param>
   /// <returns>A list of existing exchange rates</returns>
-  public Task<List<ExchangeRate>> GetExchangeRatesAsync(bool noTracking = false, CancellationToken cancellationToken = default);
+  Task<List<ExchangeRate>> GetExchangeRatesAsync(bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
   /// Creates a batch of exchange rates.
@@ -18,5 +18,5 @@ public interface IExchangeRateRepository
   /// <param name="exchangeRates"></param>
   /// <param name="cancellationToken"></param>
   /// <returns>A list of created exchange rates</returns>
-  public Task<List<ExchangeRate>> CreateBatchedExchangeRatesAsync(List<ExchangeRate> exchangeRates, CancellationToken cancellationToken = default);
+  Task<List<ExchangeRate>> BatchCreateExchangeRatesAsync(List<ExchangeRate> exchangeRates, CancellationToken cancellationToken = default);
 }

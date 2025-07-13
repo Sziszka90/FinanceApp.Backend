@@ -7,8 +7,9 @@ namespace FinanceApp.Infrastructure.EntityFramework.Context;
 public abstract class FinanceAppDbContext : DbContext
 {
   public DbSet<Transaction> Transaction => Set<Transaction>();
-   public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
-  public DbSet<Domain.Entities.User> User => Set<Domain.Entities.User>();
+  public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
+  public DbSet<ExchangeRate> ExchangeRate => Set<ExchangeRate>();
+  public DbSet<User> User => Set<User>();
 
   protected FinanceAppDbContext(
     DbContextOptions options) : base(options)

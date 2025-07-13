@@ -103,7 +103,10 @@ jobs:
               SmtpSettings__SmtpPort='${{ vars.SMTP_PORT }}' \
               SmtpSettings__SmtpUser='${{ secrets.SMTP_USER }}' \
               SmtpSettings__SmtpPass='${{ secrets.SMTP_PASSWORD }}' \
-              SmtpSettings__FromEmail='${{ secrets.SMTP_FROM_EMAIL }}'
+              SmtpSettings__FromEmail='${{ secrets.SMTP_FROM_EMAIL }}' \
+              ExchangeRateSettings__ApiUrl='${{ vars.EXCHANGE_RATE_API_URL }}' \
+              ExchangeRateSettings__ApiEndpoint='${{ vars.EXCHANGE_RATE_API_ENDPOINT }}' \
+              ExchangeRateSettings__AppId='${{ secrets.EXCHANGE_RATE_APP_ID }}' \
 
       - name: Update Azure Container App (Frontend)
         run: |

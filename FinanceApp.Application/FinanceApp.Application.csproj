@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Clients/EmailConfirmationTemplate.html">
+    <None Update="Clients/EmailTemplates/EmailConfirmationTemplate.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Clients/ForgotPasswordTemplate.html">
+    <None Update="Clients/EmailTemplates/ForgotPasswordTemplate.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

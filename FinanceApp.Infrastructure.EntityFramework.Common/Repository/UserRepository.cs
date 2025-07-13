@@ -1,11 +1,12 @@
 using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Domain.Entities;
 using FinanceApp.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 
-public class UserRepository : GenericRepository<Domain.Entities.User>, IUserRepository
+public class UserRepository : GenericRepository<User>, IUserRepository
 {
   private readonly IFilteredQueryProvider _filteredQueryProvider;
 
@@ -18,15 +19,29 @@ public class UserRepository : GenericRepository<Domain.Entities.User>, IUserRepo
     _filteredQueryProvider = filteredQueryProvider;
   }
 
-  public async Task<Domain.Entities.User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default)
+  public async Task<User?> GetByUserNameAsync(string userName, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    return await _filteredQueryProvider.Query<Domain.Entities.User>()
-                          .FirstOrDefaultAsync(user => user.UserName == userName, cancellationToken);
+    var query = _filteredQueryProvider.Query<User>()
+                          .Where(user => user.UserName == userName);
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.FirstOrDefaultAsync(cancellationToken);
   }
 
-  public async Task<Domain.Entities.User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
+  public async Task<User?> GetUserByEmailAsync(string email, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    return await _filteredQueryProvider.Query<Domain.Entities.User>()
-                          .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
+    var query = _filteredQueryProvider.Query<User>()
+                          .Where(user => user.Email == email);
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.FirstOrDefaultAsync(cancellationToken);
   }
 }

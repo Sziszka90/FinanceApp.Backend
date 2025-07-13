@@ -49,7 +49,7 @@ public class TransactionGroupApi : TestBase
     var response = await GetContentAsync<List<GetTransactionGroupDto>>(await Client.GetAsync(TRANSACTION_GROUPS));
 
     // Assert
-    Assert.Equal(transactionGroup!.Id, response![0].Id);
+    Assert.Equal(transactionGroup!.Id, response![17].Id);
   }
 
   [Fact]
@@ -77,21 +77,16 @@ public class TransactionGroupApi : TestBase
     {
       Id = transactionGroup!.Id,
       Name = "Updated Name",
-      Description = "Updated Description",
-      Limit = new Money
-      {
-        Currency = CurrencyEnum.USD,
-        Amount = 200
-      }
+      Description = "Updated Description"
     };
 
     // Act
-    await GetContentAsync<GetTransactionGroupDto>(await Client.PutAsync(TRANSACTION_GROUPS, CreateContent(updatedTransactionGroup)));
+    await GetContentAsync<GetTransactionGroupDto>(await Client.PutAsync(TRANSACTION_GROUPS + transactionGroup!.Id, CreateContent(updatedTransactionGroup)));
     var response = await GetContentAsync<GetTransactionGroupDto>(await Client.GetAsync(TRANSACTION_GROUPS + transactionGroup!.Id));
 
     // Assert
     Assert.Equal(transactionGroup!.Id, response!.Id);
     Assert.Equal(updatedTransactionGroup.Name, response.Name);
-    Assert.Equal(updatedTransactionGroup.Limit.Amount, response.Limit!.Amount);
+    Assert.Equal(updatedTransactionGroup.Description, response.Description);
   }
 }

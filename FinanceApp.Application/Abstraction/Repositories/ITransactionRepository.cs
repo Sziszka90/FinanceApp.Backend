@@ -13,7 +13,7 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <param name="cancellationToken">Cancellation token.</param>
   /// <returns>List of existing transactions</returns>
   Task<List<Transaction>> GetAllByFilterAsync(
-        TransactionFilter? transactionFilter,
+        TransactionFilter transactionFilter,
         bool noTracking = false,
         CancellationToken cancellationToken = default
     );
@@ -24,7 +24,7 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <param name="transactions">The transactions to create.</param>
   /// <param name="cancellationToken">Cancellation token.</param>
   /// <returns>The created transactions.</returns>
-  Task<List<Transaction>?> CreateMultipleTransactionsAsync(List<Transaction> transactions, CancellationToken cancellationToken = default);
+  Task<List<Transaction>?> BatchCreateTransactionsAsync(List<Transaction> transactions, CancellationToken cancellationToken = default);
 
   /// <summary>
   /// Deletes all user related transactions.

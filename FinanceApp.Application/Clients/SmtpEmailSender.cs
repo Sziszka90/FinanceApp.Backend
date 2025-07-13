@@ -40,7 +40,7 @@ public class SmtpEmailSender : ISmtpEmailSender
       ConfirmationLink = confirmationLink,
     };
 
-    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients", "EmailConfirmationTemplate.html");
+    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients/EmailTemplates", "EmailConfirmationTemplate.html");
     string template = await File.ReadAllTextAsync(templatePath);
 
     string body = template
@@ -61,7 +61,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     try
     {
       await client.SendMailAsync(mailMessage);
-      _logger.LogInformation("Email confirmation sent to {Email}", user.Email);
+      _logger.LogDebug("Email confirmation sent to {Email}", user.Email);
       return Result.Success(true);
     }
     catch (Exception ex)
@@ -87,10 +87,9 @@ public class SmtpEmailSender : ISmtpEmailSender
       ResetPasswordLink = resetPasswordLink,
     };
 
-    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients", "ForgotPasswordTemplate.html");
+    var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients/EmailTemplates", "ForgotPasswordTemplate.html");
     string template = await File.ReadAllTextAsync(templatePath);
 
-    // Replace placeholders in the template
     string body = template
       .Replace("@Model.ResetPasswordLink", model.ResetPasswordLink)
       .Replace("@DateTime.Now.Year", DateTime.Now.Year.ToString());
@@ -108,7 +107,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     try
     {
       await client.SendMailAsync(mailMessage);
-      _logger.LogInformation("Password reset email sent to {Email}", email);
+      _logger.LogDebug("Password reset email sent to {Email}", email);
       return Result.Success(true);
     }
     catch (Exception ex)

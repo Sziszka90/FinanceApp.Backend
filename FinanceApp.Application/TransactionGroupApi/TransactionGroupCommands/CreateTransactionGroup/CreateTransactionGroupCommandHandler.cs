@@ -5,6 +5,7 @@ using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
+using FinanceApp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -54,7 +55,7 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
     var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-    var user = await _userRepository.GetUserByEmailAsync(userEmail!, noTracking: true, cancellationToken: cancellationToken);
+    var user = await _userRepository.GetUserByEmailAsync(userEmail!, noTracking: false, cancellationToken: cancellationToken);
 
     if (user is null)
     {
@@ -62,11 +63,11 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
       return Result.Failure<GetTransactionGroupDto>(ApplicationError.UserNotFoundError(userEmail!));
     }
 
-    var result = await _transactionGroupRepository.CreateAsync(new Domain.Entities.TransactionGroup(
-                                                                            request.CreateTransactionGroupDto.Name,
-                                                                            request.CreateTransactionGroupDto.Description,
-                                                                            request.CreateTransactionGroupDto.GroupIcon,
-                                                                            user!), cancellationToken);
+    var result = await _transactionGroupRepository.CreateAsync(new TransactionGroup(
+                                                                request.CreateTransactionGroupDto.Name,
+                                                                request.CreateTransactionGroupDto.Description,
+                                                                request.CreateTransactionGroupDto.GroupIcon,
+                                                                user!), cancellationToken);
 
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -168,7 +168,7 @@ public class TransactionApi : TestBase
     var sum = await GetContentAsync<Money>(response);
 
     // Assert
-    Assert.True(sum!.Amount < transaction?.Value.Amount);
+    Assert.True(sum!.Amount > transaction?.Value.Amount);
   }
 
   [Fact]
@@ -206,7 +206,7 @@ public class TransactionApi : TestBase
     };
 
     // Act
-    await GetContentAsync<GetTransactionDto>(await Client.PutAsync(TRANSACTIONS, CreateContent(updatedTransaction)));
+    await GetContentAsync<GetTransactionDto>(await Client.PutAsync(TRANSACTIONS + transaction!.Id, CreateContent(updatedTransaction)));
     var response = await GetContentAsync<GetTransactionDto>(await Client.GetAsync(TRANSACTIONS + transaction!.Id));
 
     // Assert
@@ -236,7 +236,7 @@ public class TransactionApi : TestBase
     };
 
     // Act
-    var response = await Client.PutAsync(TRANSACTIONS, CreateContent(updatedTransaction));
+    var response = await Client.PutAsync(TRANSACTIONS + transaction!.Id, CreateContent(updatedTransaction));
     var responseContentAsString = await response.Content.ReadAsStringAsync();
 
     // Assert

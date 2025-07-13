@@ -1,10 +1,13 @@
+using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.UserDtos;
 using FinanceApp.Application.Models;
 using FinanceApp.Application.QueryCriteria;
 using FinanceApp.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.UserApi.UserCommands.UpdateUser;
@@ -13,24 +16,40 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
 {
   private readonly ILogger<UpdateUserCommandHandler> _logger;
   private readonly IMapper _mapper;
-  private readonly IRepository<Domain.Entities.User> _userRepository;
+  private readonly IUserRepository _userRepository;
   private readonly IUnitOfWork _unitOfWork;
+  private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IBcryptService _bcryptService;
   public UpdateUserCommandHandler(
     ILogger<UpdateUserCommandHandler> logger,
     IMapper mapper,
-    IRepository<User> userRepository,
-    IUnitOfWork unitOfWork)
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
+    IHttpContextAccessor httpContextAccessor,
+    IBcryptService bcryptService)
   {
     _logger = logger;
     _mapper = mapper;
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
+    _httpContextAccessor = httpContextAccessor;
+    _bcryptService = bcryptService;
   }
 
   /// <inheritdoc />
   public async Task<Result<GetUserDto>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
   {
-    var user = await _userRepository.GetByIdAsync(request.UpdateUserDto.Id, noTracking: false, cancellationToken);
+    var httpContext = _httpContextAccessor.HttpContext;
+
+    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrEmpty(userEmail))
+    {
+      _logger.LogError("User email not found in claims.");
+      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError("User email not found in claims."));
+    }
+
+    var user = await _userRepository.GetUserByEmailAsync(userEmail, noTracking: false, cancellationToken: cancellationToken);
 
     if (user is null)
     {
@@ -38,20 +57,28 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
       return Result.Failure<GetUserDto>(ApplicationError.EntityNotFoundError());
     }
 
-    var criteriaForUserName = UserQueryCriteria.FindUserName(request.UpdateUserDto.UserName);
-
-    var usersWithSameName = await _userRepository.GetQueryAsync(criteriaForUserName, noTracking: true, cancellationToken: cancellationToken);
-
-    if (usersWithSameName.Count > 0 &&
-        usersWithSameName[0].Id != user.Id)
+    if (!string.IsNullOrWhiteSpace(request.UpdateUserDto.UserName))
     {
-      _logger.LogError("User already exists with name:{Name}", request.UpdateUserDto.UserName);
-      return Result.Failure<GetUserDto>(ApplicationError.UserNameAlreadyExistsError(request.UpdateUserDto.UserName));
+      var criteriaForUserName = UserQueryCriteria.FindUserName(request.UpdateUserDto.UserName);
+
+      var usersWithSameName = await _userRepository.GetQueryAsync(criteriaForUserName, noTracking: true, cancellationToken: cancellationToken);
+
+      if (usersWithSameName.Count > 0 &&
+          usersWithSameName[0].Id != user.Id)
+      {
+        _logger.LogError("User already exists with name:{Name}", request.UpdateUserDto.UserName);
+        return Result.Failure<GetUserDto>(ApplicationError.UserNameAlreadyExistsError(request.UpdateUserDto.UserName));
+      }
     }
 
-    var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.UpdateUserDto.Password);
+    string? passwordHash = null;
 
-    user.Update(request.UpdateUserDto.UserName, passwordHash,  request.UpdateUserDto.BaseCurrency);
+    if (!string.IsNullOrWhiteSpace(request.UpdateUserDto.Password))
+    {
+      passwordHash = _bcryptService.Hash(request.UpdateUserDto.Password);
+    }
+
+    user.Update(request.UpdateUserDto.UserName, passwordHash, request.UpdateUserDto.BaseCurrency);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

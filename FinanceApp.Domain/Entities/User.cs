@@ -38,11 +38,23 @@ public class User : BaseEntity
     BaseCurrency = baseCurrency;
   }
 
-  public void Update(string userName, string passwordHash, CurrencyEnum baseCurrency)
+  /// <summary>
+  /// ONLY FOR TESTING PURPOSES
+  /// </summary>
+  internal User(string userName, string email, bool isEmailConfirmed, string passwordHash, CurrencyEnum baseCurrency)
   {
     UserName = userName;
+    Email = email;
+    IsEmailConfirmed = isEmailConfirmed;
     PasswordHash = passwordHash;
     BaseCurrency = baseCurrency;
+  }
+
+  public void Update(string? userName, string? passwordHash, CurrencyEnum? baseCurrency)
+  {
+    UserName = userName ?? UserName;
+    PasswordHash = passwordHash ?? PasswordHash;
+    BaseCurrency = baseCurrency ?? BaseCurrency;
   }
 
   public void UpdatePassword(string passwordHash)

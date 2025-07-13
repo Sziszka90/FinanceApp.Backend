@@ -1,16 +1,29 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using FinanceApp.Infrastructure.EntityFramework.Context;
 
 namespace FinanceApp.Presentation.WebApi.HealthChecks;
 
 public class ReadinessCheck : IHealthCheck
 {
-  public Task<HealthCheckResult> CheckHealthAsync(
+  private readonly FinanceAppDbContext _dbContext;
+
+  public ReadinessCheck(FinanceAppDbContext dbContext)
+  {
+    _dbContext = dbContext;
+  }
+
+  public async Task<HealthCheckResult> CheckHealthAsync(
       HealthCheckContext context,
       CancellationToken cancellationToken = default)
   {
-    bool dbConnectionOk = true; // replace with actual DB check
-    return dbConnectionOk
-        ? Task.FromResult(HealthCheckResult.Healthy("Ready."))
-        : Task.FromResult(HealthCheckResult.Unhealthy("Not ready."));
+    try
+    {
+      await _dbContext.Database.CanConnectAsync(cancellationToken);
+      return HealthCheckResult.Healthy("Ready. Database reachable.");
+    }
+    catch
+    {
+      return HealthCheckResult.Unhealthy("Not ready. Database not reachable.");
+    }
   }
 }

@@ -74,7 +74,7 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     return await query.FirstOrDefaultAsync(cancellationToken);
   }
 
-  public async Task<List<Transaction>?> CreateMultipleTransactionsAsync(List<Transaction> transactions, CancellationToken cancellationToken = default)
+  public async Task<List<Transaction>?> BatchCreateTransactionsAsync(List<Transaction> transactions, CancellationToken cancellationToken = default)
   {
     await _dbContext.BulkInsertAsync(transactions, cancellationToken: cancellationToken);
     return transactions;

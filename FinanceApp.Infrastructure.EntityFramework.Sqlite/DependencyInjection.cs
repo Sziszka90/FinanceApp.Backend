@@ -15,11 +15,12 @@ public static class DependencyInjection
   {
     services.AddScoped<IScopedContextFactory<FinanceAppDbContext>, ScopedContextFactory<FinanceAppSqliteDbContext>>();
 
-    services.AddPooledDbContextFactory<FinanceAppSqliteDbContext>(options =>
-                                                                  {
-                                                                    options.UseSqlite(configuration.GetConnectionString(Constants.ConfigurationKeys.SqliteConnectionString))
-                                                                           .AddInterceptors(new TimestampableEntitySaveChangesInterceptor());
-                                                                  });
+    services.AddPooledDbContextFactory<FinanceAppSqliteDbContext>(
+    options =>
+    {
+      options.UseSqlite(configuration.GetConnectionString(Constants.ConfigurationKeys.SqliteConnectionString))
+              .AddInterceptors(new TimestampableEntitySaveChangesInterceptor());
+    });
 
     services.AddScoped<IScopedContextFactory<FinanceAppDbContext>, ScopedContextFactory<FinanceAppSqliteDbContext>>();
 

@@ -13,7 +13,6 @@ namespace FinanceApp.Application.TransactionApi.TransactionQueries.GetTransactio
 public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuery, Result<Money>>
 {
   private readonly ILogger<GetTransactionSumQueryHandler> _logger;
-  private readonly IMapper _mapper;
   private readonly IRepository<Transaction> _transactionRepository;
   private readonly IRepository<User> _userRepository;
   private readonly IExchangeRateRepository _exchangeRateRepository;
@@ -21,14 +20,12 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
 
   public GetTransactionSumQueryHandler(
     ILogger<GetTransactionSumQueryHandler> logger,
-    IMapper mapper,
     IRepository<Transaction> transactionRepository,
     IRepository<User> userRepository,
     IExchangeRateRepository exchangeRateRepository,
     IHttpContextAccessor httpContextAccessor)
   {
     _logger = logger;
-    _mapper = mapper;
     _transactionRepository = transactionRepository;
     _userRepository = userRepository;
     _exchangeRateRepository = exchangeRateRepository;

@@ -46,7 +46,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
     var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
                                       ?.Value;
 
-    var user = await _userRepository.GetUserByEmailAsync(userEmail!, noTracking: true, cancellationToken: cancellationToken);
+    var user = await _userRepository.GetUserByEmailAsync(userEmail!, noTracking: false, cancellationToken: cancellationToken);
 
     if (user is null)
     {
@@ -57,7 +57,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
     TransactionGroup? transactionGroup = null;
     if (request.CreateTransactionDto.TransactionGroupId is not null)
     {
-      transactionGroup = await _transactionGroupRepository.GetByIdAsync(new Guid(request.CreateTransactionDto.TransactionGroupId), noTracking: true, cancellationToken: cancellationToken);
+      transactionGroup = await _transactionGroupRepository.GetByIdAsync(new Guid(request.CreateTransactionDto.TransactionGroupId), noTracking: false, cancellationToken: cancellationToken);
 
       if (transactionGroup is null)
       {
