@@ -11,7 +11,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 public class GenericRepository<T> : IRepository<T> where T : BaseEntity
 {
   private readonly IFilteredQueryProvider _filteredQueryProvider;
-  private readonly FinanceAppDbContext _dbContext;
+  protected readonly FinanceAppDbContext _dbContext;
 
   public GenericRepository(
     FinanceAppDbContext dbContext,
@@ -181,5 +181,10 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
     _dbContext.Set<T>()
              .Remove(entity);
     return Task.CompletedTask;
+  }
+
+  public void DeleteAllAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+  {
+    _dbContext.Set<T>().RemoveRange(entities);
   }
 }

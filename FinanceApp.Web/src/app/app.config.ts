@@ -18,7 +18,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AuthenticationService } from '../services/authentication.service';
-import { ErrorModalComponent } from './error-modal/error-modal.component';
+import { ErrorModalComponent } from './shared/error-modal/error-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 
 export const provideTranslation = () => ({
@@ -58,16 +58,16 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
         case 400:
           matDialog.open(ErrorModalComponent, {
             width: '50rem',
-            data: error.error ?? error.message,
+            data: { message: error.error.message ?? error.error.error ?? error.message ?? error, details: error.error?.details ?? "" },
           });
           break;
 
           case 404:
             matDialog.open(ErrorModalComponent, {
-                  width: '50rem',
-                  data: error.error ?? error.message,
-                });
-                break;
+              width: '50rem',
+              data: { message: error.error.message ?? error.error.error ?? error.message ?? error, details: error.error?.details ?? "" },
+            });
+            break;
 
         case 401:
           if (
@@ -76,7 +76,7 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
           ) {
             matDialog.open(ErrorModalComponent, {
               width: '50rem',
-              data: error.error ?? error ?? error.message,
+              data: { message: error.error.message ?? error.error.error ?? error.message ?? error, details: error.error?.details ?? "" },
             });
           } else {
             router.navigateByUrl('/login');
@@ -86,7 +86,7 @@ export const provideErrorHandlerInterceptor: HttpInterceptorFn = (
         default:
           matDialog.open(ErrorModalComponent, {
             width: '50rem',
-            data:  { message: error.error?.message ?? error.message, details: error.error?.details ?? "" },
+            data:  { message: error.error.message ?? error.error.error ?? error.message ?? error, details: error.error?.details ?? "" },
           });
           break;
       }

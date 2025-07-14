@@ -8,23 +8,34 @@ namespace FinanceApp.Application.TransactionGroupApi.TransactionGroupCommands.De
 public class DeleteTransactionGroupCommandHandler : ICommandHandler<DeleteTransactionGroupCommand, Result>
 {
   private readonly ILogger<DeleteTransactionGroupCommandHandler> _logger;
-  private readonly IRepository<Domain.Entities.TransactionGroup> _transactionGroupRepository;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
+  private readonly ITransactionRepository _transactionRepository;
   private readonly IUnitOfWork _unitOfWork;
 
   public DeleteTransactionGroupCommandHandler(
     ILogger<DeleteTransactionGroupCommandHandler> logger,
-    IRepository<Domain.Entities.TransactionGroup> transactionGroupRepository,
+    ITransactionGroupRepository transactionGroupRepository,
+    ITransactionRepository transactionRepository,
     IUnitOfWork unitOfWork
   )
   {
     _logger = logger;
     _transactionGroupRepository = transactionGroupRepository;
+    _transactionRepository = transactionRepository;
     _unitOfWork = unitOfWork;
   }
 
   /// <inheritdoc />
   public async Task<Result> Handle(DeleteTransactionGroupCommand request, CancellationToken cancellationToken)
   {
+    var isUsed = await _transactionRepository.TransactionGroupUsedAsync(request.Id, cancellationToken);
+
+    if (isUsed)
+    {
+      _logger.LogWarning("Transaction Group with ID:{Id} cannot be deleted because it is used by transactions.", request.Id);
+      return Result.Failure(ApplicationError.TransactionGroupIsUsedError());
+    }
+
     var transactionGroup = await _transactionGroupRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
 
     if (transactionGroup is null)

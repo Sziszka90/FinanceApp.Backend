@@ -2,7 +2,7 @@ using FinanceApp.Domain.Entities;
 
 namespace FinanceApp.Application.Abstraction.Repositories;
 
-public interface IExchangeRateRepository
+public interface IExchangeRateRepository : IRepository<ExchangeRate>
 {
   /// <summary>
   /// Gets the exchange rate between two currencies.

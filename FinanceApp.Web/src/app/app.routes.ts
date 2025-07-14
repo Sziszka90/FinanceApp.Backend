@@ -1,15 +1,15 @@
 import { Routes, CanActivateFn } from '@angular/router';
-import { TransactionComponent } from './transaction/transaction.component';
-import { NotFoundComponent } from './not-found/not-found.component';
-import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login/login.component';
-import { RegistrationComponent } from './registration/registration.component';
-import { LoggedInComponent } from './logged-in/logged-in.component';
-import { ProfileComponent } from './profile/profile.component';
-import { TransactionGroupComponent } from './transaction-group/transaction-group.component';
+import { TransactionComponent } from './transactions/transaction/transaction.component';
+import { NotFoundComponent } from './shared/not-found/not-found.component';
+import { HomeComponent } from './shared/home/home.component';
+import { LoginComponent } from './user/login/login.component';
+import { RegistrationComponent } from './user/registration/registration.component';
+import { LoggedInComponent } from './user/logged-in/logged-in.component';
+import { TransactionGroupComponent } from './transaction-groups/transaction-group/transaction-group.component';
 import { TOKEN_KEY } from 'src/models/Constants/token.const';
-import { ValidationFailedComponent } from './validation-failed/validation-failed.component';
-import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ValidationFailedComponent } from './shared/validation-failed/validation-failed.component';
+import { ResetPasswordComponent } from './user/reset-password/reset-password.component';
+import { ProfileComponent } from './user/profile/profile.component';
 
 // Simple AuthGuard implementation
 const AuthGuard: CanActivateFn = () => {

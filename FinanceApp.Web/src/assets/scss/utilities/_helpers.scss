@@ -1,17 +1,37 @@
 @use "base/variables";
 
 .error-snackbar {
-  padding: 1rem;
-  background-color: #f44336;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(233, 229, 229, 0.2);
+    background-color: variables.$red-color;
+    color: variables.$background-color;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(209, 189, 189, 0.2);
+
+    button:hover {
+    background: variables.$text-color !important;
+    color: variables.$background-color !important;
+
+    span {
+      color: variables.$text-color !important;
+      background: variables.$background-color !important;
+    }
+  }
 }
 
 .info-snackbar {
-    padding: 1rem;
-    background-color: variables.$primary-color;
-    border-radius: 8px;
+    background-color: variables.$text-color;
+    color: variables.$background-color;
+    border-radius: 4px;
     box-shadow: 0 4px 12px rgba(209, 189, 189, 0.2);
+
+    button:hover {
+    background: variables.$text-color !important;
+    color: variables.$background-color !important;
+
+    span {
+      color: variables.$text-color !important;
+      background: variables.$background-color !important;
+    }
+  }
 }
 
 .select {

@@ -6,6 +6,14 @@ namespace FinanceApp.Application.Abstraction.Repositories;
 public interface ITransactionRepository : IRepository<Transaction>
 {
   /// <summary>
+  /// Checks if a transaction group is used by any transaction.
+  /// </summary>
+  /// <param name="transactionGroupId"></param>
+  /// <param name="cancellationToken"></param>
+  /// <returns></returns>
+  Task<bool> TransactionGroupUsedAsync(Guid transactionGroupId, CancellationToken cancellationToken = default);
+
+  /// <summary>
   /// Retrieves all transactions by filter.
   /// </summary>
   /// <param name="transactionFilter">Optional filter for transactions.</param>

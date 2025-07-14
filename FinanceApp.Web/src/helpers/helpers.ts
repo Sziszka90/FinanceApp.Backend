@@ -1,9 +1,8 @@
 import { AbstractControl, ValidationErrors } from "@angular/forms";
-import { CurrencyEnum } from "src/models/Money/Money";
+import { CurrencyEnum } from "src/models/Money/money";
 
 export function enumValidator(enumObj: any) {
   return (control: AbstractControl): ValidationErrors | null => {
-    // Accept both direct value and object with value property
     const value =
       control.value && typeof control.value === "object" && "value" in control.value
         ? control.value.value

@@ -11,7 +11,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 public class TransactionRepository : GenericRepository<Transaction>, ITransactionRepository
 {
   private readonly IFilteredQueryProvider _filteredQueryProvider;
-  private readonly FinanceAppDbContext _dbContext;
 
   /// <inheritdoc />
   public TransactionRepository(
@@ -19,8 +18,13 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     IFilteredQueryProvider filteredQueryProvider
   ) : base(dbContext, filteredQueryProvider)
   {
-    _dbContext = dbContext;
     _filteredQueryProvider = filteredQueryProvider;
+  }
+
+  public async Task<bool> TransactionGroupUsedAsync(Guid transactionGroupId, CancellationToken cancellationToken = default)
+  {
+    return await _filteredQueryProvider.Query<Transaction>().AnyAsync
+    (t => t.TransactionGroup != null && t.TransactionGroup.Id == transactionGroupId, cancellationToken);
   }
 
   public async Task<List<Transaction>> GetAllByFilterAsync(TransactionFilter transactionFilter, bool noTracking = false, CancellationToken cancellationToken = default)
@@ -60,11 +64,25 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     return await query.ToListAsync(cancellationToken);
   }
 
+  public new async Task<List<Transaction>> GetAllAsync(bool noTracking = false, CancellationToken cancellationToken = default)
+  {
+    IQueryable<Transaction> query = _filteredQueryProvider.Query<Transaction>()
+      .Include(x => x.TransactionGroup)
+      .Include(x => x.User);
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.ToListAsync(cancellationToken);
+
+  }
+
   public new async Task<Transaction?> GetByIdAsync(Guid id, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    var query = _filteredQueryProvider.Query<Transaction>()
-                          .Include(y => y.TransactionGroup)
-                          .Where(y => y.Id == id);
+    IQueryable<Transaction> query = _filteredQueryProvider.Query<Transaction>()
+                          .Include(y => y.TransactionGroup);
 
     if (noTracking)
     {

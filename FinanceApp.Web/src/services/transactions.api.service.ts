@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Money } from '../models/Money/Money';
-import { CreateTransactionDto } from '../models/TransactionDtos/CreateTransactionDto';
-import { GetTransactionDto } from 'src/models/TransactionDtos/GetTransactionDto';
-import { UpdateTransactionDto } from 'src/models/TransactionDtos/UpdateTransactionDto';
-import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/GetTransactionGroupDto';
-import { CreateTransactionGroupDto } from 'src/models/TransactionGroupDtos/CreateTransactionGroupDto';
-import { UpdateTransactionGroupDto } from 'src/models/TransactionGroupDtos/UpdateTransactionGroupDto';
+import { Money } from '../models/Money/money';
+import { CreateTransactionDto } from '../models/TransactionDtos/create-transaction.dto';
+import { GetTransactionDto } from 'src/models/TransactionDtos/get-transaction.dto';
+import { UpdateTransactionDto } from 'src/models/TransactionDtos/update-transaction.dto';
+import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/get-transaction-group.dto';
+import { CreateTransactionGroupDto } from 'src/models/TransactionGroupDtos/create-transaction-group.dto';
+import { UpdateTransactionGroupDto } from 'src/models/TransactionGroupDtos/update-transaction-group.dto';
 
 @Injectable({
   providedIn: 'root'

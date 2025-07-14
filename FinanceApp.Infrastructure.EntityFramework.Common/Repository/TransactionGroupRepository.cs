@@ -10,7 +10,6 @@ namespace FinanceApp.Infrastructure.EntityFramework.Common.Repository;
 public class TransactionGroupRepository : GenericRepository<TransactionGroup>, ITransactionGroupRepository
 {
   private readonly IFilteredQueryProvider _filteredQueryProvider;
-  private readonly FinanceAppDbContext _dbContext;
 
   /// <inheritdoc />
   public TransactionGroupRepository(
@@ -19,7 +18,6 @@ public class TransactionGroupRepository : GenericRepository<TransactionGroup>, I
   ) : base(dbContext, filteredQueryProvider)
   {
     _filteredQueryProvider = filteredQueryProvider;
-    _dbContext = dbContext;
   }
 
   public async Task<List<TransactionGroup>> BatchCreateTransactionGroupsAsync(List<TransactionGroup> transactionGroups, CancellationToken cancellationToken = default)

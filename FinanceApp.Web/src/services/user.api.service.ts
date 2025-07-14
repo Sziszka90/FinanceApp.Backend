@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { GetUserDto } from '../models/UserDtos/GetUserDto';
-import { UpdateUserDto } from '../models/UserDtos/UpdateUserDto';
-import { CreateUserDto } from '../models/UserDtos/CreateUserDto';
-import { UpdatePasswordDto } from 'src/models/UserDtos/UpdatePasswordDto';
+import { GetUserDto } from '../models/UserDtos/get-user.dto';
+import { UpdateUserDto } from '../models/UserDtos/update-user.dto';
+import { CreateUserDto } from '../models/UserDtos/create-user.dto';
+import { UpdatePasswordDto } from 'src/models/UserDtos/update-password.dto';
 
 @Injectable({
   providedIn: 'root'

@@ -3,18 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using FinanceApp.Infrastructure.EntityFramework.Context;
 using EFCore.BulkExtensions;
 using FinanceApp.Domain.Entities;
+using FinanceApp.Infrastructure.EntityFramework.Common.Repository;
+using FinanceApp.Infrastructure.EntityFramework.Common.Interfaces;
 
 namespace FinanceApp.EntityFramework.Common.Repository;
 
-public class ExchangeRateRepository : IExchangeRateRepository
+public class ExchangeRateRepository : GenericRepository<ExchangeRate>, IExchangeRateRepository
 {
-  private readonly FinanceAppDbContext _dbContext;
-
   /// <inheritdoc />
-  public ExchangeRateRepository(FinanceAppDbContext dbContext)
-  {
-    _dbContext = dbContext;
-  }
+  public ExchangeRateRepository(
+    FinanceAppDbContext dbContext,
+    IFilteredQueryProvider filteredQueryProvider) : base(dbContext, filteredQueryProvider)
+  {}
 
   /// <inheritdoc />
   public async Task<List<ExchangeRate>> GetExchangeRatesAsync(bool noTracking = false, CancellationToken cancellationToken = default)

@@ -102,4 +102,12 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns></returns>
   Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
+
+  /// <summary>
+  /// Removes all entities from the repository.
+  /// </summary>
+  /// <param name="entities">The entities to delete</param>
+  /// <param name="cancellationToken">Cancellation token</param>
+  /// <returns></returns>
+  void DeleteAllAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 }

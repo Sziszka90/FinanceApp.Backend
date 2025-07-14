@@ -38,28 +38,40 @@ public class LLMClient : ILLMClient
       Return the transaction groups in list with the following structure:
       [{"Transaction Name 1" : "Group Name 1"}, {"Transaction Name 2" : "Group Name 2"}, ...]
       Only return the JSON response in a list without any additional text or explanation. Without line breaks or markdown code blocks.
+      Do not return any other text, just the JSON response.
       """ +
       $"Return transaction groups for the following transactions: {string.Join("; ", transactionNames)}. They are divided by ;";
 
-    try
+    const int maxRetries = 3;
+    int retryCount = 0;
+    TimeSpan delay = TimeSpan.FromSeconds(2);
+
+    while (retryCount < maxRetries)
     {
-      ChatCompletion completion = await _client.CompleteChatAsync(prompt);
-
-      var responseText = completion.Content[0].Text;
-
-      var result = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(responseText, _options);
-
-      if (result is null)
+      try
       {
-        _logger.LogError("Failed to deserialize transaction group response: {ResponseText}", responseText);
-        return Result.Failure<List<Dictionary<string, string>>>(ApplicationError.ExternalCallError("Failed to parse transaction group response from LLM."));
+        ChatCompletion completion = await _client.CompleteChatAsync(prompt);
+        var responseText = completion.Content[0].Text;
+        var result = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(responseText, _options);
+        if (result is null)
+        {
+          _logger.LogError("Failed to deserialize transaction group response: {ResponseText}", responseText);
+          return Result.Failure<List<Dictionary<string, string>>>(ApplicationError.ExternalCallError("Failed to parse transaction group response from LLM."));
+        }
+        return Result.Success(result);
       }
-      return Result.Success(result);
+      catch (Exception ex)
+      {
+        retryCount++;
+        _logger.LogError(ex, "Error occurred while matching transaction groups with LLM. Retry {Retry}/{MaxRetries}.", retryCount, maxRetries);
+        if (retryCount >= maxRetries)
+        {
+          return Result.Failure<List<Dictionary<string, string>>>(ApplicationError.ExternalCallError("Failed to match transaction groups with LLM after multiple attempts."));
+        }
+        await Task.Delay(delay);
+        delay = delay * 2; // Exponential backoff
+      }
     }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex, "Error occurred while matching transaction groups with LLM.");
-      return Result.Failure<List<Dictionary<string, string>>>(ApplicationError.ExternalCallError("Failed to match transaction groups with LLM."));
-    }
+    return Result.Failure<List<Dictionary<string, string>>>(ApplicationError.ExternalCallError("Failed to match transaction groups with LLM after retries."));
   }
 }

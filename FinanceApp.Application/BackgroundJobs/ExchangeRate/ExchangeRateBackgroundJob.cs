@@ -22,6 +22,22 @@ public class ExchangeRateBackgroundJob : BackgroundService
 
   protected override async Task ExecuteAsync(CancellationToken cancellationToken)
   {
+    using var scope = _serviceProvider.CreateScope();
+
+    var exchangeRateRepository = scope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
+    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+    var exchangeRateClient = scope.ServiceProvider.GetRequiredService<IExchangeRateClient>();
+
+    var existingRates = await exchangeRateRepository.GetExchangeRatesAsync(noTracking: false, cancellationToken);
+
+    if (existingRates.Count > 0)
+    {
+      exchangeRateRepository.DeleteAllAsync(existingRates, cancellationToken);
+      await unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    _logger.LogDebug("Exchange rates clean up completed.");
+
     while (!cancellationToken.IsCancellationRequested)
     {
       int retryCount = 0;
@@ -31,11 +47,6 @@ public class ExchangeRateBackgroundJob : BackgroundService
 
       while (retryCount < maxRetries && !success && !cancellationToken.IsCancellationRequested)
       {
-        using var scope = _serviceProvider.CreateScope();
-
-        var exchangeRateRepository = scope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
-        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        var exchangeRateClient = scope.ServiceProvider.GetRequiredService<IExchangeRateClient>();
         var rates = await exchangeRateClient.GetExchangeRatesAsync();
 
         if (rates.IsSuccess)

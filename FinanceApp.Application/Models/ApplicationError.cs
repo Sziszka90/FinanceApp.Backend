@@ -75,8 +75,14 @@ public class ApplicationError
   public const string INVALID_FILE_TYPE_ERROR_MESSAGE = "Invalid file type.";
   public const string INVALID_FILE_TYPE_ERROR_CODE = "INVALID_FILE_TYPE";
 
+  public const string PARSING_ERROR_MESSAGE = "Parsing error.";
+  public const string PARSING_ERROR_CODE = "PARSING_ERROR";
+
   public const string TOKEN_NOT_PROVIDED_MESSAGE = "Token not provided.";
   public const string ID_NOT_PROVIDED_MESSAGE = "User ID not provided.";
+
+  public const string TRANSACTION_GROUP_IS_USED_MESSAGE = "Transaction group is used by transactions.";
+  public const string TRANSACTION_GROUP_IS_USED_CODE = "TRANSACTION_GROUP_IS_USED";
 
   /// <summary>
   /// Machine readable error code
@@ -357,11 +363,29 @@ public class ApplicationError
   }
 
   /// <summary>
+  /// Parsing error for when a file cannot be parsed
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError ParsingError()
+  {
+    return new ApplicationError(PARSING_ERROR_MESSAGE, PARSING_ERROR_CODE);
+  }
+
+  /// <summary>
   /// Error for when exchange rates are missing
   /// </summary>
   /// <returns>ApplicationError</returns>
   public static ApplicationError MissingExchangeRatesError()
   {
     return new ApplicationError(MISSING_EXCHANGE_RATES_MESSAGE, MISSING_EXCHANGE_RATES_CODE);
+  }
+
+  /// <summary>
+  /// Error when traansaction group is used by transactions
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError TransactionGroupIsUsedError()
+  {
+    return new ApplicationError(TRANSACTION_GROUP_IS_USED_MESSAGE, TRANSACTION_GROUP_IS_USED_CODE);
   }
 }

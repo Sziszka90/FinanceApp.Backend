@@ -1,10 +1,10 @@
 import { Component, inject, PLATFORM_ID, HostListener } from '@angular/core';
-import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule, isPlatformServer } from '@angular/common';
+import { NavBarComponent } from './shared/nav-bar/nav-bar.component';
 
 @Component({
-    selector: 'app-root',
+    selector: 'root',
     imports: [
         NavBarComponent,
         RouterOutlet,
