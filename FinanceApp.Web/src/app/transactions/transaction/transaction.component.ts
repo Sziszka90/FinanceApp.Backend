@@ -17,7 +17,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
 import { CurrencyEnum } from 'src/models/Enums/currency.enum';
-import { Money } from 'src/models/Money/money';
+import { Money } from 'src/models/Money/money.dto';
 
 @Component({
   selector: 'transaction',

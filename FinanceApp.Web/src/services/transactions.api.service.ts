@@ -8,7 +8,7 @@ import { UpdateTransactionDto } from 'src/models/TransactionDtos/update-transact
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/get-transaction-group.dto';
 import { CreateTransactionGroupDto } from 'src/models/TransactionGroupDtos/create-transaction-group.dto';
 import { UpdateTransactionGroupDto } from 'src/models/TransactionGroupDtos/update-transaction-group.dto';
-import { Money } from 'src/models/Money/money';
+import { Money } from 'src/models/Money/money.dto';
 
 @Injectable({
   providedIn: 'root'
