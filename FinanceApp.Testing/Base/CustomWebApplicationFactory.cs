@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace FinanceApp.Testing.Base;
 
@@ -43,7 +44,7 @@ public class CustomWebApplicationFactory<TProgram>
         });
       services.RegisterBcryptMock();
       services.RegisterJwtMock();
-      services.Remove(typeof(BackgroundJob), typeof(ExchangeRateBackgroundJob));
+      services.Remove(typeof(BackgroundService), typeof(ExchangeRateBackgroundJob));
     });
     builder.UseEnvironment("Testing");
   }
