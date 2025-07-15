@@ -45,7 +45,15 @@ public class CustomWebApplicationFactory<TProgram>
         });
       services.RegisterBcryptMock();
       services.RegisterJwtMock();
-      services.Remove(typeof(BackgroundService), typeof(ExchangeRateBackgroundJob));
+      var descriptor = services.FirstOrDefault(d =>
+    d.ServiceType == typeof(IHostedService) &&
+    d.ImplementationType == typeof(MyBackgroundJob));
+
+if (descriptor != null)
+{
+    services.Remove(descriptor);
+}
+
     });
     builder.UseEnvironment("Testing");
   }
