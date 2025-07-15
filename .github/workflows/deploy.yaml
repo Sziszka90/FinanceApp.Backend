@@ -58,27 +58,23 @@ jobs:
           envsubst < src/environments/environment.prod.template.ts > src/environments/environment.prod.ts
         working-directory: ./FinanceApp.Web
 
-      - name: Set image tag
-        id: vars
-        run: echo "tag=${GITHUB_RUN_NUMBER}" >> $GITHUB_OUTPUT
-
       - name: Build and Push Frontend image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }} -f ./FinanceApp.Web/FrontendService.Dockerfile ./FinanceApp.Web
-          docker push ghcr.io/$OWNER/finance-app-frontend:${{ steps.vars.outputs.tag }}
+          docker build -t ghcr.io/$OWNER/finance-app-frontend:${GITHUB_RUN_NUMBER} -f ./FinanceApp.Web/FrontendService.Dockerfile ./FinanceApp.Web
+          docker push ghcr.io/$OWNER/finance-app-frontend:${GITHUB_RUN_NUMBER}
 
       - name: Build and Push .NET image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }} -f BackendService.Dockerfile .
-          docker push ghcr.io/$OWNER/finance-app-backend:${{ steps.vars.outputs.tag }}
+          docker build -t ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER} -f BackendService.Dockerfile .
+          docker push ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER}
 
       - name: Build and Push Gateway image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }} -f GatewayService.Dockerfile .
-          docker push ghcr.io/$OWNER/finance-app-gateway:${{ steps.vars.outputs.tag }}
+          docker build -t ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER} -f GatewayService.Dockerfile .
+          docker push ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER}
 
   deploy:
     runs-on: ubuntu-latest
@@ -113,7 +109,7 @@ jobs:
           az containerapp update \
             --name finance-app-backend \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-backend:${{ needs['build-and-push'].outputs.tag }} \
+            --image ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER} \
             --set-env-vars \
               ConnectionStrings__MsSql='${{ secrets.DB_CONNECTION_STRING }}' \
               LLMClientSettings__ApiKey='${{ secrets.OPEN_AI_API_KEY }}' \
@@ -136,7 +132,7 @@ jobs:
           az containerapp update \
             --name finance-app-frontend \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-frontend:${{ needs['build-and-push'].outputs.tag }}
+            --image ghcr.io/$OWNER/finance-app-frontend:${GITHUB_RUN_NUMBER}
 
       - name: Update Azure Container App (Gateway)
         run: |
@@ -145,4 +141,4 @@ jobs:
           az containerapp update \
             --name finance-app-gateway \
             --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-gateway:${{ needs['build-and-push'].outputs.tag }}
+            --image ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER}
