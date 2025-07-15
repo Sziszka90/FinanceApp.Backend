@@ -45,5 +45,6 @@ public class CustomWebApplicationFactory<TProgram>
       services.RegisterJwtMock();
     });
     builder.UseEnvironment("Testing");
+services.Remove(typeof(IHostedService), typeof(ExchangeRateBackgroundJob));
   }
 }
