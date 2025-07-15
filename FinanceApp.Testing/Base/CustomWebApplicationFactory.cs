@@ -43,8 +43,8 @@ public class CustomWebApplicationFactory<TProgram>
         });
       services.RegisterBcryptMock();
       services.RegisterJwtMock();
+      services.Remove(typeof(BackgroundJob), typeof(ExchangeRateBackgroundJob));
     });
     builder.UseEnvironment("Testing");
-services.Remove(typeof(IHostedService), typeof(ExchangeRateBackgroundJob));
   }
 }
