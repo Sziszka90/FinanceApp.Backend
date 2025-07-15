@@ -7,8 +7,8 @@ import { UserFormModel } from 'src/models/Profile/user-form-model';
 import { MatSelectModule } from '@angular/material/select';
 import { AuthenticationService } from 'src/services/authentication.service';
 import { UserApiService } from 'src/services/user.api.service';
-import { CurrencyEnum } from 'src/models/Money/money';
 import { GetUserDto } from 'src/models/UserDtos/get-user.dto';
+import { CurrencyEnum } from 'src/models/Enums/currency.enum';
 
 @Component({
   selector: 'profile',

@@ -13,10 +13,10 @@ import {
 } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../../services/transactions.api.service';
-import { CurrencyEnum } from '../../../models/Money/money';
 import { Icons } from 'src/models/Constants/group-icon-options.const';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/get-transaction-group.dto';
 import { Subject, takeUntil } from 'rxjs';
+import { CurrencyEnum } from 'src/models/Enums/currency.enum';
 
 @Component({
   selector: 'update-transaction-group-modal',

@@ -21,7 +21,7 @@ import { TransactionTypeEnum } from 'src/models/Enums/transaction-type.enum';
 import { MatIconModule } from '@angular/material/icon';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { TransactionApiService } from 'src/services/transactions.api.service';
-import { CurrencyEnum } from 'src/models/Money/money';
+import { CurrencyEnum } from 'src/models/Enums/currency.enum';
 
 @Component({
   selector: 'create-transaction-modal',

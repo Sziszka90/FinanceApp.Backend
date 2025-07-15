@@ -9,7 +9,6 @@ import {
   HttpInterceptorFn,
   HttpRequest,
   provideHttpClient,
-  withFetch,
   withInterceptors,
 } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';

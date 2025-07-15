@@ -8,11 +8,11 @@ import {
 } from '@angular/forms';
 import { Subscription, take } from 'rxjs';
 import { Router } from '@angular/router';
-import { CurrencyEnum } from '../../../models/Money/money';
 import { UserApiService } from '../../../services/user.api.service';
 import { MatSelectModule } from '@angular/material/select';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { CurrencyEnum } from 'src/models/Enums/currency.enum';
 
 @Component({
   selector: 'registration',

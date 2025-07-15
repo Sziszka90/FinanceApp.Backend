@@ -1,12 +1,6 @@
+import { CurrencyEnum } from "../Enums/currency.enum";
+
 export interface Money {
     amount: number,
     currency: CurrencyEnum
-}
-
-export enum CurrencyEnum{
-    USD,
-    EUR,
-    GBP,
-    HUF,
-    Unknown
 }

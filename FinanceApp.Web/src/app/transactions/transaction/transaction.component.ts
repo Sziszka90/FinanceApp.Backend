@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { TransactionApiService } from 'src/services/transactions.api.service';
-import { CurrencyEnum, Money } from 'src/models/Money/money';
 import { MatDialog } from '@angular/material/dialog';
 import { GetTransactionDto } from 'src/models/TransactionDtos/get-transaction.dto';
 import { UpdateTransactionModalComponent } from '../update-transaction-modal/update-transaction-modal.component';
@@ -17,6 +16,8 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
+import { CurrencyEnum } from 'src/models/Enums/currency.enum';
+import { Money } from 'src/models/Money/money';
 
 @Component({
   selector: 'transaction',

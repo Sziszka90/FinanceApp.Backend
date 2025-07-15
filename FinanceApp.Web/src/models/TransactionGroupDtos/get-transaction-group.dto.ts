@@ -1,4 +1,3 @@
-import { Money } from "../Money/money";
 
 export interface GetTransactionGroupDto {
     id: string;

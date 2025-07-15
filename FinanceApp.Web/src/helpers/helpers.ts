@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors } from "@angular/forms";
-import { CurrencyEnum } from "src/models/Money/money";
+import { CurrencyEnum } from "src/models/Enums/currency.enum";
 
 export function enumValidator(enumObj: any) {
   return (control: AbstractControl): ValidationErrors | null => {

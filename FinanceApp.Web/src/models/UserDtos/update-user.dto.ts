@@ -1,4 +1,4 @@
-import { CurrencyEnum } from "../Money/money";
+import { CurrencyEnum } from "../Enums/currency.enum";
 
 export interface UpdateUserDto {
     id: string,

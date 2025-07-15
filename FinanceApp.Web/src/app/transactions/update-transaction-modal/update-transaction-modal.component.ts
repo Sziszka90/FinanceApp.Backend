@@ -22,8 +22,8 @@ import { TransactionTypeEnum } from 'src/models/Enums/transaction-type.enum';
 import { enumValidator } from 'src/helpers/helpers';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { UpdateTransactionDto } from 'src/models/TransactionDtos/update-transaction.dto';
-import { CurrencyEnum } from 'src/models/Money/money';
 import { TransactionApiService } from 'src/services/transactions.api.service';
+import { CurrencyEnum } from 'src/models/Enums/currency.enum';
 
 @Component({
   selector: 'update-transaction-modal',
