@@ -47,7 +47,7 @@ public class CustomWebApplicationFactory<TProgram>
       services.RegisterJwtMock();
       var descriptor = services.FirstOrDefault(d =>
     d.ServiceType == typeof(IHostedService) &&
-    d.ImplementationType == typeof(MyBackgroundJob));
+    d.ImplementationType == typeof(ExchangeRateBackgroundJob));
 
 if (descriptor != null)
 {
