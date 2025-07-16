@@ -40,7 +40,7 @@ public class LLMClient : ILLMClient
       Only return the JSON response in a list without any additional text or explanation. Without line breaks or markdown code blocks.
       Do not return any other text, just the JSON response.
       """ +
-      $"Return transaction groups for the following transactions: {string.Join("; ", transactionNames)}. They are divided by ;";
+      $"Return transaction groups for the following transactions, do not modify the transaction name, do not remove any additional space: {string.Join("; ", transactionNames)}. They are divided by ;";
 
     const int maxRetries = 3;
     int retryCount = 0;

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Repositories;
@@ -103,8 +104,10 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+    var allTransactions = await _transactionRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
+
     _logger.LogDebug("CSV file uploaded and transactions created for user: {UserId}", user.Id);
-    return Result.Success(_mapper.Map<List<GetTransactionDto>>(createdTransactions));
+    return Result.Success(_mapper.Map<List<GetTransactionDto>>(allTransactions));
   }
 
   private decimal ConvertToUserCurrency(decimal amount, CurrencyEnum fromCurrency, CurrencyEnum toCurrency, List<FinanceApp.Domain.Entities.ExchangeRate> rates)
@@ -143,8 +146,8 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
         var amount = decimal.TryParse(CleanCsvField(columns[3]), NumberStyles.Number | NumberStyles.AllowThousands,
           new CultureInfo("hu-HU"), out var parsedAmount) ? parsedAmount : 0;
 
-        var transaction = new Domain.Entities.Transaction(
-          CleanCsvField(columns[5]) != "" ? CleanCsvField(columns[5]) : "Unknown",
+        var transaction = new Transaction(
+          NormalizeSpaces(CleanCsvField(columns[5]) != "" ? CleanCsvField(columns[5]) : "Unknown"),
           CleanCsvField(columns[9]),
           amount < 0 ? TransactionTypeEnum.Expense : TransactionTypeEnum.Income,
           new Money
@@ -161,4 +164,11 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     }
     return transactions;
   }
+
+  private string NormalizeSpaces(string input)
+  {
+    if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+    return Regex.Replace(input.Trim(), @"\s+", " ");
+  }
+
 }
