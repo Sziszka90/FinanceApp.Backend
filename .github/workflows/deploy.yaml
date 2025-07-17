@@ -115,7 +115,6 @@ jobs:
             --image ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER} \
             --set-env-vars \
               ConnectionStrings__MsSql='${{ secrets.DB_CONNECTION_STRING }}' \
-              LLMClientSettings__ApiKey='${{ secrets.OPEN_AI_API_KEY }}' \
               AuthenticationSettings__SecretKey='${{ secrets.SECRET_KEY }}' \
               AuthenticationSettings__Audience='${{ vars.AUDIENCE }}' \
               AuthenticationSettings__Issuer='${{ vars.ISSUER }}' \
@@ -127,6 +126,12 @@ jobs:
               ExchangeRateSettings__ApiUrl='${{ vars.EXCHANGE_RATE_API_URL }}' \
               ExchangeRateSettings__ApiEndpoint='${{ vars.EXCHANGE_RATE_API_ENDPOINT }}' \
               ExchangeRateSettings__AppId='${{ secrets.EXCHANGE_RATE_APP_ID }}' \
+              RabbitMqSettings__HostName='${{ vars.RABBITMQ_HOST }}' \
+              RabbitMqSettings__Port='${{ vars.RABBITMQ_PORT }}' \
+              RabbitMqSettings__UserName='${{ secrets.RABBITMQ_USER }}' \
+              RabbitMqSettings__Password='${{ secrets.RABBITMQ_PASS }}' \
+              LLMProcessorSettings__Token='${{ secrets.LLM_PROCESSOR_TOKEN }}' \
+              LLMProcessorSettings__ApiUrl='${{ vars.LLM_PROCESSOR_API_URL }}' \
 
       - name: Update Azure Container App (Frontend)
         run: |
