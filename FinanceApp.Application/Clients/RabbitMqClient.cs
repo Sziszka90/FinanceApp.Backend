@@ -3,6 +3,7 @@ using FinanceApp.Application.Dtos.RabbitMQDtos;
 using FinanceApp.Application.Models.Options;
 using FinanceApp.Application.TransactionApi.TransactionCommands.UploadCsv;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -12,8 +13,9 @@ using System.Text.Json;
 public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
 {
   private readonly ILogger<IRabbitMqClient> _logger;
-  private readonly IMediator _mediator;
+  private IMediator _mediator;
   private readonly RabbitMqSettings _rabbitMqSettings;
+  private readonly IServiceProvider _serviceProvider;
 
   private IConnection? _connection;
   private IChannel? _channel;
@@ -22,12 +24,15 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
 
   public RabbitMqClient(
     ILogger<IRabbitMqClient> logger,
+    
     IMediator mediator,
-    IOptions<RabbitMqSettings> rabbitMqSettings)
+    IOptions<RabbitMqSettings> rabbitMqSettings,
+    IServiceProvider serviceProvider)
   {
     _logger = logger;
     _mediator = mediator;
     _rabbitMqSettings = rabbitMqSettings.Value;
+    _serviceProvider = serviceProvider;
 
     _factory = new ConnectionFactory
     {
@@ -46,6 +51,10 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
 
   public async Task SubscribeAsync(string queue)
   {
+    await _channel!.ExchangeDeclareAsync(_rabbitMqSettings.Exchange, ExchangeType.Topic, durable: true);
+    await _channel!.QueueDeclareAsync(queue, durable: true, exclusive: false, autoDelete: false);
+    await _channel!.QueueBindAsync(queue, _rabbitMqSettings.Exchange, "financeapp.transactions.*");
+
     var consumer = new AsyncEventingBasicConsumer(_channel!);
     consumer.ReceivedAsync += async (_, ea) =>
     {
@@ -59,9 +68,12 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
         return;
       }
 
-      switch (ea.BasicProperties.Type)
+      var scope = _serviceProvider.CreateScope();
+      _mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+      switch (ea.RoutingKey)
       {
-        case "LLMProcessorCommand":
+        case "financeapp.transactions.matched":
           await _mediator.Send(new LLMProcessorCommand(message));
           await _channel!.BasicAckAsync(ea.DeliveryTag, multiple: false);
           break;
@@ -72,13 +84,13 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
       }
     };
     await _channel!.BasicConsumeAsync(queue, autoAck: false, consumer);
-    }
+  }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (_channel != null) await _channel.CloseAsync();
-        if (_connection != null) await _connection.CloseAsync();
-    }
+  public async ValueTask DisposeAsync()
+  {
+    if (_channel != null) await _channel.CloseAsync();
+    if (_connection != null) await _connection.CloseAsync();
+  }
 
   public Task PublishAsync(string queueName, string message)
   {

@@ -32,4 +32,16 @@ public class TransactionGroupRepository : GenericRepository<TransactionGroup>, I
 
     _dbContext.TransactionGroup.RemoveRange(await query.ToListAsync(cancellationToken));
   }
+
+  public async Task<List<TransactionGroup>> GetAllByUserIdAsync(Guid userId, bool noTracking = false, CancellationToken cancellationToken = default)
+  {
+    var query = _dbContext.TransactionGroup.Include(x => x.User).Where(x => x.User.Id == userId);
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.ToListAsync(cancellationToken);
+  }
 }

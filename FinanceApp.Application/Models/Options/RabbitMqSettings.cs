@@ -6,6 +6,7 @@ public class RabbitMqSettings
   public required string UserName { get; set; }
   public required string Password { get; set; }
   public required int Port { get; set; }
+  public required string Exchange { get; set; }
   public required RabbitMqTopics Topics { get; set; }
   public required RabbitMqQueues Queues { get; set; }
 }

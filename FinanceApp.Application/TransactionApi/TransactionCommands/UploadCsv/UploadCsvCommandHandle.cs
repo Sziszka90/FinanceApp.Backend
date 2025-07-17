@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Repositories;
-using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Models;
@@ -23,7 +22,6 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
   private readonly IUserRepository _userRepository;
   private readonly ITransactionRepository _transactionRepository;
   private readonly ITransactionGroupRepository _transactionGroupRepository;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ILLMProcessorClient _llmProcessorClient;
 
@@ -34,7 +32,6 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     IUserRepository userRepository,
     ITransactionRepository transactionRepository,
     ITransactionGroupRepository transactionGroupRepository,
-    IExchangeRateRepository exchangeRateRepository,
     IUnitOfWork unitOfWork,
     ILLMProcessorClient llmProcessorClient)
   {
@@ -44,7 +41,6 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     _userRepository = userRepository;
     _transactionRepository = transactionRepository;
     _transactionGroupRepository = transactionGroupRepository;
-    _exchangeRateRepository = exchangeRateRepository;
     _unitOfWork = unitOfWork;
     _llmProcessorClient = llmProcessorClient;
   }
@@ -76,6 +72,20 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     await _transactionRepository.BatchCreateTransactionsAsync(transactions, cancellationToken);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+    var existingTransactionGroups = await _transactionGroupRepository.GetAllAsync(false, cancellationToken: cancellationToken);
+
+    var llmProcessResult = await _llmProcessorClient.MatchTransactionGroup(
+      transactions.Select(t => t.Name).ToList(),
+      existingTransactionGroups.Select(g => g.Name).ToList(),
+      user.Id.ToString()
+    );
+
+    if (!llmProcessResult.IsSuccess)
+    {
+      _logger.LogError("Failed to match transaction groups: {ErrorMessage}", llmProcessResult.ApplicationError?.Message);
+      return Result.Failure<List<GetTransactionDto>>(ApplicationError.LLMProcessorRequestError(llmProcessResult.ApplicationError!.Message!));
+    }
 
     var allTransactions = await _transactionRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
 

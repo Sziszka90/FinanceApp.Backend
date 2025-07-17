@@ -104,4 +104,16 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
 
     _dbContext.Transaction.RemoveRange(await query.ToListAsync(cancellationToken));
   }
+
+  public async Task<List<Transaction>> GetAllByUserIdAsync(Guid userId, bool noTracking = false, CancellationToken cancellationToken = default)
+  {
+    var query = _dbContext.Transaction.Include(x => x.User).Where(x => x.User.Id == userId);
+
+    if (noTracking)
+    {
+      query = query.AsNoTracking();
+    }
+
+    return await query.ToListAsync(cancellationToken);
+  }
 }

@@ -45,6 +45,6 @@ public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProce
     }
 
     _logger.LogError("Failed request to LLM Processor Service: {ErrorMessage}", response);
-    return Result.Failure<bool>(ApplicationError.LLMProcessorRequestError(response.Data!.Message));
+    return Result.Failure<bool>(response.ApplicationError!);
   }
 }

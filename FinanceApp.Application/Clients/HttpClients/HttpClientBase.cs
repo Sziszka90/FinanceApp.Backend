@@ -20,7 +20,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
     _httpClient = httpClient;
   }
 
-  public void SetAuthorizationHeader(string token)
+  protected void SetAuthorizationHeader(string token)
   {
     if (!string.IsNullOrEmpty(token))
     {

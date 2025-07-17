@@ -78,6 +78,7 @@ public static class DependencyInjection
   private static IServiceCollection AddHostedServices(this IServiceCollection services)
   {
     services.AddHostedService<ExchangeRateBackgroundJob>();
+    services.AddSingleton<ExchangeRateRunSignal>();
     services.AddHostedService<RabbitMqConsumerServiceBackgroundJob>();
     return services;
   }

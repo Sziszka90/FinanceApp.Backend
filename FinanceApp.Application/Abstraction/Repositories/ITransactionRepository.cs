@@ -6,6 +6,14 @@ namespace FinanceApp.Application.Abstraction.Repositories;
 public interface ITransactionRepository : IRepository<Transaction>
 {
   /// <summary>
+  /// Get all transactions by user ID.
+  /// </summary>
+  /// <param name="userId"></param>
+  /// <param name="cancellationToken"></param>
+  /// <returns></returns>
+  Task<List<Transaction>> GetAllByUserIdAsync(Guid userId, bool noTracking = false, CancellationToken cancellationToken = default);
+
+  /// <summary>
   /// Checks if a transaction group is used by any transaction.
   /// </summary>
   /// <param name="transactionGroupId"></param>

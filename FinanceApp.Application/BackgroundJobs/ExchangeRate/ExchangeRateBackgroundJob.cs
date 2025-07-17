@@ -11,13 +11,16 @@ public class ExchangeRateBackgroundJob : BackgroundService
 {
   private readonly ILogger<ExchangeRateBackgroundJob> _logger;
   private readonly IServiceProvider _serviceProvider;
+  private readonly ExchangeRateRunSignal _signal;
 
   public ExchangeRateBackgroundJob(
     ILogger<ExchangeRateBackgroundJob> logger,
-    IServiceProvider serviceProvider)
+    IServiceProvider serviceProvider,
+    ExchangeRateRunSignal signal)
   {
     _logger = logger;
     _serviceProvider = serviceProvider;
+    _signal = signal;
   }
 
   protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -54,6 +57,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
           await exchangeRateRepository.BatchCreateExchangeRatesAsync(rates.Data!, cancellationToken);
           await unitOfWork.SaveChangesAsync(cancellationToken);
           _logger.LogDebug("Exchange rates updated successfully.");
+          _signal.SignalFirstRunCompleted();
           success = true;
         }
         else
