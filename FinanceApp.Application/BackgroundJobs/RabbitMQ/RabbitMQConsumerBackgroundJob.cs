@@ -36,7 +36,7 @@ public class RabbitMqConsumerServiceBackgroundJob : BackgroundService
     _rabbitMqClient = scope.ServiceProvider.GetRequiredService<IRabbitMqClient>();
 
     await _rabbitMqClient.InitializeAsync();
-    await _rabbitMqClient.SubscribeAsync(_rabbitMqSettings.Queues.TransactionsMatched);
+    await _rabbitMqClient.SubscribeAllAsync();
     await Task.Delay(Timeout.Infinite, stoppingToken);
   }
 }

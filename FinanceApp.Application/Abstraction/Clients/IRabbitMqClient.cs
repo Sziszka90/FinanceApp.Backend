@@ -6,8 +6,7 @@ public interface IRabbitMqClient
   /// <summary>
   /// Subscribe to a RabbitMQ queue and process messages with the provided handler.
   /// </summary>
-  /// <param name="queueName">The name of the queue to subscribe to.</param>
-  Task SubscribeAsync(string queueName);
+  Task SubscribeAllAsync();
 
   /// <summary>
   /// Publish a message to a RabbitMQ queue.

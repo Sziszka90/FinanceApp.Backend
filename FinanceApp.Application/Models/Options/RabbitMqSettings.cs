@@ -2,22 +2,19 @@ namespace FinanceApp.Application.Models.Options;
 
 public class RabbitMqSettings
 {
-  public required string HostName { get; set; }
-  public required string UserName { get; set; }
-  public required string Password { get; set; }
-  public required int Port { get; set; }
-  public required string Exchange { get; set; }
-  public required RabbitMqTopics Topics { get; set; }
-  public required RabbitMqQueues Queues { get; set; }
+  public string HostName { get; set; } = string.Empty;
+  public string UserName { get; set; } = string.Empty;
+  public string Password { get; set; } = string.Empty;
+  public int Port { get; set; }
+  public Dictionary<string, string> Exchanges { get; set; } = new();
+  public Dictionary<string, string> Queues { get; set; } = new();
+  public Dictionary<string, string> RoutingKeys { get; set; } = new();
+  public List<RabbitMqBinding> Bindings { get; set; } = new();
 }
 
-public class RabbitMqTopics
+public class RabbitMqBinding
 {
-  public required string TransactionsMatched { get; set; }
+  public string Exchange { get; set; } = string.Empty;
+  public string Queue { get; set; } = string.Empty;
+  public string RoutingKey { get; set; } = string.Empty;
 }
-
-public class RabbitMqQueues
-{
-  public required string TransactionsMatched { get; set; }
-}
-

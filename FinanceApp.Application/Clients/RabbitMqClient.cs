@@ -8,38 +8,33 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Text;
 using System.Text.Json;
 
 public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
 {
   private readonly ILogger<IRabbitMqClient> _logger;
-  private IMediator _mediator;
-  private readonly RabbitMqSettings _rabbitMqSettings;
   private readonly IServiceProvider _serviceProvider;
-
+  private readonly RabbitMqSettings _settings;
+  private readonly ConnectionFactory _factory;
   private IConnection? _connection;
   private IChannel? _channel;
-  private ConnectionFactory _factory;
-
 
   public RabbitMqClient(
     ILogger<IRabbitMqClient> logger,
-    
-    IMediator mediator,
-    IOptions<RabbitMqSettings> rabbitMqSettings,
-    IServiceProvider serviceProvider)
+    IServiceProvider serviceProvider,
+    IOptions<RabbitMqSettings> rabbitMqSettings)
   {
     _logger = logger;
-    _mediator = mediator;
-    _rabbitMqSettings = rabbitMqSettings.Value;
     _serviceProvider = serviceProvider;
+    _settings = rabbitMqSettings.Value;
 
     _factory = new ConnectionFactory
     {
-      HostName = _rabbitMqSettings.HostName,
-      UserName = _rabbitMqSettings.UserName,
-      Password = _rabbitMqSettings.Password,
-      Port = _rabbitMqSettings.Port
+      HostName = _settings.HostName,
+      UserName = _settings.UserName,
+      Password = _settings.Password,
+      Port = _settings.Port
     };
   }
 
@@ -49,41 +44,91 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
     _channel = await _connection.CreateChannelAsync();
   }
 
-  public async Task SubscribeAsync(string queue)
+  public async Task SubscribeAllAsync()
   {
-    await _channel!.ExchangeDeclareAsync(_rabbitMqSettings.Exchange, ExchangeType.Topic, durable: true);
-    await _channel!.QueueDeclareAsync(queue, durable: true, exclusive: false, autoDelete: false);
-    await _channel!.QueueBindAsync(queue, _rabbitMqSettings.Exchange, "financeapp.transactions.*");
+    if (_channel == null)
+      throw new InvalidOperationException("RabbitMQ channel not initialized.");
 
-    var consumer = new AsyncEventingBasicConsumer(_channel!);
-    consumer.ReceivedAsync += async (_, ea) =>
+    await DeclareExchangesAndQueuesAsync();
+    await BindQueuesAsync();
+    await SetupConsumersAsync();
+  }
+
+  private async Task DeclareExchangesAndQueuesAsync()
+  {
+    foreach (var exchange in _settings.Exchanges.Values)
     {
-      var body = ea.Body.ToArray();
+      await _channel!.ExchangeDeclareAsync(exchange, GetExchangeType(exchange), durable: true);
+    }
+
+    foreach (var queue in _settings.Queues.Values)
+    {
+      await _channel!.QueueDeclareAsync(queue, durable: true, exclusive: false, autoDelete: false);
+    }
+  }
+
+  private async Task BindQueuesAsync()
+  {
+    foreach (var binding in _settings.Bindings)
+    {
+      var exchangeName = _settings.Exchanges[binding.Exchange];
+      var queueName = _settings.Queues[binding.Queue];
+      var routingKey = binding.RoutingKey;
+
+      await _channel!.QueueBindAsync(queueName, exchangeName, routingKey);
+    }
+  }
+
+  private async Task SetupConsumersAsync()
+  {
+    foreach (var queuePair in _settings.Queues)
+    {
+      string queueKey = queuePair.Key;
+      string queueName = queuePair.Value;
+
+      var consumer = new AsyncEventingBasicConsumer(_channel!);
+      consumer.ReceivedAsync += async (_, ea) => await HandleMessageAsync(ea);
+
+      await _channel!.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
+    }
+  }
+
+  private async Task HandleMessageAsync(BasicDeliverEventArgs ea)
+  {
+    var body = ea.Body.ToArray();
+
+    try
+    {
       var message = JsonSerializer.Deserialize<RabbitMQResponseDto>(body);
-
       if (message == null)
-      {
-        _logger.LogError("Received null message from RabbitMQ.");
-        await _channel!.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
-        return;
-      }
+        throw new JsonException("Deserialized message is null");
 
-      var scope = _serviceProvider.CreateScope();
-      _mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+      using var scope = _serviceProvider.CreateScope();
+      var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
       switch (ea.RoutingKey)
       {
-        case "financeapp.transactions.matched":
-          await _mediator.Send(new LLMProcessorCommand(message));
-          await _channel!.BasicAckAsync(ea.DeliveryTag, multiple: false);
+        case var rk when rk == _settings.RoutingKeys["TransactionsMatched"]:
+          await mediator.Send(new LLMProcessorCommand(message));
           break;
+
         default:
-          _logger.LogWarning("Unknown message type: {MessageType}", ea.BasicProperties.Type);
+          _logger.LogWarning("Unknown routing key: {RoutingKey}", ea.RoutingKey);
           await _channel!.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
-          break;
+          return;
       }
-    };
-    await _channel!.BasicConsumeAsync(queue, autoAck: false, consumer);
+      await _channel!.BasicAckAsync(ea.DeliveryTag, multiple: false);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to process message. RoutingKey: {RoutingKey}, Body: {Body}", ea.RoutingKey, Encoding.UTF8.GetString(body));
+      await _channel!.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
+    }
+  }
+
+  public Task PublishAsync(string queueName, string message)
+  {
+    throw new NotImplementedException();
   }
 
   public async ValueTask DisposeAsync()
@@ -92,8 +137,14 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
     if (_connection != null) await _connection.CloseAsync();
   }
 
-  public Task PublishAsync(string queueName, string message)
+  private string GetExchangeType(string exchangeName)
   {
-    throw new NotImplementedException();
+    return exchangeName.ToLowerInvariant() switch
+    {
+      var name when name.Contains("topic") => ExchangeType.Topic,
+      var name when name.Contains("direct") => ExchangeType.Direct,
+      _ => throw new NotSupportedException($"Exchange type for {exchangeName} not supported."),
+    };
   }
 }
+
