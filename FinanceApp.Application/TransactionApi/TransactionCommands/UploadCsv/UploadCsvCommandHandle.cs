@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using AutoMapper;
 using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
 using FinanceApp.Application.Dtos.TransactionDtos;
 using FinanceApp.Application.Models;
@@ -24,7 +25,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
   private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUnitOfWork _unitOfWork;
-  private readonly ILLMClient _llmClient;
+  private readonly ILLMProcessorClient _llmProcessorClient;
 
   public UploadCsvCommandHandler(
     ILogger<UploadCsvCommandHandler> logger,
@@ -35,7 +36,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     ITransactionGroupRepository transactionGroupRepository,
     IExchangeRateRepository exchangeRateRepository,
     IUnitOfWork unitOfWork,
-    ILLMClient llmClient)
+    ILLMProcessorClient llmProcessorClient)
   {
     _logger = logger;
     _mapper = mapper;
@@ -45,7 +46,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     _transactionGroupRepository = transactionGroupRepository;
     _exchangeRateRepository = exchangeRateRepository;
     _unitOfWork = unitOfWork;
-    _llmClient = llmClient;
+    _llmProcessorClient = llmProcessorClient;
   }
 
   /// <inheritdoc />
@@ -72,35 +73,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
     var transactions = await ImportTransactions(request.uploadCsvFileDto.File, user!);
 
-    var existingTransactionGroups = await _transactionGroupRepository.GetAllAsync(cancellationToken: cancellationToken);
-    var existingTransactionGroupNames = existingTransactionGroups.Select(tg => tg.Name).ToList();
-
-    if (transactions.Count == 0)
-    {
-      _logger.LogError("No valid transactions found.");
-      return Result.Failure<List<GetTransactionDto>>(ApplicationError.ParsingError());
-    }
-
-    var matchedTransactionGroups = (await _llmClient.MatchTransactionGroup(transactions.Select(t => t.Name).ToList(), existingTransactionGroupNames, user!)).Data;
-
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-
-    foreach (var transaction in transactions)
-    {
-      var matchedGroup = matchedTransactionGroups!.FirstOrDefault(dict => dict.ContainsKey(transaction.Name));
-      var groupName = matchedGroup!.Values.FirstOrDefault();
-      var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == groupName);
-
-      transaction.TransactionGroup = group;
-
-      if (transaction.Value.Currency != user!.BaseCurrency)
-      {
-        transaction.Value.Amount = ConvertToUserCurrency(transaction.Value.Amount, transaction.Value.Currency, user.BaseCurrency, exchangeRates);
-        transaction.Value.Currency = user.BaseCurrency;
-      }
-    }
-
-    var createdTransactions = await _transactionRepository.BatchCreateTransactionsAsync(transactions, cancellationToken);
+    await _transactionRepository.BatchCreateTransactionsAsync(transactions, cancellationToken);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -108,15 +81,6 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
     _logger.LogDebug("CSV file uploaded and transactions created for user: {UserId}", user.Id);
     return Result.Success(_mapper.Map<List<GetTransactionDto>>(allTransactions));
-  }
-
-  private decimal ConvertToUserCurrency(decimal amount, CurrencyEnum fromCurrency, CurrencyEnum toCurrency, List<FinanceApp.Domain.Entities.ExchangeRate> rates)
-  {
-    if (fromCurrency == toCurrency)
-      return Math.Round(amount, 2);
-    var rate = rates.FirstOrDefault(r => r.BaseCurrency == fromCurrency.ToString() && r.TargetCurrency == toCurrency.ToString());
-
-    return Math.Round(amount * rate!.Rate, 2);
   }
 
   private string CleanCsvField(string input)

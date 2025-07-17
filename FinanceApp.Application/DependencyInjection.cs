@@ -2,6 +2,7 @@
 using FinanceApp.Application.Abstraction.Clients;
 using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.BackgroundJobs.ExchangeRate;
+using FinanceApp.Application.BackgroundJobs.RabbitMQ;
 using FinanceApp.Application.Behaviors;
 using FinanceApp.Application.Clients;
 using FinanceApp.Application.Models.Options;
@@ -19,7 +20,6 @@ public static class DependencyInjection
 {
   public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
   {
-    services.AddLLM();
     services.AddClients();
     services.AddAutoMapper(config => { config.AddMaps(typeof(DependencyInjection).Assembly); });
     services.AddMediatR(config => config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
@@ -56,21 +56,11 @@ public static class DependencyInjection
 
   private static IServiceCollection AddClients(this IServiceCollection services)
   {
-    services.AddScoped<ILLMClient, LLMClient>();
+    services.AddScoped<ILLMProcessorClient, LLMProcessorClient>();
     services.AddScoped<ISmtpEmailSender, SmtpEmailSender>();
     services.AddScoped<IExchangeRateClient, ExchangeRateClient>();
+    services.AddSingleton<IRabbitMqClient, RabbitMqClient>();
 
-    return services;
-  }
-
-  private static IServiceCollection AddLLM(this IServiceCollection services)
-  {
-    services.AddScoped(sp =>
-    {
-      var apiKey = sp.GetRequiredService<IConfiguration>()["LLMClientSettings:ApiKey"];
-      ChatClient client = new(model: "gpt-4-1106-preview", apiKey);
-      return client;
-    });
     return services;
   }
 
@@ -88,6 +78,7 @@ public static class DependencyInjection
   private static IServiceCollection AddHostedServices(this IServiceCollection services)
   {
     services.AddHostedService<ExchangeRateBackgroundJob>();
+    services.AddHostedService<RabbitMqConsumerServiceBackgroundJob>();
     return services;
   }
 }

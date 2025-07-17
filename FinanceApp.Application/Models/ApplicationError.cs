@@ -6,6 +6,13 @@ namespace FinanceApp.Application.Models;
 public class ApplicationError
 {
 
+  public const string TOKEN_NOT_PROVIDED_MESSAGE = "Token not provided.";
+  public const string USER_ID_NOT_PROVIDED_MESSAGE = "User ID not provided.";
+  public const string INVALID_REQUEST_ERROR_MESSAGE = "Invalid request.";
+
+
+
+
   public const string DEFAULT_MESSAGE = "An exception occurred.";
   public const string DEFAULT_CODE = "EXCEPTION_OCCURRED";
 
@@ -78,11 +85,11 @@ public class ApplicationError
   public const string PARSING_ERROR_MESSAGE = "Parsing error.";
   public const string PARSING_ERROR_CODE = "PARSING_ERROR";
 
-  public const string TOKEN_NOT_PROVIDED_MESSAGE = "Token not provided.";
-  public const string ID_NOT_PROVIDED_MESSAGE = "User ID not provided.";
-
   public const string TRANSACTION_GROUP_IS_USED_MESSAGE = "Transaction group is used by transactions.";
   public const string TRANSACTION_GROUP_IS_USED_CODE = "TRANSACTION_GROUP_IS_USED";
+
+  public const string LLM_PROCESSOR_REQUEST_MESSAGE = "LLM Processor request error.";
+  public const string LLM_PROCESSOR_REQUEST_CODE = "LLM_PROCESSOR_REQUEST_ERROR";
 
   /// <summary>
   /// Machine readable error code
@@ -381,11 +388,23 @@ public class ApplicationError
   }
 
   /// <summary>
-  /// Error when traansaction group is used by transactions
+  /// Error when transaction group is used by transactions
   /// </summary>
   /// <returns>ApplicationError</returns>
   public static ApplicationError TransactionGroupIsUsedError()
   {
     return new ApplicationError(TRANSACTION_GROUP_IS_USED_MESSAGE, TRANSACTION_GROUP_IS_USED_CODE);
+  }
+
+  /// <summary>
+  /// Error during LLM Processor request
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError LLMProcessorRequestError(string message)
+  {
+    return new ApplicationError(LLM_PROCESSOR_REQUEST_MESSAGE, LLM_PROCESSOR_REQUEST_CODE, new Dictionary<string, object>
+    {
+      { "message", message }
+    });
   }
 }

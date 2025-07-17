@@ -14,6 +14,6 @@ public class ConfirmUserEmailCommandValidator : AbstractValidator<ConfirmUserEma
 
     RuleFor(x => x.Id)
       .NotEmpty()
-      .WithMessage(ApplicationError.ID_NOT_PROVIDED_MESSAGE);
+      .WithMessage(ApplicationError.USER_ID_NOT_PROVIDED_MESSAGE);
   }
 }

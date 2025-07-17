@@ -18,11 +18,16 @@ public static class ApiExtensions
     var exchangeRateSection = builder.Configuration.GetSection("ExchangeRateSettings");
 
     var smtpSection = builder.Configuration.GetSection("SmtpSettings");
-    var smtpSettings = smtpSection.Get<SmtpSettings>();
+
+    var rabbitMqSection = builder.Configuration.GetSection("RabbitMqSettings");
+
+    var llmProcessorSection = builder.Configuration.GetSection("LLMProcessorSettings");
 
     builder.Services.Configure<AuthenticationSettings>(authenticationSection);
     builder.Services.Configure<ExchangeRateSettings>(exchangeRateSection);
     builder.Services.Configure<SmtpSettings>(smtpSection);
+    builder.Services.Configure<RabbitMqSettings>(rabbitMqSection);
+    builder.Services.Configure<LLMProcessorSettings>(llmProcessorSection);
 
     builder.Services.AddCors(options =>
                              {
