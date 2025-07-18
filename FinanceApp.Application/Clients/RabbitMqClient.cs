@@ -58,7 +58,7 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
   {
     foreach (var exchange in _settings.Exchanges.Values)
     {
-      await _channel!.ExchangeDeclareAsync(exchange, GetExchangeType(exchange), durable: true);
+      await _channel!.ExchangeDeclareAsync(exchange["ExchangeName"], exchange["ExchangeType"], durable: true);
     }
 
     foreach (var queue in _settings.Queues.Values)
@@ -71,7 +71,7 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
   {
     foreach (var binding in _settings.Bindings)
     {
-      var exchangeName = _settings.Exchanges[binding.Exchange];
+      var exchangeName = _settings.Exchanges[binding.Exchange]["ExchangeName"];
       var queueName = _settings.Queues[binding.Queue];
       var routingKey = binding.RoutingKey;
 
@@ -135,16 +135,6 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
   {
     if (_channel != null) await _channel.CloseAsync();
     if (_connection != null) await _connection.CloseAsync();
-  }
-
-  private string GetExchangeType(string exchangeName)
-  {
-    return exchangeName.ToLowerInvariant() switch
-    {
-      var name when name.Contains("topic") => ExchangeType.Topic,
-      var name when name.Contains("direct") => ExchangeType.Direct,
-      _ => throw new NotSupportedException($"Exchange type for {exchangeName} not supported."),
-    };
   }
 }
 
