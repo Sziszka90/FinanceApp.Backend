@@ -20,15 +20,6 @@ public abstract class HttpClientBase<T> : IHttpClientBase
     _httpClient = httpClient;
   }
 
-  protected void SetAuthorizationHeader(string token)
-  {
-    if (!string.IsNullOrEmpty(token))
-    {
-      _httpClient.DefaultRequestHeaders.Remove("Authorization");
-      _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-    }
-  }
-
   public async Task<Result<TResponse>> GetAsync<TResponse>(string endpoint)
   {
     try

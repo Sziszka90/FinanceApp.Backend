@@ -28,10 +28,7 @@ public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProce
     List<string> existingGroups,
     string userId)
   {
-    SetAuthorizationHeader(_llmProcessorSettings.Token);
-
-    var response = await PostAsync<LLMProcessorRequestDto, LLMProcessorResponseDto>(
-      _llmProcessorSettings.ApiUrl + _llmProcessorSettings.MatchTransactionEndpoint,
+    var response = await PostAsync<LLMProcessorRequestDto, LLMProcessorResponseDto>(_llmProcessorSettings.MatchTransactionEndpoint,
       new LLMProcessorRequestDto
       {
         UserId = userId,

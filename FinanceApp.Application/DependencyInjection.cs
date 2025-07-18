@@ -56,7 +56,6 @@ public static class DependencyInjection
 
   private static IServiceCollection AddClients(this IServiceCollection services)
   {
-    services.AddScoped<ILLMProcessorClient, LLMProcessorClient>();
     services.AddScoped<ISmtpEmailSender, SmtpEmailSender>();
     services.AddScoped<IExchangeRateClient, ExchangeRateClient>();
     services.AddSingleton<IRabbitMqClient, RabbitMqClient>();
@@ -70,6 +69,13 @@ public static class DependencyInjection
     {
       var exchangeRateSettings = sp.GetRequiredService<IOptions<ExchangeRateSettings>>().Value;
       client.BaseAddress = new Uri(exchangeRateSettings.ApiUrl);
+      client.DefaultRequestHeaders.Add("Accept", "application/json");
+    });
+    services.AddHttpClient<ILLMProcessorClient, LLMProcessorClient>((sp, client) =>
+    {
+      var llmProcessorSettings = sp.GetRequiredService<IOptions<LLMProcessorSettings>>().Value;
+      client.BaseAddress = new Uri(llmProcessorSettings.ApiUrl);
+      client.DefaultRequestHeaders.Add("Authorization", $"Bearer {llmProcessorSettings.Token}");
       client.DefaultRequestHeaders.Add("Accept", "application/json");
     });
     return services;
