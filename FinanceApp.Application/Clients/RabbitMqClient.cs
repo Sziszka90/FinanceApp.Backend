@@ -42,6 +42,29 @@ public class RabbitMqClient : IAsyncDisposable, IRabbitMqClient
   {
     _connection = await _factory.CreateConnectionAsync();
     _channel = await _connection.CreateChannelAsync();
+    _connection.ConnectionShutdownAsync += OnConnectionShutdown;
+  }
+
+  private async Task OnConnectionShutdown(object sender, ShutdownEventArgs e)
+  {
+    _logger.LogWarning("RabbitMQ connection shutdown: {Reason}", e.ReplyText);
+    await Reconnect();
+  }
+
+  private async Task Reconnect()
+  {
+    try
+    {
+      _channel?.Dispose();
+      _connection?.Dispose();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to dispose RabbitMQ resources during reconnection.");
+    }
+
+    await Task.Delay(TimeSpan.FromSeconds(2));
+    await InitializeAsync();
   }
 
   public async Task SubscribeAllAsync()
