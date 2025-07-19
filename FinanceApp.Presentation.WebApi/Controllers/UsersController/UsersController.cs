@@ -47,7 +47,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> ForgotPassword([FromBody] EmailDto email, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new ForgotPasswordCommand(email, cancellationToken));
-    return this.GetResult(result);
+    return this.RedirectToUrl(result, "https://www.financeapp.fun/forgot-password");
   }
 
   [HttpPost("update-password")]

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
@@ -20,13 +20,23 @@ export class ForgotPasswordRequestModalComponent {
     email: ['', [Validators.required, Validators.email]]
   });
 
+  public loading = signal<boolean>(false);
+
   private $onDestroy = new Subject<void>();
 
   onSubmit(): void {
     if (this.emailForm.valid) {
+      this.loading.set(true);
       this.userApiService.forgotPassword(this.emailForm.value.email ?? "")
-      .pipe(takeUntil(this.$onDestroy)).subscribe(() =>{
-        this.matDialogRef.close();
+      .pipe(takeUntil(this.$onDestroy)).subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.matDialogRef.close();
+        },
+        error: (error) => {
+          this.loading.set(false);
+          console.error('Error sending password reset email:', error);
+        }
       });
     }
   }
