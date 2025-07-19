@@ -11,6 +11,7 @@ import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/get-tran
 import { UpdateTransactionGroupModalComponent } from '../update-transaction-group-modal/update-transaction-group-modal.component';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { AuthenticationService } from 'src/services/authentication.service';
 
 @Component({
   selector: 'transaction-group',
@@ -36,8 +37,9 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 })
 
 export class TransactionGroupComponent implements OnInit, OnDestroy {
-  public matDialog = inject(MatDialog);
-  public transactionApiService = inject(TransactionApiService);
+  private matDialog = inject(MatDialog);
+  private transactionApiService = inject(TransactionApiService);
+  private authService = inject(AuthenticationService);
 
   displayedColumnsFull: string[] = [
     'name',
@@ -71,6 +73,10 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
   }
 
   createTransactionGroup() {
+    if (!this.authService.isAuthenticated()) {
+      return;
+    }
+
     const dialogRef = this.matDialog.open(
       CreateTransactionGroupModalComponent,
       {
@@ -98,6 +104,9 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
   }
 
   editTransactionGroup(transactionGroup: GetTransactionGroupDto) {
+    if (!this.authService.isAuthenticated()) {
+      return;
+    }
     const dialogRef = this.matDialog.open(
       UpdateTransactionGroupModalComponent,
       {

@@ -11,11 +11,12 @@ import { ResetPasswordComponent } from './user/reset-password/reset-password.com
 import { ProfileComponent } from './user/profile/profile.component';
 import { inject } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
+import { Router } from '@angular/router';
 
 const AuthGuard: CanActivateFn = () => {
   const authService = inject(AuthenticationService);
+  const router = inject(Router);
   if (!authService.isAuthenticated()) {
-    authService.userLoggedIn.next(false);
     return false;
   }
   return true;

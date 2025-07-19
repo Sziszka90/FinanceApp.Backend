@@ -1,24 +1,23 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { LoginRequestDto } from '../models/LoginDtos/login-request.dto';
 import { Observable, Subject } from 'rxjs';
 import { LoginResponseDto } from '../models/LoginDtos/login-response.dto';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
-import { AuthenticationApiService } from './authentication.api.service';
 import { TOKEN_KEY } from 'src/models/Constants/token.const';
+import { Router } from '@angular/router';
+import { AuthenticationApiService } from './authentication.api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private readonly tokenKey: string = TOKEN_KEY; // Define the key for local storage
+  private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
+  private authApiService = inject(AuthenticationApiService);
+
+  private readonly tokenKey: string = TOKEN_KEY;
   public userLoggedIn: Subject<boolean> = new Subject<boolean>();
-
-
-  constructor(
-    private authApiService: AuthenticationApiService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
 
   saveToken(token: string): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -38,15 +37,19 @@ export class AuthenticationService {
       localStorage.removeItem(this.tokenKey);
     }
     this.userLoggedIn.next(false);
+    this.router.navigate(['/login']);
   }
 
   login(loginRequestDto: LoginRequestDto): Observable<LoginResponseDto> {
     return this.authApiService.login(loginRequestDto);
   }
 
-
   isAuthenticated(): boolean {
-    return this.validateToken();
+    if (!this.validateToken()) {
+      this.logout();
+      return false;
+    }
+    return true;
   }
 
   validateToken(): boolean {

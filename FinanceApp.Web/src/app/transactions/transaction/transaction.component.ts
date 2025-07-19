@@ -18,6 +18,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 import { CreateTransactionModalComponent } from '../create-transaction-modal/create-transaction-modal.component';
 import { CurrencyEnum } from 'src/models/Enums/currency.enum';
 import { Money } from 'src/models/Money/money.dto';
+import { AuthenticationService } from 'src/services/authentication.service';
 
 @Component({
   selector: 'transaction',
@@ -38,9 +39,10 @@ import { Money } from 'src/models/Money/money.dto';
 })
 
 export class TransactionComponent implements OnInit, OnDestroy {
-  public transactionApiService = inject(TransactionApiService);
-  public matDialog = inject(MatDialog);
-  public fb = inject(FormBuilder);
+  private transactionApiService = inject(TransactionApiService);
+  private matDialog = inject(MatDialog);
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthenticationService);
 
   public summary$: Observable<Money> | undefined;
   public transactions$: Observable<GetTransactionDto[]> | undefined;
@@ -166,6 +168,10 @@ export class TransactionComponent implements OnInit, OnDestroy {
   }
 
   editTransaction(transactionDto: GetTransactionDto) {
+    if (!this.authService.isAuthenticated()){
+      return;
+    }
+
     const dialogRef = this.matDialog.open(
       UpdateTransactionModalComponent,
       {
@@ -202,6 +208,10 @@ export class TransactionComponent implements OnInit, OnDestroy {
   }
 
   createTransaction() {
+    if (!this.authService.isAuthenticated()){
+      return;
+    }
+
     const dialogRef = this.matDialog.open(
       CreateTransactionModalComponent,
       {
@@ -219,8 +229,8 @@ export class TransactionComponent implements OnInit, OnDestroy {
             return ds;
           });
         }
-      });
-  };
+    });
+  }
 
   resetFilters() {
     this.filterForm.reset();
