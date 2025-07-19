@@ -20,14 +20,12 @@ export class AuthenticationService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  // Save token to localStorage
   saveToken(token: string): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.tokenKey, token);
     }
   }
 
-  // Retrieve token from localStorage
   getToken(): string | null {
     if (isPlatformBrowser(this.platformId)) {
       return localStorage.getItem(this.tokenKey);
@@ -35,19 +33,18 @@ export class AuthenticationService {
     return null;
   }
 
-  // Remove token from localStorage (e.g., on logout)
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.tokenKey);
     }
-    this.userLoggedIn.next(false); // Notify subscribers that the user has logged out
+    this.userLoggedIn.next(false);
   }
 
   login(loginRequestDto: LoginRequestDto): Observable<LoginResponseDto> {
     return this.authApiService.login(loginRequestDto);
   }
 
-  // Check if the token exists in localStorage
+
   isAuthenticated(): boolean {
     return this.validateToken();
   }
@@ -55,30 +52,21 @@ export class AuthenticationService {
   validateToken(): boolean {
     const token = this.getToken();
     if (!token) {
-      return false; // If no token, return false
+      return false;
     }
 
     try {
-      // Decode the JWT token
       const decodedToken: any = jwtDecode(token);
 
-      // Check if the token has expired
-      const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+      const currentTime = Math.floor(Date.now() / 1000);
       if (decodedToken.exp < currentTime) {
         console.log('Token has expired.');
-        return false; // Token is expired
+        return false;
       }
-
-      // Optionally: Validate other claims (e.g., issuer, audience)
-      // if (decodedToken.iss !== 'expectedIssuer') {
-      //   console.log('Invalid issuer.');
-      //   return false;
-      // }
-
-      return true; // Token is valid
+      return true;
     } catch (error) {
       console.error('Invalid token format:', error);
-      return false; // Invalid token format or decoding error
+      return false;
     }
   }
 }

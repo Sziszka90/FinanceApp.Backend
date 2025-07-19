@@ -6,15 +6,19 @@ import { LoginComponent } from './user/login/login.component';
 import { RegistrationComponent } from './user/registration/registration.component';
 import { LoggedInComponent } from './user/logged-in/logged-in.component';
 import { TransactionGroupComponent } from './transaction-groups/transaction-group/transaction-group.component';
-import { TOKEN_KEY } from 'src/models/Constants/token.const';
 import { ValidationFailedComponent } from './shared/validation-failed/validation-failed.component';
 import { ResetPasswordComponent } from './user/reset-password/reset-password.component';
 import { ProfileComponent } from './user/profile/profile.component';
+import { inject } from '@angular/core';
+import { AuthenticationService } from '../services/authentication.service';
 
-// Simple AuthGuard implementation
 const AuthGuard: CanActivateFn = () => {
-  const token = localStorage.getItem(TOKEN_KEY); // or your auth logic
-  return !!token;
+  const authService = inject(AuthenticationService);
+  if (!authService.isAuthenticated()) {
+    authService.userLoggedIn.next(false);
+    return false;
+  }
+  return true;
 };
 
 export const routes: Routes = [
