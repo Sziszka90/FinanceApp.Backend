@@ -3,11 +3,12 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
+import { LoaderComponent } from 'src/app/shared/loader/loader.component';
 import { UserApiService } from 'src/services/user.api.service';
 
 @Component({
   selector: 'forgot-password-modal',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LoaderComponent],
   templateUrl: './forgot-password-modal.component.html',
   styleUrl: './forgot-password-modal.component.scss'
 })
