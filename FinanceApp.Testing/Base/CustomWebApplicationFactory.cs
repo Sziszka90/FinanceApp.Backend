@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using FinanceApp.Application.BackgroundJobs.ExchangeRate;
+using FinanceApp.Application.BackgroundJobs.RabbitMQ;
 
 namespace FinanceApp.Testing.Base;
 
@@ -45,16 +46,31 @@ public class CustomWebApplicationFactory<TProgram>
         });
       services.RegisterBcryptMock();
       services.RegisterJwtMock();
-      var descriptor = services.FirstOrDefault(d =>
-    d.ServiceType == typeof(IHostedService) &&
-    d.ImplementationType == typeof(ExchangeRateBackgroundJob));
-
-if (descriptor != null)
-{
-    services.Remove(descriptor);
-}
+      RemoveServices(new List<Dictionary<Type, Type>>
+      {
+        new Dictionary<Type, Type>
+        {
+          { typeof(IHostedService), typeof(ExchangeRateBackgroundJob) }
+        },
+        new Dictionary<Type, Type>
+        {
+          { typeof(IHostedService), typeof(RabbitMqConsumerServiceBackgroundJob) }
+        }
+      }, services);
 
     });
     builder.UseEnvironment("Testing");
+  }
+
+  private void RemoveServices(List<Dictionary<Type, Type>> serviceTypes, IServiceCollection services)
+  {
+    foreach (var serviceType in serviceTypes)
+    {
+      var descriptor = services.FirstOrDefault(d => d.ServiceType == serviceType.First().Key && d.ImplementationType == serviceType.First().Value);
+      if (descriptor != null)
+      {
+        services.Remove(descriptor);
+      }
+    }
   }
 }
