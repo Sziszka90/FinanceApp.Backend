@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
-using FinanceApp.Application.Models;
 using FinanceApp.Application.Models.Options;
 using FinanceApp.Presentation.WebApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,22 +11,7 @@ public static class ApiExtensions
 {
   public static WebApplicationBuilder SetupApi(this WebApplicationBuilder builder, IConfiguration configuration)
   {
-    var authenticationSection = builder.Configuration.GetSection("AuthenticationSettings");
-    var authenticationSettings = authenticationSection.Get<AuthenticationSettings>();
-
-    var exchangeRateSection = builder.Configuration.GetSection("ExchangeRateSettings");
-
-    var smtpSection = builder.Configuration.GetSection("SmtpSettings");
-
-    var rabbitMqSection = builder.Configuration.GetSection("RabbitMqSettings");
-
-    var llmProcessorSection = builder.Configuration.GetSection("LLMProcessorSettings");
-
-    builder.Services.Configure<AuthenticationSettings>(authenticationSection);
-    builder.Services.Configure<ExchangeRateSettings>(exchangeRateSection);
-    builder.Services.Configure<SmtpSettings>(smtpSection);
-    builder.Services.Configure<RabbitMqSettings>(rabbitMqSection);
-    builder.Services.Configure<LLMProcessorSettings>(llmProcessorSection);
+    builder.AddConfigurations();
 
     builder.Services.AddCors(options =>
                              {
@@ -52,7 +36,9 @@ public static class ApiExtensions
                              options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                            });
 
-    // Configure JWT Authentication
+
+    var authenticationSettings = builder.Configuration.GetSection("AuthenticationSettings").Get<AuthenticationSettings>();
+
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
            .AddJwtBearer(options =>
                          {
@@ -87,5 +73,29 @@ public static class ApiExtensions
     app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
     return app;
+  }
+
+  private static WebApplicationBuilder AddConfigurations(this WebApplicationBuilder builder)
+  {
+    builder.Configuration
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile("appsettings.Messaging.json", optional: true, reloadOnChange: true)
+        .AddJsonFile("appsettings.Database.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables();
+
+    var authenticationSection = builder.Configuration.GetSection("AuthenticationSettings");
+    var exchangeRateSection = builder.Configuration.GetSection("ExchangeRateSettings");
+    var smtpSection = builder.Configuration.GetSection("SmtpSettings");
+    var rabbitMqSection = builder.Configuration.GetSection("RabbitMqSettings");
+    var llmProcessorSection = builder.Configuration.GetSection("LLMProcessorSettings");
+
+    builder.Services.Configure<AuthenticationSettings>(authenticationSection);
+    builder.Services.Configure<ExchangeRateSettings>(exchangeRateSection);
+    builder.Services.Configure<SmtpSettings>(smtpSection);
+    builder.Services.Configure<RabbitMqSettings>(rabbitMqSection);
+    builder.Services.Configure<LLMProcessorSettings>(llmProcessorSection);
+
+    return builder;
   }
 }

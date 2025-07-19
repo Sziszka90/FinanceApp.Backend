@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace FinanceApp.Application.Dtos.RabbitMQDtos;
 
-public class RabbitMQResponseDto
+public class RabbitMqPayload
 {
   [JsonPropertyName("correlation_id")]
   public required string CorrelationId { get; set; }

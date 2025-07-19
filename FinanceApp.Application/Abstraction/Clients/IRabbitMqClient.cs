@@ -14,9 +14,4 @@ public interface IRabbitMqClient
   /// <param name="queueName">The name of the queue.</param>
   /// <param name="message">The message to publish.</param>
   Task PublishAsync(string queueName, string message);
-
-  /// <summary>
-  /// Initialize the RabbitMQ client.
-  /// </summary>
-  Task InitializeAsync();
 }

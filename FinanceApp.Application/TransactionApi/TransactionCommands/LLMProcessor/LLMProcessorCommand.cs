@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.TransactionApi.TransactionCommands.UploadCsv;
 
-public record LLMProcessorCommand(RabbitMQResponseDto ResponseDto ) : ICommand<Result<bool>>;
+public record LLMProcessorCommand(RabbitMqPayload ResponseDto ) : ICommand<Result<bool>>;

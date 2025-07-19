@@ -10,9 +10,7 @@ public static class DependencyInjection
 {
   public static IServiceCollection AddEntityFrameworkCore(this IServiceCollection services, IConfiguration configuration)
   {
-    var databaseProvider = configuration.GetValue<string>(Constants.ConfigurationKeys.DatabaseProvider);
-
-    switch (databaseProvider?.ToLowerInvariant())
+    switch (configuration.GetValue<string>(Constants.ConfigurationKeys.DatabaseProvider)?.ToLowerInvariant())
     {
       case "mssql":
         services.AddEntityFrameworkCoreMssqlPersistence(configuration);

@@ -1,5 +1,6 @@
 using FinanceApp.Infrastructure.EntityFramework;
 using FinanceApp.Infrastructure.EntityFramework.Common;
+using FinanceApp.Infrastructure.RabbitMq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,8 +11,8 @@ public static class DependencyInjection
   public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
   {
     services.AddEntityFrameworkCore(configuration);
-
     services.AddEntityFrameworkCorePersistence();
+    services.AddRabbitMq();
 
     return services;
   }

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FinanceApp.Infrastructure.EntityFramework\FinanceApp.Infrastructure.EntityFramework.csproj" />
+    <ProjectReference Include="..\FinanceApp.Infrastructure.RabbitMq\FinanceApp.Infrastructure.RabbitMq.csproj" />
   </ItemGroup>
 
 </Project>

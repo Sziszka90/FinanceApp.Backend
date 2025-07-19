@@ -58,7 +58,6 @@ public static class DependencyInjection
   {
     services.AddScoped<ISmtpEmailSender, SmtpEmailSender>();
     services.AddScoped<IExchangeRateClient, ExchangeRateClient>();
-    services.AddSingleton<IRabbitMqClient, RabbitMqClient>();
 
     return services;
   }
