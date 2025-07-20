@@ -169,6 +169,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   editTransaction(transactionDto: GetTransactionDto) {
     if (!this.authService.isAuthenticated()){
+      this.authService.logout();
       return;
     }
 
@@ -209,6 +210,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
   createTransaction() {
     if (!this.authService.isAuthenticated()){
+      this.authService.logout();
       return;
     }
 

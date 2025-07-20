@@ -46,7 +46,6 @@ export class AuthenticationService {
 
   isAuthenticated(): boolean {
     if (!this.validateToken()) {
-      this.logout();
       return false;
     }
     return true;

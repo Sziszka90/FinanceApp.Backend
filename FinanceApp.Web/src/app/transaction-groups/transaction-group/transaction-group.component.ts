@@ -74,6 +74,7 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
 
   createTransactionGroup() {
     if (!this.authService.isAuthenticated()) {
+      this.authService.logout();
       return;
     }
 
@@ -105,6 +106,7 @@ export class TransactionGroupComponent implements OnInit, OnDestroy {
 
   editTransactionGroup(transactionGroup: GetTransactionGroupDto) {
     if (!this.authService.isAuthenticated()) {
+      this.authService.logout();
       return;
     }
     const dialogRef = this.matDialog.open(
