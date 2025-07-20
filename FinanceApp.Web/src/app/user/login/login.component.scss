@@ -22,9 +22,14 @@ h3 {
 }
 
 //Reactiveness
-@media (max-width: 550px) {
+@media (max-width: 600px) {
   .custom-button {
     width: 100%;
+  }
+
+  .form-container {
+    width: 80%;
+    margin: auto;
   }
 }
 
