@@ -71,7 +71,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     }
   }
 
-  public async Task<Result<bool>> SendForgotPasswordAsync(string email)
+  public async Task<Result<bool>> SendForgotPasswordAsync(string email, string resetPasswordToken)
   {
     using var client = new SmtpClient(_smtpSettings.SmtpHost, _smtpSettings.SmtpPort)
     {
@@ -79,7 +79,6 @@ public class SmtpEmailSender : ISmtpEmailSender
       EnableSsl = true
     };
 
-    var resetPasswordToken = _jwtService.GenerateToken(email);
     var resetPasswordLink = $"https://www.financeapp.fun/reset-password?token={resetPasswordToken}";
 
     var model = new

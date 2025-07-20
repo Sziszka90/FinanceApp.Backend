@@ -16,6 +16,7 @@ public interface ISmtpEmailSender
   /// Sends a password reset email to the user.
   /// </summary>
   /// <param name="email"></param>
+  /// <param name="resetPasswordToken"></param>
   /// <returns>Boolean - success or failure</returns>
-  Task<Result<bool>> SendForgotPasswordAsync(string email);
+  Task<Result<bool>> SendForgotPasswordAsync(string email, string resetPasswordToken);
 }

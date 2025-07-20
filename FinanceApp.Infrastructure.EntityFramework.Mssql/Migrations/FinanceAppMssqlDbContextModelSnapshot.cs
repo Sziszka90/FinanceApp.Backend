@@ -49,7 +49,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ExchangeRate");
+                    b.ToTable("ExchangeRate", (string)null);
                 });
 
             modelBuilder.Entity("FinanceApp.Domain.Entities.Transaction", b =>
@@ -121,7 +121,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TransactionGroup");
+                    b.ToTable("TransactionGroup", (string)null);
                 });
 
             modelBuilder.Entity("FinanceApp.Domain.Entities.User", b =>
@@ -149,6 +149,12 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResetPasswordToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ResetPasswordTokenExpiration")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("UserName")
                         .IsRequired()

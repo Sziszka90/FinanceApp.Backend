@@ -3,6 +3,7 @@ using FinanceApp.Application.UserApi.UserCommands.ConfirmUserEmail;
 using FinanceApp.Application.UserApi.UserCommands.CreateUser;
 using FinanceApp.Application.UserApi.UserCommands.DeleteUser;
 using FinanceApp.Application.UserApi.UserCommands.ForgotPassword;
+using FinanceApp.Application.UserApi.UserCommands.ResetPassword;
 using FinanceApp.Application.UserApi.UserCommands.UpdatePassword;
 using FinanceApp.Application.UserApi.UserCommands.UpdateUser;
 using FinanceApp.Application.UserApi.UserQueries.GetActiveUser;
@@ -47,6 +48,18 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> ForgotPassword([FromBody] EmailDto email, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new ForgotPasswordCommand(email, cancellationToken));
+    return this.GetResult(result);
+  }
+
+  [HttpPost("reset-password")]
+  [Produces("application/json")]
+  [Consumes("application/json")]
+  [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<IActionResult> ResetPassword([FromQuery] string token, CancellationToken cancellationToken)
+  {
+    var result = await _mediator.Send(new ResetPasswordCommand(token, cancellationToken));
     return this.RedirectToUrl(result, "https://www.financeapp.fun/reset-password");
   }
 

@@ -30,6 +30,17 @@ public class User : BaseEntity
   /// </summary>
   public CurrencyEnum BaseCurrency { get; set; }
 
+  /// <summary>
+  /// Reset password token for the user
+  /// </summary>
+  public string? ResetPasswordToken { get; set; }
+
+  /// <summary>
+  /// Expiration time for the reset password token
+  /// </summary>
+  public DateTimeOffset? ResetPasswordTokenExpiration { get; set; }
+
+
   public User(string userName, string email, string passwordHash, CurrencyEnum baseCurrency)
   {
     UserName = userName;

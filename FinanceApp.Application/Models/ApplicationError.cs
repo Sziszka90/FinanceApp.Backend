@@ -91,6 +91,12 @@ public class ApplicationError
   public const string LLM_PROCESSOR_REQUEST_MESSAGE = "LLM Processor request error.";
   public const string LLM_PROCESSOR_REQUEST_CODE = "LLM_PROCESSOR_REQUEST_ERROR";
 
+  public const string RESET_PASSWORD_TOKEN_EXPIRED_MESSAGE = "Reset password token is expired.";
+  public const string RESET_PASSWORD_TOKEN_EXPIRED_CODE = "RESET_PASSWORD_TOKEN_EXPIRED";
+
+  public const string EMAIL_NOT_FOUND_IN_TOKEN_MESSAGE = "Email not found in token.";
+  public const string EMAIL_NOT_FOUND_IN_TOKEN_CODE = "EMAIL_NOT_FOUND_IN_TOKEN";
+
   /// <summary>
   /// Machine readable error code
   /// </summary>
@@ -406,5 +412,27 @@ public class ApplicationError
     {
       { "message", message }
     });
+  }
+
+  /// <summary>
+  /// Error for when reset password token is expired
+  /// </summary>
+  /// <param name="email"></param>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError ResetPasswordTokenExpiredError(string email)
+  {
+    return new ApplicationError(RESET_PASSWORD_TOKEN_EXPIRED_MESSAGE, RESET_PASSWORD_TOKEN_EXPIRED_CODE, new Dictionary<string, object>
+    {
+      { "email", email }
+    });
+  }
+
+  /// <summary>
+  /// Error for when email is not found in token
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError EmailNotFoundInTokenError()
+  {
+    return new ApplicationError(EMAIL_NOT_FOUND_IN_TOKEN_MESSAGE, EMAIL_NOT_FOUND_IN_TOKEN_CODE);
   }
 }
