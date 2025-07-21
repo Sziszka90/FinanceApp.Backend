@@ -4,7 +4,6 @@ using FinanceApp.Application.UserApi.UserCommands.CreateUser;
 using FinanceApp.Application.UserApi.UserCommands.DeleteUser;
 using FinanceApp.Application.UserApi.UserCommands.ForgotPassword;
 using FinanceApp.Application.UserApi.UserCommands.ResendConfirmationEmail;
-using FinanceApp.Application.UserApi.UserCommands.ResetPassword;
 using FinanceApp.Application.UserApi.UserCommands.UpdatePassword;
 using FinanceApp.Application.UserApi.UserCommands.UpdateUser;
 using FinanceApp.Application.UserApi.UserQueries.GetActiveUser;
