@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.UserApi.UserCommands.UpdateUser;
 
-public record UpdateUserCommand(UpdateUserDto UpdateUserDto, CancellationToken CancellationToken) : ICommand<Result<GetUserDto>>;
+public record UpdateUserCommand(UpdateUserRequest UpdateUserDto, CancellationToken CancellationToken) : ICommand<Result<GetUserDto>>;

@@ -1,6 +1,6 @@
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { LoginRequestDto } from '../models/LoginDtos/login-request.dto';
-import { Observable, Subject } from 'rxjs';
+import { catchError, map, Observable, of, Subject } from 'rxjs';
 import { LoginResponseDto } from '../models/LoginDtos/login-response.dto';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
@@ -70,5 +70,12 @@ export class AuthenticationService {
       console.error('Invalid token format:', error);
       return false;
     }
+  }
+
+  validateTokenWithApi(token: string): Observable<boolean> {
+    return this.authApiService.validateToken(token).pipe(
+      map((response) => response.isValid),
+      catchError(() => of(false))
+    );
   }
 }

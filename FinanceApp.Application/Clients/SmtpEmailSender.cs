@@ -11,19 +11,16 @@ using Microsoft.Extensions.Options;
 public class SmtpEmailSender : ISmtpEmailSender
 {
   private readonly ILogger<ISmtpEmailSender> _logger;
-  private readonly IJwtService _jwtService;
   private readonly SmtpSettings _smtpSettings;
 
   public SmtpEmailSender(
     ILogger<ISmtpEmailSender> logger,
-    IJwtService jwtService,
     IOptions<SmtpSettings> smtpOptions)
   {
     _logger = logger;
-    _jwtService = jwtService;
     _smtpSettings = smtpOptions.Value;
   }
-  public async Task<Result<bool>> SendEmailConfirmationAsync(User user)
+  public async Task<Result<bool>> SendEmailConfirmationAsync(User user, string confirmationToken)
   {
     using var client = new SmtpClient(_smtpSettings.SmtpHost, _smtpSettings.SmtpPort)
     {
@@ -31,7 +28,6 @@ public class SmtpEmailSender : ISmtpEmailSender
       EnableSsl = true
     };
 
-    var confirmationToken = _jwtService.GenerateToken(user.UserName);
     var confirmationLink = $"https://www.financeapp.fun/api/users/{user.Id}/confirm-email?token={confirmationToken}";
 
     var model = new

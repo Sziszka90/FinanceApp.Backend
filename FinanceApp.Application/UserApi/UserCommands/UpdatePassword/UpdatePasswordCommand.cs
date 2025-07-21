@@ -4,4 +4,4 @@ using FinanceApp.Application.Models;
 
 namespace FinanceApp.Application.UserApi.UserCommands.UpdatePassword;
 
-public record UpdatePasswordCommand(UpdatePasswordDto UpdatePasswordDto, CancellationToken CancellationToken) : ICommand<Result>;
+public record UpdatePasswordCommand(UpdatePasswordRequest UpdatePasswordDto, CancellationToken CancellationToken) : ICommand<Result>;

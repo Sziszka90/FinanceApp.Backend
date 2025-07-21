@@ -1,5 +1,6 @@
 using System.Net;
 using FinanceApp.Application.Dtos.UserDtos;
+using FinanceApp.Application.UserApi.UserCommands.ResendConfirmationEmail;
 using FinanceApp.Domain.Enums;
 using FinanceApp.Testing.Base;
 
@@ -55,7 +56,7 @@ public class UserApi : TestBase
   {
     // Arrange
     await InitializeAsync();
-    var updatedUser = new UpdateUserDto
+    var updatedUser = new UpdateUserRequest
     {
       Id = CreatedUserId,
       BaseCurrency = CurrencyEnum.USD

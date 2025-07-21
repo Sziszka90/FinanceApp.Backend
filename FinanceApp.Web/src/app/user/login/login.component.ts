@@ -7,6 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ForgotPasswordRequestModalComponent } from '../forgot-password-modal/forgot-password-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { ResendConfirmationEmailModalComponent } from '../resend-email-confirmation-modal/resend-confirmation-email-modal.component';
 
 @Component({
   selector: 'login',
@@ -39,6 +40,13 @@ export class LoginComponent implements OnDestroy {
 
   forgotPassword(): void {
     const dialogRef = this.matDialog.open(ForgotPasswordRequestModalComponent, {
+      width: '400px',
+      height: 'auto',
+    });
+  }
+
+  resendConfirmationEmail(): void {
+    const dialogRef = this.matDialog.open(ResendConfirmationEmailModalComponent, {
       width: '400px',
       height: 'auto',
     });

@@ -9,6 +9,8 @@ public class ApplicationError
   public const string TOKEN_NOT_PROVIDED_MESSAGE = "Token not provided.";
   public const string USER_ID_NOT_PROVIDED_MESSAGE = "User ID not provided.";
   public const string INVALID_REQUEST_ERROR_MESSAGE = "Invalid request.";
+  public const string INVALID_EMAIL_FORMAT = "Invalid email format.";
+  public const string FIELD_CANNOT_BE_EMPTY = "Field cannot be empty.";
 
 
 
@@ -91,8 +93,8 @@ public class ApplicationError
   public const string LLM_PROCESSOR_REQUEST_MESSAGE = "LLM Processor request error.";
   public const string LLM_PROCESSOR_REQUEST_CODE = "LLM_PROCESSOR_REQUEST_ERROR";
 
-  public const string RESET_PASSWORD_TOKEN_EXPIRED_MESSAGE = "Reset password token is expired.";
-  public const string RESET_PASSWORD_TOKEN_EXPIRED_CODE = "RESET_PASSWORD_TOKEN_EXPIRED";
+  public const string TOKEN_EXPIRED_MESSAGE = "Token is expired.";
+  public const string TOKEN_EXPIRED_CODE = "TOKEN_EXPIRED";
 
   public const string EMAIL_NOT_FOUND_IN_TOKEN_MESSAGE = "Email not found in token.";
   public const string EMAIL_NOT_FOUND_IN_TOKEN_CODE = "EMAIL_NOT_FOUND_IN_TOKEN";
@@ -415,13 +417,13 @@ public class ApplicationError
   }
 
   /// <summary>
-  /// Error for when reset password token is expired
+  /// Token expired
   /// </summary>
   /// <param name="email"></param>
   /// <returns>ApplicationError</returns>
-  public static ApplicationError ResetPasswordTokenExpiredError(string email)
+  public static ApplicationError TokenExpiredError(string email)
   {
-    return new ApplicationError(RESET_PASSWORD_TOKEN_EXPIRED_MESSAGE, RESET_PASSWORD_TOKEN_EXPIRED_CODE, new Dictionary<string, object>
+    return new ApplicationError(TOKEN_EXPIRED_MESSAGE, TOKEN_EXPIRED_CODE, new Dictionary<string, object>
     {
       { "email", email }
     });

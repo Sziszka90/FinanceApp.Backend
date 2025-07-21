@@ -20,6 +20,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
   private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly ISmtpEmailSender _smtpEmailSender;
   private readonly IBcryptService _bcryptService;
+  private readonly IJwtService _jwtService;
 
   public CreateUserCommandHandler(
     ILogger<CreateUserCommandHandler> logger,
@@ -28,7 +29,8 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     ITransactionGroupRepository transactionGroupRepository,
     IUnitOfWork unitOfWork,
     ISmtpEmailSender smtpEmailSender,
-    IBcryptService bcryptService)
+    IBcryptService bcryptService,
+    IJwtService jwtService)
   {
     _logger = logger;
     _mapper = mapper;
@@ -37,6 +39,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     _unitOfWork = unitOfWork;
     _smtpEmailSender = smtpEmailSender;
     _bcryptService = bcryptService;
+    _jwtService = jwtService;
   }
 
   /// <inheritdoc />
@@ -77,11 +80,15 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
 
     await _transactionGroupRepository.BatchCreateTransactionGroupsAsync(defaultGroups, cancellationToken);
 
+    var confirmationToken = _jwtService.GenerateToken(user.Email);
+    user.EmailConfirmationToken = confirmationToken;
+    user.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
     _logger.LogDebug("User created with ID:{Id}", user.Id);
 
-    var emailConfirmationResult = await _smtpEmailSender.SendEmailConfirmationAsync(user);
+    var emailConfirmationResult = await _smtpEmailSender.SendEmailConfirmationAsync(user, confirmationToken);
 
     if (!emailConfirmationResult.IsSuccess)
     {

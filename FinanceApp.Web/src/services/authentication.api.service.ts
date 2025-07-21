@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LoginResponseDto } from '../models/LoginDtos/login-response.dto';
 import { LoginRequestDto } from '../models/LoginDtos/login-request.dto';
+import { ValidateTokenResponse } from 'src/models/UserDtos/validate-toke-response.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -11,11 +12,15 @@ import { LoginRequestDto } from '../models/LoginDtos/login-request.dto';
 export class AuthenticationApiService {
 
    // API base URL
-   private apiUrl = environment?.apiUrl ?? '';
+  private apiUrl = environment?.apiUrl ?? '';
 
-   constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }
 
   login(loginRequestDto: LoginRequestDto): Observable<LoginResponseDto> {
-      return this.http.post<LoginResponseDto>(`${this.apiUrl}/api/auth/login`, loginRequestDto);
+    return this.http.post<LoginResponseDto>(`${this.apiUrl}/api/auth/login`, loginRequestDto);
+  }
+
+  validateToken(token: string): Observable<ValidateTokenResponse> {
+    return this.http.post<ValidateTokenResponse>(`${this.apiUrl}/api/users/validate-token?token=${token}`, {});
   }
 }

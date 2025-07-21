@@ -14,7 +14,7 @@ public static class Mocks
     var emailServiceMock = new Mock<ISmtpEmailSender>();
 
     emailServiceMock
-        .Setup(x => x.SendEmailConfirmationAsync(It.IsAny<User>()))
+        .Setup(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), It.IsAny<string>()))
         .ReturnsAsync(Result.Success(true));
 
     services.AddSingleton(emailServiceMock.Object);

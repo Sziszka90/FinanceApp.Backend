@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace FinanceApp.Application.Validators;
 
-public class UpdatePasswordValidator : AbstractValidator<UpdatePasswordDto>
+public class UpdatePasswordRequestValidator : AbstractValidator<UpdatePasswordRequest>
 {
-  public UpdatePasswordValidator()
+  public UpdatePasswordRequestValidator()
   {
     RuleFor(x => x.Token)
       .NotEmpty();

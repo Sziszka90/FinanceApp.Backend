@@ -3,6 +3,7 @@ using FinanceApp.Application.UserApi.UserCommands.ConfirmUserEmail;
 using FinanceApp.Application.UserApi.UserCommands.CreateUser;
 using FinanceApp.Application.UserApi.UserCommands.DeleteUser;
 using FinanceApp.Application.UserApi.UserCommands.ForgotPassword;
+using FinanceApp.Application.UserApi.UserCommands.ResendConfirmationEmail;
 using FinanceApp.Application.UserApi.UserCommands.ResetPassword;
 using FinanceApp.Application.UserApi.UserCommands.UpdatePassword;
 using FinanceApp.Application.UserApi.UserCommands.UpdateUser;
@@ -39,6 +40,18 @@ public class UsersController : ControllerBase
     return this.RedirectToUrl(result, "https://www.financeapp.fun/login");
   }
 
+  [HttpPost("resend-confirmation-email")]
+  [Produces("application/json")]
+  [Consumes("application/json")]
+  [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<IActionResult> ResendConfirmationEmail([FromBody] EmailDto email, CancellationToken cancellationToken)
+  {
+    var result = await _mediator.Send(new ResendConfirmationEmailCommand(email, cancellationToken));
+    return this.GetResult(result);
+  }
+
   [HttpPost("forgot-password")]
   [Produces("application/json")]
   [Consumes("application/json")]
@@ -60,7 +73,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> ResetPassword([FromQuery] string token, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new ResetPasswordCommand(token, cancellationToken));
-    return this.RedirectToUrl(result, "https://www.financeapp.fun/reset-password");
+    return this.RedirectToUrl(result, "https://www.financeapp.fun/reset-password?token=" + result.Data);
   }
 
   [HttpPost("update-password")]
@@ -69,7 +82,7 @@ public class UsersController : ControllerBase
   [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto updatePasswordDto, CancellationToken cancellationToken)
+  public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequest updatePasswordDto, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new UpdatePasswordCommand(updatePasswordDto, cancellationToken));
     return this.GetResult(result);
@@ -120,7 +133,7 @@ public class UsersController : ControllerBase
   [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult<GetUserDto>> UpdateUser([FromBody] UpdateUserDto updateUserDto, CancellationToken cancellationToken)
+  public async Task<ActionResult<GetUserDto>> UpdateUser([FromBody] UpdateUserRequest updateUserDto, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new UpdateUserCommand(updateUserDto, cancellationToken));
     return this.GetResult(result);

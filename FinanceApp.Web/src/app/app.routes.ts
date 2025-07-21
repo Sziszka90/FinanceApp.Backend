@@ -11,7 +11,8 @@ import { ResetPasswordComponent } from './user/reset-password/reset-password.com
 import { ProfileComponent } from './user/profile/profile.component';
 import { inject } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRouteSnapshot } from '@angular/router';
+import { map } from 'rxjs';
 
 const AuthGuard: CanActivateFn = () => {
   const authService = inject(AuthenticationService);
@@ -23,6 +24,20 @@ const AuthGuard: CanActivateFn = () => {
   return true;
 };
 
+const ResetPasswordGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
+  const authService = inject(AuthenticationService);
+  const router = inject(Router);
+  const token = route.queryParamMap.get('token');
+  return authService.validateTokenWithApi(token || '').pipe(
+    map((isValid) => {
+      if (!isValid) {
+        router.navigate(['/login']);
+      }
+      return isValid;
+    })
+  );
+};
+
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
@@ -32,6 +47,6 @@ export const routes: Routes = [
   { path: 'transactions', component: TransactionComponent, canActivate: [AuthGuard] },
   { path: 'transactions-groups', component: TransactionGroupComponent, canActivate: [AuthGuard] },
   { path: 'validation-failed', component: ValidationFailedComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent, canActivate: [ResetPasswordGuard] },
   { path: '**', component: NotFoundComponent },
 ];

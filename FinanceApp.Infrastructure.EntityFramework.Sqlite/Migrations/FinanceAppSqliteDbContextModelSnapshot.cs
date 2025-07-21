@@ -135,6 +135,12 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("EmailConfirmationToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("EmailConfirmationTokenExpiration")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("INTEGER");
 

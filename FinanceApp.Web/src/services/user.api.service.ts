@@ -6,6 +6,7 @@ import { GetUserDto } from '../models/UserDtos/get-user.dto';
 import { UpdateUserDto } from '../models/UserDtos/update-user.dto';
 import { CreateUserDto } from '../models/UserDtos/create-user.dto';
 import { UpdatePasswordDto } from 'src/models/UserDtos/update-password.dto';
+import { ResendEmailConfirmationResponse } from 'src/models/UserDtos/resend-email-confirmation-response.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -35,5 +36,9 @@ export class UserApiService {
 
   forgotPassword(email: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/api/users/forgot-password`, { email });
+  }
+
+  resendConfirmationEmail(email: string): Observable<ResendEmailConfirmationResponse> {
+    return this.http.post<ResendEmailConfirmationResponse>(`${this.apiUrl}/api/users/resend-confirmation-email`, { email });
   }
 }

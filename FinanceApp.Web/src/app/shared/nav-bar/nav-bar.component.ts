@@ -35,6 +35,8 @@ export class NavBarComponent implements OnInit {
   login() {
     if(this.authService.isAuthenticated()){
       this.router.navigateByUrl('/logged-in');
+    } else {
+      this.router.navigateByUrl('/login');
     }
   }
 

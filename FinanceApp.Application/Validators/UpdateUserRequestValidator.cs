@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace FinanceApp.Application.Validators;
 
-public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
+public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
 {
-  public UpdateUserDtoValidator()
+  public UpdateUserRequestValidator()
   {
     RuleFor(x => x.BaseCurrency)
       .IsInEnum();

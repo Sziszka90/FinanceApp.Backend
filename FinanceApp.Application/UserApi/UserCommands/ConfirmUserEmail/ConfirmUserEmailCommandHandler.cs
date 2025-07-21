@@ -37,6 +37,18 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
 
     var validationResult = _jwtService.ValidateToken(request.Token);
 
+    if (user.EmailConfirmationToken != request.Token)
+    {
+      _logger.LogError("Invalid token for user with ID:{Id}", request.Id);
+      return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));
+    }
+
+    if(user.EmailConfirmationTokenExpiration < DateTime.UtcNow)
+    {
+      _logger.LogError("Token expired for user with ID:{Id}", request.Id);
+      return Result.Failure(ApplicationError.TokenExpiredError(user.Email));
+    }
+
     if (!validationResult)
     {
       _logger.LogError("Invalid token for user with ID:{Id}", request.Id);

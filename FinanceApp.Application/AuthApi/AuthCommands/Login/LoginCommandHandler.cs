@@ -5,7 +5,7 @@ using FinanceApp.Application.Dtos.AuthDtos;
 using FinanceApp.Application.Models;
 using Microsoft.Extensions.Logging;
 
-namespace FinanceApp.Application.AuthApi.Login;
+namespace FinanceApp.Application.AuthApi.AuthCommands.Login;
 
 public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginResponseDto>>
 {

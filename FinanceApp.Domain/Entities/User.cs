@@ -40,6 +40,15 @@ public class User : BaseEntity
   /// </summary>
   public DateTimeOffset? ResetPasswordTokenExpiration { get; set; }
 
+  /// <summary>
+  /// Email confirmation token for the user
+  /// </summary>
+  public string? EmailConfirmationToken { get; set; }
+
+  /// <summary>
+  /// Expiration time for the email confirmation token
+  /// </summary>
+  public DateTimeOffset? EmailConfirmationTokenExpiration { get; set; }
 
   public User(string userName, string email, string passwordHash, CurrencyEnum baseCurrency)
   {

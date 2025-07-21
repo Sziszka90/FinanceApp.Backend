@@ -9,8 +9,9 @@ public interface ISmtpEmailSender
   /// Sends an email confirmation to the user.
   /// </summary>
   /// <param name="user"></param>
+  /// <param name="confirmationToken"></param>
   /// <returns>Boolean - success or failure</returns>
-  Task<Result<bool>> SendEmailConfirmationAsync(User user);
+  Task<Result<bool>> SendEmailConfirmationAsync(User user, string confirmationToken);
 
   /// <summary>
   /// Sends a password reset email to the user.
