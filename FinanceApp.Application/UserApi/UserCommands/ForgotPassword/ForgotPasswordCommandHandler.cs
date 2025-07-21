@@ -47,7 +47,7 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
 
     var resetPasswordToken = _jwtService.GenerateToken(request.EmailDto.Email);
     user.ResetPasswordToken = resetPasswordToken;
-    user.ResetPasswordTokenExpiration = DateTime.UtcNow.AddHours(1);
+    user.ResetPasswordTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
