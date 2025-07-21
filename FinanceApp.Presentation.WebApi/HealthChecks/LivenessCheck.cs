@@ -5,10 +5,12 @@ namespace FinanceApp.Presentation.WebApi.HealthChecks;
 
 public class LivenessCheck : IHealthCheck
 {
+  private readonly ILogger<LivenessCheck> _logger;
   private readonly FinanceAppDbContext _dbContext;
 
-  public LivenessCheck(FinanceAppDbContext dbContext)
+  public LivenessCheck(ILogger<LivenessCheck> logger,FinanceAppDbContext dbContext)
   {
+    _logger = logger;
     _dbContext = dbContext;
   }
 
@@ -19,10 +21,12 @@ public class LivenessCheck : IHealthCheck
     try
     {
       await _dbContext.Database.CanConnectAsync(cancellationToken);
+      _logger.LogInformation("Liveness check passed. Database is reachable.");
       return HealthCheckResult.Healthy("Liveness check passed. Database reachable.");
     }
     catch
     {
+      _logger.LogWarning("Liveness check failed. Database not reachable.");
       return HealthCheckResult.Unhealthy("Liveness check failed. Database not reachable.");
     }
   }

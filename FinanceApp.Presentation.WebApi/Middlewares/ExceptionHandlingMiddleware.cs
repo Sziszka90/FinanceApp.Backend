@@ -4,50 +4,50 @@ using Microsoft.EntityFrameworkCore;
 
 public class ExceptionHandlingMiddleware
 {
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-    private readonly RequestDelegate _next;
+  private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+  private readonly RequestDelegate _next;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+  public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+  {
+    _logger = logger;
+    _next = next;
+  }
+
+  public async Task Invoke(HttpContext context)
+  {
+    try
     {
-      _logger = logger;
-      _next = next;
+      await _next(context);
     }
-
-    public async Task Invoke(HttpContext context)
+    catch (Exception ex)
     {
-        try
-        {
-          await _next(context);
-        }
-        catch (Exception ex)
-        {
-          _logger.LogError(ex, "Unhandled exception occurred");
-          await HandleExceptionAsync(context, ex);
-        }
+      _logger.LogError(ex, "Unhandled exception occurred");
+      await HandleExceptionAsync(context, ex);
     }
+  }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+  private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+  {
+    var code = exception switch
     {
-        var code = exception switch
-        {
-            ValidationException => StatusCodes.Status400BadRequest,
-            DbUpdateConcurrencyException => StatusCodes.Status409Conflict,
-            DbUpdateException => StatusCodes.Status500InternalServerError,
-            KeyNotFoundException => StatusCodes.Status404NotFound,
-            ArgumentNullException => StatusCodes.Status400BadRequest,
-            ArgumentException => StatusCodes.Status400BadRequest,
-            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-            _ => StatusCodes.Status500InternalServerError
-        };
+      ValidationException => StatusCodes.Status400BadRequest,
+      DbUpdateConcurrencyException => StatusCodes.Status409Conflict,
+      DbUpdateException => StatusCodes.Status500InternalServerError,
+      KeyNotFoundException => StatusCodes.Status404NotFound,
+      ArgumentNullException => StatusCodes.Status400BadRequest,
+      ArgumentException => StatusCodes.Status400BadRequest,
+      UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+      _ => StatusCodes.Status500InternalServerError
+    };
 
-        var result = JsonSerializer.Serialize(new
-        {
-          error = exception.Message
-        });
+    var result = JsonSerializer.Serialize(new
+    {
+      error = exception.Message
+    });
 
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = code;
+    context.Response.ContentType = "application/json";
+    context.Response.StatusCode = code;
 
-        return context.Response.WriteAsync(result);
-    }
+    return context.Response.WriteAsync(result);
+  }
 }
