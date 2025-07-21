@@ -31,7 +31,7 @@ const ResetPasswordGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   return authService.validateTokenWithApi(token || '').pipe(
     map((isValid) => {
       if (!isValid) {
-        router.navigate(['/login']);
+        router.navigate(['/validation-failed']);
       }
       return isValid;
     })

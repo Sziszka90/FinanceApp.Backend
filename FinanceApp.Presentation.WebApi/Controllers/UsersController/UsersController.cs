@@ -64,18 +64,6 @@ public class UsersController : ControllerBase
     return this.GetResult(result);
   }
 
-  [HttpPost("reset-password")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<IActionResult> ResetPassword([FromQuery] string token, CancellationToken cancellationToken)
-  {
-    var result = await _mediator.Send(new ResetPasswordCommand(token, cancellationToken));
-    return this.RedirectToUrl(result, "https://www.financeapp.fun/reset-password?token=" + result.Data);
-  }
-
   [HttpPost("update-password")]
   [Produces("application/json")]
   [Consumes("application/json")]
