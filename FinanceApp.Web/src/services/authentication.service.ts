@@ -7,6 +7,8 @@ import { jwtDecode } from 'jwt-decode';
 import { TOKEN_KEY } from 'src/models/Constants/token.const';
 import { Router } from '@angular/router';
 import { AuthenticationApiService } from './authentication.api.service';
+import { CorrelationService } from './correlation.service';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +17,7 @@ export class AuthenticationService {
   private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
   private authApiService = inject(AuthenticationApiService);
+  private correlationService = inject(CorrelationService);
 
   private readonly tokenKey: string = TOKEN_KEY;
   public userLoggedIn: Subject<boolean> = new Subject<boolean>();
@@ -35,12 +38,14 @@ export class AuthenticationService {
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.tokenKey);
+      this.correlationService.clearAllCorrelationIds();
     }
     this.userLoggedIn.next(false);
     this.router.navigate(['/login']);
   }
 
   login(loginRequestDto: LoginRequestDto): Observable<LoginResponseDto> {
+    this.correlationService.clearAllCorrelationIds();
     return this.authApiService.login(loginRequestDto);
   }
 
@@ -78,4 +83,20 @@ export class AuthenticationService {
       catchError(() => of(false))
     );
   }
+
+  getUserId(): string | null {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.sub || null;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
 }
+

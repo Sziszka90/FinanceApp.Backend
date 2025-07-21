@@ -1,4 +1,4 @@
-export const Icons = {
+export const ICONS = {
   IconShopping: "fa-solid fa-bag-shopping",
   IconGroceries: "fa-solid fa-cart-shopping",
   IconEntertainment: "fa-solid fa-gamepad",

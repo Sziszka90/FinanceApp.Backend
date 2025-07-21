@@ -44,11 +44,11 @@ public class ExchangeRateBackgroundJob : BackgroundService
     while (!cancellationToken.IsCancellationRequested)
     {
       int retryCount = 0;
-      const int maxRetries = 3;
+      const int MAX_RETRIES = 3;
       TimeSpan delay = TimeSpan.FromSeconds(10);
       bool success = false;
 
-      while (retryCount < maxRetries && !success && !cancellationToken.IsCancellationRequested)
+      while (retryCount < MAX_RETRIES && !success && !cancellationToken.IsCancellationRequested)
       {
         var rates = await exchangeRateClient.GetExchangeRatesAsync();
 
@@ -63,8 +63,8 @@ public class ExchangeRateBackgroundJob : BackgroundService
         else
         {
           retryCount++;
-          _logger.LogError("Error occurred while fetching exchange rates. Retry {Retry}/{MaxRetries}.", retryCount, maxRetries);
-          if (retryCount < maxRetries)
+          _logger.LogError("Error occurred while fetching exchange rates. Retry {Retry}/{MaxRetries}.", retryCount, MAX_RETRIES);
+          if (retryCount < MAX_RETRIES)
           {
             await Task.Delay(delay, cancellationToken);
             delay = delay * 2; // Exponential backoff

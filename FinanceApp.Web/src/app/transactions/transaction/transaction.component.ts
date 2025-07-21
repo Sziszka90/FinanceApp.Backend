@@ -19,6 +19,11 @@ import { CreateTransactionModalComponent } from '../create-transaction-modal/cre
 import { CurrencyEnum } from 'src/models/Enums/currency.enum';
 import { Money } from 'src/models/Money/money.dto';
 import { AuthenticationService } from 'src/services/authentication.service';
+import { CorrelationService } from 'src/services/correlation.service';
+import { v4 as uuidv4 } from 'uuid';
+import { NotificationService } from 'src/services/notification.service';
+import { error } from 'console';
+import { REFRESH_TRANSACTIONS } from 'src/models/Constants/notification.const';
 
 @Component({
   selector: 'transaction',
@@ -43,6 +48,8 @@ export class TransactionComponent implements OnInit, OnDestroy {
   private matDialog = inject(MatDialog);
   private fb = inject(FormBuilder);
   private authService = inject(AuthenticationService);
+  private correlationService = inject(CorrelationService);
+  private notificationService = inject(NotificationService);
 
   public summary$: Observable<Money> | undefined;
   public transactions$: Observable<GetTransactionDto[]> | undefined;
@@ -95,10 +102,25 @@ export class TransactionComponent implements OnInit, OnDestroy {
 
     this.loading.set(true);
 
-    this.transactions$ = this.transactionApiService.getAllTransactions();
+    this.loadTransactions();
+
+    this.filterForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.applyFilters());
+
+    this.notificationService.notifications$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((message) => {
+        if (message && message === REFRESH_TRANSACTIONS) {
+          this.loadTransactions();
+        }
+      });
+  }
+
+  loadTransactions() {
     this.loading.set(true);
-    this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe(
-      (value: GetTransactionDto[]) => {
+    this.transactionApiService.getAllTransactions().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (value: GetTransactionDto[]) => {
         this.loading.set(false);
         this.allTransactions.set(value);
         this.dataSource.update(ds => {
@@ -107,14 +129,10 @@ export class TransactionComponent implements OnInit, OnDestroy {
         });
         this.setupCustomFilterPredicate();
       },
-      (error) => {
+      error: (error) => {
         this.loading.set(false);
       }
-    );
-
-    this.filterForm.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.applyFilters());
+    });
   }
 
   ngAfterViewChecked() {
@@ -281,7 +299,9 @@ export class TransactionComponent implements OnInit, OnDestroy {
   handleFile(file: File): void {
     if (file.type === 'text/csv') {
       this.loading.set(true);
-      this.transactionApiService.uploadCsv(file).subscribe({
+      var requestId = uuidv4();
+      var correlationId = this.correlationService.setCorrelationId(requestId);
+      this.transactionApiService.uploadCsv(file, correlationId).subscribe({
         next: (transactions) => {
           this.allTransactions.set(transactions);
           this.dataSource.update(ds => {

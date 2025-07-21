@@ -15,7 +15,7 @@ public class FinanceAppMssqlDbContextFactory : IDesignTimeDbContextFactory<Finan
         .Build();
 
         var optionsBuilder = new DbContextOptionsBuilder<FinanceAppMssqlDbContext>();
-        optionsBuilder.UseSqlServer(configuration.GetConnectionString(Constants.ConfigurationKeys.MssqlConnectionString),
+        optionsBuilder.UseSqlServer(configuration.GetConnectionString(Constants.ConfigurationKeys.MSSQL_CONNECTION_STRING),
             sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure();

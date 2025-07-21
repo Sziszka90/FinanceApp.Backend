@@ -1,4 +1,5 @@
 using FinanceApp.Application;
+using FinanceApp.Application.Hubs;
 using FinanceApp.Infrastructure;
 using FinanceApp.Presentation.WebApi.Extensions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -59,6 +60,8 @@ app.MapHealthChecks("/health/startup", new HealthCheckOptions
 {
   Predicate = check => check.Tags.Contains("startup")
 });
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();
 

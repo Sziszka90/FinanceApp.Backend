@@ -5,4 +5,5 @@ public class LLMProcessorRequestDto
   public required string UserId { get; set; }
   public required List<string> TransactionNames { get; set; }
   public required List<string> TransactionGroupNames { get; set; }
+  public required string CorrelationId { get; set; }
 }

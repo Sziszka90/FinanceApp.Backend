@@ -18,7 +18,7 @@ public static class DependencyInjection
     services.AddPooledDbContextFactory<FinanceAppSqliteDbContext>(
     options =>
     {
-      options.UseSqlite(configuration.GetConnectionString(Constants.ConfigurationKeys.SqliteConnectionString))
+      options.UseSqlite(configuration.GetConnectionString(Constants.ConfigurationKeys.SQLITE_CONNECTION_STRING))
               .AddInterceptors(new TimestampableEntitySaveChangesInterceptor());
     });
 

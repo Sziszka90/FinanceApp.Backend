@@ -1,8 +1,11 @@
 ﻿using System.Text.Json;
 using FinanceApp.Application.Abstraction.Repositories;
+using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Abstractions.CQRS;
+using FinanceApp.Application.Hubs;
 using FinanceApp.Application.Models;
 using FinanceApp.Domain.Enums;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Application.TransactionApi.TransactionCommands.UploadCsv;
@@ -15,6 +18,7 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
   private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUnitOfWork _unitOfWork;
+  private readonly ISignalRService _signalRService;
 
   public LLMProcessorCommandHandler(
     ILogger<LLMProcessorCommandHandler> logger,
@@ -22,7 +26,8 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
     ITransactionRepository transactionRepository,
     ITransactionGroupRepository transactionGroupRepository,
     IExchangeRateRepository exchangeRateRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ISignalRService signalRService)
   {
     _logger = logger;
     _userRepository = userRepository;
@@ -30,6 +35,7 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
     _transactionGroupRepository = transactionGroupRepository;
     _exchangeRateRepository = exchangeRateRepository;
     _unitOfWork = unitOfWork;
+    _signalRService = signalRService;
   }
 
   /// <inheritdoc />
@@ -79,13 +85,15 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+    await _signalRService.SendToClientGroupMethodAsync(user.Email.ToString(), HubConstants.TRANSACTIONS_MATCHED_NOTIFICATION, HubConstants.REFRESH_TRANSACTIONS);
+
     var allTransactions = await _transactionRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
 
     _logger.LogDebug("Processed matched transactions for user: {UserId}", user.Id);
     return Result.Success(true);
   }
 
-  private decimal ConvertToUserCurrency(decimal amount, CurrencyEnum fromCurrency, CurrencyEnum toCurrency, List<FinanceApp.Domain.Entities.ExchangeRate> rates)
+  private decimal ConvertToUserCurrency(decimal amount, CurrencyEnum fromCurrency, CurrencyEnum toCurrency, List<Domain.Entities.ExchangeRate> rates)
   {
     if (fromCurrency == toCurrency)
       return Math.Round(amount, 2);

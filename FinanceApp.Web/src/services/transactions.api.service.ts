@@ -63,9 +63,10 @@ export class TransactionApiService {
     return this.http.delete<void>(`${this.apiUrl}/api/transactiongroups/${id}`);
   }
 
-  uploadCsv(file: File): Observable<GetTransactionDto[]> {
+  uploadCsv(file: File, correlationId: string): Observable<GetTransactionDto[]> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('correlationId', correlationId);
 
     return this.http.post<GetTransactionDto[]>(`${this.apiUrl}/api/transactions/upload-csv`, formData);
   }

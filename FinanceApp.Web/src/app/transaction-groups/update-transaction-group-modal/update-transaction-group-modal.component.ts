@@ -13,7 +13,7 @@ import {
 } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { TransactionApiService } from '../../../services/transactions.api.service';
-import { Icons } from 'src/models/Constants/group-icon-options.const';
+import { ICONS } from 'src/models/Constants/group-icon-options.const';
 import { GetTransactionGroupDto } from 'src/models/TransactionGroupDtos/get-transaction-group.dto';
 import { Subject, takeUntil } from 'rxjs';
 import { CurrencyEnum } from 'src/models/Enums/currency.enum';
@@ -41,7 +41,7 @@ export class UpdateTransactionGroupModalComponent implements OnDestroy {
     groupIcon: new FormControl(this.data.groupIcon)
   });
 
-  public groupIconOptions: string[] = Object.values(Icons);
+  public groupIconOptions: string[] = Object.values(ICONS);
   currencyOptions = Object.keys(CurrencyEnum).filter((key) =>
     isNaN(Number(key))
   );

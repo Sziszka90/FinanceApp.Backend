@@ -12,7 +12,6 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OpenAI.Chat;
 
 namespace FinanceApp.Application;
 
@@ -28,6 +27,7 @@ public static class DependencyInjection
     services.AddHttpClient();
     services.AddServices();
     services.AddHostedServices();
+    services.AddHubs();
     return services;
   }
 
@@ -51,6 +51,7 @@ public static class DependencyInjection
   {
     services.AddScoped<IJwtService, JwtService>();
     services.AddScoped<IBcryptService, BcryptService>();
+    services.AddSingleton<ISignalRService, SignalRService>();
     return services;
   }
 
@@ -85,6 +86,12 @@ public static class DependencyInjection
     services.AddHostedService<ExchangeRateBackgroundJob>();
     services.AddSingleton<ExchangeRateRunSignal>();
     services.AddHostedService<RabbitMqConsumerServiceBackgroundJob>();
+    return services;
+  }
+
+  private static IServiceCollection AddHubs(this IServiceCollection services)
+  {
+    services.AddSignalR();
     return services;
   }
 }
