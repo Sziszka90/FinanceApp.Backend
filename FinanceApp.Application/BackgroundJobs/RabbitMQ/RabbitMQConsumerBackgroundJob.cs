@@ -7,20 +7,24 @@ namespace FinanceApp.Application.BackgroundJobs.RabbitMQ;
 public class RabbitMqConsumerServiceBackgroundJob : BackgroundService
 {
   private readonly IRabbitMqClient _rabbitMqClient;
-  private readonly ExchangeRateRunSignal _signal;
+  private readonly ExchangeRateRunSignal _exchangeRateSignal;
+  private readonly RabbitMQConsumerRunSignal _rabbitMQConsumerRunSignal;
 
   public RabbitMqConsumerServiceBackgroundJob(
     IRabbitMqClient rabbitMqClient,
-    ExchangeRateRunSignal signal)
+    ExchangeRateRunSignal exchangeRateSignal,
+    RabbitMQConsumerRunSignal rabbitMQConsumerRunSignal)
   {
     _rabbitMqClient = rabbitMqClient;
-    _signal = signal;
+    _exchangeRateSignal = exchangeRateSignal;
+    _rabbitMQConsumerRunSignal = rabbitMQConsumerRunSignal;
   }
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    await _signal.WaitForFirstRunAsync();
+    await _exchangeRateSignal.WaitForFirstRunAsync();
     await _rabbitMqClient.SubscribeAllAsync();
+    _rabbitMQConsumerRunSignal.SignalFirstRunCompleted();
     await Task.Delay(Timeout.Infinite, stoppingToken);
   }
 }

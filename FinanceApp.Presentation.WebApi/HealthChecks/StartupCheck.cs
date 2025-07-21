@@ -1,3 +1,6 @@
+using FinanceApp.Application.Abstraction.Clients;
+using FinanceApp.Application.BackgroundJobs.RabbitMQ;
+using FinanceApp.Infrastructure.EntityFramework.Context;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace FinanceApp.Presentation.WebApi.HealthChecks;
@@ -5,24 +8,36 @@ namespace FinanceApp.Presentation.WebApi.HealthChecks;
 public class StartupCheck : IHealthCheck
 {
   private readonly ILogger<StartupCheck> _logger;
+  private readonly FinanceAppDbContext _dbContext;
+  private readonly RabbitMQConsumerRunSignal _rabbitMQConsumerRunSignal;
 
-  public StartupCheck(ILogger<StartupCheck> logger)
+  public StartupCheck(
+      ILogger<StartupCheck> logger,
+      FinanceAppDbContext dbContext,
+      IRabbitMqClient rabbitMqClient,
+      RabbitMQConsumerRunSignal rabbitMQConsumerRunSignal)
   {
     _logger = logger;
+    _dbContext = dbContext;
+    _rabbitMQConsumerRunSignal = rabbitMQConsumerRunSignal;
   }
-  public Task<HealthCheckResult> CheckHealthAsync(
+
+  public async Task<HealthCheckResult> CheckHealthAsync(
       HealthCheckContext context,
       CancellationToken cancellationToken = default)
   {
-    bool appIsReady = true;
+    bool dbReady = await _dbContext.Database.CanConnectAsync();
+    bool consumerJobExecuted = _rabbitMQConsumerRunSignal.HasRun;
 
-    if (appIsReady)
+    if (dbReady && consumerJobExecuted)
     {
       _logger.LogInformation("Startup check passed.");
-      return Task.FromResult(HealthCheckResult.Healthy("Startup check passed."));
+      return HealthCheckResult.Healthy("Startup check passed.");
     }
-
-    _logger.LogWarning("Startup check failed.");
-    return Task.FromResult(HealthCheckResult.Unhealthy("Startup check failed."));
+    else
+    {
+      _logger.LogWarning("Startup check failed. Consumer job executed: {ConsumerJobExecuted}", consumerJobExecuted);
+      return HealthCheckResult.Unhealthy("Startup check failed. Consumer job executed: " + consumerJobExecuted);
+    }
   }
 }
