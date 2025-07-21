@@ -30,7 +30,7 @@ export class NotificationService {
 
   startConnection(): void {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(`https://localhost:65030/notificationHub`)
+      .withUrl(`/notificationHub`)
       .configureLogging(LogLevel.Information)
       .build();
 

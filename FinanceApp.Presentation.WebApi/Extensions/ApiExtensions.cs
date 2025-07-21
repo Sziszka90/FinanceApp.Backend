@@ -19,9 +19,8 @@ public static class ApiExtensions
                                                                     {
                                                                       policy
                                                                         .AllowAnyHeader()
-                                                                        .WithOrigins("http://localhost:4200")
-                                                                        .AllowAnyMethod()
-                                                                        .AllowCredentials();
+                                                                        .AllowAnyOrigin()
+                                                                        .AllowAnyMethod();
                                                                     });
                              });
 
