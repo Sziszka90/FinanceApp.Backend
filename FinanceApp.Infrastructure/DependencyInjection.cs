@@ -13,6 +13,7 @@ public static class DependencyInjection
     services.AddEntityFrameworkCore(configuration);
     services.AddEntityFrameworkCorePersistence();
     services.AddRabbitMq();
+    services.AddCache(configuration);
 
     return services;
   }

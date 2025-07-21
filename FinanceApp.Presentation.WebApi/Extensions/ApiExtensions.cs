@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
-using FinanceApp.Application.Models.Options;
+using FinanceApp.Domain.Options;
 using FinanceApp.Presentation.WebApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -89,11 +89,13 @@ public static class ApiExtensions
     var smtpSection = builder.Configuration.GetSection("SmtpSettings");
     var rabbitMqSection = builder.Configuration.GetSection("RabbitMqSettings");
     var llmProcessorSection = builder.Configuration.GetSection("LLMProcessorSettings");
+    var cacheSection = builder.Configuration.GetSection("CacheSettings");
 
     builder.Services.Configure<AuthenticationSettings>(authenticationSection);
     builder.Services.Configure<ExchangeRateSettings>(exchangeRateSection);
     builder.Services.Configure<SmtpSettings>(smtpSection);
     builder.Services.Configure<RabbitMqSettings>(rabbitMqSection);
+    builder.Services.Configure<CacheSettings>(cacheSection);
     builder.Services.Configure<LLMProcessorSettings>(llmProcessorSection);
 
     return builder;

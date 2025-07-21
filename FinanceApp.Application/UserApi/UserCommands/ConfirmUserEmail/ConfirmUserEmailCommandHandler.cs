@@ -55,11 +55,13 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
       return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));
     }
 
-    _jwtService.InvalidateToken(request.Token);
-
+    user.EmailConfirmationToken = null;
+    user.EmailConfirmationTokenExpiration = null;
     user.IsEmailConfirmed = true;
-    await _userRepository.UpdateAsync(user, cancellationToken);
+
     await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+    _jwtService.InvalidateToken(request.Token);
 
     _logger.LogDebug("Email confirmed for user with ID:{Id}", request.Id);
 

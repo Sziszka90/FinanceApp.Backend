@@ -1,4 +1,4 @@
-namespace FinanceApp.Application.Models.Options;
+namespace FinanceApp.Domain.Options;
 
 public class ExchangeRateSettings
 {

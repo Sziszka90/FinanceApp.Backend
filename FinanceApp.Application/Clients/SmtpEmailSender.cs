@@ -1,10 +1,9 @@
 using System.Net;
 using System.Net.Mail;
 using FinanceApp.Application.Abstraction.Clients;
-using FinanceApp.Application.Abstraction.Services;
 using FinanceApp.Application.Models;
-using FinanceApp.Application.Models.Options;
 using FinanceApp.Domain.Entities;
+using FinanceApp.Domain.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

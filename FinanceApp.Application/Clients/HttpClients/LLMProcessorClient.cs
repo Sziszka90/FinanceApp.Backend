@@ -3,7 +3,7 @@ using FinanceApp.Application.Application.Dtos.LLMProcessorDtos;
 using FinanceApp.Application.Clients.HttpClients;
 using FinanceApp.Application.LLMProcessorDtos;
 using FinanceApp.Application.Models;
-using FinanceApp.Application.Models.Options;
+using FinanceApp.Domain.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

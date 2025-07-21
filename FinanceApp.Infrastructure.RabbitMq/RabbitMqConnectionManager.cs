@@ -1,5 +1,5 @@
 using FinanceApp.Application.Abstraction.Clients;
-using FinanceApp.Application.Models.Options;
+using FinanceApp.Domain.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
