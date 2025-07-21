@@ -21,6 +21,6 @@ export class AuthenticationApiService {
   }
 
   validateToken(token: string): Observable<ValidateTokenResponse> {
-    return this.http.post<ValidateTokenResponse>(`${this.apiUrl}/api/users/validate-token?token=${token}`, {});
+    return this.http.post<ValidateTokenResponse>(`${this.apiUrl}/api/auth/validate-token?token=${token}`, {});
   }
 }
