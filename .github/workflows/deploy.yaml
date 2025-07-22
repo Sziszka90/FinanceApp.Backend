@@ -51,32 +51,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: List environment files
-        run: |
-          ls ./FinanceApp.Web/src/environments
-
-      - name: Generate environment.prod.ts from template
-        run: |
-          #export API_URL="${{ vars.BACKEND_URL }}"
-          envsubst < src/environments/environment.prod.template.ts > src/environments/environment.prod.ts
-        working-directory: ./FinanceApp.Web
-
-      - name: Build and Push Frontend image
-        run: |
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-frontend:${GITHUB_RUN_NUMBER} -f ./FinanceApp.Web/FrontendService.Dockerfile ./FinanceApp.Web
-          docker push ghcr.io/$OWNER/finance-app-frontend:${GITHUB_RUN_NUMBER}
-
       - name: Build and Push .NET image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER} -f BackendService.Dockerfile .
+          docker build -t ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER} -f Backend.Dockerfile .
           docker push ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER}
 
       - name: Build and Push Gateway image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER} -f GatewayService.Dockerfile .
+          docker build -t ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER} -f Gateway.Dockerfile .
           docker push ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER}
 
   deploy:
@@ -132,15 +116,6 @@ jobs:
               RabbitMqSettings__Password='${{ secrets.RABBITMQ_PASS }}' \
               LLMProcessorSettings__Token='${{ secrets.LLM_PROCESSOR_TOKEN }}' \
               LLMProcessorSettings__ApiUrl='${{ vars.LLM_PROCESSOR_API_URL }}' \
-
-      - name: Update Azure Container App (Frontend)
-        run: |
-          set -x
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          az containerapp update \
-            --name finance-app-frontend \
-            --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-frontend:${GITHUB_RUN_NUMBER}
 
       - name: Update Azure Container App (Gateway)
         run: |
