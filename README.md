@@ -266,7 +266,7 @@ dotnet test FinanceApp.Backend.Testing.Integration
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## � Docker & Deployment
+## 🐳 Docker & Deployment
 
 ### **Docker Support**
 
@@ -307,10 +307,10 @@ The application is deployed as **containerized microservices** on **Azure Contai
 4. **Deploy** → Updates Azure Container Apps with zero downtime
 5. **Verify** → Automated health checks ensure successful deployment
 
-## �📊 Monitoring & Logging
+## 📊 Monitoring & Logging
 
 - **Health Checks** for database and external services
-- **Performance Metrics** with Application Insights
+- **Application Performance Monitoring** - Real-time metrics, response times, and dependency tracking with Azure Application Insights
 - **Error Tracking** with custom exception handling
 
 ## 🤝 Contributing
