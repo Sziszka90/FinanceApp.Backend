@@ -54,20 +54,17 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
 
     var token = _jwtService.GenerateToken(request.LoginRequestDto.Email);
 
+    var tokenExists = await _cacheManager.TokenExistsAsync(token);
+
+    if (tokenExists)
+    {
+      _logger.LogError("Token already exists in cache, returning existing token.");
+      return Result.Failure<LoginResponseDto>(ApplicationError.TokenAlreadyExistsError());
+    }
+
     await _cacheManager.SaveTokenAsync(token);
 
     _logger.LogDebug("Login successful!");
-
-    var result = await _cacheManager.IsTokenInvalidAsync(token);
-
-    if (result)
-    {
-      _logger.LogDebug("Token already exists in cache, returning existing token.");
-      return Result.Success(new LoginResponseDto
-      {
-        Token = token
-      });
-    }
 
     return Result.Success(new LoginResponseDto
     {

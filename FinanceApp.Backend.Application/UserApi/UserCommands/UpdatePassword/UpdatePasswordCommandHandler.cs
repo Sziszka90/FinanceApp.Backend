@@ -1,3 +1,4 @@
+using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
@@ -13,19 +14,22 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
   private readonly IUnitOfWork _unitOfWork;
   private readonly IJwtService _jwtService;
   private readonly IBcryptService _bcryptService;
+  private readonly ICacheManager _cacheManager;
 
   public UpdatePasswordCommandHandler(
     ILogger<UpdatePasswordCommandHandler> logger,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     IJwtService jwtService,
-    IBcryptService bcryptService)
+    IBcryptService bcryptService,
+    ICacheManager cacheManager)
   {
     _logger = logger;
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
     _jwtService = jwtService;
     _bcryptService = bcryptService;
+    _cacheManager = cacheManager;
   }
 
   /// <inheritdoc />
@@ -35,6 +39,15 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
     if (!validationResult)
     {
       _logger.LogError("Invalid token provided for password update.");
+      return Result.Failure(ApplicationError.InvalidTokenError());
+    }
+
+    var validationCache = await _cacheManager.IsPasswordResetTokenValidAsync(request.UpdatePasswordDto.Token);
+    await _cacheManager.InvalidatePasswordResetTokenAsync(request.UpdatePasswordDto.Token);
+
+    if (!validationCache)
+    {
+      _logger.LogError("Invalid token in cache for password update.");
       return Result.Failure(ApplicationError.InvalidTokenError());
     }
 

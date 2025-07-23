@@ -14,19 +14,22 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
   private readonly IUserRepository _userRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IJwtService _jwtService;
+  private readonly ICacheManager _cacheManager;
 
   public ForgotPasswordCommandHandler(
     ILogger<ForgotPasswordCommandHandler> logger,
     ISmtpEmailSender smtpEmailSender,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IJwtService jwtService)
+    IJwtService jwtService,
+    ICacheManager cacheManager)
   {
     _logger = logger;
     _smtpEmailSender = smtpEmailSender;
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
     _jwtService = jwtService;
+    _cacheManager = cacheManager;
   }
 
   public async Task<Result> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
@@ -46,6 +49,17 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
     }
 
     var resetPasswordToken = _jwtService.GenerateToken(request.EmailDto.Email);
+
+    var tokenExists = await _cacheManager.IsPasswordResetTokenValidAsync(resetPasswordToken);
+
+    if (tokenExists)
+    {
+      _logger.LogError("Password reset token already exists in cache, returning existing token.");
+      return Result.Failure(ApplicationError.TokenAlreadyExistsError());
+    }
+    
+    await _cacheManager.SavePasswordResetTokenAsync(resetPasswordToken);
+
     user.ResetPasswordToken = resetPasswordToken;
     user.ResetPasswordTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
 

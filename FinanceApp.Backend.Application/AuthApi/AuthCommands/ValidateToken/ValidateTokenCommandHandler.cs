@@ -1,3 +1,4 @@
+using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Models;
@@ -10,26 +11,38 @@ public class ValidateTokenCommandHandler : ICommandHandler<ValidateTokenCommand,
 {
   private readonly ILogger<ValidateTokenCommandHandler> _logger;
   private readonly IJwtService _jwtService;
+  private readonly ICacheManager _cacheManager;
 
   public ValidateTokenCommandHandler(
     ILogger<ValidateTokenCommandHandler> logger,
-    IJwtService jwtService)
+    IJwtService jwtService,
+    ICacheManager cacheManager)
   {
     _logger = logger;
     _jwtService = jwtService;
+    _cacheManager = cacheManager;
   }
 
-  public Task<Result<ValidateTokenResponse>> Handle(ValidateTokenCommand request, CancellationToken cancellationToken)
+  public async Task<Result<ValidateTokenResponse>> Handle(ValidateTokenCommand request, CancellationToken cancellationToken)
   {
     var isValid = _jwtService.ValidateToken(request.Token);
 
     if (!isValid)
     {
       _logger.LogWarning("Invalid token provided: {Token}", request.Token);
-      return Task.FromResult(Result.Success(new ValidateTokenResponse { IsValid = false }));
+      return Result.Success(new ValidateTokenResponse { IsValid = false });
+    }
+
+    var validateTokenCache = await _cacheManager.IsPasswordResetTokenValidAsync(request.Token);
+    await _cacheManager.InvalidatePasswordResetTokenAsync(request.Token);
+
+    if (!validateTokenCache)
+    {
+      _logger.LogWarning("Invalid token in cache: {Token}", request.Token);
+      return Result.Success(new ValidateTokenResponse { IsValid = false });
     }
 
     _logger.LogInformation("Token validated successfully: {Token}", request.Token);
-    return Task.FromResult(Result.Success(new ValidateTokenResponse { IsValid = true }));
+    return Result.Success(new ValidateTokenResponse { IsValid = true });
   }
 }

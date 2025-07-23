@@ -1,3 +1,4 @@
+using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
@@ -12,17 +13,20 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
   private readonly IUserRepository _userRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IJwtService _jwtService;
+  private readonly ICacheManager _cacheManager;
 
   public ConfirmUserEmailCommandHandler(
     ILogger<ConfirmUserEmailCommandHandler> logger,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IJwtService jwtService)
+    IJwtService jwtService,
+    ICacheManager cacheManager)
   {
     _logger = logger;
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
     _jwtService = jwtService;
+    _cacheManager = cacheManager;
   }
 
   public async Task<Result> Handle(ConfirmUserEmailCommand request, CancellationToken cancellationToken)
@@ -37,6 +41,12 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
 
     var validationResult = _jwtService.ValidateToken(request.Token);
 
+    if (!validationResult)
+    {
+      _logger.LogError("Invalid token for user with ID:{Id}", request.Id);
+      return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));
+    }
+
     if (user.EmailConfirmationToken != request.Token)
     {
       _logger.LogError("Invalid token for user with ID:{Id}", request.Id);
@@ -49,7 +59,10 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
       return Result.Failure(ApplicationError.TokenExpiredError(user.Email));
     }
 
-    if (!validationResult)
+    var validateTokenCache = await _cacheManager.IsEmailConfirmationTokenValidAsync(request.Token);
+    await _cacheManager.InvalidateEmailConfirmationTokenAsync(request.Token);
+
+    if (!validateTokenCache)
     {
       _logger.LogError("Invalid token for user with ID:{Id}", request.Id);
       return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));

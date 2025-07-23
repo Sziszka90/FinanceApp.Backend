@@ -21,6 +21,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
   private readonly ISmtpEmailSender _smtpEmailSender;
   private readonly IBcryptService _bcryptService;
   private readonly IJwtService _jwtService;
+  private readonly ICacheManager _cacheManager;
 
   public CreateUserCommandHandler(
     ILogger<CreateUserCommandHandler> logger,
@@ -30,7 +31,8 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     IUnitOfWork unitOfWork,
     ISmtpEmailSender smtpEmailSender,
     IBcryptService bcryptService,
-    IJwtService jwtService)
+    IJwtService jwtService,
+    ICacheManager cacheManager)
   {
     _logger = logger;
     _mapper = mapper;
@@ -40,6 +42,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     _smtpEmailSender = smtpEmailSender;
     _bcryptService = bcryptService;
     _jwtService = jwtService;
+    _cacheManager = cacheManager;
   }
 
   /// <inheritdoc />
@@ -81,6 +84,17 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     await _transactionGroupRepository.BatchCreateTransactionGroupsAsync(defaultGroups, cancellationToken);
 
     var confirmationToken = _jwtService.GenerateToken(user.Email);
+
+    var tokenExists = await _cacheManager.EmailConfirmationTokenExistsAsync(confirmationToken);
+
+    if (tokenExists)
+    {
+      _logger.LogError("Email confirmation token already exists in cache, returning existing token.");
+      return Result.Failure<GetUserDto>(ApplicationError.TokenAlreadyExistsError());
+    }
+
+    await _cacheManager.SaveEmailConfirmationTokenAsync(confirmationToken);
+
     user.EmailConfirmationToken = confirmationToken;
     user.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
 

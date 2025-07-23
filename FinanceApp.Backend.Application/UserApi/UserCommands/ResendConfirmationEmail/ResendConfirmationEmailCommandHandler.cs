@@ -17,6 +17,7 @@ public class ResendConfirmationEmailCommandHandler : ICommandHandler<ResendConfi
   private readonly IUserRepository _userRepository;
   private readonly ISmtpEmailSender _smtpEmailSender;
   private readonly IJwtService _jwtService;
+  private readonly ICacheManager _cacheManager;
 
   public ResendConfirmationEmailCommandHandler(
     ILogger<ResendConfirmationEmailCommandHandler> logger,
@@ -24,7 +25,8 @@ public class ResendConfirmationEmailCommandHandler : ICommandHandler<ResendConfi
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     ISmtpEmailSender smtpEmailSender,
-    IJwtService jwtService)
+    IJwtService jwtService,
+    ICacheManager cacheManager)
   {
     _logger = logger;
     _mapper = mapper;
@@ -32,6 +34,7 @@ public class ResendConfirmationEmailCommandHandler : ICommandHandler<ResendConfi
     _unitOfWork = unitOfWork;
     _smtpEmailSender = smtpEmailSender;
     _jwtService = jwtService;
+    _cacheManager = cacheManager;
   }
 
   /// <inheritdoc />
@@ -56,6 +59,16 @@ public class ResendConfirmationEmailCommandHandler : ICommandHandler<ResendConfi
     }
 
     var confirmationToken = _jwtService.GenerateToken(user.Email);
+
+    var tokenExists = await _cacheManager.EmailConfirmationTokenExistsAsync(confirmationToken);
+
+    if (tokenExists)
+    {
+      _logger.LogError("Email confirmation token already exists in cache, returning existing token.");
+      return Result.Failure<ResendEmailConfirmationResponse>(ApplicationError.TokenAlreadyExistsError());
+    }
+
+    await _cacheManager.SaveEmailConfirmationTokenAsync(confirmationToken);
 
     user.EmailConfirmationToken = confirmationToken;
     user.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);

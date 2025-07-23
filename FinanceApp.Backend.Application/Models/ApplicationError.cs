@@ -99,6 +99,9 @@ public class ApplicationError
   public const string EMAIL_NOT_FOUND_IN_TOKEN_MESSAGE = "Email not found in token.";
   public const string EMAIL_NOT_FOUND_IN_TOKEN_CODE = "EMAIL_NOT_FOUND_IN_TOKEN";
 
+  public const string TOKEN_ALREADY_EXISTS_MESSAGE = "Token already exists in cache.";
+  public const string TOKEN_ALREADY_EXISTS_CODE = "TOKEN_ALREADY_EXISTS";
+
   /// <summary>
   /// Machine readable error code
   /// </summary>
@@ -436,5 +439,14 @@ public class ApplicationError
   public static ApplicationError EmailNotFoundInTokenError()
   {
     return new ApplicationError(EMAIL_NOT_FOUND_IN_TOKEN_MESSAGE, EMAIL_NOT_FOUND_IN_TOKEN_CODE);
+  }
+
+  /// <summary>
+  /// Error for when token already exists in cache
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError TokenAlreadyExistsError()
+  {
+    return new ApplicationError(TOKEN_ALREADY_EXISTS_MESSAGE, TOKEN_ALREADY_EXISTS_CODE);
   }
 }
