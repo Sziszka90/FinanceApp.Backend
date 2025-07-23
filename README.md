@@ -8,11 +8,11 @@ This project is a full-stack personal finance application designed to help users
 
 ✅ **User Management** - Registration, email confirmation, password reset, user base currency  
 ✅ **Authentication** - JWT-based auth with token invalidation  
-✅ **Transaction CRUD** - Create, read, update, delete transactions  
-✅ **Transaction Groups** - Organize transactions into pre defined or custom categories  
+✅ **Transactions CRUD** - Create, read, update, delete transactions  
+✅ **Transaction Groups CRUD** - Create, read, update, delete transaction groups
 ✅ **AI Integration** - Async LLM processing via RabbitMQ for matching transactions and transaction groups  
 ✅ **Currency Exchange** - Recurring background job querying live exchange rates for multi-currency support  
-✅ **Caching System** - Redis-based token and data caching  
+✅ **Caching System** - Redis-based token caching
 ✅ **Email Services** - SMTP integration for notifications
 
 ### 🔮 Upcoming Features
@@ -66,7 +66,6 @@ For detailed upcoming features and development progress, please check our [GitHu
 - **SQLite** - Lightweight database for development and testing environments
 - **Redis** - High-performance in-memory caching and session management
 - **Connection Pooling** - Optimized database connection management
-- **Data Seeding** - Automated initial data setup for development
 
 ### **Message Queuing & Communication**
 
@@ -161,25 +160,25 @@ dotnet run --project FinanceApp.Backend.Presentation.WebApi
 
 ### **Configuration**
 
-```json
-// appsettings.json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=FinanceApp;Trusted_Connection=true;"
-  },
-  "Redis": {
-    "ConnectionString": "localhost:6379"
-  },
-  "RabbitMQ": {
-    "HostName": "localhost",
-    "QueueName": "llm-processing"
-  },
-  "Smtp": {
-    "Host": "smtp.gmail.com",
-    "Port": 587
-  }
-}
-```
+The application uses **layered configuration** with multiple sources:
+
+- **appsettings.json** - Development defaults and structure
+- **appsettings.Development.json** - Local development overrides
+- **appsettings.Database.json** - Database-specific settings
+- **Environment Variables** - Production secrets and Azure-specific config
+- **Azure Key Vault** - Sensitive production credentials (via GitHub Actions)
+
+**Key Configuration Areas:**
+
+- Database connections (SQL Server/SQLite)
+- Redis caching settings
+- RabbitMQ message queuing
+- SMTP email services
+- JWT authentication
+- External API integrations
+- Logging and monitoring
+
+Production configuration is managed through **GitHub Actions secrets** and **Azure Container Apps environment variables** for security and deployment automation.
 
 ## 📋 API Documentation
 
