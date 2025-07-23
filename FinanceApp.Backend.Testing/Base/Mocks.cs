@@ -37,4 +37,26 @@ public static class Mocks
 
     services.AddSingleton(jwtMock.Object);
   }
+
+  public static void RegisterCacheManagerMock(this IServiceCollection services)
+  {
+    var cacheManagerMock = new Mock<ICacheManager>();
+    cacheManagerMock.Setup(x => x.IsPasswordResetTokenValidAsync(It.IsAny<string>())).ReturnsAsync(true);
+    cacheManagerMock.Setup(x => x.IsEmailConfirmationTokenValidAsync(It.IsAny<string>())).ReturnsAsync(true);
+    cacheManagerMock.Setup(x => x.IsTokenValidAsync(It.IsAny<string>())).ReturnsAsync(true);
+
+    cacheManagerMock.Setup(x => x.PasswordResetTokenExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+    cacheManagerMock.Setup(x => x.EmailConfirmationTokenExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+    cacheManagerMock.Setup(x => x.TokenExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+
+    cacheManagerMock.Setup(x => x.InvalidatePasswordResetTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+    cacheManagerMock.Setup(x => x.InvalidateEmailConfirmationTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+    cacheManagerMock.Setup(x => x.InvalidateTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+
+    cacheManagerMock.Setup(x => x.SaveEmailConfirmationTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+    cacheManagerMock.Setup(x => x.SaveTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+    cacheManagerMock.Setup(x => x.SavePasswordResetTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+
+    services.AddSingleton(cacheManagerMock.Object);
+  }
 }

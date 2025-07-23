@@ -1,6 +1,5 @@
 using System.Net;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
-using FinanceApp.Backend.Application.UserApi.UserCommands.ResendConfirmationEmail;
 using FinanceApp.Backend.Domain.Enums;
 using FinanceApp.Backend.Testing.Base;
 
