@@ -116,6 +116,8 @@ jobs:
               RabbitMqSettings__Password='${{ secrets.RABBITMQ_PASS }}' \
               LLMProcessorSettings__Token='${{ secrets.LLM_PROCESSOR_TOKEN }}' \
               LLMProcessorSettings__ApiUrl='${{ vars.LLM_PROCESSOR_API_URL }}' \
+              CacheSettings__ConnectionString='${{ secrets.CACHE_CONNECTION_STRING }}' \
+
 
       - name: Update Azure Container App (Gateway)
         run: |
