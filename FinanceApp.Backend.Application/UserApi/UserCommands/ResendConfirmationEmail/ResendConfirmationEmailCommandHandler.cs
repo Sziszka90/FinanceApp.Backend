@@ -71,7 +71,7 @@ public class ResendConfirmationEmailCommandHandler : ICommandHandler<ResendConfi
     await _cacheManager.SaveEmailConfirmationTokenAsync(confirmationToken);
 
     user.EmailConfirmationToken = confirmationToken;
-    user.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+    user.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(24);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

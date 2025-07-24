@@ -57,11 +57,11 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
       _logger.LogError("Password reset token already exists in cache, returning existing token.");
       return Result.Failure(ApplicationError.TokenAlreadyExistsError());
     }
-    
+
     await _cacheManager.SavePasswordResetTokenAsync(resetPasswordToken);
 
     user.ResetPasswordToken = resetPasswordToken;
-    user.ResetPasswordTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+    user.ResetPasswordTokenExpiration = DateTimeOffset.UtcNow.AddHours(24);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

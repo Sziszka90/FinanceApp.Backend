@@ -31,7 +31,7 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
 
   public async Task<Result> Handle(ConfirmUserEmailCommand request, CancellationToken cancellationToken)
   {
-    var user = await _userRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken);
+    var user = await _userRepository.GetByIdAsync(request.Id, noTracking: false, cancellationToken);
 
     if (user is null)
     {
@@ -40,6 +40,7 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
     }
 
     var validationResult = _jwtService.ValidateToken(request.Token);
+    _jwtService.InvalidateToken(request.Token);
 
     if (!validationResult)
     {
@@ -53,7 +54,7 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
       return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));
     }
 
-    if(user.EmailConfirmationTokenExpiration < DateTime.UtcNow)
+    if(user.EmailConfirmationTokenExpiration < DateTimeOffset.UtcNow)
     {
       _logger.LogError("Token expired for user with ID:{Id}", request.Id);
       return Result.Failure(ApplicationError.TokenExpiredError(user.Email));
@@ -68,13 +69,13 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
       return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));
     }
 
+    _logger.LogDebug("Email confirmation token validated for user with ID:{Id}", request.Id);
+
     user.EmailConfirmationToken = null;
     user.EmailConfirmationTokenExpiration = null;
     user.IsEmailConfirmed = true;
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-    _jwtService.InvalidateToken(request.Token);
 
     _logger.LogDebug("Email confirmed for user with ID:{Id}", request.Id);
 
