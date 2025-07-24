@@ -17,10 +17,10 @@ public static class ApiExtensions
                              {
                                options.AddPolicy("AllowAllOrigins", policy =>
                                                                     {
-                                                                      policy
-                                                                        .AllowAnyHeader()
-                                                                        .AllowAnyOrigin()
-                                                                        .AllowAnyMethod();
+                                                                      policy.WithOrigins("https://www.financeapp.fun")
+                                                                            .AllowAnyHeader()
+                                                                            .AllowAnyMethod()
+                                                                            .AllowCredentials();
                                                                     });
                              });
 
