@@ -34,7 +34,6 @@ public class ValidateTokenCommandHandler : ICommandHandler<ValidateTokenCommand,
     }
 
     var validateTokenCache = await _cacheManager.IsPasswordResetTokenValidAsync(request.Token);
-    await _cacheManager.InvalidatePasswordResetTokenAsync(request.Token);
 
     if (!validateTokenCache)
     {
