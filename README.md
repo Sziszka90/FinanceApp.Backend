@@ -7,12 +7,19 @@ This project is a full-stack personal finance application designed to help users
 ### 🎯 Current Features
 
 ✅ **User Management** - Registration, email confirmation, password reset, user base currency  
-✅ **Authentication** - JWT-based auth with token invalidation  
+
+✅ **Authentication** - JWT-based auth with token caching and invalidation  
+
 ✅ **Transactions CRUD** - Create, read, update, delete transactions  
+
 ✅ **Transaction Groups CRUD** - Create, read, update, delete transaction groups
-✅ **AI Integration** - Async LLM processing via RabbitMQ for matching transactions and transaction groups  
-✅ **Currency Exchange** - Recurring background job querying live exchange rates for multi-currency support  
+
+✅ **AI Integration** - Async LLM processing via RabbitMQ for matching transactions and transaction groups
+
+✅ **Currency Exchange** - Recurring background job querying live exchange rates for multi-currency support 
+
 ✅ **Caching System** - Redis-based token caching
+
 ✅ **Email Services** - SMTP integration for notifications
 
 ### 🔮 Upcoming Features
@@ -40,6 +47,7 @@ For detailed upcoming features and development progress, please check our [GitHu
 
 - **CQRS** (Command Query Responsibility Segregation)
 - **Repository Pattern** with Entity Framework
+- **Domain Layer** Domain objects enforce self-mutation constraints
 - **Service Layer Pattern** - Business logic encapsulation in dedicated services
 - **Client Pattern** - External API integration through dedicated client classes
 - **Background Jobs** - Scheduled and recurring tasks for maintenance operations
@@ -49,50 +57,18 @@ For detailed upcoming features and development progress, please check our [GitHu
 
 ## 🚀 Tech Stack
 
-### **Backend (.NET 8)**
-
 - **ASP.NET Core 8** - Web API framework
-- **Entity Framework Core** - ORM with MSSQL/SQLite support
 - **AutoMapper** - Object-to-object mapping
 - **FluentValidation** - Input validation
 - **MediatR** - CQRS implementation
 - **JWT Bearer** - Authentication & authorization
 - **Swagger/OpenAPI** - API documentation
-
-### **Infrastructure & Data Layer**
-
+- **SignalR** - Push notifications
 - **Entity Framework Core** - ORM with Code-First migrations
 - **Microsoft SQL Server** - Primary production database with full ACID compliance
 - **SQLite** - Lightweight database for development and testing environments
 - **Redis** - High-performance in-memory caching and session management
-- **Connection Pooling** - Optimized database connection management
-
-### **Message Queuing & Communication**
-
 - **RabbitMQ** - Reliable message broker for async communication
-- **Event-driven processing** for transaction analysis and AI integration
-- **Message Persistence** - Ensures reliability during service restarts
-
-### **Background Services**
-
-- **Exchange Rate Jobs** - Scheduled tasks fetching live currency exchange rates
-- **RabbitMQ Message Processing** - Background consumers handling async AI processing queues
-- **Health Monitoring** - Periodic service health checks and alerting
-
-### **External Services & APIs**
-
-- **FinanceApp.LLMProcessor** - AI-powered transaction and group matching service
-- **SMTP Services** - Email delivery for notifications and user communications
-- **Exchange Rate APIs** - Live currency conversion data providers
-- **Logging Services** - Centralized application logging and monitoring
-
-### **Frontend**
-
-- **Angular 19** - Modern TypeScript framework with latest features
-- **Angular CLI** - Development tooling and build optimization
-- **RxJS** - Reactive programming for async data handling
-- **Angular Material** - Professional UI component library
-- **TypeScript** - Strong typing for better code quality and maintainability
 
 ## 🔧 Features Deep Dive
 
@@ -103,9 +79,9 @@ For detailed upcoming features and development progress, please check our [GitHu
 - **Profile Management** with account settings
 - **Session Management** with token invalidation
 
-### **💰 Transaction Management**
+### **💰 Transaction and Transaction Group Management**
 
-- **CRUD Operations** - Full transaction lifecycle
+- **CRUD Operations** - Full transaction and transaction group lifecycle
 - **Bulk Operations** - CSV import/export capabilities
 - **Transaction Grouping** - Organize by categories
 - **Real-time Validation** - Immediate feedback on data entry
@@ -113,7 +89,6 @@ For detailed upcoming features and development progress, please check our [GitHu
 ### **🤖 AI-Powered Features**
 
 - **Transaction Matching** - AI-powered matching of transactions to appropriate categories
-- **Transaction Group Analysis** - Intelligent grouping of related transactions
 - **Async Processing** - Non-blocking AI analysis via RabbitMQ message queues
 
 ### **⚡ Performance & Scalability**
@@ -138,24 +113,6 @@ For detailed upcoming features and development progress, please check our [GitHu
 SQL Server (or SQLite for development)
 Redis Server
 RabbitMQ Server
-Node.js 18+ (for frontend)
-```
-
-### **Backend Setup**
-
-```bash
-# Clone the repository
-git clone https://github.com/Sziszka90/FinanceApp.Backend.git
-cd FinanceApp.Backend
-
-# Restore dependencies
-dotnet restore
-
-# Update database
-dotnet ef database update --project FinanceApp.Backend.Infrastructure.EntityFramework.Mssql
-
-# Run the application
-dotnet run --project FinanceApp.Backend.Presentation.WebApi
 ```
 
 ### **Configuration**
@@ -164,9 +121,9 @@ The application uses **layered configuration** with multiple sources:
 
 - **appsettings.json** - Development defaults and structure
 - **appsettings.Development.json** - Local development overrides
-- **appsettings.Database.json** - Database-specific settings
-- **Environment Variables** - Production secrets and Azure-specific config
-- **Azure Key Vault** - Sensitive production credentials (via GitHub Actions)
+- **appsettings.Database.json** - Database specific settings
+- **appsettings.Messaging.json** - Messaging specific settings
+- **appsettings.Testing.json** - Testing specific settings
 
 **Key Configuration Areas:**
 
@@ -178,7 +135,7 @@ The application uses **layered configuration** with multiple sources:
 - External API integrations
 - Logging and monitoring
 
-Production configuration is managed through **GitHub Actions secrets** and **Azure Container Apps environment variables** for security and deployment automation.
+Production configuration is managed through **GitHub Actions env variables** and **GitHub Actions secrets** for security and deployment automation.
 
 ## 📋 API Documentation
 
@@ -265,15 +222,7 @@ dotnet test FinanceApp.Backend.Testing.Integration
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## 🐳 Docker & Deployment
-
-### **Docker Support**
-
-```dockerfile
-# Build and run with Docker
-docker build -t financeapp-backend .
-docker run -p 5000:80 financeapp-backend
-```
+## 🚀 Deployment
 
 ### **Azure Container Apps**
 
@@ -309,7 +258,7 @@ The application is deployed as **containerized microservices** on **Azure Contai
 ## 📊 Monitoring & Logging
 
 - **Health Checks** for database and external services
-- **Application Performance Monitoring** - Real-time metrics, response times, and dependency tracking with Azure Application Insights
+- **Logging** for easy debugging
 - **Error Tracking** with custom exception handling
 
 ## 🤝 Contributing
