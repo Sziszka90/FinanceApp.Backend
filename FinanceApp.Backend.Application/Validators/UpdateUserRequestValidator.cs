@@ -9,18 +9,5 @@ public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
   {
     RuleFor(x => x.BaseCurrency)
       .IsInEnum();
-
-    RuleFor(x => x.UserName)
-      .NotEmpty()
-      .When(x => x.UserName != null);
-
-    RuleFor(x => x.Password)
-      .NotEmpty().WithMessage("Password cannot be empty.")
-      .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
-      .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
-      .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
-      .Matches("[0-9]").WithMessage("Password must contain at least one digit.")
-      .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.")
-      .When(x => x.Password != null);
   }
 }
