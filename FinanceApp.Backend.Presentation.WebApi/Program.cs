@@ -62,7 +62,7 @@ app.MapHealthChecks("/health/startup", new HealthCheckOptions
   Predicate = check => check.Tags.Contains("startup")
 });
 
-app.MapHub<NotificationHub>("/notificationHub");
+app.MapHub<NotificationHub>("/notificationHub").RequireAuthorization();
 
 app.Run();
 
