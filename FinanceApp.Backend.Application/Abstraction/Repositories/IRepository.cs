@@ -12,6 +12,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>Found results in a list</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving entities.</exception>
   Task<List<T>> GetAllAsync(bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -21,6 +22,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>Found results in a list</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving entities.</exception>
   Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -30,6 +32,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>Found results in a list</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving entities.</exception>
   Task<List<T>> GetQueryAsync(QueryCriteria<T> criteria, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -39,6 +42,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>BaseEntity</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the entity.</exception>
   Task<T?> GetByIdAsync(Guid id, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -48,6 +52,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>BaseEntity</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the entity.</exception>
   Task<T> GetSingleAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -58,6 +63,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>BaseEntity</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the entity.</exception>
   Task<T?> GetSingleOrDefaultAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -67,6 +73,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>BaseEntity</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the entity.</exception>
   Task<T> GetFirstAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -77,6 +84,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="noTracking">If set to true than disables EF core tracking mechanism</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>BaseEntity</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the entity.</exception>
   Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -85,6 +93,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="entity">The entity to add.</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>The created entity</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error adding the entity.</exception>
   Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -93,6 +102,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="entity">The entity containing the modified data</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>The updated entity</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error updating the entity.</exception>
   Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -101,6 +111,7 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="entity">The entity to delete</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns></returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error deleting the entity.</exception>
   Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -109,5 +120,6 @@ public interface IRepository<T> where T : BaseEntity
   /// <param name="entities">The entities to delete</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns></returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error deleting the entities.</exception>
   void DeleteAllAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 }

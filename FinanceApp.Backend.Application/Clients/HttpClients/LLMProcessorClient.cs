@@ -37,12 +37,6 @@ public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProce
         CorrelationId = correlationId
       });
 
-    if (response.IsSuccess)
-    {
-      return Result.Success(true);
-    }
-
-    _logger.LogError("Failed request to LLM Processor Service: {ErrorMessage}", response);
-    return Result.Failure<bool>(response.ApplicationError!);
+    return Result.Success(true);
   }
 }

@@ -1,37 +1,66 @@
 using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Application.Exceptions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Infrastructure.Cache;
 
 public class CacheManager : ICacheManager
 {
+
+  private readonly ILogger<CacheManager> _logger;
   private readonly IDistributedCache _cache;
 
-  public CacheManager(IDistributedCache cache)
+  public CacheManager(ILogger<CacheManager> logger, IDistributedCache cache)
   {
+    _logger = logger;
     _cache = cache;
   }
 
   public async Task SetAsync<T>(string key, T value, DistributedCacheEntryOptions? options = null)
   {
-    var json = JsonSerializer.Serialize(value);
-    var cacheOptions = options ?? new DistributedCacheEntryOptions
+    try
     {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-    };
-    await _cache.SetStringAsync(key, json, cacheOptions);
+      var json = JsonSerializer.Serialize(value);
+      var cacheOptions = options ?? new DistributedCacheEntryOptions
+      {
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+      };
+      await _cache.SetStringAsync(key, json, cacheOptions);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to set cache value for key: {Key}", key);
+      throw new CacheException("SET", key, ex);
+    }
   }
 
   public async Task<T?> GetAsync<T>(string key)
   {
-    var json = await _cache.GetStringAsync(key);
-    return json is null ? default : JsonSerializer.Deserialize<T>(json);
+    try
+    {
+      var json = await _cache.GetStringAsync(key);
+      return json is null ? default : JsonSerializer.Deserialize<T>(json);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to get cache value for key: {Key}", key);
+      throw new CacheException("GET", key, ex);
+    }
   }
 
   public async Task RemoveAsync(string key)
   {
-    await _cache.RemoveAsync(key);
+    try
+    {
+      await _cache.RemoveAsync(key);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to remove cache value for key: {Key}", key);
+      throw new CacheException("REMOVE", key, ex);
+    }
   }
 
   public async Task SaveEmailConfirmationTokenAsync(string token)
@@ -103,22 +132,34 @@ public class CacheManager : ICacheManager
     return !isValid;
   }
 
-  // Check if token exists in cache (regardless of validity)
   public async Task<bool> TokenExistsAsync(string token)
   {
-    var json = await _cache.GetStringAsync($"Token:{token}");
+    var json = await GetCacheStringAsync($"Token:{token}");
     return json is not null;
   }
 
   public async Task<bool> EmailConfirmationTokenExistsAsync(string token)
   {
-    var json = await _cache.GetStringAsync($"EmailToken:{token}");
+    var json = await GetCacheStringAsync($"EmailToken:{token}");
     return json is not null;
   }
 
   public async Task<bool> PasswordResetTokenExistsAsync(string token)
   {
-    var json = await _cache.GetStringAsync($"PasswordResetToken:{token}");
+    var json = await GetCacheStringAsync($"PasswordResetToken:{token}");
     return json is not null;
+  }
+
+  private async Task<string?> GetCacheStringAsync(string key)
+  {
+    try
+    {
+      return await _cache.GetStringAsync(key);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to get cache string for key: {Key}", key);
+      throw new CacheException("GET_STRING", key, ex);
+    }
   }
 }

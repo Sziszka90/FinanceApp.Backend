@@ -1,4 +1,5 @@
 using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Domain.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -35,36 +36,67 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
 
   public async Task InitializeAsync()
   {
-    _connection = await _factory.CreateConnectionAsync();
-    _channel = await _connection.CreateChannelAsync();
-    _connection.ConnectionShutdownAsync += OnConnectionShutdown;
+    try
+    {
+      _connection = await _factory.CreateConnectionAsync();
+      _channel = await _connection.CreateChannelAsync();
+      _connection.ConnectionShutdownAsync += OnConnectionShutdown;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to initialize RabbitMQ connection to {HostName}:{Port}", _settings.HostName, _settings.Port);
+      throw new RabbitMqException("CONNECTION_INITIALIZE", $"Failed to initialize RabbitMQ connection to {_settings.HostName}:{_settings.Port}.", ex);
+    }
   }
 
   private async Task OnConnectionShutdown(object sender, ShutdownEventArgs e)
   {
-    _logger.LogWarning("RabbitMQ connection shutdown: {Reason}", e.ReplyText);
-    await Reconnect();
+    try
+    {
+      _logger.LogWarning("RabbitMQ connection shutdown: {Reason}", e.ReplyText);
+      await Reconnect();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Unexpected error during connection shutdown handling: {Reason}", e.ReplyText);
+    }
   }
 
   private async Task Reconnect()
   {
     try
     {
-      _channel?.Dispose();
-      _connection?.Dispose();
+      try
+      {
+        _channel?.Dispose();
+        _connection?.Dispose();
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error disposing channel/connection during reconnect.");
+      }
+
+      await Task.Delay(TimeSpan.FromSeconds(2));
+      await InitializeAsync();
+      _logger.LogInformation("Successfully reconnected to RabbitMQ");
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error disposing channel/connection during reconnect.");
+      _logger.LogError(ex, "Failed to reconnect to RabbitMQ");
+      throw new RabbitMqException("CONNECTION_RECONNECT", "Failed to reconnect to RabbitMQ after connection loss.", ex);
     }
-
-    await Task.Delay(TimeSpan.FromSeconds(2));
-    await InitializeAsync();
   }
 
   public async ValueTask DisposeAsync()
   {
-    if (_channel != null) await _channel.CloseAsync();
-    if (_connection != null) await _connection.CloseAsync();
+    try
+    {
+      if (_channel != null) await _channel.CloseAsync();
+      if (_connection != null) await _connection.CloseAsync();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Error during RabbitMQ connection disposal");
+    }
   }
 }

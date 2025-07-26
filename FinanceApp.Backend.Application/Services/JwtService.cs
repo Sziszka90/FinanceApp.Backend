@@ -46,8 +46,6 @@ public class JwtService : IJwtService
   /// <inheritdoc />
   public bool ValidateToken(string token)
   {
-    IsTokenInvalidated(token);
-
     var tokenHandler = new JwtSecurityTokenHandler();
     var key = Encoding.UTF8.GetBytes(_authenticationSettings.SecretKey);
 
@@ -71,18 +69,6 @@ public class JwtService : IJwtService
     {
       return false;
     }
-  }
-
-  /// <inheritdoc />
-  public void InvalidateToken(string token)
-  {
-    _invalidatedTokens.Add(token);
-  }
-
-
-  public bool IsTokenInvalidated(string token)
-  {
-    return _invalidatedTokens.Contains(token);
   }
 
   /// <inheritdoc />

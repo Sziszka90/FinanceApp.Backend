@@ -11,6 +11,7 @@ public interface IUnitOfWorkDbTransaction
   /// </summary>
   /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
   /// <returns></returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error committing the transaction.</exception>
   Task CommitAsync(CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -18,5 +19,6 @@ public interface IUnitOfWorkDbTransaction
   /// </summary>
   /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
   /// <returns></returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error rolling back the transaction.</exception>
   Task RollbackAsync(CancellationToken cancellationToken = default);
 }

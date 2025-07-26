@@ -25,12 +25,7 @@ public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchange
   {
     var response = await GetAsync<ExchangeRateResponseDto>(_exchangeRateSettings.ApiEndpoint + _exchangeRateSettings.AppId);
 
-    if (!response.IsSuccess)
-    {
-      return Result.Failure<List<ExchangeRate>>(response.ApplicationError!);
-    }
-
-    var allRates = CalculateAllRatesFromUsdBase(response.Data!.Rates);
+    var allRates = CalculateAllRatesFromUsdBase(response.Rates);
 
     return Result.Success(allRates);
   }

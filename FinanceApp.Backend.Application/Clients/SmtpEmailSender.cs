@@ -111,6 +111,5 @@ public class SmtpEmailSender : ISmtpEmailSender
       _logger.LogError(ex, "Error occurred while sending password reset email to {Email}", email);
       return Result.Failure<bool>(ApplicationError.ExternalCallError("Password reset email sending failed."));
     }
-
   }
 }

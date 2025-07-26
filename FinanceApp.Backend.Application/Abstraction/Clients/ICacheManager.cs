@@ -116,5 +116,6 @@ public interface ICacheManager
   /// </summary>
   /// <param name="key">The key for the cache entry.</param>
   /// <returns>A task that represents the asynchronous operation.</returns>
+  /// <exception cref="CacheException">Thrown when there is an error removing the cache value.</exception>
   Task RemoveAsync(string key);
 }

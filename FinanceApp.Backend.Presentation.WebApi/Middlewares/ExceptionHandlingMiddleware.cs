@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using FinanceApp.Backend.Application.Exceptions;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Middlewares;
 
@@ -39,12 +40,18 @@ public class ExceptionHandlingMiddleware
       ArgumentNullException => StatusCodes.Status400BadRequest,
       ArgumentException => StatusCodes.Status400BadRequest,
       UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+      CacheException => StatusCodes.Status503ServiceUnavailable,
+      DatabaseException => StatusCodes.Status500InternalServerError,
+      HttpClientException => StatusCodes.Status502BadGateway,
+      RabbitMqException => StatusCodes.Status503ServiceUnavailable,
+      SignalRException => StatusCodes.Status500InternalServerError,
       _ => StatusCodes.Status500InternalServerError
     };
 
     var result = JsonSerializer.Serialize(new
     {
-      error = exception.Message
+      error = exception.Message,
+      type = exception.GetType().Name
     });
 
     context.Response.ContentType = "application/json";

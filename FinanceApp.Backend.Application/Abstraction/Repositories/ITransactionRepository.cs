@@ -11,6 +11,7 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <param name="userId"></param>
   /// <param name="cancellationToken"></param>
   /// <returns></returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the transactions.</exception>
   Task<List<Transaction>> GetAllByUserIdAsync(Guid userId, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -19,6 +20,7 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <param name="transactionGroupId"></param>
   /// <param name="cancellationToken"></param>
   /// <returns></returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error checking the transaction group usage.</exception>
   Task<bool> TransactionGroupUsedAsync(Guid transactionGroupId, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -28,6 +30,7 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <param name="noTracking">If set to true, disables EF Core tracking mechanism.</param>
   /// <param name="cancellationToken">Cancellation token.</param>
   /// <returns>List of existing transactions</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the transactions.</exception>
   Task<List<Transaction>> GetAllByFilterAsync(
         TransactionFilter transactionFilter,
         bool noTracking = false,
@@ -40,6 +43,7 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <param name="transactions">The transactions to create.</param>
   /// <param name="cancellationToken">Cancellation token.</param>
   /// <returns>The created transactions.</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error creating the transactions.</exception>
   Task<List<Transaction>?> BatchCreateTransactionsAsync(List<Transaction> transactions, CancellationToken cancellationToken = default);
 
   /// <summary>
@@ -48,5 +52,6 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <param name="userId">The ID of the user whose transactions to delete.</param>
   /// <param name="cancellationToken">Cancellation token.</param>
   /// <returns>A task representing the asynchronous operation.</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error deleting the transactions.</exception>
   Task DeleteAllByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 }

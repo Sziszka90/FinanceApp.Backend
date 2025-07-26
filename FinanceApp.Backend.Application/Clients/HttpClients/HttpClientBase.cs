@@ -1,6 +1,6 @@
 using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Clients;
-using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Application.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.Clients.HttpClients;
@@ -20,7 +20,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
     _httpClient = httpClient;
   }
 
-  public async Task<Result<TResponse>> GetAsync<TResponse>(string endpoint)
+  public async Task<TResponse> GetAsync<TResponse>(string endpoint)
   {
     try
     {
@@ -29,7 +29,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
       if (!response.IsSuccessStatusCode)
       {
         _logger.LogError("Failed to fetch data from external service. Status code: {StatusCode}", response.StatusCode);
-        return Result.Failure<TResponse>(ApplicationError.ExternalCallError("External service call failed."));
+        throw new HttpClientException("GET", endpoint, (int)response.StatusCode, "External service call failed.");
       }
 
       var content = await response.Content.ReadAsStringAsync();
@@ -38,20 +38,20 @@ public abstract class HttpClientBase<T> : IHttpClientBase
       if (result is null)
       {
         _logger.LogError("Failed to deserialize response: {Content}", content);
-        return Result.Failure<TResponse>(ApplicationError.ExternalCallError("Failed to deserialize response."));
+        throw new HttpClientException("GET_DESERIALIZE", endpoint, "Failed to deserialize response.");
       }
 
       _logger.LogDebug("Data fetched successfully: {Content}", content);
-      return Result.Success(result);
+      return result;
     }
     catch (Exception ex)
     {
       _logger.LogError(ex, "An error occurred while making a GET request to {Endpoint}", endpoint);
-      return Result.Failure<TResponse>(ApplicationError.ExternalCallError("An error occurred while making the request."));
+      throw new HttpClientException("GET", endpoint, "An error occurred while making the request.", ex);
     }
   }
 
-  public async Task<Result<TResponse>> GetAsync<TRequest, TResponse>(string endpoint, TRequest data)
+  public async Task<TResponse> GetAsync<TRequest, TResponse>(string endpoint, TRequest data)
   {
     var request = new HttpRequestMessage(HttpMethod.Get, endpoint)
     {
@@ -65,7 +65,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
       if (!response.IsSuccessStatusCode)
       {
         _logger.LogError("Failed to fetch data from external service. Status code: {StatusCode}", response.StatusCode);
-        return Result.Failure<TResponse>(ApplicationError.ExternalCallError("External service call failed."));
+        throw new HttpClientException("GET_WITH_DATA", endpoint, (int)response.StatusCode, "External service call failed.");
       }
 
       var content = await response.Content.ReadAsStringAsync();
@@ -74,20 +74,20 @@ public abstract class HttpClientBase<T> : IHttpClientBase
       if (result is null)
       {
         _logger.LogError("Failed to deserialize response: {Content}", content);
-        return Result.Failure<TResponse>(ApplicationError.ExternalCallError("Failed to deserialize response."));
+        throw new HttpClientException("GET_WITH_DATA_DESERIALIZE", endpoint, "Failed to deserialize response.");
       }
 
       _logger.LogDebug("Data fetched successfully: {Content}", content);
-      return Result.Success(result);
+      return result;
     }
     catch (Exception ex)
     {
       _logger.LogError(ex, "An error occurred while making a GET request to {Endpoint} with data: {Data}", endpoint, data);
-      return Result.Failure<TResponse>(ApplicationError.ExternalCallError("An error occurred while making the request."));
+      throw new HttpClientException("GET_WITH_DATA", endpoint, "An error occurred while making the request.", ex);
     }
   }
 
-  public async Task<Result<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
+  public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
   {
     var json = JsonSerializer.Serialize(data);
     var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -99,7 +99,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
       if (!response.IsSuccessStatusCode)
       {
         _logger.LogError("Failed to post data to external service. Status code: {StatusCode}", response.StatusCode);
-        return Result.Failure<TResponse>(ApplicationError.ExternalCallError("External service call failed."));
+        throw new HttpClientException("POST", endpoint, (int)response.StatusCode, "External service call failed.");
       }
 
       var responseContent = await response.Content.ReadAsStringAsync();
@@ -108,16 +108,16 @@ public abstract class HttpClientBase<T> : IHttpClientBase
       if (result is null)
       {
         _logger.LogError("Failed to deserialize response: {Content}", responseContent);
-        return Result.Failure<TResponse>(ApplicationError.ExternalCallError("Failed to deserialize response."));
+        throw new HttpClientException("POST_DESERIALIZE", endpoint, "Failed to deserialize response.");
       }
 
       _logger.LogDebug("Data posted successfully: {Content}", responseContent);
-      return Result.Success(result);
+      return result;
     }
     catch (Exception ex)
     {
       _logger.LogError(ex, "An error occurred while making a POST request to {Endpoint} with data: {Data}", endpoint, data);
-      return Result.Failure<TResponse>(ApplicationError.ExternalCallError("An error occurred while making the request."));
+      throw new HttpClientException("POST", endpoint, "An error occurred while making the request.", ex);
     }
   }
 }

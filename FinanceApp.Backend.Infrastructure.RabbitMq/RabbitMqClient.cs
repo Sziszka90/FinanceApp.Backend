@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
+using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
 using FinanceApp.Backend.Domain.Options;
 using MediatR;
@@ -35,44 +36,76 @@ public class RabbitMqClient : IRabbitMqClient
 
   public async Task SubscribeAllAsync()
   {
-    await _connectionManager.InitializeAsync();
-    await DeclareExchangesAndQueuesAsync();
-    await BindQueuesAsync();
-    await SetupConsumersAsync();
+    try
+    {
+      await _connectionManager.InitializeAsync();
+      await DeclareExchangesAndQueuesAsync();
+      await BindQueuesAsync();
+      await SetupConsumersAsync();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to subscribe to RabbitMQ");
+      throw new RabbitMqException("SUBSCRIBE_ALL", "Failed to initialize RabbitMQ subscriptions.", ex);
+    }
   }
 
   private async Task DeclareExchangesAndQueuesAsync()
   {
-    foreach (var exchange in _settings.Exchanges)
+    try
     {
-      await _channel.ExchangeDeclareAsync(exchange.ExchangeName, exchange.ExchangeType, durable: true);
-    }
+      foreach (var exchange in _settings.Exchanges)
+      {
+        await _channel.ExchangeDeclareAsync(exchange.ExchangeName, exchange.ExchangeType, durable: true);
+      }
 
-    foreach (var queueName in _settings.Queues)
+      foreach (var queueName in _settings.Queues)
+      {
+        await _channel.QueueDeclareAsync(queueName, durable: true, exclusive: false, autoDelete: false);
+      }
+    }
+    catch (Exception ex)
     {
-      await _channel.QueueDeclareAsync(queueName, durable: true, exclusive: false, autoDelete: false);
+      _logger.LogError(ex, "Failed to declare exchanges and queues");
+      throw new RabbitMqException("DECLARE_EXCHANGES_QUEUES", "Failed to declare RabbitMQ exchanges and queues.", ex);
     }
   }
   private async Task BindQueuesAsync()
   {
-    foreach (var binding in _settings.Bindings)
+    try
     {
-      var exchangeName = binding.Exchange;
-      var queueName = binding.Queue;
-      var routingKey = binding.RoutingKey;
+      foreach (var binding in _settings.Bindings)
+      {
+        var exchangeName = binding.Exchange;
+        var queueName = binding.Queue;
+        var routingKey = binding.RoutingKey;
 
-      await _channel.QueueBindAsync(queueName, exchangeName, routingKey);
+        await _channel.QueueBindAsync(queueName, exchangeName, routingKey);
+      }
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to bind queues");
+      throw new RabbitMqException("BIND_QUEUES", "Failed to bind RabbitMQ queues to exchanges.", ex);
     }
   }
   private async Task SetupConsumersAsync()
   {
-    foreach (var queueName in _settings.Queues)
+    try
     {
+      foreach (var queueName in _settings.Queues)
+      {
 
-      var consumer = new AsyncEventingBasicConsumer(_channel);
-      consumer.ReceivedAsync += async (_, ea) => await HandleMessageAsync(ea);
+        var consumer = new AsyncEventingBasicConsumer(_channel);
+        consumer.ReceivedAsync += async (_, ea) => await HandleMessageAsync(ea);
 
-      await _channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
+        await _channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
+      }
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to setup consumers");
+      throw new RabbitMqException("SETUP_CONSUMERS", "Failed to setup RabbitMQ consumers.", ex);
     }
   }
 
@@ -102,10 +135,16 @@ public class RabbitMqClient : IRabbitMqClient
       }
       await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
     }
+    catch (RabbitMqException)
+    {
+      await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
+      throw;
+    }
     catch (Exception ex)
     {
       _logger.LogError(ex, "Failed to process message. RoutingKey: {RoutingKey}, Body: {Body}", ea.RoutingKey, Encoding.UTF8.GetString(body));
       await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
+      throw new RabbitMqException("MESSAGE_HANDLING", null, ea.RoutingKey, "Failed to process RabbitMQ message.", ex);
     }
   }
 

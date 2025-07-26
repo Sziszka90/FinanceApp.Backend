@@ -1,5 +1,6 @@
 using FinanceApp.Backend.Application.Extensions;
 using FluentValidation.Results;
+using OpenAI.VectorStores;
 
 namespace FinanceApp.Backend.Application.Models;
 
@@ -83,6 +84,9 @@ public class ApplicationError
 
   public const string INVALID_FILE_TYPE_ERROR_MESSAGE = "Invalid file type.";
   public const string INVALID_FILE_TYPE_ERROR_CODE = "INVALID_FILE_TYPE";
+
+  private const string UNKNOWN_TOKEN_TYPE_MESSAGE = "Unknown token type.";
+  private const string UNKNOWN_TOKEN_TYPE_CODE = "UNKNOWN_TOKEN_TYPE";
 
   public const string PARSING_ERROR_MESSAGE = "Parsing error.";
   public const string PARSING_ERROR_CODE = "PARSING_ERROR";
@@ -217,9 +221,24 @@ public class ApplicationError
   /// Error during email confirm validation
   /// </summary>
   /// <returns>ApplicationError</returns>
-  public static ApplicationError InvalidTokenError()
+  public static ApplicationError InvalidTokenError(string tokenType = "")
   {
-    return new ApplicationError(INVALID_TOKEN_MESSAGE, INVALID_TOKEN_CODE);
+    return new ApplicationError(INVALID_TOKEN_MESSAGE, INVALID_TOKEN_CODE, new Dictionary<string, object>
+    {
+      { "tokenType", tokenType }
+    });
+  }
+
+  /// <summary>
+  /// Error for when exchange rate response is invalid
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError UnknownTokenTypeError(string tokenType = "")
+  {
+    return new ApplicationError(UNKNOWN_TOKEN_TYPE_MESSAGE, UNKNOWN_TOKEN_TYPE_CODE, new Dictionary<string, object>
+    {
+      { "tokenType", tokenType }
+    });
   }
 
   /// <summary>
