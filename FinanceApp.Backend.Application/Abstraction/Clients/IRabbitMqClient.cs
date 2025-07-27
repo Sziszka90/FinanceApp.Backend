@@ -6,6 +6,8 @@ public interface IRabbitMqClient
   /// <summary>
   /// Subscribe to a RabbitMQ queue and process messages with the provided handler.
   /// </summary>
+  /// <returns>A task that represents the asynchronous operation.</returns>
+  /// <exception cref="RabbitMqException">Thrown when the subscription fails</exception>>
   Task SubscribeAllAsync();
 
   /// <summary>

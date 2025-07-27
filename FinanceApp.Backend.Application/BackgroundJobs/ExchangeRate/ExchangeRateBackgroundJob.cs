@@ -3,6 +3,7 @@ using FinanceApp.Backend.Application.Abstraction.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Polly;
 
 namespace FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 
@@ -12,6 +13,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
   private readonly ILogger<ExchangeRateBackgroundJob> _logger;
   private readonly IServiceProvider _serviceProvider;
   private readonly ExchangeRateRunSignal _signal;
+  private readonly IAsyncPolicy _retryPolicy;
 
   public ExchangeRateBackgroundJob(
     ILogger<ExchangeRateBackgroundJob> logger,
@@ -21,6 +23,18 @@ public class ExchangeRateBackgroundJob : BackgroundService
     _logger = logger;
     _serviceProvider = serviceProvider;
     _signal = signal;
+
+    _retryPolicy = Policy
+      .Handle<Exception>()
+      .WaitAndRetryAsync(
+        retryCount: 3,
+        sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Min(Math.Pow(2, retryAttempt), 30)),
+        onRetry: (exception, timespan, retryCount, context) =>
+        {
+          _logger.LogWarning(exception,
+            "Failed exchange rate sync operation on attempt {Attempt}/3. Retrying in {Delay} seconds...",
+            retryCount, timespan.TotalSeconds);
+        });
   }
 
   protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -47,57 +61,28 @@ public class ExchangeRateBackgroundJob : BackgroundService
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, "Failed to clean up existing exchange rates. Continuing with sync process.");
+        _logger.LogError(ex, "Critical failure: Unable to clean up existing exchange rates. This could lead to data inconsistency. Stopping application.");
+        throw;
       }
 
       while (!cancellationToken.IsCancellationRequested)
       {
-        int retryCount = 0;
-        const int MAX_RETRIES = 3;
-        TimeSpan delay = TimeSpan.FromSeconds(10);
-        bool success = false;
-
-        while (retryCount < MAX_RETRIES && !success && !cancellationToken.IsCancellationRequested)
+        try
         {
-          try
+          await _retryPolicy.ExecuteAsync(async () =>
           {
             var rates = await exchangeRateClient.GetExchangeRatesAsync();
 
-            if (rates.IsSuccess)
-            {
-              await exchangeRateRepository.BatchCreateExchangeRatesAsync(rates.Data!, cancellationToken);
-              await unitOfWork.SaveChangesAsync(cancellationToken);
-              _logger.LogInformation("Exchange rates updated successfully.");
-              _signal.SignalFirstRunCompleted();
-              success = true;
-            }
-            else
-            {
-              retryCount++;
-              _logger.LogError("Error occurred while fetching exchange rates. Retry {Retry}/{MaxRetries}.", retryCount, MAX_RETRIES);
-              if (retryCount < MAX_RETRIES)
-              {
-                await Task.Delay(delay, cancellationToken);
-                delay = delay * 2; // Exponential backoff
-              }
-            }
-          }
-          catch (Exception ex)
-          {
-            retryCount++;
-            _logger.LogError(ex, "Exception during exchange rate sync attempt {Retry}/{MaxRetries}: {Message}", retryCount, MAX_RETRIES, ex.Message);
-
-            if (retryCount < MAX_RETRIES)
-            {
-              await Task.Delay(delay, cancellationToken);
-              delay = delay * 2; // Exponential backoff
-            }
-          }
+            await exchangeRateRepository.BatchCreateExchangeRatesAsync(rates.Data!, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Exchange rates updated successfully.");
+            _signal.SignalFirstRunCompleted();
+          });
         }
-
-        if (!success)
+        catch (Exception ex)
         {
-          _logger.LogWarning("Failed to sync exchange rates after {MaxRetries} attempts. Will retry in 7 days.", MAX_RETRIES);
+          _logger.LogError(ex, "Failed to sync exchange rates after all retry attempts. Stopping application.");
+          throw;
         }
 
         await Task.Delay(TimeSpan.FromDays(7), cancellationToken);
@@ -109,7 +94,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
     }
     catch (Exception ex)
     {
-      _logger.LogCritical(ex, "Critical error in Exchange Rate Background Job. Service will stop.");
+      _logger.LogError(ex, "Critical error in Exchange Rate Background Job. Service will stop.");
       throw;
     }
   }

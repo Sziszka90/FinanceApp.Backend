@@ -59,13 +59,14 @@ public class RabbitMqClient : IRabbitMqClient
 
       _logger.LogInformation("Successfully initialized RabbitMQ subscriptions");
     }
-    catch (RabbitMqException)
+    catch (RabbitMqException ex)
     {
+      _logger.LogError(ex, "Critical failure: RabbitMQ subscription setup failed. Stopping application.");
       throw;
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Unexpected error during RabbitMQ subscription setup");
+      _logger.LogError(ex, "Critical failure: Unexpected error during RabbitMQ subscription setup. Stopping application.");
       throw new RabbitMqException("SUBSCRIBE_ALL", "Failed to initialize RabbitMQ subscriptions.", ex);
     }
   }
@@ -134,7 +135,7 @@ public class RabbitMqClient : IRabbitMqClient
           await _channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
         }
 
-        _logger.LogDebug("Successfully setup consumers for {QueueCount} queues", _settings.Queues.Count);
+        _logger.LogInformation("Successfully setup consumers for {QueueCount} queues", _settings.Queues.Count);
       });
     }
     catch (Exception ex)

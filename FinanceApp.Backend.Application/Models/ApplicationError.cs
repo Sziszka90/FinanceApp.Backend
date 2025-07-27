@@ -103,8 +103,8 @@ public class ApplicationError
   public const string EMAIL_NOT_FOUND_IN_TOKEN_MESSAGE = "Email not found in token.";
   public const string EMAIL_NOT_FOUND_IN_TOKEN_CODE = "EMAIL_NOT_FOUND_IN_TOKEN";
 
-  public const string TOKEN_ALREADY_EXISTS_MESSAGE = "Token already exists in cache.";
-  public const string TOKEN_ALREADY_EXISTS_CODE = "TOKEN_ALREADY_EXISTS";
+  public const string TOKEN_GENERATION_ERROR_MESSAGE = "Token generation error.";
+  public const string TOKEN_GENERATION_ERROR_CODE = "TOKEN_GENERATION_ERROR";
 
   /// <summary>
   /// Machine readable error code
@@ -461,11 +461,11 @@ public class ApplicationError
   }
 
   /// <summary>
-  /// Error for when token already exists in cache
+  /// Error when cannot generate unique token
   /// </summary>
   /// <returns>ApplicationError</returns>
-  public static ApplicationError TokenAlreadyExistsError()
+  public static ApplicationError TokenGenerationError()
   {
-    return new ApplicationError(TOKEN_ALREADY_EXISTS_MESSAGE, TOKEN_ALREADY_EXISTS_CODE);
+    return new ApplicationError(TOKEN_GENERATION_ERROR_MESSAGE, TOKEN_GENERATION_ERROR_CODE);
   }
 }

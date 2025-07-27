@@ -1,7 +1,9 @@
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
@@ -38,25 +40,62 @@ public static class Mocks
     services.AddSingleton(jwtMock.Object);
   }
 
-  public static void RegisterCacheManagerMock(this IServiceCollection services)
+  public static void RegisterTokenServiceMock(this IServiceCollection services)
   {
-    var cacheManagerMock = new Mock<ICacheManager>();
-    cacheManagerMock.Setup(x => x.IsPasswordResetTokenValidAsync(It.IsAny<string>())).ReturnsAsync(true);
-    cacheManagerMock.Setup(x => x.IsEmailConfirmationTokenValidAsync(It.IsAny<string>())).ReturnsAsync(true);
-    cacheManagerMock.Setup(x => x.IsTokenValidAsync(It.IsAny<string>())).ReturnsAsync(true);
+    var tokenServiceMock = new Mock<ITokenService>();
 
-    cacheManagerMock.Setup(x => x.PasswordResetTokenExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
-    cacheManagerMock.Setup(x => x.EmailConfirmationTokenExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
-    cacheManagerMock.Setup(x => x.TokenExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+    tokenServiceMock
+        .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.Login))
+        .ReturnsAsync(Result.Success("mock_login_token"));
 
-    cacheManagerMock.Setup(x => x.InvalidatePasswordResetTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
-    cacheManagerMock.Setup(x => x.InvalidateEmailConfirmationTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
-    cacheManagerMock.Setup(x => x.InvalidateTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+    tokenServiceMock
+        .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.PasswordReset))
+        .ReturnsAsync(Result.Success("mock_password_reset_token"));
 
-    cacheManagerMock.Setup(x => x.SaveEmailConfirmationTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
-    cacheManagerMock.Setup(x => x.SaveTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
-    cacheManagerMock.Setup(x => x.SavePasswordResetTokenAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+    tokenServiceMock
+        .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.EmailConfirmation))
+        .ReturnsAsync(Result.Success("mock_email_confirmation_token"));
 
-    services.AddSingleton(cacheManagerMock.Object);
+    tokenServiceMock
+        .Setup(x => x.ValidateTokenAsync("mock_login_token", TokenType.Login))
+        .ReturnsAsync(Result.Success(true));
+
+    tokenServiceMock
+        .Setup(x => x.ValidateTokenAsync("mock_password_reset_token", TokenType.PasswordReset))
+        .ReturnsAsync(Result.Success(true));
+
+    tokenServiceMock
+        .Setup(x => x.ValidateTokenAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
+        .ReturnsAsync(Result.Success(true));
+
+    tokenServiceMock
+        .Setup(x => x.ValidateTokenAsync("invalid_token", It.IsAny<TokenType>()))
+        .ReturnsAsync(Result.Failure<bool>(ApplicationError.InvalidTokenError()));
+
+    tokenServiceMock
+        .Setup(x => x.IsTokenValidAsync("mock_login_token", TokenType.Login))
+        .ReturnsAsync(true);
+
+    tokenServiceMock
+        .Setup(x => x.IsTokenValidAsync("mock_password_reset_token", TokenType.PasswordReset))
+        .ReturnsAsync(true);
+
+    tokenServiceMock
+        .Setup(x => x.IsTokenValidAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
+        .ReturnsAsync(true);
+
+    tokenServiceMock
+        .Setup(x => x.IsTokenValidAsync("invalid_token", It.IsAny<TokenType>()))
+        .ReturnsAsync(false);
+
+    tokenServiceMock
+        .Setup(x => x.GetEmailFromTokenAsync(It.IsAny<string>()))
+        .Returns("test_user90@example.com");
+
+    tokenServiceMock
+        .Setup(x => x.InvalidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
+        .Returns(Task.CompletedTask);
+
+    services.AddSingleton(tokenServiceMock.Object);
   }
 }

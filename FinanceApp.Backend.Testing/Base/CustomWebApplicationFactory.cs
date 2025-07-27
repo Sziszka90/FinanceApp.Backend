@@ -44,7 +44,7 @@ public class CustomWebApplicationFactory<TProgram>
           options.UseSqlite(SqliteDatabaseConnection)
                   .AddInterceptors(new TimestampableEntitySaveChangesInterceptor());
         });
-      services.RegisterCacheManagerMock();
+      services.RegisterTokenServiceMock();
       services.RegisterBcryptMock();
       services.RegisterJwtMock();
       RemoveServices(new List<Dictionary<Type, Type>>

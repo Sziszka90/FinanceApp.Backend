@@ -34,4 +34,12 @@ public interface ITokenService
   /// <param name="token">The token to extract the email from.</param>
   /// <returns>The user email associated with the token.</returns>
   string GetEmailFromTokenAsync(string token);
+
+  /// <summary>
+  /// Invalidates a token by removing it from the cache.
+  /// </summary>
+  /// <param name="token">The token to invalidate.</param>
+  /// <param name="tokenType">The type of the token to invalidate.</param>
+  /// <returns>A task that represents the asynchronous operation.</returns>
+  Task InvalidateTokenAsync(string token, TokenType tokenType);
 }
