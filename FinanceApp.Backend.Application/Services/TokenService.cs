@@ -33,7 +33,7 @@ public class TokenService : ITokenService
     switch (tokenType)
     {
       case TokenType.Login:
-        if (await _cacheManager.IsTokenValidAsync(token))
+        if (await _cacheManager.IsLoginTokenValidAsync(token))
         {
           break;
         }
@@ -71,12 +71,12 @@ public class TokenService : ITokenService
     switch (tokenType)
     {
       case TokenType.Login:
-        if (await _cacheManager.TokenExistsAsync(token))
+        if (await _cacheManager.LoginTokenExistsAsync(token))
         {
           _logger.LogWarning("Token already exists in cache: {Token}", token);
           return Result.Failure<string>(ApplicationError.TokenAlreadyExistsError());
         }
-        await _cacheManager.SaveTokenAsync(token);
+        await _cacheManager.SaveLoginTokenAsync(token);
         _logger.LogInformation("Login token generated and saved: {Token}", token);
         return Result.Success(token);
 
@@ -117,12 +117,12 @@ public class TokenService : ITokenService
     switch (tokenType)
     {
       case TokenType.Login:
-        if (!await _cacheManager.IsTokenValidAsync(token))
+        if (!await _cacheManager.IsLoginTokenValidAsync(token))
         {
           _logger.LogWarning("Invalid login token in cache: {Token}", token);
           return Result.Failure<bool>(ApplicationError.InvalidTokenError(tokenType.ToString()));
         }
-        await _cacheManager.InvalidateTokenAsync(token);
+        await _cacheManager.InvalidateLoginTokenAsync(token);
         _logger.LogInformation("Login token validated and invalidated: {Token}", token);
         return Result.Success(true);
 

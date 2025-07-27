@@ -18,6 +18,7 @@ public interface ITokenService
   /// </summary>
   /// <param name="token">The token to check.</param>
   /// <param name="tokenType">The type of the token.</param>
+  /// <returns>True if the token is valid, otherwise false.</returns>
   Task<bool> IsTokenValidAsync(string token, TokenType tokenType);
 
   /// <summary>

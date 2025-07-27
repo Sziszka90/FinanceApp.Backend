@@ -84,6 +84,12 @@ public class CacheManager : ICacheManager
     return await GetAsync<bool>($"EmailToken:{token}");
   }
 
+  public async Task<bool> IsEmailConfirmationTokenInvalidAsync(string token)
+  {
+    var isValid = await IsEmailConfirmationTokenValidAsync(token);
+    return !isValid;
+  }
+
   public async Task SavePasswordResetTokenAsync(string token)
   {
     await SetAsync($"PasswordResetToken:{token}", true, new DistributedCacheEntryOptions
@@ -105,36 +111,42 @@ public class CacheManager : ICacheManager
     return await GetAsync<bool>($"PasswordResetToken:{token}");
   }
 
-  public async Task InvalidateTokenAsync(string token)
+  public async Task<bool> IsPasswordResetTokenInvalidAsync(string token)
   {
-    await SetAsync($"Token:{token}", false, new DistributedCacheEntryOptions
-    {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-    });
-  }
-
-  public async Task SaveTokenAsync(string token)
-  {
-    await SetAsync($"Token:{token}", true, new DistributedCacheEntryOptions
-    {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-    });
-  }
-
-  public async Task<bool> IsTokenValidAsync(string token)
-  {
-    return await GetAsync<bool>($"Token:{token}");
-  }
-
-  public async Task<bool> IsTokenInvalidAsync(string token)
-  {
-    var isValid = await IsTokenValidAsync(token);
+    var isValid = await IsPasswordResetTokenValidAsync(token);
     return !isValid;
   }
 
-  public async Task<bool> TokenExistsAsync(string token)
+  public async Task InvalidateLoginTokenAsync(string token)
   {
-    var json = await GetCacheStringAsync($"Token:{token}");
+    await SetAsync($"LoginToken:{token}", false, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+    });
+  }
+
+  public async Task SaveLoginTokenAsync(string token)
+  {
+    await SetAsync($"LoginToken:{token}", true, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+    });
+  }
+
+  public async Task<bool> IsLoginTokenValidAsync(string token)
+  {
+    return await GetAsync<bool>($"LoginToken:{token}");
+  }
+
+  public async Task<bool> IsLoginTokenInvalidAsync(string token)
+  {
+    var isValid = await IsLoginTokenValidAsync(token);
+    return !isValid;
+  }
+
+  public async Task<bool> LoginTokenExistsAsync(string token)
+  {
+    var json = await GetCacheStringAsync($"LoginToken:{token}");
     return json is not null;
   }
 

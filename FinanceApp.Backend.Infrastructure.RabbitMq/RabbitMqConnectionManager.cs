@@ -3,6 +3,7 @@ using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Domain.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -13,6 +14,7 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
   private readonly ILogger<RabbitMqConnectionManager> _logger;
   private readonly RabbitMqSettings _settings;
   private readonly ConnectionFactory _factory;
+  private readonly IAsyncPolicy _retryPolicy;
   private IConnection? _connection;
   private IChannel? _channel;
   public IChannel? Channel => _channel ?? throw new InvalidOperationException("Channel not initialized");
@@ -32,20 +34,40 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
       Password = _settings.Password,
       Port = _settings.Port,
     };
+
+    _retryPolicy = Policy
+      .Handle<Exception>()
+      .WaitAndRetryAsync(
+        retryCount: 5,
+        sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Min(Math.Pow(2, retryAttempt), 30)),
+        onRetry: (exception, timespan, retryCount, context) =>
+        {
+          _logger.LogWarning(exception,
+            "Failed to initialize RabbitMQ connection to {HostName}:{Port} on attempt {Attempt}/5. Retrying in {Delay} seconds...",
+            _settings.HostName, _settings.Port, retryCount, timespan.TotalSeconds);
+        });
   }
 
   public async Task InitializeAsync()
   {
     try
     {
-      _connection = await _factory.CreateConnectionAsync();
-      _channel = await _connection.CreateChannelAsync();
-      _connection.ConnectionShutdownAsync += OnConnectionShutdown;
+      await _retryPolicy.ExecuteAsync(async () =>
+      {
+        _connection = await _factory.CreateConnectionAsync();
+        _channel = await _connection.CreateChannelAsync();
+        _connection.ConnectionShutdownAsync += OnConnectionShutdown;
+
+        _logger.LogInformation("Successfully initialized RabbitMQ connection to {HostName}:{Port}",
+        _settings.HostName, _settings.Port);
+      });
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Failed to initialize RabbitMQ connection to {HostName}:{Port}", _settings.HostName, _settings.Port);
-      throw new RabbitMqException("CONNECTION_INITIALIZE", $"Failed to initialize RabbitMQ connection to {_settings.HostName}:{_settings.Port}.", ex);
+      _logger.LogError(ex, "Failed to initialize RabbitMQ connection to {HostName}:{Port} after all retry attempts",
+        _settings.HostName, _settings.Port);
+      throw new RabbitMqException("CONNECTION_INITIALIZE",
+        $"Failed to initialize RabbitMQ connection to {_settings.HostName}:{_settings.Port} after all retry attempts.", ex);
     }
   }
 
@@ -56,9 +78,14 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
       _logger.LogWarning("RabbitMQ connection shutdown: {Reason}", e.ReplyText);
       await Reconnect();
     }
+    catch (RabbitMqException)
+    {
+      throw;
+    }
     catch (Exception ex)
     {
       _logger.LogError(ex, "Unexpected error during connection shutdown handling: {Reason}", e.ReplyText);
+      throw new RabbitMqException("CONNECTION_SHUTDOWN_HANDLER", "Unexpected error during connection shutdown handling.", ex);
     }
   }
 
@@ -66,23 +93,29 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
   {
     try
     {
-      try
-      {
-        _channel?.Dispose();
-        _connection?.Dispose();
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "Error disposing channel/connection during reconnect.");
-      }
+      _channel?.Dispose();
+      _connection?.Dispose();
+      _logger.LogDebug("Successfully disposed old RabbitMQ connection/channel during reconnect.");
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to dispose channel/connection during reconnect. This may indicate a corrupted connection state.");
+      throw new RabbitMqException("CONNECTION_CLEANUP", "Failed to cleanup existing connection during reconnect. Connection state may be corrupted.", ex);
+    }
 
+    try
+    {
       await Task.Delay(TimeSpan.FromSeconds(2));
       await InitializeAsync();
       _logger.LogInformation("Successfully reconnected to RabbitMQ");
     }
+    catch (RabbitMqException)
+    {
+      throw;
+    }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Failed to reconnect to RabbitMQ");
+      _logger.LogError(ex, "Failed to reconnect to RabbitMQ after cleanup");
       throw new RabbitMqException("CONNECTION_RECONNECT", "Failed to reconnect to RabbitMQ after connection loss.", ex);
     }
   }

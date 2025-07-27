@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -20,6 +21,7 @@ public class RabbitMqClient : IRabbitMqClient
   private readonly IServiceProvider _serviceProvider;
   private readonly RabbitMqSettings _settings;
   private readonly IRabbitMqConnectionManager _connectionManager;
+  private readonly IAsyncPolicy _declarationRetryPolicy;
   private IChannel _channel => _connectionManager.Channel ?? throw new InvalidOperationException("Channel not initialized");
 
   public RabbitMqClient(
@@ -32,6 +34,18 @@ public class RabbitMqClient : IRabbitMqClient
     _serviceProvider = serviceProvider;
     _settings = options.Value;
     _connectionManager = connectionManager;
+
+    _declarationRetryPolicy = Policy
+      .Handle<Exception>()
+      .WaitAndRetryAsync(
+        retryCount: 3,
+        sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Min(Math.Pow(2, retryAttempt), 10)),
+        onRetry: (exception, timespan, retryCount, context) =>
+        {
+          _logger.LogWarning(exception,
+            "Failed RabbitMQ declaration operation on attempt {Attempt}/3. Retrying in {Delay} seconds...",
+            retryCount, timespan.TotalSeconds);
+        });
   }
 
   public async Task SubscribeAllAsync()
@@ -42,10 +56,16 @@ public class RabbitMqClient : IRabbitMqClient
       await DeclareExchangesAndQueuesAsync();
       await BindQueuesAsync();
       await SetupConsumersAsync();
+
+      _logger.LogInformation("Successfully initialized RabbitMQ subscriptions");
+    }
+    catch (RabbitMqException)
+    {
+      throw;
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Failed to subscribe to RabbitMQ");
+      _logger.LogError(ex, "Unexpected error during RabbitMQ subscription setup");
       throw new RabbitMqException("SUBSCRIBE_ALL", "Failed to initialize RabbitMQ subscriptions.", ex);
     }
   }
@@ -54,58 +74,73 @@ public class RabbitMqClient : IRabbitMqClient
   {
     try
     {
-      foreach (var exchange in _settings.Exchanges)
+      await _declarationRetryPolicy.ExecuteAsync(async () =>
       {
-        await _channel.ExchangeDeclareAsync(exchange.ExchangeName, exchange.ExchangeType, durable: true);
-      }
+        foreach (var exchange in _settings.Exchanges)
+        {
+          await _channel.ExchangeDeclareAsync(exchange.ExchangeName, exchange.ExchangeType, durable: true);
+        }
 
-      foreach (var queueName in _settings.Queues)
-      {
-        await _channel.QueueDeclareAsync(queueName, durable: true, exclusive: false, autoDelete: false);
-      }
+        foreach (var queueName in _settings.Queues)
+        {
+          await _channel.QueueDeclareAsync(queueName, durable: true, exclusive: false, autoDelete: false);
+        }
+
+        _logger.LogDebug("Successfully declared {ExchangeCount} exchanges and {QueueCount} queues",
+          _settings.Exchanges.Count, _settings.Queues.Count);
+      });
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Failed to declare exchanges and queues");
-      throw new RabbitMqException("DECLARE_EXCHANGES_QUEUES", "Failed to declare RabbitMQ exchanges and queues.", ex);
+      _logger.LogError(ex, "Failed to declare exchanges and queues after all retry attempts");
+      throw new RabbitMqException("DECLARE_EXCHANGES_QUEUES", "Failed to declare RabbitMQ exchanges and queues after all retry attempts.", ex);
     }
   }
   private async Task BindQueuesAsync()
   {
     try
     {
-      foreach (var binding in _settings.Bindings)
+      await _declarationRetryPolicy.ExecuteAsync(async () =>
       {
-        var exchangeName = binding.Exchange;
-        var queueName = binding.Queue;
-        var routingKey = binding.RoutingKey;
+        foreach (var binding in _settings.Bindings)
+        {
+          var exchangeName = binding.Exchange;
+          var queueName = binding.Queue;
+          var routingKey = binding.RoutingKey;
 
-        await _channel.QueueBindAsync(queueName, exchangeName, routingKey);
-      }
+          await _channel.QueueBindAsync(queueName, exchangeName, routingKey);
+        }
+
+        _logger.LogDebug("Successfully bound {BindingCount} queue bindings", _settings.Bindings.Count);
+      });
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Failed to bind queues");
-      throw new RabbitMqException("BIND_QUEUES", "Failed to bind RabbitMQ queues to exchanges.", ex);
+      _logger.LogError(ex, "Failed to bind queues after all retry attempts");
+      throw new RabbitMqException("BIND_QUEUES", "Failed to bind RabbitMQ queues to exchanges after all retry attempts.", ex);
     }
   }
   private async Task SetupConsumersAsync()
   {
     try
     {
-      foreach (var queueName in _settings.Queues)
+      await _declarationRetryPolicy.ExecuteAsync(async () =>
       {
+        foreach (var queueName in _settings.Queues)
+        {
+          var consumer = new AsyncEventingBasicConsumer(_channel);
+          consumer.ReceivedAsync += async (_, ea) => await HandleMessageAsync(ea);
 
-        var consumer = new AsyncEventingBasicConsumer(_channel);
-        consumer.ReceivedAsync += async (_, ea) => await HandleMessageAsync(ea);
+          await _channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
+        }
 
-        await _channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
-      }
+        _logger.LogDebug("Successfully setup consumers for {QueueCount} queues", _settings.Queues.Count);
+      });
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Failed to setup consumers");
-      throw new RabbitMqException("SETUP_CONSUMERS", "Failed to setup RabbitMQ consumers.", ex);
+      _logger.LogError(ex, "Failed to setup consumers after all retry attempts");
+      throw new RabbitMqException("SETUP_CONSUMERS", "Failed to setup RabbitMQ consumers after all retry attempts.", ex);
     }
   }
 
@@ -135,16 +170,10 @@ public class RabbitMqClient : IRabbitMqClient
       }
       await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
     }
-    catch (RabbitMqException)
-    {
-      await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
-      throw;
-    }
     catch (Exception ex)
     {
       _logger.LogError(ex, "Failed to process message. RoutingKey: {RoutingKey}, Body: {Body}", ea.RoutingKey, Encoding.UTF8.GetString(body));
       await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
-      throw new RabbitMqException("MESSAGE_HANDLING", null, ea.RoutingKey, "Failed to process RabbitMQ message.", ex);
     }
   }
 
