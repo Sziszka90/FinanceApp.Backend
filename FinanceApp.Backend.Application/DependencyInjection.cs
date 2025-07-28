@@ -52,6 +52,7 @@ public static class DependencyInjection
     services.AddScoped<IJwtService, JwtService>();
     services.AddScoped<IBcryptService, BcryptService>();
     services.AddSingleton<ISignalRService, SignalRService>();
+    services.AddScoped<ITokenService, TokenService>();
     return services;
   }
 
