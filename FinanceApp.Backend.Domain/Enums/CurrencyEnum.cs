@@ -5,6 +5,5 @@ public enum CurrencyEnum
   USD,
   EUR,
   GBP,
-  HUF,
-  Unknown
+  HUF
 }

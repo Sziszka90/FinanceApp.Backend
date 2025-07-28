@@ -128,7 +128,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
           new Money
           {
             Amount = Math.Abs(amount),
-            Currency = Enum.TryParse<CurrencyEnum>(CleanCsvField(columns[4]), out var currency) ? currency : CurrencyEnum.Unknown
+            Currency = Enum.TryParse<CurrencyEnum>(CleanCsvField(columns[4]), out var currency) ? currency : CurrencyEnum.EUR
           },
           null,
           DateTimeOffset.TryParse(CleanCsvField(columns[2]), out var date) ? date : DateTimeOffset.UtcNow,

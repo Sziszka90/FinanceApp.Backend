@@ -32,7 +32,7 @@ public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchange
 
   private List<ExchangeRate> CalculateAllRatesFromUsdBase(Dictionary<string, decimal> usdRates)
   {
-    var currencies = Enum.GetNames(typeof(CurrencyEnum)).Where(c => c != nameof(CurrencyEnum.Unknown)).ToArray();
+    var currencies = Enum.GetNames(typeof(CurrencyEnum)).ToArray();
     var pairs = new List<ExchangeRate>();
     foreach (var baseCurrency in currencies)
     {
