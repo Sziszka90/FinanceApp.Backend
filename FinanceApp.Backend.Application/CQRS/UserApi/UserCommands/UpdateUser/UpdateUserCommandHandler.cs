@@ -63,7 +63,8 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
 
       var usersWithSameName = await _userRepository.GetQueryAsync(criteriaForUserName, noTracking: true, cancellationToken: cancellationToken);
 
-      if (usersWithSameName.Count > 0 &&
+      if (usersWithSameName is not null &&
+          usersWithSameName.Count > 0 &&
           usersWithSameName[0].Id != user.Id)
       {
         _logger.LogError("User already exists with name:{Name}", request.UpdateUserDto.UserName);

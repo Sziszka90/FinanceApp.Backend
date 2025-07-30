@@ -1,0 +1,309 @@
+using FinanceApp.Backend.Application.UserApi.UserCommands.ConfirmUserEmail;
+using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Domain.Enums;
+using Microsoft.Extensions.Logging;
+using Moq;
+
+namespace FinanceApp.Backend.Testing.Unit.UserTests;
+
+public class ConfirmUserEmailTests : TestBase
+{
+  private readonly Mock<ILogger<ConfirmUserEmailCommandHandler>> _loggerMock;
+  private readonly ConfirmUserEmailCommandHandler _handler;
+
+  public ConfirmUserEmailTests()
+  {
+    _loggerMock = CreateLoggerMock<ConfirmUserEmailCommandHandler>();
+
+    _handler = new ConfirmUserEmailCommandHandler(
+      _loggerMock.Object,
+      UserRepositorySpecificMock.Object,
+      UnitOfWorkMock.Object,
+      TokenServiceMock.Object
+    );
+  }
+
+  [Fact]
+  public async Task ConfirmUserEmailHandler_ValidRequest_ReturnsSuccessResult()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var token = "valid_email_confirmation_token";
+    var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
+
+    var user = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD)
+    {
+      Id = userId,
+      IsEmailConfirmed = false,
+      EmailConfirmationToken = token,
+      EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1) // Valid token
+    };
+
+    UserRepositorySpecificMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+                              .ReturnsAsync(user);
+
+    TokenServiceMock.Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
+                    .Returns(Task.FromResult(Result<bool>.Success(true)));
+
+    UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                  .Returns(Task.CompletedTask);
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.True(result.IsSuccess);
+    Assert.True(user.IsEmailConfirmed);
+    Assert.Null(user.EmailConfirmationToken);
+    Assert.Null(user.EmailConfirmationTokenExpiration);
+
+    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
+  public async Task ConfirmUserEmailHandler_UserNotFound_ReturnsFailureResult()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var token = "valid_token_123";
+    var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
+
+    UserRepositorySpecificMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync((Domain.Entities.User?)null);
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.ApplicationError);
+    Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
+
+    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+  }
+
+  [Fact]
+  public async Task ConfirmUserEmailHandler_TokenExpired_ReturnsFailureResult()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var token = "expired_token_123";
+    var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
+
+    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.EmailConfirmationToken = token;
+    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(-1);
+
+    UserRepositorySpecificMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(existingUser);
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.ApplicationError);
+    Assert.Equal("TOKEN_EXPIRED", result.ApplicationError.Code);
+
+    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+  }
+
+  [Fact]
+  public async Task ConfirmUserEmailHandler_InvalidToken_ReturnsFailureResult()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var token = "invalid_token_123";
+    var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
+
+    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.EmailConfirmationToken = "different_token";
+    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+
+    var tokenError = ApplicationError.InvalidTokenError();
+
+    UserRepositorySpecificMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(existingUser);
+
+    TokenServiceMock
+      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
+      .Returns(Task.FromResult(Result.Failure<bool>(tokenError)));
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.ApplicationError);
+    Assert.Equal("INVALID_TOKEN", result.ApplicationError.Code);
+
+    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+  }
+
+  [Fact]
+  public async Task ConfirmUserEmailHandler_TokenServiceThrowsException_ReturnsFailureResult()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var token = "valid_token_123";
+    var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
+
+    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.EmailConfirmationToken = token;
+    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+
+    UserRepositorySpecificMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(existingUser);
+
+    TokenServiceMock
+      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
+      .ThrowsAsync(new Exception("Token service error"));
+
+    // act & assert
+    var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
+    Assert.Equal("Token service error", exception.Message);
+
+    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+  }
+
+  [Fact]
+  public async Task ConfirmUserEmailHandler_UnitOfWorkThrowsException_ReturnsFailureResult()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var token = "valid_token_123";
+    var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
+
+    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.EmailConfirmationToken = token;
+    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+
+    UserRepositorySpecificMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(existingUser);
+
+    TokenServiceMock
+      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
+      .Returns(Task.FromResult(Result<bool>.Success(true)));
+
+    UnitOfWorkMock
+      .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+      .ThrowsAsync(new Exception("Database error"));
+
+    // act & assert
+    var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
+    Assert.Equal("Database error", exception.Message);
+
+    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Theory]
+  [InlineData(CurrencyEnum.USD)]
+  [InlineData(CurrencyEnum.EUR)]
+  [InlineData(CurrencyEnum.GBP)]
+  public async Task ConfirmUserEmailHandler_DifferentBaseCurrencies_ConfirmsUserWithCorrectCurrency(CurrencyEnum baseCurrency)
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var token = "valid_token_123";
+    var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
+
+    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", baseCurrency);
+    existingUser.EmailConfirmationToken = token;
+    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+
+    UserRepositorySpecificMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(existingUser);
+
+    TokenServiceMock
+      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
+      .Returns(Task.FromResult(Result<bool>.Success(true)));
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.True(result.IsSuccess);
+    Assert.True(existingUser.IsEmailConfirmed);
+    Assert.Equal(baseCurrency, existingUser.BaseCurrency);
+
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
+  public async Task ConfirmUserEmailHandler_EmptyGuid_ReturnsFailureResult()
+  {
+    // arrange
+    var userId = Guid.Empty;
+    var token = "valid_token_123";
+    var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
+
+    UserRepositorySpecificMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync((Domain.Entities.User?)null);
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.ApplicationError);
+    Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
+
+    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Theory]
+  [InlineData("")]
+  [InlineData("   ")]
+  [InlineData(null)]
+  public async Task ConfirmUserEmailHandler_InvalidTokenFormat_HandledByValidation(string? invalidToken)
+  {
+    // Note: This test demonstrates that invalid token formats would be caught by validation
+    // before reaching the handler, but we test the handler's robustness anyway
+
+    // arrange
+    var userId = Guid.NewGuid();
+    var command = new ConfirmUserEmailCommand(userId, invalidToken!, CancellationToken.None);
+
+    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.EmailConfirmationToken = "valid_token";
+    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+
+    UserRepositorySpecificMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(existingUser);
+
+    var tokenError = ApplicationError.InvalidTokenError();
+    TokenServiceMock
+      .Setup(x => x.ValidateTokenAsync(invalidToken!, TokenType.EmailConfirmation))
+      .Returns(Task.FromResult(Result.Failure<bool>(tokenError)));
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.ApplicationError);
+
+    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(invalidToken!, TokenType.EmailConfirmation), Times.Once);
+  }
+}

@@ -62,7 +62,13 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
 
     _logger.LogInformation("Reset password token generated for user: {Email}", request.EmailDto.Email);
 
-    await _smtpEmailSender.SendForgotPasswordAsync(request.EmailDto.Email, resetPasswordToken.Data!);
+    var result = await _smtpEmailSender.SendForgotPasswordAsync(request.EmailDto.Email, resetPasswordToken.Data!);
+
+    if (!result.IsSuccess)
+    {
+      _logger.LogError("Failed to send forgot password email to user: {Email}", request.EmailDto.Email);
+      return Result.Failure(result.ApplicationError!);
+    }
 
     _logger.LogInformation("Forgot password email sent to user: {Email}", request.EmailDto.Email);
 

@@ -33,7 +33,11 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test --configuration Release --logger trx
+        run: |
+          echo "Running all tests..."
+          dotnet test --configuration Release --logger trx
+          echo "Running only unit tests..."
+          dotnet test --configuration Release --filter FullyQualifiedName~Unit --logger trx
 
   build-and-push:
     runs-on: ubuntu-latest
@@ -117,7 +121,6 @@ jobs:
               LLMProcessorSettings__Token='${{ secrets.LLM_PROCESSOR_TOKEN }}' \
               LLMProcessorSettings__ApiUrl='${{ vars.LLM_PROCESSOR_API_URL }}' \
               CacheSettings__ConnectionString='${{ secrets.CACHE_CONNECTION_STRING }}' \
-
 
       - name: Update Azure Container App (Gateway)
         run: |

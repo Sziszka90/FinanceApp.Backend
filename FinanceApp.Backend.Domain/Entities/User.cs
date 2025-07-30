@@ -61,8 +61,9 @@ public class User : BaseEntity
   /// <summary>
   /// ONLY FOR TESTING PURPOSES
   /// </summary>
-  internal User(string userName, string email, bool isEmailConfirmed, string passwordHash, CurrencyEnum baseCurrency)
+  internal User(Guid? userId, string userName, string email, bool isEmailConfirmed, string passwordHash, CurrencyEnum baseCurrency)
   {
+    Id = userId ?? Guid.NewGuid();
     UserName = userName;
     Email = email;
     IsEmailConfirmed = isEmailConfirmed;
