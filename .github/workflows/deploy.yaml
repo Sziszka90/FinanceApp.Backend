@@ -43,12 +43,13 @@ jobs:
 
       - name: Check coverage threshold
         run: |
-          xmlfile=$(find TestReports -name '*.xml' | head -n 1)
+          xmlfile=$(find ./FinanceApp.Backend.Testing.Unit/TestResults/ -name '*.xml' | head -n 1)
           echo "Using coverage XML: $xmlfile"
-          coverage=$(xmllint --xpath "string(//Summary/Coverage[@type='Line'])" "$xmlfile")
-          echo "Coverage is $coverage%"
+          coverage=$(xmllint --xpath "string(/coverage/@line-rate)" "$xmlfile")
+          coverage_percent=$(awk "BEGIN {print $coverage * 100}")
+          echo "Coverage is $coverage_percent%"
           threshold=60
-          coverage_int=${coverage%.*}  # integer part
+          coverage_int=${coverage_percent%.*}  # integer part
 
           if [ "$coverage_int" -lt "$threshold" ]; then
             echo "Code coverage $coverage_int% is below threshold $threshold%"
