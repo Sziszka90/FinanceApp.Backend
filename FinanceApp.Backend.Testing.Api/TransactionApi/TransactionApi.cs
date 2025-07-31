@@ -4,9 +4,9 @@ using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
-using FinanceApp.Backend.Testing.Base;
+using FinanceApp.Backend.Testing.Api.Base;
 
-namespace FinanceApp.Backend.Testing.TransactionApi;
+namespace FinanceApp.Backend.Testing.Api.TransactionApi;
 
 public class TransactionApi : TestBase
 {

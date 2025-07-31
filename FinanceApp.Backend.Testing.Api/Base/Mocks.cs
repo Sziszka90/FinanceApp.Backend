@@ -7,7 +7,7 @@ using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
-namespace FinanceApp.Backend.Testing.Base;
+namespace FinanceApp.Backend.Testing.Api.Base;
 
 public static class Mocks
 {

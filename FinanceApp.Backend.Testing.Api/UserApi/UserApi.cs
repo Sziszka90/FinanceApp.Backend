@@ -1,9 +1,9 @@
 using System.Net;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Domain.Enums;
-using FinanceApp.Backend.Testing.Base;
+using FinanceApp.Backend.Testing.Api.Base;
 
-namespace FinanceApp.Backend.Testing.UserApi;
+namespace FinanceApp.Backend.Testing.Api.UserApi;
 
 public class UserApi : TestBase
 {

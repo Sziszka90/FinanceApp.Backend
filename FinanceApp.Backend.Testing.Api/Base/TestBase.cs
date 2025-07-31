@@ -11,7 +11,7 @@ using FinanceApp.Backend.Domain.Enums;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FinanceApp.Backend.Testing.Base;
+namespace FinanceApp.Backend.Testing.Api.Base;
 
 public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable, IAsyncDisposable
 {

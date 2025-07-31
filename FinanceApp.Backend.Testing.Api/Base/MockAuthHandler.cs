@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FinanceApp.Backend.Testing.Base;
+namespace FinanceApp.Backend.Testing.Api.Base;
 
 public class MockJwtAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {

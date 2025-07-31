@@ -13,7 +13,7 @@ using Microsoft.Extensions.Hosting;
 using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 using FinanceApp.Backend.Application.BackgroundJobs.RabbitMQ;
 
-namespace FinanceApp.Backend.Testing.Base;
+namespace FinanceApp.Backend.Testing.Api.Base;
 
 public class CustomWebApplicationFactory<TProgram>
   : WebApplicationFactory<TProgram> where TProgram : class
