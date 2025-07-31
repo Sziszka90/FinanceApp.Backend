@@ -2,7 +2,6 @@ using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Application.UserApi.UserCommands.UpdateUser;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -11,13 +10,11 @@ namespace FinanceApp.Backend.Testing.Unit.UserTests;
 public class UpdateUserTests : TestBase
 {
   private readonly Mock<ILogger<UpdateUserCommandHandler>> _loggerMock;
-  private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
   private readonly UpdateUserCommandHandler _handler;
 
   public UpdateUserTests()
   {
     _loggerMock = CreateLoggerMock<UpdateUserCommandHandler>();
-
     _handler = new UpdateUserCommandHandler(
       _loggerMock.Object,
       Mapper,
