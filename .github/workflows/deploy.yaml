@@ -15,7 +15,6 @@ on:
 jobs:
   unit-test-and-coverage:
     runs-on: ubuntu-latest
-    needs: test
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
