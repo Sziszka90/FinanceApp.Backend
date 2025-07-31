@@ -43,7 +43,9 @@ jobs:
 
       - name: Check coverage threshold
         run: |
-          coverage=$(xmllint --xpath "string(//Summary/Coverage[@type='Line'])" TestResults/coverage-report/Summary.xml)
+          xmlfile=$(find TestReports -name '*.xml' | head -n 1)
+          echo "Using coverage XML: $xmlfile"
+          coverage=$(xmllint --xpath "string(//Summary/Coverage[@type='Line'])" "$xmlfile")
           echo "Coverage is $coverage%"
           threshold=60
           coverage_int=${coverage%.*}  # integer part
