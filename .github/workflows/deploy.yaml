@@ -43,6 +43,9 @@ jobs:
 
       - name: Check coverage threshold
         run: |
+          echo "The folder contains the following files:"
+          ls -l
+          echo "----------------"
           xmlfile=$(find ./FinanceApp.Backend.Testing.Unit/TestResults/ -name '*.xml' | head -n 1)
           echo "Using coverage XML: $xmlfile"
           coverage=$(xmllint --xpath "string(/coverage/@line-rate)" "$xmlfile")
