@@ -29,6 +29,7 @@ public abstract class TestBase
   protected TestBase()
   {
     UserRepositoryMock = new Mock<IUserRepository>();
+    UserRepositorySpecificMock = new Mock<IUserRepository>();
     TransactionGroupRepositoryMock = new Mock<ITransactionGroupRepository>();
     TransactionRepositoryMock = new Mock<ITransactionRepository>();
     UnitOfWorkMock = new Mock<IUnitOfWork>();
