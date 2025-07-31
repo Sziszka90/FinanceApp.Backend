@@ -34,16 +34,24 @@ jobs:
       - name: Run unit tests with coverage
         run: |
           dotnet test ./FinanceApp.Backend.Testing.Unit/FinanceApp.Backend.Testing.Unit.csproj \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
-            /p:CoverletOutput=./TestResults/coverage/
+            --configuration Release \
+            --no-build \
+            --collect:"XPlat Code Coverage" \
+            /p:CoverletOutput=./TestResults/coverage/ \
+            /p:CoverletOutputFormat=cobertura
 
-      - name: Generate coverage report
+      - name: Check coverage threshold
         run: |
-          reportgenerator \
-            -reports:**/TestResults/coverage/coverage.cobertura.xml \
-            -targetdir:TestResults/coverage-report \
-            -reporttypes:Html
+          coverage=$(xmllint --xpath "string(//Summary/Coverage[@type='Line'])" TestResults/coverage-report/Summary.xml)
+          echo "Coverage is $coverage%"
+          threshold=60
+          coverage_int=${coverage%.*}  # integer part
+
+          if [ "$coverage_int" -lt "$threshold" ]; then
+            echo "Code coverage $coverage_int% is below threshold $threshold%"
+            exit 1
+          fi
+        shell: bash
 
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v4
