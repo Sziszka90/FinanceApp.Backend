@@ -31,6 +31,9 @@ jobs:
       - name: Install reportgenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
       - name: Run unit tests with coverage
         run: |
           dotnet test ./FinanceApp.Backend.Testing.Unit/FinanceApp.Backend.Testing.Unit.csproj \
