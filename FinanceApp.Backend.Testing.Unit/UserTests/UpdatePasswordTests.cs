@@ -19,7 +19,7 @@ public class UpdatePasswordTests : TestBase
 
     _handler = new UpdatePasswordCommandHandler(
       _loggerMock.Object,
-      UserRepositorySpecificMock.Object,
+      UserRepositoryMock.Object,
       UnitOfWorkMock.Object,
       TokenServiceMock.Object,
       BcryptServiceMock.Object
@@ -43,7 +43,7 @@ public class UpdatePasswordTests : TestBase
 
     var user = new User(null, "testuser", "test@example.com", true, "oldhash", CurrencyEnum.USD);
 
-    UserRepositorySpecificMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(user);
 
     TokenServiceMock
@@ -55,9 +55,6 @@ public class UpdatePasswordTests : TestBase
       .Returns(user.Email);
 
     BcryptServiceMock.Setup(x => x.Hash(newPassword)).Returns("hashed_new_password");
-
-    UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                  .Returns(Task.CompletedTask);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -115,7 +112,7 @@ public class UpdatePasswordTests : TestBase
     UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
                   .ThrowsAsync(new Exception("Database error"));
 
-    UserRepositorySpecificMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(user);
 
     // act & assert

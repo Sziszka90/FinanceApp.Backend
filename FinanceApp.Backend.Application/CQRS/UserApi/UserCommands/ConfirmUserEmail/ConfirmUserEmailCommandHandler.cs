@@ -54,9 +54,8 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
 
     _logger.LogInformation("Email confirmation token validated for user with ID:{Id}", request.Id);
 
-    user.EmailConfirmationToken = null;
-    user.EmailConfirmationTokenExpiration = null;
-    user.IsEmailConfirmed = true;
+    user.InvalidateEmailConfirmationToken();
+    user.ConfirmEmail();
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

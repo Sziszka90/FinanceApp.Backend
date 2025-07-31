@@ -55,10 +55,6 @@ public class DeleteUserTests : TestBase
     var userId = Guid.NewGuid();
     var command = new DeleteUserCommand(userId, CancellationToken.None);
 
-    UserRepositoryMock
-      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync((Domain.Entities.User?)null);
-
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -212,11 +208,7 @@ public class DeleteUserTests : TestBase
     // arrange
     var userId = Guid.Empty;
     var command = new DeleteUserCommand(userId, CancellationToken.None);
-
-    UserRepositoryMock
-      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync((Domain.Entities.User?)null);
-
+    
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
 

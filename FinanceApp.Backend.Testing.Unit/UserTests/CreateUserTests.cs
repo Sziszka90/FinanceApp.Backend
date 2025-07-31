@@ -52,7 +52,7 @@ public class CreateUserTests : TestBase
     Assert.Equal(createUserDto.UserName, result.Data.UserName);
     Assert.Equal(createUserDto.Email, result.Data.Email);
 
-    UserRepositoryMock.Verify(x => x.CreateAsync(It.Is<Domain.Entities.User>(u =>
+    UserRepositoryMock.Verify(x => x.CreateAsync(It.Is<User>(u =>
       u.UserName == createUserDto.UserName &&
       u.Email == createUserDto.Email), It.IsAny<CancellationToken>()), Times.Once);
 
@@ -61,7 +61,7 @@ public class CreateUserTests : TestBase
 
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(2));
     TokenServiceMock.Verify(x => x.GenerateTokenAsync(createUserDto.Email, TokenType.EmailConfirmation), Times.Once);
-    SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<Domain.Entities.User>(), "default_token"), Times.Once);
+    SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), "default_token"), Times.Once);
   }
 
   [Fact]
@@ -77,12 +77,12 @@ public class CreateUserTests : TestBase
     };
 
     var command = new CreateUserCommand(createUserDto, CancellationToken.None);
-    var existingUser = new Domain.Entities.User("existinguser", "other@example.com", "hash", CurrencyEnum.EUR);
+    var existingUser = new User("existinguser", "other@example.com", "hash", CurrencyEnum.EUR);
 
     UserRepositoryMock
-      .SetupSequence(x => x.GetQueryAsync(It.IsAny<QueryCriteria<Domain.Entities.User>>(), true, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new List<Domain.Entities.User> { existingUser })
-      .ReturnsAsync(new List<Domain.Entities.User>());
+      .SetupSequence(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<User> { existingUser })
+      .ReturnsAsync(new List<User>());
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -92,7 +92,7 @@ public class CreateUserTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("USERNAME_ALREADY_EXISTS", result.ApplicationError.Code);
 
-    UserRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<Domain.Entities.User>(), It.IsAny<CancellationToken>()), Times.Never);
+    UserRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -109,12 +109,12 @@ public class CreateUserTests : TestBase
     };
 
     var command = new CreateUserCommand(createUserDto, CancellationToken.None);
-    var existingUser = new Domain.Entities.User("otheruser", "existing@example.com", "hash", CurrencyEnum.EUR);
+    var existingUser = new User("otheruser", "existing@example.com", "hash", CurrencyEnum.EUR);
 
     UserRepositoryMock
-      .SetupSequence(x => x.GetQueryAsync(It.IsAny<QueryCriteria<Domain.Entities.User>>(), true, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new List<Domain.Entities.User>())
-      .ReturnsAsync(new List<Domain.Entities.User> { existingUser });
+      .SetupSequence(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<User>())
+      .ReturnsAsync(new List<User> { existingUser });
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -155,11 +155,11 @@ public class CreateUserTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("TOKEN_GENERATION_ERROR", result.ApplicationError.Code);
 
-    UserRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<Domain.Entities.User>(), It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     TransactionGroupRepositoryMock.Verify(x => x.BatchCreateTransactionGroupsAsync(
       It.IsAny<List<TransactionGroup>>(), It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<Domain.Entities.User>(), It.IsAny<string>()), Times.Never);
+    SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
   }
 
   [Fact]
@@ -178,7 +178,7 @@ public class CreateUserTests : TestBase
     var emailError = ApplicationError.EmailConfirmationError(createUserDto.Email);
 
     SmtpEmailSenderMock
-      .Setup(x => x.SendEmailConfirmationAsync(It.IsAny<Domain.Entities.User>(), "default_token"))
+      .Setup(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), "default_token"))
       .ReturnsAsync(Result.Failure<bool>(emailError));
 
     // act
@@ -189,12 +189,12 @@ public class CreateUserTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("USEREMAIL_CONFIRMATION_ERROR", result.ApplicationError.Code);
 
-    UserRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<Domain.Entities.User>(), It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     TransactionGroupRepositoryMock.Verify(x => x.BatchCreateTransactionGroupsAsync(
       It.IsAny<List<TransactionGroup>>(), It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(2));
     TokenServiceMock.Verify(x => x.GenerateTokenAsync(createUserDto.Email, TokenType.EmailConfirmation), Times.Once);
-    SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<Domain.Entities.User>(), "default_token"), Times.Once);
+    SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), "default_token"), Times.Once);
   }
 
   [Theory]
@@ -222,6 +222,6 @@ public class CreateUserTests : TestBase
     Assert.NotNull(result.Data);
     Assert.Equal(baseCurrency, result.Data.BaseCurrency);
 
-    UserRepositoryMock.Verify(x => x.CreateAsync(It.Is<Domain.Entities.User>(u => u.BaseCurrency == baseCurrency), It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.CreateAsync(It.Is<User>(u => u.BaseCurrency == baseCurrency), It.IsAny<CancellationToken>()), Times.Once);
   }
 }

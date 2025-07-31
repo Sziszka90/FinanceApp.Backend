@@ -61,8 +61,8 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
     var passwordHash = _bcryptService.Hash(request.UpdatePasswordDto.Password);
 
     user.UpdatePassword(passwordHash);
-    user.ResetPasswordToken = null;
-    user.ResetPasswordTokenExpiration = null;
+
+    user.InvalidateResetPasswordToken();
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -3,6 +3,7 @@ using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FinanceApp.Backend.Domain.Entities;
 
 namespace FinanceApp.Backend.Testing.Unit.UserTests;
 
@@ -17,7 +18,7 @@ public class ConfirmUserEmailTests : TestBase
 
     _handler = new ConfirmUserEmailCommandHandler(
       _loggerMock.Object,
-      UserRepositorySpecificMock.Object,
+      UserRepositoryMock.Object,
       UnitOfWorkMock.Object,
       TokenServiceMock.Object
     );
@@ -31,22 +32,10 @@ public class ConfirmUserEmailTests : TestBase
     var token = "valid_email_confirmation_token";
     var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
 
-    var user = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD)
-    {
-      Id = userId,
-      IsEmailConfirmed = false,
-      EmailConfirmationToken = token,
-      EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1) // Valid token
-    };
+    var user = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
 
-    UserRepositorySpecificMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
                               .ReturnsAsync(user);
-
-    TokenServiceMock.Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
-                    .Returns(Task.FromResult(Result<bool>.Success(true)));
-
-    UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                  .Returns(Task.CompletedTask);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -57,7 +46,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.Null(user.EmailConfirmationToken);
     Assert.Null(user.EmailConfirmationTokenExpiration);
 
-    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
@@ -70,10 +59,6 @@ public class ConfirmUserEmailTests : TestBase
     var token = "valid_token_123";
     var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
 
-    UserRepositorySpecificMock
-      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync((Domain.Entities.User?)null);
-
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -82,7 +67,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
 
-    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -95,11 +80,10 @@ public class ConfirmUserEmailTests : TestBase
     var token = "expired_token_123";
     var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
 
-    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
-    existingUser.EmailConfirmationToken = token;
-    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(-1);
+    var existingUser = new User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.SetEmailConfirmationToken(token, DateTimeOffset.UtcNow.AddHours(-1));
 
-    UserRepositorySpecificMock
+    UserRepositoryMock
       .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(existingUser);
 
@@ -111,7 +95,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("TOKEN_EXPIRED", result.ApplicationError.Code);
 
-    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -124,13 +108,12 @@ public class ConfirmUserEmailTests : TestBase
     var token = "invalid_token_123";
     var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
 
-    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
-    existingUser.EmailConfirmationToken = "different_token";
-    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+    var existingUser = new User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.SetEmailConfirmationToken("different_token", DateTimeOffset.UtcNow.AddHours(1));
 
     var tokenError = ApplicationError.InvalidTokenError();
 
-    UserRepositorySpecificMock
+    UserRepositoryMock
       .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(existingUser);
 
@@ -146,7 +129,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("INVALID_TOKEN", result.ApplicationError.Code);
 
-    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -159,11 +142,10 @@ public class ConfirmUserEmailTests : TestBase
     var token = "valid_token_123";
     var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
 
-    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
-    existingUser.EmailConfirmationToken = token;
-    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+    var existingUser = new User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.SetEmailConfirmationToken(token, DateTimeOffset.UtcNow.AddHours(1));
 
-    UserRepositorySpecificMock
+    UserRepositoryMock
       .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(existingUser);
 
@@ -175,7 +157,7 @@ public class ConfirmUserEmailTests : TestBase
     var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
     Assert.Equal("Token service error", exception.Message);
 
-    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -188,17 +170,12 @@ public class ConfirmUserEmailTests : TestBase
     var token = "valid_token_123";
     var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
 
-    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
-    existingUser.EmailConfirmationToken = token;
-    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+    var existingUser = new User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.SetEmailConfirmationToken(token, DateTimeOffset.UtcNow.AddHours(1));
 
-    UserRepositorySpecificMock
+    UserRepositoryMock
       .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(existingUser);
-
-    TokenServiceMock
-      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
-      .Returns(Task.FromResult(Result<bool>.Success(true)));
 
     UnitOfWorkMock
       .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -208,7 +185,7 @@ public class ConfirmUserEmailTests : TestBase
     var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
     Assert.Equal("Database error", exception.Message);
 
-    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
@@ -224,17 +201,12 @@ public class ConfirmUserEmailTests : TestBase
     var token = "valid_token_123";
     var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
 
-    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", baseCurrency);
-    existingUser.EmailConfirmationToken = token;
-    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+    var existingUser = new User("testuser", "test@example.com", "hashedpassword", baseCurrency);
+    existingUser.SetEmailConfirmationToken(token, DateTimeOffset.UtcNow.AddHours(1));
 
-    UserRepositorySpecificMock
+    UserRepositoryMock
       .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(existingUser);
-
-    TokenServiceMock
-      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
-      .Returns(Task.FromResult(Result<bool>.Success(true)));
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -255,10 +227,6 @@ public class ConfirmUserEmailTests : TestBase
     var token = "valid_token_123";
     var command = new ConfirmUserEmailCommand(userId, token, CancellationToken.None);
 
-    UserRepositorySpecificMock
-      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync((Domain.Entities.User?)null);
-
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -267,7 +235,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
 
-    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
   }
 
   [Theory]
@@ -283,11 +251,10 @@ public class ConfirmUserEmailTests : TestBase
     var userId = Guid.NewGuid();
     var command = new ConfirmUserEmailCommand(userId, invalidToken!, CancellationToken.None);
 
-    var existingUser = new Domain.Entities.User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
-    existingUser.EmailConfirmationToken = "valid_token";
-    existingUser.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+    var existingUser = new User("testuser", "test@example.com", "hashedpassword", CurrencyEnum.USD);
+    existingUser.SetEmailConfirmationToken("valid_token", DateTimeOffset.UtcNow.AddHours(1));
 
-    UserRepositorySpecificMock
+    UserRepositoryMock
       .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(existingUser);
 
@@ -303,7 +270,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.False(result.IsSuccess);
     Assert.NotNull(result.ApplicationError);
 
-    UserRepositorySpecificMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.ValidateTokenAsync(invalidToken!, TokenType.EmailConfirmation), Times.Once);
   }
 }

@@ -82,4 +82,33 @@ public class User : BaseEntity
   {
     PasswordHash = passwordHash;
   }
+
+  public void SetResetPasswordToken(string token, DateTimeOffset expiration)
+  {
+    ResetPasswordToken = token;
+    ResetPasswordTokenExpiration = expiration;
+  }
+
+  public void SetEmailConfirmationToken(string token, DateTimeOffset expiration)
+  {
+    EmailConfirmationToken = token;
+    EmailConfirmationTokenExpiration = expiration;
+  }
+
+  public void InvalidateResetPasswordToken()
+  {
+    ResetPasswordToken = null;
+    ResetPasswordTokenExpiration = null;
+  }
+
+  public void InvalidateEmailConfirmationToken()
+  {
+    EmailConfirmationToken = null;
+    EmailConfirmationTokenExpiration = null;
+  }
+
+  public void ConfirmEmail()
+  {
+    IsEmailConfirmed = true;
+  }
 }

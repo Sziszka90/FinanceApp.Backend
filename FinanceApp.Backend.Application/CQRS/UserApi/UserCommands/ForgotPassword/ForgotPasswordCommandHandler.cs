@@ -55,8 +55,7 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
       return Result.Failure(resetPasswordToken.ApplicationError!);
     }
 
-    user.ResetPasswordToken = resetPasswordToken.Data;
-    user.ResetPasswordTokenExpiration = DateTimeOffset.UtcNow.AddHours(24);
+    user.SetResetPasswordToken(resetPasswordToken.Data!, DateTimeOffset.UtcNow.AddHours(24));
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -1,10 +1,10 @@
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.Login;
 using FinanceApp.Backend.Application.Dtos.AuthDtos;
+using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RTools_NTS.Util;
 
 namespace FinanceApp.Backend.Testing.Unit.AuthTests;
 
@@ -76,7 +76,7 @@ public class LoginTests : TestBase
     // assert
     Assert.False(result.IsSuccess);
     Assert.NotNull(result.ApplicationError);
-    Assert.Equal("ENTITY_NOT_FOUND", result.ApplicationError.Code);
+    Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
     BcryptServiceMock.Verify(x => x.Verify(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
   }
 
@@ -98,7 +98,9 @@ public class LoginTests : TestBase
 
     UserRepositorySpecificMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(user);
-    BcryptServiceMock.Setup(x => x.Verify(password, hashedPassword)).Returns(false);
+    TokenServiceMock.Setup(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>())).ReturnsAsync(
+      Result.Failure<string>(ApplicationError.InvalidPasswordError())
+    );
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -106,7 +108,7 @@ public class LoginTests : TestBase
     // assert
     Assert.False(result.IsSuccess);
     Assert.NotNull(result.ApplicationError);
-    Assert.Equal("INVALID_CREDENTIALS", result.ApplicationError.Code);
-    BcryptServiceMock.Verify(x => x.Verify(password, hashedPassword), Times.Once);
+    Assert.Equal("INVALID_PASSWORD", result.ApplicationError.Code);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>()), Times.Once);
   }
 }
