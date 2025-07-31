@@ -19,7 +19,7 @@ public class LoginTests : TestBase
 
     _handler = new LoginCommandHandler(
       _loggerMock.Object,
-      UserRepositorySpecificMock.Object,
+      UserRepositoryMock.Object,
       TokenServiceMock.Object
     );
   }
@@ -41,7 +41,7 @@ public class LoginTests : TestBase
     };
     var command = new LoginCommand(loginDto, CancellationToken.None);
 
-    UserRepositorySpecificMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(user);
 
     // act
@@ -67,7 +67,7 @@ public class LoginTests : TestBase
     };
     var command = new LoginCommand(loginDto, CancellationToken.None);
 
-    UserRepositorySpecificMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
         .ReturnsAsync((User?)null);
 
     // act
@@ -96,7 +96,7 @@ public class LoginTests : TestBase
     };
     var command = new LoginCommand(loginDto, CancellationToken.None);
 
-    UserRepositorySpecificMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(user);
     TokenServiceMock.Setup(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>())).ReturnsAsync(
       Result.Failure<string>(ApplicationError.InvalidPasswordError())

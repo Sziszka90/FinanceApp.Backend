@@ -17,14 +17,13 @@ public class UpdateUserTests : TestBase
   public UpdateUserTests()
   {
     _loggerMock = CreateLoggerMock<UpdateUserCommandHandler>();
-    _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
     _handler = new UpdateUserCommandHandler(
       _loggerMock.Object,
       Mapper,
-      UserRepositorySpecificMock.Object,
+      UserRepositoryMock.Object,
       UnitOfWorkMock.Object,
-      _httpContextAccessorMock.Object,
+      HttpContextAccessorMock.Object,
       BcryptServiceMock.Object
     );
   }
@@ -54,7 +53,7 @@ public class UpdateUserTests : TestBase
       Id = userId
     };
 
-    UserRepositorySpecificMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(user);
 
     BcryptServiceMock.Setup(x => x.Hash(newPassword)).Returns(hashedPassword);
@@ -62,7 +61,7 @@ public class UpdateUserTests : TestBase
     UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
       .Returns(Task.CompletedTask);
 
-    UserRepositorySpecificMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(user);
 
     // act
@@ -90,10 +89,6 @@ public class UpdateUserTests : TestBase
       BaseCurrency = CurrencyEnum.EUR
     };
     var command = new UpdateUserCommand(updateUserDto, CancellationToken.None);
-
-
-    UserRepositorySpecificMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync((User?)null);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -127,10 +122,7 @@ public class UpdateUserTests : TestBase
 
     var user = new User(null, "testuser", "test@example.com", true, "oldhash", CurrencyEnum.USD);
 
-    UserRepositorySpecificMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
-
-    UserRepositorySpecificMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
+    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(user);
 
     BcryptServiceMock.Setup(x => x.Hash(newPassword)).Returns(hashedPassword);
