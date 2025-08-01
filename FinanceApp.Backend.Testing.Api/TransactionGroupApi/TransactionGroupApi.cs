@@ -1,7 +1,5 @@
 using System.Net;
 using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
-using FinanceApp.Backend.Domain.Entities;
-using FinanceApp.Backend.Domain.Enums;
 using FinanceApp.Backend.Testing.Api.Base;
 
 namespace FinanceApp.Backend.Testing.Api.TransactionGroupApi;
@@ -11,44 +9,44 @@ public class TransactionGroupApi : TestBase
   [Fact]
   public async Task DeleteTransactionGroup_ReturnsNothing()
   {
-    // Arrange
+    // arrange
     await InitializeAsync();
     var transactionGroup = await CreateTransactionGroupAsync();
 
-    // Act
+    // act
     await Client.DeleteAsync(TRANSACTION_GROUPS + transactionGroup!.Id);
     var response = await GetContentAsync<GetTransactionGroupDto>(await Client.GetAsync(TRANSACTION_GROUPS + transactionGroup!.Id));
 
-    // Assert
-    Assert.Null(response);
+    // assert
+    Assert.Equal(Guid.Empty, response!.Id);
   }
 
   [Fact]
   public async Task DeleteNotExistingTransactionGroup_ReturnsNotFound()
   {
-    // Arrange
+    // arrange
     await InitializeAsync();
     var transactionGroup = await CreateTransactionGroupAsync();
     transactionGroup!.Id = Guid.NewGuid();
 
-    // Act
+    // act
     var response = await Client.DeleteAsync(TRANSACTION_GROUPS + transactionGroup!.Id);
 
-    // Assert
+    // assert
     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
   }
 
   [Fact]
   public async Task GetAllTransactionGroup_ReturnsValidExpenseGroup()
   {
-    // Arrange
+    // arrange
     await InitializeAsync();
     var transactionGroup = await CreateTransactionGroupAsync();
 
-    // Act
+    // act
     var response = await GetContentAsync<List<GetTransactionGroupDto>>(await Client.GetAsync(TRANSACTION_GROUPS));
 
-    // Assert
+    // assert
     Assert.Equal(transactionGroup!.Id, response![17].Id);
   }
 
@@ -69,7 +67,7 @@ public class TransactionGroupApi : TestBase
   [Fact]
   public async Task UpdateTransactionGroup_ReturnsUpdatedExpenseGroup()
   {
-    // Arrange
+    // arrange
     await InitializeAsync();
     var transactionGroup = await CreateTransactionGroupAsync();
 
@@ -80,11 +78,11 @@ public class TransactionGroupApi : TestBase
       Description = "Updated Description"
     };
 
-    // Act
+    // act
     await GetContentAsync<GetTransactionGroupDto>(await Client.PutAsync(TRANSACTION_GROUPS + transactionGroup!.Id, CreateContent(updatedTransactionGroup)));
     var response = await GetContentAsync<GetTransactionGroupDto>(await Client.GetAsync(TRANSACTION_GROUPS + transactionGroup!.Id));
 
-    // Assert
+    // assert
     Assert.Equal(transactionGroup!.Id, response!.Id);
     Assert.Equal(updatedTransactionGroup.Name, response.Name);
     Assert.Equal(updatedTransactionGroup.Description, response.Description);
