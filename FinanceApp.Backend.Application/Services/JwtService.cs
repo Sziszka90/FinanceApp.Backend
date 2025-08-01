@@ -12,8 +12,6 @@ namespace FinanceApp.Backend.Application.Services;
 public class JwtService : IJwtService
 {
   private readonly AuthenticationSettings _authenticationSettings;
-  private static readonly HashSet<string> _invalidatedTokens = new();
-
 
   public JwtService(IOptions<AuthenticationSettings> authenticationOptions)
   {
