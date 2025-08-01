@@ -6,12 +6,12 @@ using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit.TransactionTests.Commands;
 
-public class DeleteTransactionCommandHandlerTests : TestBase
+public class DeleteTransactionTests : TestBase
 {
   private readonly Mock<ILogger<DeleteTransactionCommandHandler>> _loggerMock;
   private readonly DeleteTransactionCommandHandler _handler;
 
-  public DeleteTransactionCommandHandlerTests()
+  public DeleteTransactionTests()
   {
     _loggerMock = CreateLoggerMock<DeleteTransactionCommandHandler>();
     _handler = new DeleteTransactionCommandHandler(
@@ -61,7 +61,7 @@ public class DeleteTransactionCommandHandlerTests : TestBase
   {
     // arrange
     var transactionId = Guid.NewGuid();
-    TransactionRepositoryMock.Setup(x => x.GetByIdAsync(transactionId, true, It.IsAny<CancellationToken>())).ReturnsAsync((Transaction)null);
+    TransactionRepositoryMock.Setup(x => x.GetByIdAsync(transactionId, true, It.IsAny<CancellationToken>())).ReturnsAsync((Transaction)null!);
     var command = new DeleteTransactionCommand(transactionId, CancellationToken.None);
 
     // act

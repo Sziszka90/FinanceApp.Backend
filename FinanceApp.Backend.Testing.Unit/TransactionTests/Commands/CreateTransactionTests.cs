@@ -9,12 +9,12 @@ using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit.TransactionTests.Commands;
 
-public class CreateTransactionCommandHandlerTests : TestBase
+public class CreateTransactionTests : TestBase
 {
   private readonly Mock<ILogger<CreateTransactionCommandHandler>> _loggerMock;
   private readonly CreateTransactionCommandHandler _handler;
 
-  public CreateTransactionCommandHandlerTests()
+  public CreateTransactionTests()
   {
     _loggerMock = CreateLoggerMock<CreateTransactionCommandHandler>();
     _handler = new CreateTransactionCommandHandler(
@@ -73,7 +73,7 @@ public class CreateTransactionCommandHandlerTests : TestBase
     var principal = new ClaimsPrincipal(identity);
     var httpContext = new DefaultHttpContext { User = principal };
     HttpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(userEmail, false, It.IsAny<CancellationToken>())).ReturnsAsync((User)null);
+    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(userEmail, false, It.IsAny<CancellationToken>())).ReturnsAsync((User)null!);
     var createDto = new CreateTransactionDto();
     var command = new CreateTransactionCommand(createDto, CancellationToken.None);
 

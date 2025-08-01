@@ -26,6 +26,13 @@ public class GetTransactionGroupByIdQueryHandler : IQueryHandler<GetTransactionG
   public async Task<Result<GetTransactionGroupDto>> Handle(GetTransactionGroupByIdQuery request, CancellationToken cancellationToken)
   {
     var result = await _transactionGroupRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
+
+    if (result is null)
+    {
+      _logger.LogWarning("Transaction Group not found with ID:{Id}", request.Id);
+      return Result.Failure<GetTransactionGroupDto>(ApplicationError.EntityNotFoundError(request.Id.ToString()));
+    }
+    
     _logger.LogInformation("Retrieved Transaction Group with ID:{Id}", request.Id);
     return Result.Success(_mapper.Map<GetTransactionGroupDto>(result));
   }

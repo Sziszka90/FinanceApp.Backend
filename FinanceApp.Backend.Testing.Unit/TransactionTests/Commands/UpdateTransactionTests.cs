@@ -7,12 +7,12 @@ using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit.TransactionTests.Commands;
 
-public class UpdateTransactionCommandHandlerTests : TestBase
+public class UpdateTransactionTests : TestBase
 {
   private readonly Mock<ILogger<UpdateTransactionCommandHandler>> _loggerMock;
   private readonly UpdateTransactionCommandHandler _handler;
 
-  public UpdateTransactionCommandHandlerTests()
+  public UpdateTransactionTests()
   {
     _loggerMock = CreateLoggerMock<UpdateTransactionCommandHandler>();
     _handler = new UpdateTransactionCommandHandler(
@@ -66,7 +66,7 @@ public class UpdateTransactionCommandHandlerTests : TestBase
   {
     // arrange
     var transactionId = Guid.NewGuid();
-    TransactionRepositoryMock.Setup(x => x.GetByIdAsync(transactionId, false, It.IsAny<CancellationToken>())).ReturnsAsync((Transaction)null);
+    TransactionRepositoryMock.Setup(x => x.GetByIdAsync(transactionId, false, It.IsAny<CancellationToken>())).ReturnsAsync((Transaction)null!);
     var updateDto = new UpdateTransactionDto();
     var command = new UpdateTransactionCommand(transactionId, updateDto, CancellationToken.None);
 
