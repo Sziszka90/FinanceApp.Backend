@@ -3,7 +3,7 @@ using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace FinanceApp.Backend.Testing.Unit.UserTests;
+namespace FinanceApp.Backend.Testing.Unit.UserTests.Commands;
 
 public class DeleteUserTests : TestBase
 {
@@ -208,7 +208,7 @@ public class DeleteUserTests : TestBase
     // arrange
     var userId = Guid.Empty;
     var command = new DeleteUserCommand(userId, CancellationToken.None);
-    
+
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
 

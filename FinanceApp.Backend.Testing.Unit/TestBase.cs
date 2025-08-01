@@ -2,6 +2,8 @@ using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
+using FinanceApp.Backend.Application.Dtos.TransactionDtos;
+using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.Services;
@@ -19,6 +21,7 @@ public abstract class TestBase
   protected readonly Mock<IUserRepository> UserRepositorySpecificMock;
   protected readonly Mock<ITransactionGroupRepository> TransactionGroupRepositoryMock;
   protected readonly Mock<ITransactionRepository> TransactionRepositoryMock;
+  protected readonly Mock<IExchangeRateRepository> ExchangeRateRepositoryMock;
   protected readonly Mock<IUnitOfWork> UnitOfWorkMock;
   protected readonly Mock<ISmtpEmailSender> SmtpEmailSenderMock;
   protected readonly Mock<IBcryptService> BcryptServiceMock;
@@ -32,6 +35,7 @@ public abstract class TestBase
     UserRepositorySpecificMock = new Mock<IUserRepository>();
     TransactionGroupRepositoryMock = new Mock<ITransactionGroupRepository>();
     TransactionRepositoryMock = new Mock<ITransactionRepository>();
+    ExchangeRateRepositoryMock = new Mock<IExchangeRateRepository>();
     UnitOfWorkMock = new Mock<IUnitOfWork>();
     SmtpEmailSenderMock = new Mock<ISmtpEmailSender>();
     BcryptServiceMock = new Mock<IBcryptService>();
@@ -41,6 +45,12 @@ public abstract class TestBase
     Mapper = new MapperConfiguration(cfg =>
     {
       cfg.CreateMap<User, GetUserDto>();
+      cfg.CreateMap<Transaction, GetTransactionDto>();
+      cfg.CreateMap<UpdateTransactionDto, Transaction>();
+      cfg.CreateMap<CreateTransactionDto, Transaction>();
+      cfg.CreateMap<TransactionGroup, GetTransactionGroupDto>();
+      cfg.CreateMap<CreateTransactionGroupDto, TransactionGroup>();
+      cfg.CreateMap<UpdateTransactionGroupDto, TransactionGroup>();
     }).CreateMapper();
 
     SetupBcryptServiceMock();
@@ -51,6 +61,7 @@ public abstract class TestBase
     SetupTransactionRepositoryMock();
     SetupUnitOfWorkMock();
     SetupSmtpEmailSenderMock();
+    SetupExchangeRateRepositoryMock();
   }
 
   protected virtual void SetupUserRepositoryMock()
@@ -87,8 +98,30 @@ public abstract class TestBase
       .Returns(Task.CompletedTask);
   }
 
+  protected virtual void SetupExchangeRateRepositoryMock()
+  {
+    ExchangeRateRepositoryMock
+      .Setup(x => x.GetExchangeRatesAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync([
+        new ExchangeRate("USD", "EUR", 0.85m),
+        new ExchangeRate("EUR", "USD", 1.18m),
+        new ExchangeRate("USD", "GBP", 0.75m),
+        new ExchangeRate("GBP", "USD", 1.33m),
+        new ExchangeRate("USD", "JPY", 110.0m),
+        new ExchangeRate("JPY", "USD", 0.0091m)
+      ]);
+  }
+
   protected virtual void SetupTransactionRepositoryMock()
   {
+    TransactionRepositoryMock
+      .Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync((Transaction?)null);
+
+    TransactionRepositoryMock
+      .Setup(x => x.CreateAsync(It.IsAny<Transaction>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync((Transaction?)null!);
+
     TransactionRepositoryMock
       .Setup(x => x.DeleteAllByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
       .Returns(Task.CompletedTask);

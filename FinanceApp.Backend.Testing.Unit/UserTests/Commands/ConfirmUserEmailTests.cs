@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using FinanceApp.Backend.Domain.Entities;
 
-namespace FinanceApp.Backend.Testing.Unit.UserTests;
+namespace FinanceApp.Backend.Testing.Unit.UserTests.Commands;
 
 public class ConfirmUserEmailTests : TestBase
 {

@@ -39,6 +39,12 @@ public class GetActiveUserQueryHandler : IQueryHandler<GetActiveUserQuery, Resul
 
     var user = await _userRepository.GetQueryAsync(criteria, noTracking: true, cancellationToken: cancellationToken);
 
+    if (user is null || user.Count == 0)
+    {
+      _logger.LogError("User not found with email:{Email}", userEmail);
+      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError(userEmail!));
+    }
+
     _logger.LogInformation("Retrieved user with email:{Email}", userEmail);
 
     return Result.Success(_mapper.Map<GetUserDto>(user[0]));
