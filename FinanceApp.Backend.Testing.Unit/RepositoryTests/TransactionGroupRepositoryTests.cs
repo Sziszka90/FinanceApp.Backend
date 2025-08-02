@@ -115,7 +115,8 @@ public class TransactionGroupRepositoryTests : IDisposable
     {
       // arrange
       var userId = Guid.NewGuid();
-      var user = new User("testuser", "test@example.com", "hash", FinanceApp.Backend.Domain.Enums.CurrencyEnum.USD) { Id = userId };
+      var userEmail = "test@example.com";
+      var user = new User("testuser", userEmail, "hash", FinanceApp.Backend.Domain.Enums.CurrencyEnum.USD) { Id = userId };
       await _dbContext.Set<User>().AddAsync(user);
 
       var transactionGroups = new List<TransactionGroup>
@@ -133,8 +134,24 @@ public class TransactionGroupRepositoryTests : IDisposable
       await _dbContext.Set<TransactionGroup>().AddRangeAsync(transactionGroups);
       await _dbContext.SaveChangesAsync();
 
+      // Setup HTTP context with user claims for filtered query provider
+      var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+      var httpContext = new DefaultHttpContext();
+      var claims = new List<Claim>
+      {
+        new Claim(ClaimTypes.NameIdentifier, userEmail)
+      };
+      var identity = new ClaimsIdentity(claims, "test");
+      var principal = new ClaimsPrincipal(identity);
+      httpContext.User = principal;
+      httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
+
+      // Create a new repository with the properly configured HTTP context
+      var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
+      var repository = new TransactionGroupRepository(_dbContext, filteredQueryProvider);
+
       // act
-      await _repository.DeleteAllByUserIdAsync(userId);
+      await repository.DeleteAllByUserIdAsync(userId);
       await _dbContext.SaveChangesAsync();
 
       // assert
