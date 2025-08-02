@@ -18,6 +18,7 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
   private IConnection? _connection;
   private IChannel? _channel;
   public IChannel? Channel => _channel ?? throw new InvalidOperationException("Channel not initialized");
+  public bool IsConnected => _connection != null && _connection.IsOpen && _channel != null && _channel.IsOpen;
 
   public RabbitMqConnectionManager(
     ILogger<RabbitMqConnectionManager> logger,
@@ -48,14 +49,14 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
         });
   }
 
-  public async Task InitializeAsync()
+  public async Task InitializeAsync(CancellationToken cancellationToken = default)
   {
     try
     {
       await _retryPolicy.ExecuteAsync(async () =>
       {
-        _connection = await _factory.CreateConnectionAsync();
-        _channel = await _connection.CreateChannelAsync();
+        _connection = await _factory.CreateConnectionAsync(cancellationToken);
+        _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
         _connection.ConnectionShutdownAsync += OnConnectionShutdown;
 
         _logger.LogInformation("Successfully initialized RabbitMQ connection to {HostName}:{Port}",
@@ -89,7 +90,7 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
     }
   }
 
-  private async Task Reconnect()
+  private async Task Reconnect(CancellationToken cancellationToken = default)
   {
     try
     {
@@ -106,7 +107,7 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
     try
     {
       await Task.Delay(TimeSpan.FromSeconds(2));
-      await InitializeAsync();
+      await InitializeAsync(cancellationToken);
       _logger.LogInformation("Successfully reconnected to RabbitMQ");
     }
     catch (RabbitMqException)

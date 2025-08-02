@@ -23,7 +23,7 @@ public class RabbitMqConsumerServiceBackgroundJob : BackgroundService
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
     await _exchangeRateSignal.WaitForFirstRunAsync();
-    await _rabbitMqClient.SubscribeAllAsync();
+    await _rabbitMqClient.SubscribeAllAsync(stoppingToken);
     _rabbitMQConsumerRunSignal.SignalFirstRunCompleted();
     await Task.Delay(Timeout.Infinite, stoppingToken);
   }

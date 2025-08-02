@@ -5,9 +5,9 @@ public class RabbitMQConsumerRunSignal
   private readonly TaskCompletionSource<bool> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
   private volatile bool _hasRun = false;
 
-  public Task WaitForFirstRunAsync() => _tcs.Task;
+  public virtual Task WaitForFirstRunAsync() => _tcs.Task;
 
-  public void SignalFirstRunCompleted()
+  public virtual void SignalFirstRunCompleted()
   {
     _hasRun = true;
     _tcs.TrySetResult(true);

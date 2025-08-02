@@ -2,6 +2,8 @@ using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
+using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
+using FinanceApp.Backend.Application.BackgroundJobs.RabbitMQ;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
@@ -10,6 +12,7 @@ using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -27,6 +30,13 @@ public abstract class TestBase
   protected readonly Mock<IBcryptService> BcryptServiceMock;
   protected readonly Mock<ITokenService> TokenServiceMock;
   protected readonly Mock<IHttpContextAccessor> HttpContextAccessorMock;
+  protected readonly Mock<IServiceProvider> ServiceProviderMock = new Mock<IServiceProvider>();
+  protected readonly Mock<IServiceScope> ScopeMock = new Mock<IServiceScope>();
+  protected readonly Mock<IServiceScopeFactory> ServiceScopeFactoryMock = new Mock<IServiceScopeFactory>();
+  protected readonly Mock<IExchangeRateClient> ExchangeRateClientMock = new Mock<IExchangeRateClient>();
+  protected readonly Mock<ExchangeRateRunSignal> ExchangeRateRunSignalMock = new Mock<ExchangeRateRunSignal>();
+  protected readonly Mock<RabbitMQConsumerRunSignal> RabbitMQConsumerRunSignalMock = new Mock<RabbitMQConsumerRunSignal>();
+  protected readonly Mock<IRabbitMqClient> RabbitMqClientMock = new Mock<IRabbitMqClient>();
   protected readonly IMapper Mapper;
 
   protected TestBase()

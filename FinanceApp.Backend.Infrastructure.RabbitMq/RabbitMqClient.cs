@@ -48,14 +48,19 @@ public class RabbitMqClient : IRabbitMqClient
         });
   }
 
-  public async Task SubscribeAllAsync()
+  public async Task SubscribeAllAsync(CancellationToken cancellationToken = default)
   {
+    if (_connectionManager.IsConnected == false)
+    {
+      _logger.LogError("RabbitMQ connection is not established. Cannot subscribe to queues.");
+      throw new RabbitMqException("SUBSCRIBE_ALL", "RabbitMQ connection is not established.");
+    }
     try
     {
-      await _connectionManager.InitializeAsync();
-      await DeclareExchangesAndQueuesAsync();
-      await BindQueuesAsync();
-      await SetupConsumersAsync();
+      await _connectionManager.InitializeAsync(cancellationToken);
+      await DeclareExchangesAndQueuesAsync(cancellationToken);
+      await BindQueuesAsync(cancellationToken);
+      await SetupConsumersAsync(cancellationToken);
 
       _logger.LogInformation("Successfully initialized RabbitMQ subscriptions");
     }
@@ -71,7 +76,7 @@ public class RabbitMqClient : IRabbitMqClient
     }
   }
 
-  private async Task DeclareExchangesAndQueuesAsync()
+  private async Task DeclareExchangesAndQueuesAsync(CancellationToken cancellationToken = default)
   {
     try
     {
@@ -97,7 +102,8 @@ public class RabbitMqClient : IRabbitMqClient
       throw new RabbitMqException("DECLARE_EXCHANGES_QUEUES", "Failed to declare RabbitMQ exchanges and queues after all retry attempts.", ex);
     }
   }
-  private async Task BindQueuesAsync()
+
+  private async Task BindQueuesAsync(CancellationToken cancellationToken = default)
   {
     try
     {
@@ -109,7 +115,7 @@ public class RabbitMqClient : IRabbitMqClient
           var queueName = binding.Queue;
           var routingKey = binding.RoutingKey;
 
-          await _channel.QueueBindAsync(queueName, exchangeName, routingKey);
+          await _channel.QueueBindAsync(queueName, exchangeName, routingKey, cancellationToken: cancellationToken);
         }
 
         _logger.LogDebug("Successfully bound {BindingCount} queue bindings", _settings.Bindings.Count);
@@ -121,7 +127,7 @@ public class RabbitMqClient : IRabbitMqClient
       throw new RabbitMqException("BIND_QUEUES", "Failed to bind RabbitMQ queues to exchanges after all retry attempts.", ex);
     }
   }
-  private async Task SetupConsumersAsync()
+  private async Task SetupConsumersAsync(CancellationToken cancellationToken = default)
   {
     try
     {
@@ -132,7 +138,7 @@ public class RabbitMqClient : IRabbitMqClient
           var consumer = new AsyncEventingBasicConsumer(_channel);
           consumer.ReceivedAsync += async (_, ea) => await HandleMessageAsync(ea);
 
-          await _channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer);
+          await _channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: consumer, cancellationToken: cancellationToken);
         }
 
         _logger.LogInformation("Successfully setup consumers for {QueueCount} queues", _settings.Queues.Count);
@@ -178,8 +184,27 @@ public class RabbitMqClient : IRabbitMqClient
     }
   }
 
-  public Task PublishAsync(string queueName, string message)
+  public async Task PublishAsync(string exchangeName, string routingKey, string message, CancellationToken cancellationToken = default)
   {
-    throw new NotImplementedException();
+    if (_connectionManager.IsConnected == false)
+    {
+      _logger.LogError("RabbitMQ connection is not established. Cannot publish message.");
+      throw new RabbitMqException("PUBLISH", "RabbitMQ connection is not established.");
+    }
+
+    try
+    {
+      var body = Encoding.UTF8.GetBytes(message);
+      var properties = new BasicProperties();
+      properties.Persistent = true;
+
+      await _channel.BasicPublishAsync(exchange: exchangeName, routingKey: routingKey, mandatory: true, basicProperties: properties, body: body, cancellationToken);
+      _logger.LogInformation("Message published to exchange {ExchangeName}, routing key {RoutingKey}: {Message}", exchangeName, routingKey, message);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to publish message to exchange {ExchangeName}, routing key {RoutingKey}: {Message}", exchangeName, routingKey, message);
+      throw new RabbitMqException("PUBLISH", $"Failed to publish message to exchange {exchangeName}, routing key {routingKey}.", ex);
+    }
   }
 }
