@@ -1,0 +1,11 @@
+{
+  "include": [
+    "**/FinanceApp.Backend.Application/*.cs",
+    "**/FinanceApp.Backend.Domain/*.cs"
+  ],
+  "exclude": [
+    "**/src/**/*.cs",
+    "**/Migrations/*.cs",
+    "**/Migrations/**/*.cs"
+  ]
+}

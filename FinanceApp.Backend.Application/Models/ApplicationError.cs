@@ -106,6 +106,9 @@ public class ApplicationError
   public const string TOKEN_GENERATION_ERROR_MESSAGE = "Token generation error.";
   public const string TOKEN_GENERATION_ERROR_CODE = "TOKEN_GENERATION_ERROR";
 
+  public const string EMAIL_TEMPLATE_NOT_FOUND_MESSAGE = "Email template not found.";
+  public const string EMAIL_TEMPLATE_NOT_FOUND_CODE = "EMAIL_TEMPLATE_NOT_FOUND";
+
   /// <summary>
   /// Machine readable error code
   /// </summary>
@@ -467,5 +470,18 @@ public class ApplicationError
   public static ApplicationError TokenGenerationError()
   {
     return new ApplicationError(TOKEN_GENERATION_ERROR_MESSAGE, TOKEN_GENERATION_ERROR_CODE);
+  }
+
+  /// <summary>
+  /// Error for when email template is not found
+  /// </summary>
+  /// <param name="templateName"></param>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError EmailTemplateNotFoundError(string templateName)
+  {
+    return new ApplicationError(EMAIL_TEMPLATE_NOT_FOUND_MESSAGE, EMAIL_TEMPLATE_NOT_FOUND_CODE, new Dictionary<string, object>
+    {
+      { "templateName", templateName }
+    });
   }
 }

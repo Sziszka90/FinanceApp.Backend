@@ -38,7 +38,16 @@ public class SmtpEmailSender : ISmtpEmailSender
     };
 
     var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients/EmailTemplates", "EmailConfirmationTemplate.html");
-    string template = await File.ReadAllTextAsync(templatePath);
+    string template;
+    try
+    {
+      template = await File.ReadAllTextAsync(templatePath);
+    }
+    catch (FileNotFoundException ex)
+    {
+      _logger.LogError(ex, "Email confirmation template not found: {Path}", templatePath);
+      return Result.Failure<bool>(ApplicationError.EmailTemplateNotFoundError("EmailConfirmationTemplate"));
+    }
 
     string body = template
       .Replace("@Model.UserName", user.UserName)
@@ -84,7 +93,16 @@ public class SmtpEmailSender : ISmtpEmailSender
     };
 
     var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Clients/EmailTemplates", "ForgotPasswordTemplate.html");
-    string template = await File.ReadAllTextAsync(templatePath);
+    string template;
+    try
+    {
+      template = await File.ReadAllTextAsync(templatePath);
+    }
+    catch (FileNotFoundException ex)
+    {
+      _logger.LogError(ex, "Forgot password template not found: {Path}", templatePath);
+      return Result.Failure<bool>(ApplicationError.EmailTemplateNotFoundError("ForgotPasswordTemplate"));
+    }
 
     string body = template
       .Replace("@Model.ResetPasswordLink", model.ResetPasswordLink)
@@ -109,7 +127,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     catch (Exception ex)
     {
       _logger.LogError(ex, "Error occurred while sending password reset email to {Email}", email);
-      return Result.Failure<bool>(ApplicationError.ExternalCallError("Password reset email sending failed."));
+      return Result.Failure<bool>(ApplicationError.ExternalCallError("Forgot password email sending failed."));
     }
   }
 }
