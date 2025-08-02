@@ -25,13 +25,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <!-- Coverlet configuration -->
-  <PropertyGroup>
-    <CoverletOutput>coverage.json</CoverletOutput>
-    <CoverletOutputFormat>json</CoverletOutputFormat>
-    <ExcludeByFile>**/Migrations/*.cs,**/Migrations/**/*.cs,**/*Migrations*/**/*.cs</ExcludeByFile>
-    <ExcludeByAttribute>Obsolete,GeneratedCode,CompilerGenerated</ExcludeByAttribute>
-    <Exclude>[*.Tests]*,[*.Testing]*</Exclude>
-  </PropertyGroup>
-
 </Project>
