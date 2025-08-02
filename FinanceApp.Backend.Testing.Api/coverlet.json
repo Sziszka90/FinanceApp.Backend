@@ -1,6 +1,11 @@
 {
+  "excludeByFile": [
+    "**/FinanceApp.Backend.Infrastructure.EntityFramework.Mssql/Migrations/*.cs",
+    "**/FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite/Migrations/*.cs"
+  ],
   "exclude": [
-    "**/FinanceApp.Backend.Infrastructure.EntityFramework.Mssql/Migrations/**/*.cs",
-    "**/FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite/Migrations/**/*.cs"
+    "**/src/**/*.cs",
+    "**/Migrations",
+    "**/Migrations"
   ]
 }
