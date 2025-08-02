@@ -1,11 +1,21 @@
 {
   "excludeByFile": [
-    "**/FinanceApp.Backend.Infrastructure.EntityFramework.Mssql/Migrations/*.cs",
-    "**/FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite/Migrations/*.cs"
+    "**/Migrations/*.cs",
+    "**/Migrations/**/*.cs",
+    "**/*Migrations*/**/*.cs",
+    "**/bin/**/*",
+    "**/obj/**/*",
+    "**/*.Designer.cs",
+    "**/AssemblyInfo.cs",
+    "**/GlobalAssemblyInfo.cs"
+  ],
+  "excludeByAttribute": [
+    "Obsolete",
+    "GeneratedCode",
+    "CompilerGenerated"
   ],
   "exclude": [
-    "**/src/**/*.cs",
-    "**/Migrations",
-    "**/Migrations"
+    "[*.Tests]*",
+    "[*.Testing]*"
   ]
 }

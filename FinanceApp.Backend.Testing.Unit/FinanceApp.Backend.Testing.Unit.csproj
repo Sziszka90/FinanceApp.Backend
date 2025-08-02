@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="coverlet.msbuild" Version="3.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.9.2" />
@@ -23,5 +24,14 @@
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+
+  <!-- Coverlet configuration -->
+  <PropertyGroup>
+    <CoverletOutput>coverage.json</CoverletOutput>
+    <CoverletOutputFormat>json</CoverletOutputFormat>
+    <ExcludeByFile>**/Migrations/*.cs,**/Migrations/**/*.cs,**/*Migrations*/**/*.cs</ExcludeByFile>
+    <ExcludeByAttribute>Obsolete,GeneratedCode,CompilerGenerated</ExcludeByAttribute>
+    <Exclude>[*.Tests]*,[*.Testing]*</Exclude>
+  </PropertyGroup>
 
 </Project>

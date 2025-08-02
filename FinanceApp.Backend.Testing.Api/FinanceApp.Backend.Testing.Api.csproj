@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="coverlet.msbuild" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
@@ -47,5 +48,14 @@
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+
+  <!-- Coverlet configuration -->
+  <PropertyGroup>
+    <CoverletOutput>coverage.json</CoverletOutput>
+    <CoverletOutputFormat>json</CoverletOutputFormat>
+    <ExcludeByFile>**/Migrations/*.cs,**/Migrations/**/*.cs,**/*Migrations*/**/*.cs</ExcludeByFile>
+    <ExcludeByAttribute>Obsolete,GeneratedCode,CompilerGenerated</ExcludeByAttribute>
+    <Exclude>[*.Tests]*,[*.Testing]*</Exclude>
+  </PropertyGroup>
 
 </Project>
