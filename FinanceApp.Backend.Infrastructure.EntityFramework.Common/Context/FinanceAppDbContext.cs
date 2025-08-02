@@ -13,7 +13,11 @@ public abstract class FinanceAppDbContext : DbContext
 
   protected FinanceAppDbContext(
     DbContextOptions options) : base(options)
-  {}
+  { }
+
+  // Parameterless constructor for testing/mocking purposes
+  protected FinanceAppDbContext() : base()
+  { }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {

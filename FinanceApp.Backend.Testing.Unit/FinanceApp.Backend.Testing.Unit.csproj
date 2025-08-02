@@ -19,6 +19,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../FinanceApp.Backend.Application/FinanceApp.Backend.Application.csproj" />
+    <ProjectReference Include="../FinanceApp.Backend.Infrastructure.EntityFramework.Common/FinanceApp.Backend.Infrastructure.EntityFramework.Common.csproj" />
+    <ProjectReference Include="../FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite/FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -11,25 +11,28 @@ using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
+using FinanceApp.Backend.Domain.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit;
 
 public abstract class TestBase
 {
-  protected readonly Mock<IUserRepository> UserRepositoryMock;
-  protected readonly Mock<IUserRepository> UserRepositorySpecificMock;
-  protected readonly Mock<ITransactionGroupRepository> TransactionGroupRepositoryMock;
-  protected readonly Mock<ITransactionRepository> TransactionRepositoryMock;
-  protected readonly Mock<IExchangeRateRepository> ExchangeRateRepositoryMock;
-  protected readonly Mock<IUnitOfWork> UnitOfWorkMock;
-  protected readonly Mock<ISmtpEmailSender> SmtpEmailSenderMock;
-  protected readonly Mock<IBcryptService> BcryptServiceMock;
-  protected readonly Mock<ITokenService> TokenServiceMock;
-  protected readonly Mock<IHttpContextAccessor> HttpContextAccessorMock;
+  protected readonly Mock<IUserRepository> UserRepositoryMock = new Mock<IUserRepository>();
+  protected readonly Mock<IUserRepository> UserRepositorySpecificMock = new Mock<IUserRepository>();
+  protected readonly Mock<ITransactionGroupRepository> TransactionGroupRepositoryMock = new Mock<ITransactionGroupRepository>();
+  protected readonly Mock<ITransactionRepository> TransactionRepositoryMock = new Mock<ITransactionRepository>();
+  protected readonly Mock<IExchangeRateRepository> ExchangeRateRepositoryMock = new Mock<IExchangeRateRepository>();
+  protected readonly Mock<IUnitOfWork> UnitOfWorkMock = new Mock<IUnitOfWork>();
+  protected readonly Mock<ISmtpEmailSender> SmtpEmailSenderMock = new Mock<ISmtpEmailSender>();
+  protected readonly Mock<IBcryptService> BcryptServiceMock = new Mock<IBcryptService>();
+  protected readonly Mock<ITokenService> TokenServiceMock = new Mock<ITokenService>();
+  protected readonly Mock<IHttpContextAccessor> HttpContextAccessorMock = new Mock<IHttpContextAccessor>();
+  protected readonly Mock<ILogger<object>> LoggerMock = new Mock<ILogger<object>>();
   protected readonly Mock<IServiceProvider> ServiceProviderMock = new Mock<IServiceProvider>();
   protected readonly Mock<IServiceScope> ScopeMock = new Mock<IServiceScope>();
   protected readonly Mock<IServiceScopeFactory> ServiceScopeFactoryMock = new Mock<IServiceScopeFactory>();
@@ -37,6 +40,7 @@ public abstract class TestBase
   protected readonly Mock<ExchangeRateRunSignal> ExchangeRateRunSignalMock = new Mock<ExchangeRateRunSignal>();
   protected readonly Mock<RabbitMQConsumerRunSignal> RabbitMQConsumerRunSignalMock = new Mock<RabbitMQConsumerRunSignal>();
   protected readonly Mock<IRabbitMqClient> RabbitMqClientMock = new Mock<IRabbitMqClient>();
+  protected readonly Mock<HttpMessageHandler> HttpMessageHandlerMock = new Mock<HttpMessageHandler>();
   protected readonly IMapper Mapper;
 
   protected TestBase()

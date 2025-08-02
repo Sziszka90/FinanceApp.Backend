@@ -42,7 +42,7 @@ public class ExceptionHandlingMiddleware
       UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
       CacheException => StatusCodes.Status503ServiceUnavailable,
       DatabaseException => StatusCodes.Status500InternalServerError,
-      HttpClientException => StatusCodes.Status502BadGateway,
+      HttpClientException => StatusCodes.Status500InternalServerError,
       RabbitMqException => StatusCodes.Status503ServiceUnavailable,
       SignalRException => StatusCodes.Status500InternalServerError,
       _ => StatusCodes.Status500InternalServerError

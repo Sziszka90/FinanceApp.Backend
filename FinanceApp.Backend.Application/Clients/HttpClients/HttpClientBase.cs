@@ -44,6 +44,10 @@ public abstract class HttpClientBase<T> : IHttpClientBase
       _logger.LogDebug("Data fetched successfully: {Content}", content);
       return result;
     }
+    catch (HttpClientException)
+    {
+      throw;
+    }
     catch (Exception ex)
     {
       _logger.LogError(ex, "An error occurred while making a GET request to {Endpoint}", endpoint);
@@ -80,6 +84,10 @@ public abstract class HttpClientBase<T> : IHttpClientBase
       _logger.LogDebug("Data fetched successfully: {Content}", content);
       return result;
     }
+    catch (HttpClientException)
+    {
+      throw;
+    }
     catch (Exception ex)
     {
       _logger.LogError(ex, "An error occurred while making a GET request to {Endpoint} with data: {Data}", endpoint, data);
@@ -113,6 +121,10 @@ public abstract class HttpClientBase<T> : IHttpClientBase
 
       _logger.LogDebug("Data posted successfully: {Content}", responseContent);
       return result;
+    }
+    catch (HttpClientException)
+    {
+      throw;
     }
     catch (Exception ex)
     {
