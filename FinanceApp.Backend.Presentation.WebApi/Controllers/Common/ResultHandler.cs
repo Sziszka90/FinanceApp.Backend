@@ -84,7 +84,10 @@ public static class ResultHandler
 
     return error.Code switch
     {
-      ApplicationError.ENTITYNOTFOUND_CODE or ApplicationError.USERNOTFOUND_CODE => controller.NotFound(errorResult),
+
+      ApplicationError.ENTITYNOTFOUND_CODE or
+      ApplicationError.USERNOTFOUND_CODE or
+      ApplicationError.TRANSACTION_GROUP_NOT_EXISTS_CODE => controller.NotFound(errorResult),
       ApplicationError.DBCONSTRAINTERROR_CODE => controller.BadRequest(errorResult),
       ApplicationError.VALIDATION_CODE => controller.BadRequest(errorResult),
       ApplicationError.NAME_ALREADY_EXISTS_CODE => controller.BadRequest(errorResult),

@@ -26,6 +26,13 @@ public class GetTransactionByIdQueryHandler : IQueryHandler<GetTransactionByIdQu
   public async Task<Result<GetTransactionDto>> Handle(GetTransactionByIdQuery request, CancellationToken cancellationToken)
   {
     var result = await _transactionRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
+
+    if (result is null)
+    {
+      _logger.LogError("Transaction with ID:{Id} not found", request.Id);
+      return Result.Failure<GetTransactionDto>(ApplicationError.EntityNotFoundError(request.Id.ToString(), nameof(Domain.Entities.Transaction)));
+    }
+
     _logger.LogInformation("Transaction retrieved with ID:{Id}", request.Id);
     return Result.Success(_mapper.Map<GetTransactionDto>(result));
   }
