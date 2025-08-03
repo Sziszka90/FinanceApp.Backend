@@ -30,8 +30,18 @@ jobs:
       - name: Install reportgenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
+      - name: Run unit tests with coverage
+        run: |
+          dotnet test ./FinanceApp.Backend.Testing.Unit/FinanceApp.Backend.Testing.Unit.csproj \
+            --collect:"XPlat Code Coverage" \
+            /p:CoverletOutput=./TestResults/coverage/ \
+            /p:CoverletOutputFormat=cobertura
+
       - name: Generate focused coverage report
         run: |
+          xmlfile=$(find FinanceApp.Backend.Testing.Unit/TestResults/ -name '*.xml' | head -n 1)
+          echo "Using coverage XML: $xmlfile"
+
           # Generate HTML report focusing on Application and Domain layers only
           reportgenerator \
             -reports:"$xmlfile" \
