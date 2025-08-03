@@ -36,7 +36,7 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
   {
     var validationResult = await _tokenService.ValidateTokenAsync(request.UpdatePasswordDto.Token, TokenType.PasswordReset);
 
-    if (!validationResult.IsSuccess)
+    if (!validationResult.Data)
     {
       _logger.LogError("Invalid token provided for password update.");
       return Result.Failure(ApplicationError.InvalidTokenError());

@@ -88,10 +88,13 @@ public static class ResultHandler
       ApplicationError.ENTITYNOTFOUND_CODE or
       ApplicationError.USERNOTFOUND_CODE or
       ApplicationError.TRANSACTION_GROUP_NOT_EXISTS_CODE => controller.NotFound(errorResult),
-      ApplicationError.DBCONSTRAINTERROR_CODE => controller.BadRequest(errorResult),
-      ApplicationError.VALIDATION_CODE => controller.BadRequest(errorResult),
-      ApplicationError.NAME_ALREADY_EXISTS_CODE => controller.BadRequest(errorResult),
-      ApplicationError.INVALID_PASSWORD_CODE => controller.Unauthorized(errorResult),
+      ApplicationError.NAME_ALREADY_EXISTS_CODE or
+      ApplicationError.USEREMAIL_ALREADY_EXISTS_CODE or
+      ApplicationError.VALIDATION_CODE or
+      ApplicationError.DBCONSTRAINTERROR_CODE or
+      ApplicationError.USERNAME_ALREADY_EXISTS_CODE => controller.BadRequest(errorResult),
+      ApplicationError.INVALID_PASSWORD_CODE or
+      ApplicationError.INVALID_TOKEN_CODE => controller.Unauthorized(errorResult),
       _ => controller.StatusCode(StatusCodes.Status500InternalServerError, errorResult)
     };
   }

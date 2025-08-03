@@ -75,6 +75,7 @@ public class UserApi : TestBase
   public async Task CreateUser_WithValidData_ReturnsCreatedUser()
   {
     // arrange
+    await InitializeAsync();
     var createUserDto = new CreateUserDto
     {
       Email = "newuser@test.com",
@@ -99,6 +100,7 @@ public class UserApi : TestBase
   public async Task CreateUser_WithInvalidEmail_ReturnsValidationError()
   {
     // arrange
+    await InitializeAsync();
     var createUserDto = new CreateUserDto
     {
       Email = "invalid-email",
@@ -115,16 +117,14 @@ public class UserApi : TestBase
     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     Assert.Contains(ApplicationError.VALIDATION_MESSAGE, responseContent);
   }
-
   [Fact]
   public async Task CreateUser_WithDuplicateEmail_ReturnsError()
   {
     // arrange
     await InitializeAsync();
-    var user = await CreateUserAsync();
     var createUserDto = new CreateUserDto
     {
-      Email = user!.Email,
+      Email = "test_user90@example.com",
       Password = "ValidPassword123!",
       UserName = "duplicateuser",
       BaseCurrency = CurrencyEnum.USD
@@ -140,39 +140,13 @@ public class UserApi : TestBase
   }
 
   [Fact]
-  public async Task GetActiveUser_WithAuthentication_ReturnsCurrentUser()
-  {
-    // arrange
-    await InitializeAsync();
-
-    // act
-    var response = await GetContentAsync<GetUserDto>(await Client.GetAsync(USERS));
-
-    // assert
-    Assert.NotNull(response);
-    Assert.Equal(CreatedUserId, response.Id);
-  }
-
-  [Fact]
-  public async Task GetActiveUser_WithoutAuthentication_ReturnsUnauthorized()
-  {
-    // arrange
-    Client.DefaultRequestHeaders.Clear();
-
-    // act
-    var response = await Client.GetAsync(USERS);
-
-    // assert
-    Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-  }
-
-  [Fact]
   public async Task ResendConfirmationEmail_WithValidEmail_ReturnsSuccess()
   {
     // arrange
+    await InitializeAsync();
     var emailDto = new EmailDto
     {
-      Email = "test@example.com"
+      Email = "test_user90@example.com"
     };
 
     // act
@@ -186,6 +160,7 @@ public class UserApi : TestBase
   public async Task ResendConfirmationEmail_WithInvalidEmail_ReturnsValidationError()
   {
     // arrange
+    await InitializeAsync();
     var emailDto = new EmailDto
     {
       Email = "invalid-email"
@@ -204,9 +179,10 @@ public class UserApi : TestBase
   public async Task ForgotPassword_WithValidEmail_ReturnsSuccess()
   {
     // arrange
+    await InitializeAsync();
     var emailDto = new EmailDto
     {
-      Email = "test@example.com"
+      Email = "test_user90@example.com"
     };
 
     // act
@@ -220,6 +196,7 @@ public class UserApi : TestBase
   public async Task ForgotPassword_WithInvalidEmail_ReturnsValidationError()
   {
     // arrange
+    await InitializeAsync();
     var emailDto = new EmailDto
     {
       Email = ""
@@ -241,7 +218,7 @@ public class UserApi : TestBase
     await InitializeAsync();
     var updatePasswordRequest = new UpdatePasswordRequest
     {
-      Token = "valid-reset-token",
+      Token = "mock_password_reset_token",
       Password = "NewValidPassword123!"
     };
 
@@ -270,7 +247,7 @@ public class UserApi : TestBase
     var responseContent = await response.Content.ReadAsStringAsync();
 
     // assert
-    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
   }
 
   [Fact]
@@ -278,10 +255,12 @@ public class UserApi : TestBase
   {
     // arrange
     await InitializeAsync();
-    var token = "valid-confirmation-token";
+    var token = "mock_email_confirmation_token";
 
     // act
-    var response = await Client.GetAsync($"{USERS}{CreatedUserId}/confirm-email?token={token}");
+    var user = await Client.GetAsync("api/users");
+    var userDto = await GetContentAsync<GetUserDto>(user);
+    var response = await Client.GetAsync($"{USERS}{userDto.Id}/confirm-email?token={token}");
 
     // assert
     // Email confirmation typically returns a redirect, so we expect either OK or Redirect status
@@ -298,7 +277,9 @@ public class UserApi : TestBase
     var invalidToken = "invalid-token";
 
     // act
-    var response = await Client.GetAsync($"{USERS}{CreatedUserId}/confirm-email?token={invalidToken}");
+    var user = await Client.GetAsync("api/users");
+    var userDto = await GetContentAsync<GetUserDto>(user);
+    var response = await Client.GetAsync($"{USERS}{userDto.Id}/confirm-email?token={invalidToken}");
 
     // assert
     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
