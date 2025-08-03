@@ -67,46 +67,6 @@ jobs:
           path: |
             FinanceApp.Backend.Testing.Unit/TestResults/**/*.xml
             coverage-report/**/*
-
-      - name: Comment coverage on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            try {
-              const summaryPath = 'coverage-report/Summary.txt';
-              if (fs.existsSync(summaryPath)) {
-                const summary = fs.readFileSync(summaryPath, 'utf8');
-                const focusedCoverage = fs.readFileSync('coverage-report/Cobertura.xml', 'utf8');
-                const lineRate = focusedCoverage.match(/line-rate="([^"]+)"/)?.[1];
-                const coveragePercent = Math.round(parseFloat(lineRate) * 100);
-
-                const comment = `## 📊 Unit Test Coverage Report
-
-**Focused Coverage (Application + Domain layers): ${coveragePercent}%**
-
-<details>
-<summary>📋 Coverage Summary</summary>
-
-\`\`\`
-${summary}
-\`\`\`
-</details>
-
-[📁 Full HTML Report Available in Artifacts]`;
-
-                github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: comment
-                });
-              }
-            } catch (error) {
-              console.log('Could not post coverage comment:', error);
-            }
-
   api-test:
     runs-on: ubuntu-latest
     steps:
