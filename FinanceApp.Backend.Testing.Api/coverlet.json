@@ -1,7 +1,10 @@
 {
+  "include": [
+    "[FinanceApp.Backend.Application]*",
+    "[FinanceApp.Backend.Domain]*"
+  ],
   "excludeByFile": [
-    "**/Migrations/*.cs",
     "**/Migrations/**/*.cs",
-    "**/*Migrations*/**/*.cs"
+    "**/*Test*.cs"
   ]
 }

@@ -35,7 +35,9 @@ jobs:
           dotnet test ./FinanceApp.Backend.Testing.Unit/FinanceApp.Backend.Testing.Unit.csproj \
             --collect:"XPlat Code Coverage" \
             /p:CoverletOutput=./TestResults/coverage/ \
-            /p:CoverletOutputFormat=cobertura
+            /p:CoverletOutputFormat=cobertura \
+            '/p:Include="[FinanceApp.Backend.Application]*,[FinanceApp.Backend.Domain]*"' \
+            '/p:ExcludeByAssembly="FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite,FinanceApp.Backend.Infrastructure.EntityFramework.Common,FinanceApp.Backend.Infrastructure.EntityFramework.Mssql,FinanceApp.Backend.Infrastructure.RabbitMq,FinanceApp.Backend.Infrastructure.Cache,FinanceApp.Backend.Infrastructure,FinanceApp.Backend.Presentation.WebApi,FinanceApp.Backend.Testing.Unit"'
 
       - name: Generate focused coverage report
         run: |
