@@ -44,7 +44,7 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
 
     var user = await _userRepository.GetQueryAsync(criteria, cancellationToken: cancellationToken);
 
-    if(user is null)
+    if(user is null || user.Count == 0)
     {
       _logger.LogError("User not found for email: {Email}", userEmail);
       return Result.Failure<Money>(ApplicationError.UserNotFoundError(userEmail!));

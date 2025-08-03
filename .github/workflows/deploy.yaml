@@ -50,6 +50,7 @@ jobs:
             -targetdir:"coverage-report" \
             -reporttypes:"Html;TextSummary;Cobertura" \
             -assemblyfilters:"+FinanceApp.Backend.Application;+FinanceApp.Backend.Domain;-FinanceApp.Backend.Infrastructure*;-FinanceApp.Backend.Testing*" \
+            -classfilters:"-*Migrations*" \
             -title:"Unit Test Coverage Report"
 
           # Show summary

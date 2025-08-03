@@ -119,7 +119,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
         var columns = line.Split(',');
 
         var amount = decimal.TryParse(CleanCsvField(columns[3]), NumberStyles.Number | NumberStyles.AllowThousands,
-          new CultureInfo("hu-HU"), out var parsedAmount) ? parsedAmount : 0;
+          CultureInfo.InvariantCulture, out var parsedAmount) ? parsedAmount : 0;
 
         var transaction = new Transaction(
           NormalizeSpaces(CleanCsvField(columns[5]) != "" ? CleanCsvField(columns[5]) : "Unknown"),
