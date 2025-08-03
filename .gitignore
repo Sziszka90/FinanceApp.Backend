@@ -5,3 +5,6 @@
 .fake
 TestResults/
 .DS_Store
+# Coverage reports
+coverage/
+coverage-report/

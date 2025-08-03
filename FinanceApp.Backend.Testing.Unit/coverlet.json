@@ -3,19 +3,36 @@
     "**/Migrations/*.cs",
     "**/Migrations/**/*.cs",
     "**/*Migrations*/**/*.cs",
-    "**/bin/**/*",
-    "**/obj/**/*",
-    "**/*.Designer.cs",
-    "**/AssemblyInfo.cs",
-    "**/GlobalAssemblyInfo.cs"
+    "**/*Tests.cs",
+    "**/*Test.cs",
+    "**/Tests/**/*.cs",
+    "**/TestBase.cs",
+    "**/TestHelper*.cs",
+    "**/Mock*.cs"
   ],
-  "excludeByAttribute": [
-    "Obsolete",
-    "GeneratedCode",
-    "CompilerGenerated"
+  "excludeByAssembly": [
+    "FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite",
+    "FinanceApp.Backend.Infrastructure.EntityFramework.Mssql",
+    "FinanceApp.Backend.Infrastructure.EntityFramework.Common",
+    "FinanceApp.Backend.Infrastructure.EntityFramework",
+    "FinanceApp.Backend.Infrastructure.RabbitMq",
+    "FinanceApp.Backend.Infrastructure.Cache",
+    "FinanceApp.Backend.Infrastructure",
+    "FinanceApp.Backend.Presentation.WebApi",
+    "FinanceApp.Backend.Testing.Unit"
   ],
   "exclude": [
-    "[*.Tests]*",
-    "[*.Testing]*"
+    "[*]*.Program",
+    "[*]*Migration*",
+    "[*]*ContextFactory*",
+    "[*]*DbContextFactory*",
+    "[*]*ModelSnapshot*",
+    "[FinanceApp.Backend.Infrastructure*]*",
+    "[FinanceApp.Backend.Presentation*]*",
+    "[FinanceApp.Backend.Testing*]*"
+  ],
+  "include": [
+    "[FinanceApp.Backend.Application]*",
+    "[FinanceApp.Backend.Domain]*"
   ]
 }

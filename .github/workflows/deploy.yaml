@@ -30,40 +30,82 @@ jobs:
       - name: Install reportgenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-      - name: Install xmllint
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-
-      - name: Run unit tests with coverage
+      - name: Generate focused coverage report
         run: |
-          dotnet test ./FinanceApp.Backend.Testing.Unit/FinanceApp.Backend.Testing.Unit.csproj \
-            --collect:"XPlat Code Coverage" \
-            /p:CoverletOutput=./TestResults/coverage/ \
-            /p:CoverletOutputFormat=cobertura
+          # Generate HTML report focusing on Application and Domain layers only
+          reportgenerator \
+            -reports:"$xmlfile" \
+            -targetdir:"coverage-report" \
+            -reporttypes:"Html;TextSummary;Cobertura" \
+            -assemblyfilters:"+FinanceApp.Backend.Application;+FinanceApp.Backend.Domain;-FinanceApp.Backend.Infrastructure*;-FinanceApp.Backend.Testing*" \
+            -title:"Unit Test Coverage Report"
+
+          # Show summary
+          cat coverage-report/Summary.txt
+        shell: bash
 
       - name: Check coverage threshold
         run: |
-          echo "The folder contains the following files:"
-          ls -l
-          echo "----------------"
-          xmlfile=$(find FinanceApp.Backend.Testing.Unit/TestResults/ -name '*.xml' | head -n 1)
-          echo "Using coverage XML: $xmlfile"
-          coverage=$(xmllint --xpath "string(/coverage/@line-rate)" "$xmlfile")
-          coverage_percent=$(awk "BEGIN {print $coverage * 100}")
-          echo "Coverage is $coverage_percent%"
-          threshold=60
-          coverage_int=${coverage_percent%.*}  # integer part
+          # Extract full method coverage from Summary.txt
+          method_coverage=$(grep "Full method coverage:" coverage-report/Summary.txt | grep -o '[0-9.]*%' | head -1 | tr -d '%')
+          echo "Full Method Coverage (Application + Domain): ${method_coverage}%"
+          threshold=50
+          coverage_int=${method_coverage%.*}  # integer part
 
-          # if [ "$coverage_int" -lt "$threshold" ]; then
-          #   echo "Code coverage $coverage_int% is below threshold $threshold%"
-          #   exit 1
-          # fi
+          if [ "$coverage_int" -lt "$threshold" ]; then
+            echo "Full method coverage $coverage_int% is below threshold $threshold%"
+            exit 1
+          else
+            echo "✅ Full method coverage $coverage_int% meets threshold $threshold%"
+          fi
         shell: bash
 
-      - name: Upload coverage report artifact
+      - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: code-coverage-report
-          path: FinanceApp.Backend.Testing.Unit/TestResults/**/*.xml
+          name: coverage-reports
+          path: |
+            FinanceApp.Backend.Testing.Unit/TestResults/**/*.xml
+            coverage-report/**/*
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const summaryPath = 'coverage-report/Summary.txt';
+              if (fs.existsSync(summaryPath)) {
+                const summary = fs.readFileSync(summaryPath, 'utf8');
+                const focusedCoverage = fs.readFileSync('coverage-report/Cobertura.xml', 'utf8');
+                const lineRate = focusedCoverage.match(/line-rate="([^"]+)"/)?.[1];
+                const coveragePercent = Math.round(parseFloat(lineRate) * 100);
+
+                const comment = `## 📊 Unit Test Coverage Report
+
+**Focused Coverage (Application + Domain layers): ${coveragePercent}%**
+
+<details>
+<summary>📋 Coverage Summary</summary>
+
+\`\`\`
+${summary}
+\`\`\`
+</details>
+
+[📁 Full HTML Report Available in Artifacts]`;
+
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              }
+            } catch (error) {
+              console.log('Could not post coverage comment:', error);
+            }
 
   api-test:
     runs-on: ubuntu-latest

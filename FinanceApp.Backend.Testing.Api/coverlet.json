@@ -2,20 +2,6 @@
   "excludeByFile": [
     "**/Migrations/*.cs",
     "**/Migrations/**/*.cs",
-    "**/*Migrations*/**/*.cs",
-    "**/bin/**/*",
-    "**/obj/**/*",
-    "**/*.Designer.cs",
-    "**/AssemblyInfo.cs",
-    "**/GlobalAssemblyInfo.cs"
-  ],
-  "excludeByAttribute": [
-    "Obsolete",
-    "GeneratedCode",
-    "CompilerGenerated"
-  ],
-  "exclude": [
-    "[*.Tests]*",
-    "[*.Testing]*"
+    "**/*Migrations*/**/*.cs"
   ]
 }
