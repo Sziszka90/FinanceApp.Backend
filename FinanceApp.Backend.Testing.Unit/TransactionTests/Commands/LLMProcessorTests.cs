@@ -1,0 +1,482 @@
+using System.Text.Json;
+using FinanceApp.Backend.Application.Abstraction.Services;
+using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
+using FinanceApp.Backend.Application.Hubs;
+using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
+using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Domain.Enums;
+using Microsoft.Extensions.Logging;
+using Moq;
+
+namespace FinanceApp.Backend.Testing.Unit.TransactionTests.Commands;
+
+public class LLMProcessorTests : TestBase
+{
+  private readonly Mock<ILogger<LLMProcessorCommandHandler>> _loggerMock;
+  private readonly Mock<ISignalRService> _signalRServiceMock;
+  private readonly LLMProcessorCommandHandler _handler;
+
+  public LLMProcessorTests()
+  {
+    _loggerMock = CreateLoggerMock<LLMProcessorCommandHandler>();
+    _signalRServiceMock = new Mock<ISignalRService>();
+
+    _handler = new LLMProcessorCommandHandler(
+      _loggerMock.Object,
+      UserRepositoryMock.Object,
+      TransactionRepositoryMock.Object,
+      TransactionGroupRepositoryMock.Object,
+      ExchangeRateRepositoryMock.Object,
+      UnitOfWorkMock.Object,
+      _signalRServiceMock.Object
+    );
+  }
+
+  [Fact]
+  public async Task Handle_ValidRequest_ProcessesMatchedTransactionsSuccessfully()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
+    user.GetType().GetProperty("Id")?.SetValue(user, userId);
+
+    var transactionGroup1 = new TransactionGroup("Food", "Food expenses", "", user);
+    var transactionGroup2 = new TransactionGroup("Transport", "Transport expenses", "", user);
+
+    var transaction1 = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, transactionGroup1, DateTime.UtcNow, user);
+    var transaction2 = new Transaction("Bus ticket", "Daily bus ticket", TransactionTypeEnum.Expense,
+      new Money { Amount = 3.50m, Currency = CurrencyEnum.USD }, transactionGroup2, DateTime.UtcNow, user);
+
+    var matchedTransactions = new List<Dictionary<string, string>>
+    {
+      new() { { "Coffee", "Food" } },
+      new() { { "Bus ticket", "Transport" } }
+    };
+
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = JsonSerializer.Serialize(matchedTransactions)
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    // Setup mocks
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
+    TransactionGroupRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<TransactionGroup> { transactionGroup1, transactionGroup2 });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { transaction1, transaction2 });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { transaction1, transaction2 });
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.True(result.IsSuccess);
+    Assert.True(result.Data);
+
+    // Verify repository calls
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TransactionGroupRepositoryMock.Verify(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    TransactionRepositoryMock.Verify(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+
+    // Verify SignalR notification
+    _signalRServiceMock.Verify(x => x.SendToClientGroupMethodAsync(
+      user.Email.ToString(),
+      HubConstants.TRANSACTIONS_MATCHED_NOTIFICATION,
+      HubConstants.REFRESH_TRANSACTIONS), Times.Once);
+
+    // Verify transaction group assignments
+    Assert.Equal("Food", transaction1.TransactionGroup?.Name);
+    Assert.Equal("Transport", transaction2.TransactionGroup?.Name);
+  }
+
+  [Fact]
+  public async Task Handle_UserNotFound_ReturnsFailure()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = JsonSerializer.Serialize(new List<Dictionary<string, string>>())
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync((User?)null);
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.ApplicationError);
+    Assert.Equal(ApplicationError.UserNotFoundError().Message, result.ApplicationError.Message);
+
+    // Verify no other operations were performed
+    TransactionGroupRepositoryMock.Verify(x => x.GetAllByUserIdAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+    TransactionRepositoryMock.Verify(x => x.GetAllByUserIdAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    _signalRServiceMock.Verify(x => x.SendToClientGroupMethodAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+  }
+
+  [Fact]
+  public async Task Handle_NoTransactionsFound_ReturnsFailure()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
+    user.GetType().GetProperty("Id")?.SetValue(user, userId);
+
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = JsonSerializer.Serialize(new List<Dictionary<string, string>>())
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
+    TransactionRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction>());
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.ApplicationError);
+    Assert.Equal("An exception occurred.", result.ApplicationError.Message);
+
+    // Verify no save operations were performed
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    _signalRServiceMock.Verify(x => x.SendToClientGroupMethodAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+  }
+
+  [Fact]
+  public async Task Handle_NoTransactionGroupsFound_ReturnsFailure()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
+    user.GetType().GetProperty("Id")?.SetValue(user, userId);
+
+    var transaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, null, DateTime.UtcNow, user);
+
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = JsonSerializer.Serialize(new List<Dictionary<string, string>>())
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
+    TransactionGroupRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<TransactionGroup>());
+
+    TransactionRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { transaction });
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.False(result.IsSuccess);
+    Assert.NotNull(result.ApplicationError);
+    Assert.Equal("An exception occurred.", result.ApplicationError.Message);
+
+    // Verify no save operations were performed
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    _signalRServiceMock.Verify(x => x.SendToClientGroupMethodAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+  }
+
+  [Fact]
+  public async Task Handle_CurrencyConversion_ConvertsToUserBaseCurrency()
+  {
+    // Arrange
+    var userId = Guid.NewGuid();
+    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
+    user.GetType().GetProperty("Id")?.SetValue(user, userId);
+
+    var transactionGroup = new TransactionGroup("Food", "Food expenses", "", user);
+
+    // Transaction in EUR that should be converted to USD
+    var transaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
+      new Money { Amount = 4.25m, Currency = CurrencyEnum.EUR }, transactionGroup, DateTime.UtcNow, user);
+
+    var matchedTransactions = new List<Dictionary<string, string>>
+    {
+      new() { { "Coffee", "Food" } }
+    };
+
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = JsonSerializer.Serialize(matchedTransactions)
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    // Setup mocks
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
+    TransactionGroupRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<TransactionGroup> { transactionGroup });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { transaction });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { transaction });
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.True(result.IsSuccess);
+
+    // Verify currency conversion (EUR to USD with rate 1.18)
+    Assert.Equal(CurrencyEnum.USD, transaction.Value.Currency);
+    Assert.Equal(5.02m, transaction.Value.Amount); // 4.25 * 1.18 = 5.015, rounded to 5.02
+  }
+
+  [Fact]
+  public async Task Handle_SameCurrency_NoConversionRequired()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
+    user.GetType().GetProperty("Id")?.SetValue(user, userId);
+
+    var transactionGroup = new TransactionGroup("Food", "Food expenses", "", user);
+
+    // Transaction already in USD
+    var transaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user);
+
+    var matchedTransactions = new List<Dictionary<string, string>>
+    {
+      new() { { "Coffee", "Food" } }
+    };
+
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = JsonSerializer.Serialize(matchedTransactions)
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    // Setup mocks
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
+    TransactionGroupRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<TransactionGroup> { transactionGroup });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { transaction });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { transaction });
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.True(result.IsSuccess);
+
+    // Verify no currency conversion occurred
+    Assert.Equal(CurrencyEnum.USD, transaction.Value.Currency);
+    Assert.Equal(5.00m, transaction.Value.Amount); // Amount should remain unchanged
+  }
+
+  [Fact]
+  public async Task Handle_MultipleTransactionsWithDifferentCurrencies_ConvertsAppropriately()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
+    user.GetType().GetProperty("Id")?.SetValue(user, userId);
+
+    var foodGroup = new TransactionGroup("Food", "Food expenses", "", user);
+    var transportGroup = new TransactionGroup("Transport", "Transport expenses", "", user);
+
+    var usdTransaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, foodGroup, DateTime.UtcNow, user);
+
+    var eurTransaction = new Transaction("Lunch", "European lunch", TransactionTypeEnum.Expense,
+      new Money { Amount = 12.50m, Currency = CurrencyEnum.EUR }, foodGroup, DateTime.UtcNow, user);
+
+    var gbpTransaction = new Transaction("Train ticket", "London train", TransactionTypeEnum.Expense,
+      new Money { Amount = 25.00m, Currency = CurrencyEnum.GBP }, transportGroup, DateTime.UtcNow, user);
+
+    var matchedTransactions = new List<Dictionary<string, string>>
+    {
+      new() { { "Coffee", "Food" } },
+      new() { { "Lunch", "Food" } },
+      new() { { "Train ticket", "Transport" } }
+    };
+
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = JsonSerializer.Serialize(matchedTransactions)
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    // Setup mocks
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
+    TransactionGroupRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<TransactionGroup> { foodGroup, transportGroup });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { usdTransaction, eurTransaction, gbpTransaction });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { usdTransaction, eurTransaction, gbpTransaction });
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.True(result.IsSuccess);
+
+    // Verify all transactions are now in USD
+    Assert.Equal(CurrencyEnum.USD, usdTransaction.Value.Currency);
+    Assert.Equal(CurrencyEnum.USD, eurTransaction.Value.Currency);
+    Assert.Equal(CurrencyEnum.USD, gbpTransaction.Value.Currency);
+
+    // Verify amounts (USD unchanged, EUR * 1.18, GBP * 1.33)
+    Assert.Equal(5.00m, usdTransaction.Value.Amount);
+    Assert.Equal(14.75m, eurTransaction.Value.Amount); // 12.50 * 1.18 = 14.75
+    Assert.Equal(33.25m, gbpTransaction.Value.Amount); // 25.00 * 1.33 = 33.25
+  }
+
+  [Fact]
+  public async Task Handle_InvalidJson_ThrowsJsonException()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
+    user.GetType().GetProperty("Id")?.SetValue(user, userId);
+
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = "invalid json string"
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
+    // act & assert
+    await Assert.ThrowsAsync<JsonException>(() => _handler.Handle(command, CancellationToken.None));
+  }
+
+  [Fact]
+  public async Task Handle_TransactionNotInMatchedResults_TransactionGroupRemainsNull()
+  {
+    // arrange
+    var userId = Guid.NewGuid();
+    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
+    user.GetType().GetProperty("Id")?.SetValue(user, userId);
+
+    var transactionGroup = new TransactionGroup("Food", "Food expenses", "", user);
+
+    var matchedTransaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user);
+
+    var unmatchedTransaction = new Transaction("Misc Item", "Random item", TransactionTypeEnum.Expense,
+      new Money { Amount = 10.00m, Currency = CurrencyEnum.USD }, null, DateTime.UtcNow, user);
+
+    // Only match one transaction
+    var matchedTransactions = new List<Dictionary<string, string>>
+    {
+      new() { { "Coffee", "Food" } }
+    };
+
+    var rabbitMqPayload = new RabbitMqPayload
+    {
+      CorrelationId = Guid.NewGuid().ToString(),
+      Success = true,
+      UserId = userId.ToString(),
+      Prompt = "Match transactions to groups",
+      Response = JsonSerializer.Serialize(matchedTransactions)
+    };
+
+    var command = new LLMProcessorCommand(rabbitMqPayload);
+
+    // Setup mocks
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
+    TransactionGroupRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<TransactionGroup> { transactionGroup });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllByUserIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { matchedTransaction, unmatchedTransaction });
+
+    TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction> { matchedTransaction, unmatchedTransaction });
+
+    // act
+    var result = await _handler.Handle(command, CancellationToken.None);
+
+    // assert
+    Assert.True(result.IsSuccess);
+
+    // Verify matched transaction has the correct group
+    Assert.Equal("Food", matchedTransaction.TransactionGroup?.Name);
+
+    // Verify unmatched transaction remains without a group
+    Assert.Null(unmatchedTransaction.TransactionGroup);
+  }
+}

@@ -60,7 +60,7 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
       return Result.Failure<bool>(ApplicationError.DefaultError("Transaction list is empty."));
     }
 
-    if(existingTransactionGroups.Count == 0)
+    if (existingTransactionGroups.Count == 0)
     {
       _logger.LogWarning("No valid transaction groups found.");
       return Result.Failure<bool>(ApplicationError.DefaultError("Transaction group list is empty."));
@@ -71,10 +71,13 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
     foreach (var transaction in existingTransactions)
     {
       var matchedGroup = matchedTransactions!.FirstOrDefault(dict => dict.ContainsKey(transaction.Name));
-      var groupName = matchedGroup!.Values.FirstOrDefault();
-      var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == groupName);
 
-      transaction.TransactionGroup = group;
+      if (matchedGroup != null)
+      {
+        var groupName = matchedGroup.Values.FirstOrDefault();
+        var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == groupName);
+        transaction.TransactionGroup = group;
+      }
 
       if (transaction.Value.Currency != user!.BaseCurrency)
       {
