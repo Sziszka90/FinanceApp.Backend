@@ -138,7 +138,7 @@ public class GetTransactionByIdQueryTests : TestBase
     var result = await _handler.Handle(query, CancellationToken.None);
 
     // assert
-    Assert.True(result.IsSuccess);
+    Assert.False(result.IsSuccess);
     Assert.Null(result.Data);
 
     _transactionRepositoryMock.Verify(
@@ -162,7 +162,7 @@ public class GetTransactionByIdQueryTests : TestBase
     var result = await _handler.Handle(query, CancellationToken.None);
 
     // assert
-    Assert.True(result.IsSuccess);
+    Assert.False(result.IsSuccess);
     Assert.Null(result.Data);
 
     _transactionRepositoryMock.Verify(
@@ -285,7 +285,7 @@ public class GetTransactionByIdQueryTests : TestBase
   }
 
   [Fact]
-  public async Task Handle_ShouldLogTransactionRetrieval()
+  public async Task Handle_ShouldLogTransactionNotFound()
   {
     // arrange
     var transactionId = Guid.NewGuid();
@@ -294,6 +294,51 @@ public class GetTransactionByIdQueryTests : TestBase
     _transactionRepositoryMock
       .Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync((Transaction?)null);
+
+    // act
+    await _handler.Handle(query, CancellationToken.None);
+
+    // assert
+    _loggerMock.Verify(
+      x => x.Log(
+        LogLevel.Error,
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains($"Transaction with ID:{transactionId} not found")),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+      Times.Once);
+  }
+
+  [Fact]
+  public async Task Handle_ShouldLogTransactionRetrievalWhenFound()
+  {
+    // arrange
+    var transactionId = Guid.NewGuid();
+    var userId = Guid.NewGuid();
+    var user = new User("testuser", "test@example.com", "hash", CurrencyEnum.USD) { Id = userId };
+
+    var transactionGroup = new TransactionGroup("Shopping", "Shopping expenses", null, user)
+    {
+      Id = Guid.NewGuid()
+    };
+
+    var transaction = new Transaction(
+      "Test Transaction",
+      "Test description",
+      TransactionTypeEnum.Expense,
+      new Money { Amount = 100.00m, Currency = CurrencyEnum.USD },
+      transactionGroup,
+      DateTimeOffset.UtcNow,
+      user)
+    {
+      Id = transactionId
+    };
+
+    var query = new GetTransactionByIdQuery(transactionId, CancellationToken.None);
+
+    _transactionRepositoryMock
+      .Setup(x => x.GetByIdAsync(transactionId, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(transaction);
 
     // act
     await _handler.Handle(query, CancellationToken.None);
