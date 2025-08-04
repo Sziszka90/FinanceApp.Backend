@@ -46,10 +46,10 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
 
     var result = await _tokenService.ValidateTokenAsync(request.Token, TokenType.EmailConfirmation);
 
-    if (!result.IsSuccess)
+    if (!result.Data)
     {
       _logger.LogError("Invalid token provided for user with ID:{Id}", request.Id);
-      return Result.Failure(result.ApplicationError!);
+      return Result.Failure(ApplicationError.InvalidTokenError(user.Email));
     }
 
     _logger.LogInformation("Email confirmation token validated for user with ID:{Id}", request.Id);

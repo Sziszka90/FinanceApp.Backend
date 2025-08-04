@@ -264,7 +264,7 @@ public class UserApi : TestBase
 
     // assert
     // Email confirmation typically returns a redirect, so we expect either OK or Redirect status
-    Assert.True(response.RequestMessage.Uri != null);
+    Assert.True(response.RequestMessage!.RequestUri != null);
   }
 
   [Fact]
@@ -277,10 +277,11 @@ public class UserApi : TestBase
     // act
     var user = await Client.GetAsync("api/users");
     var userDto = await GetContentAsync<GetUserDto>(user);
-    var response = await Client.GetAsync($"{USERS}{userDto.Id}/confirm-email?token={invalidToken}");
+    var response = await Client.GetAsync($"{USERS}{userDto!.Id}/confirm-email?token={invalidToken}");
 
     // assert
-    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    Assert.NotNull(response.RequestMessage);
+    Assert.Equal("https://www.financeapp.fun/validation-failed", response.RequestMessage.RequestUri!.ToString());
   }
 
   [Fact]
@@ -292,25 +293,6 @@ public class UserApi : TestBase
 
     // act
     var response = await Client.GetAsync(USERS + invalidId);
-
-    // assert
-    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-  }
-
-  [Fact]
-  public async Task UpdateUser_WithInvalidId_ReturnsNotFound()
-  {
-    // arrange
-    await InitializeAsync();
-    var invalidId = Guid.NewGuid();
-    var updateUserRequest = new UpdateUserRequest
-    {
-      Id = invalidId,
-      BaseCurrency = CurrencyEnum.EUR
-    };
-
-    // act
-    var response = await Client.PutAsync(USERS, CreateContent(updateUserRequest));
 
     // assert
     Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

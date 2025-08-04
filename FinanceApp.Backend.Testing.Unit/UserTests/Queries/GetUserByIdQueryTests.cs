@@ -51,7 +51,7 @@ public class GetUserByIdQueryTests : TestBase
     var result = await _handler.Handle(query, CancellationToken.None);
 
     // assert
-    Assert.True(result.IsSuccess);
+    Assert.False(result.IsSuccess);
     Assert.Null(result.Data);
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, true, It.IsAny<CancellationToken>()), Times.Once);
   }

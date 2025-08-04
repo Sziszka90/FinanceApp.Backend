@@ -26,6 +26,13 @@ public class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, Result<Ge
   public async Task<Result<GetUserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
   {
     var user = await _userRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
+
+    if (user == null)
+    {
+      _logger.LogWarning("User with ID:{Id} not found", request.Id);
+      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError(request.Id.ToString()));
+    }
+
     _logger.LogInformation("Retrieved user with ID:{Id}", request.Id);
     return Result.Success(_mapper.Map<GetUserDto>(user));
   }
