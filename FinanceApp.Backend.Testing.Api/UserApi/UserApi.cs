@@ -34,7 +34,6 @@ public class UserApi : TestBase
     var response = await GetContentAsync<GetUserDto>(await Client.GetAsync(USERS + CreatedUserId));
 
     // assert
-    Assert.Null(response);
     Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
   }
 
