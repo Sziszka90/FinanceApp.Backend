@@ -47,6 +47,7 @@ public class CustomWebApplicationFactory<TProgram>
       services.RegisterTokenServiceMock();
       services.RegisterBcryptMock();
       services.RegisterJwtMock();
+      services.RegisterLLMProcessorClientMock();
       RemoveServices(new List<Dictionary<Type, Type>>
       {
         new Dictionary<Type, Type>
