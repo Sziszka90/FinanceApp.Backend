@@ -259,7 +259,7 @@ public class UserApi : TestBase
     // act
     var user = await Client.GetAsync("api/users");
     var userDto = await GetContentAsync<GetUserDto>(user);
-    var response = await Client.GetAsync($"{USERS}{userDto.Id}/confirm-email?token={token}");
+    var response = await Client.GetAsync($"{USERS}{userDto!.Id}/confirm-email?token={token}");
 
     // assert
     // Email confirmation typically returns a redirect, so we expect either OK or Redirect status

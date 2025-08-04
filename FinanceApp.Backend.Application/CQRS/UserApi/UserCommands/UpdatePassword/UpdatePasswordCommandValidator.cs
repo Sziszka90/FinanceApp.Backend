@@ -8,6 +8,7 @@ public class UpdatePasswordCommandValidator : AbstractValidator<UpdatePasswordCo
   public UpdatePasswordCommandValidator(IValidator<UpdatePasswordRequest> updatePasswordDto)
   {
     RuleFor(x => x.UpdatePasswordDto)
+      .NotNull()
       .SetValidator(updatePasswordDto);
   }
 }

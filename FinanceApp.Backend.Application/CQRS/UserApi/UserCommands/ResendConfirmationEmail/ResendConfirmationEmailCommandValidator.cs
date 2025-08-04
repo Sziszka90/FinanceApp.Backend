@@ -9,6 +9,7 @@ public class ResendConfirmationEmailCommandValidator : AbstractValidator<ResendC
   public ResendConfirmationEmailCommandValidator(IValidator<EmailDto> emailDtoValidator)
   {
     RuleFor(x => x.EmailDto)
+      .NotNull()
       .SetValidator(emailDtoValidator);
   }
 }

@@ -13,6 +13,7 @@ public class UpdateTransactionDtoValidator : AbstractValidator<UpdateTransaction
     RuleFor(x => x.Description)
       .MaximumLength(200);
     RuleFor(x => x.Value)
+      .NotNull()
       .SetValidator(moneyValidator);
   }
 }

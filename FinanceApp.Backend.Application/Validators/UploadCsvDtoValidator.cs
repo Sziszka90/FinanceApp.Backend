@@ -12,7 +12,7 @@ public class UploadCsvDtoValidator : AbstractValidator<UploadCsvFileDto>
       .WithMessage("File is required.");
 
     RuleFor(x => x.File)
-      .Must(file => file != null && file.ContentType == "text/csv")
+      .Must(file => file != null && string.Equals(file.ContentType, "text/csv", StringComparison.OrdinalIgnoreCase))
       .WithMessage("Invalid file type. Only CSV files are allowed.");
 
     RuleFor(x => x.CorrelationId)

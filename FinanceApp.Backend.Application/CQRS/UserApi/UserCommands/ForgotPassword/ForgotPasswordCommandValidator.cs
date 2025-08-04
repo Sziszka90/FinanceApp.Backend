@@ -8,6 +8,7 @@ public class ForgotPasswordCommandValidator : AbstractValidator<ForgotPasswordCo
   public ForgotPasswordCommandValidator(IValidator<EmailDto> emailDto)
   {
     RuleFor(x => x.EmailDto)
+      .NotNull()
       .SetValidator(emailDto);
   }
 }
