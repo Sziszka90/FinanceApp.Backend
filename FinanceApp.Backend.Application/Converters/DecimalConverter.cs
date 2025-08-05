@@ -24,6 +24,6 @@ public class DecimalConverter : JsonConverter<decimal>
 
   public override void Write(Utf8JsonWriter writer, decimal value, JsonSerializerOptions options)
   {
-    writer.WriteStringValue(value.ToString());
+    writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
   }
 }
