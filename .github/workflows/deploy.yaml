@@ -78,9 +78,9 @@ jobs:
 
       - name: Check coverage threshold
         run: |
-          # Extract full line coverage from Summary.txt
-          line_coverage=$(grep "Full line coverage:" coverage-report/Summary.txt | grep -o '[0-9.]*%' | head -1 | tr -d '%')
-          echo "Full Line Coverage (Application + Domain): ${line_coverage}%"
+          # Extract method coverage from Summary.txt
+          method_coverage=$(grep "Method coverage:" coverage-report/Summary.txt | grep -o '[0-9.]*%' | head -1 | tr -d '%')
+          echo "Method Coverage (Application + Domain): ${method_coverage}%"
           threshold=50
           coverage_int=${method_coverage%.*}  # integer part
 
