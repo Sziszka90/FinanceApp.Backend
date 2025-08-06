@@ -452,7 +452,7 @@ public class TransactionApi : TestBase
     formData.Add(new StringContent(Guid.NewGuid().ToString()), "correlationId");
 
     // act
-    var response = await Client.PostAsync(TRANSACTIONS + "upload-csv", formData);
+    var response = await Client.PostAsync(TRANSACTIONS + "import", formData);
 
     // assert
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -472,7 +472,7 @@ public class TransactionApi : TestBase
     formData.Add(new StringContent(Guid.NewGuid().ToString()), "correlationId");
 
     // act
-    var response = await Client.PostAsync(TRANSACTIONS + "upload-csv", formData);
+    var response = await Client.PostAsync(TRANSACTIONS + "import", formData);
 
     // assert
     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -487,7 +487,7 @@ public class TransactionApi : TestBase
     formData.Add(new StringContent(Guid.NewGuid().ToString()), "correlationId");
 
     // act
-    var response = await Client.PostAsync(TRANSACTIONS + "upload-csv", formData);
+    var response = await Client.PostAsync(TRANSACTIONS + "import", formData);
 
     // assert
     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -506,7 +506,7 @@ public class TransactionApi : TestBase
     formData.Add(fileContent, "file", "test.csv");
 
     // act
-    var response = await Client.PostAsync(TRANSACTIONS + "upload-csv", formData);
+    var response = await Client.PostAsync(TRANSACTIONS + "import", formData);
 
     // assert
     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

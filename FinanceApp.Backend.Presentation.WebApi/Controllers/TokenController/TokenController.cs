@@ -1,9 +1,11 @@
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.ValidateToken;
+using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Application.UserApi.UserCommands.ValidateToken;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
+using FinanceApp.Backend.Application.Dtos.TokenDtos;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Controllers.TokenController;
 
@@ -26,9 +28,9 @@ public class TokenController : ControllerBase
   [ProducesResponseType(typeof(ValidateTokenResponse), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<IActionResult> ValidateToken([FromQuery] string token, CancellationToken cancellationToken)
+  public async Task<IActionResult> ValidateToken([FromBody] ValidateTokenRequest request, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new ValidateTokenCommand(token, cancellationToken));
+    var result = await _mediator.Send(new ValidateTokenCommand(request.Token, cancellationToken));
     return this.GetResult(result);
   }
 }

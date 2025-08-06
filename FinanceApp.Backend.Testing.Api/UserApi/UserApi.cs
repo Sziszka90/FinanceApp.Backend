@@ -149,7 +149,7 @@ public class UserApi : TestBase
     };
 
     // act
-    var response = await Client.PostAsync(USERS + "resend-confirmation-email", CreateContent(emailDto));
+    var response = await Client.PostAsync(USERS + "email-confirmation", CreateContent(emailDto));
 
     // assert
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -166,7 +166,7 @@ public class UserApi : TestBase
     };
 
     // act
-    var response = await Client.PostAsync(USERS + "resend-confirmation-email", CreateContent(emailDto));
+    var response = await Client.PostAsync(USERS + "email-confirmation", CreateContent(emailDto));
     var responseContent = await response.Content.ReadAsStringAsync();
 
     // assert
@@ -185,7 +185,7 @@ public class UserApi : TestBase
     };
 
     // act
-    var response = await Client.PostAsync(USERS + "forgot-password", CreateContent(emailDto));
+    var response = await Client.PostAsync(USERS + "password-reset", CreateContent(emailDto));
 
     // assert
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -202,7 +202,7 @@ public class UserApi : TestBase
     };
 
     // act
-    var response = await Client.PostAsync(USERS + "forgot-password", CreateContent(emailDto));
+    var response = await Client.PostAsync(USERS + "password-reset", CreateContent(emailDto));
     var responseContent = await response.Content.ReadAsStringAsync();
 
     // assert
@@ -222,7 +222,7 @@ public class UserApi : TestBase
     };
 
     // act
-    var response = await Client.PostAsync(USERS + "update-password", CreateContent(updatePasswordRequest));
+    var response = await Client.PatchAsync(USERS + "password", CreateContent(updatePasswordRequest));
 
     // assert
     // Note: This might return BadRequest in test environment due to token validation
@@ -242,7 +242,7 @@ public class UserApi : TestBase
     };
 
     // act
-    var response = await Client.PostAsync(USERS + "update-password", CreateContent(updatePasswordRequest));
+    var response = await Client.PatchAsync(USERS + "password", CreateContent(updatePasswordRequest));
     var responseContent = await response.Content.ReadAsStringAsync();
 
     // assert
@@ -259,7 +259,7 @@ public class UserApi : TestBase
     // act
     var user = await Client.GetAsync(USERS);
     var userDto = await GetContentAsync<GetUserDto>(user);
-    var response = await Client.GetAsync($"{USERS}{userDto!.Id}/confirm-email?token={token}");
+    var response = await Client.GetAsync($"{USERS}{userDto!.Id}/email-confirmation?token={token}");
 
     // assert
     // Email confirmation typically returns a redirect, so we expect either OK or Redirect status
@@ -276,7 +276,7 @@ public class UserApi : TestBase
     // act
     var user = await Client.GetAsync(USERS);
     var userDto = await GetContentAsync<GetUserDto>(user);
-    var response = await Client.GetAsync($"{USERS}{userDto!.Id}/confirm-email?token={invalidToken}");
+    var response = await Client.GetAsync($"{USERS}{userDto!.Id}/email-confirmation?token={invalidToken}");
 
     // assert
     Assert.NotNull(response.RequestMessage);

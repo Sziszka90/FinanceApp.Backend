@@ -27,6 +27,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected HttpClient Client { get; }
   protected Guid CreatedUserId { get; set; }
+  protected string Token { get; set; } = string.Empty;
 
   protected TestBase()
   {
@@ -88,6 +89,8 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
     var response = await GetContentAsync<LoginResponseDto>(await Client.PostAsync(AUTH + "login", loginContent));
 
+    Token = response!.Token;
+    
     Client.DefaultRequestHeaders.Authorization =
       new AuthenticationHeaderValue("Bearer", response!.Token);
   }

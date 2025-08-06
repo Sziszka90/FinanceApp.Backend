@@ -29,7 +29,7 @@ public class UsersController : ControllerBase
     _mediator = mediator;
   }
 
-  [HttpPatch("{id}/email-confirmation")]
+  [HttpGet("{id}/email-confirmation")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
@@ -41,7 +41,7 @@ public class UsersController : ControllerBase
     return this.RedirectToUrl(result, "https://www.financeapp.fun/login");
   }
 
-  [HttpPost("email-confirmations")]
+  [HttpPost("email-confirmation")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
@@ -53,7 +53,7 @@ public class UsersController : ControllerBase
     return this.GetResult(result);
   }
 
-  [HttpPost("password-resets")]
+  [HttpPost("password-reset")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
