@@ -72,6 +72,7 @@ public static class DependencyInjection
       client.BaseAddress = new Uri(exchangeRateSettings.ApiUrl);
       client.DefaultRequestHeaders.Add("Accept", "application/json");
     });
+    
     services.AddHttpClient<ILLMProcessorClient, LLMProcessorClient>((sp, client) =>
     {
       var llmProcessorSettings = sp.GetRequiredService<IOptions<LLMProcessorSettings>>().Value;
@@ -93,7 +94,11 @@ public static class DependencyInjection
 
   private static IServiceCollection AddHubs(this IServiceCollection services)
   {
-    services.AddSignalR();
+    services.AddSignalR(options =>
+    {
+      options.EnableDetailedErrors = true;
+      options.MaximumReceiveMessageSize = 32 * 1024; // 32KB
+    });
     return services;
   }
 }
