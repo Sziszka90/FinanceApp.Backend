@@ -6,10 +6,12 @@ using FinanceApp.Backend.Application.UserApi.UserCommands.ValidateToken;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Controllers.AuthController;
 
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [Produces("application/json")]
 public class AuthController : ControllerBase

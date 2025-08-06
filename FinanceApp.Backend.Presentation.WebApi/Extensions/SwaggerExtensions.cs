@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using Asp.Versioning.ApiExplorer;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Extensions;
 
@@ -9,7 +10,18 @@ public static class SwaggerExtensions
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
                                    {
-                                     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Finance Application", Version = "v1" });
+                                     // Configure Swagger to generate documentation for each API version
+                                     var provider = builder.Services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+
+                                     foreach (var description in provider.ApiVersionDescriptions)
+                                     {
+                                       c.SwaggerDoc(description.GroupName, new OpenApiInfo
+                                       {
+                                         Title = "Finance Application API",
+                                         Version = description.ApiVersion.ToString(),
+                                         Description = description.IsDeprecated ? " - DEPRECATED" : ""
+                                       });
+                                     }
 
                                      // Add JWT Bearer Authentication to Swagger
                                      c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -40,7 +52,16 @@ public static class SwaggerExtensions
 
   public static void UseSwaggerConfiguration(this IApplicationBuilder builder)
   {
+    var provider = builder.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
     builder.UseSwagger();
-    builder.UseSwaggerUI();
+    builder.UseSwaggerUI(c =>
+    {
+      foreach (var description in provider.ApiVersionDescriptions)
+      {
+        c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                         $"Finance API {description.GroupName.ToUpperInvariant()}");
+      }
+    });
   }
 }
