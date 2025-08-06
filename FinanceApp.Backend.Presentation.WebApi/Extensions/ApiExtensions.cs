@@ -3,7 +3,9 @@ using System.Text.Json.Serialization;
 using FinanceApp.Backend.Domain.Options;
 using FinanceApp.Backend.Presentation.WebApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Asp.Versioning;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Extensions;
 
@@ -35,6 +37,22 @@ public static class ApiExtensions
                              options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                              options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                            });
+
+    // Add API Versioning (.NET 8+ approach)
+    builder.Services.AddApiVersioning(options =>
+    {
+      options.AssumeDefaultVersionWhenUnspecified = true;
+      options.DefaultApiVersion = new ApiVersion(1, 0); // Default to v1.0
+      options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(), // /api/v1/controller
+        new QueryStringApiVersionReader("version"), // ?version=1.0
+        new HeaderApiVersionReader("X-Version") // X-Version: 1.0
+      );
+    }).AddApiExplorer(setup =>
+    {
+      setup.GroupNameFormat = "'v'VVV"; // Format: v1.0, v2.0, etc.
+      setup.SubstituteApiVersionInUrl = true;
+    });
 
 
     var authenticationSettings = builder.Configuration.GetSection("AuthenticationSettings").Get<AuthenticationSettings>();
