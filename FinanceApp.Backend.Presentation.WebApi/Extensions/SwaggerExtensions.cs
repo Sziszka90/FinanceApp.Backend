@@ -11,15 +11,29 @@ public static class SwaggerExtensions
     builder.Services.AddSwaggerGen(c =>
                                    {
                                      // Configure Swagger to generate documentation for each API version
-                                     var provider = builder.Services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+                                     var serviceProvider = builder.Services.BuildServiceProvider();
+                                     var provider = serviceProvider.GetService<IApiVersionDescriptionProvider>();
 
-                                     foreach (var description in provider.ApiVersionDescriptions)
+                                     if (provider != null)
                                      {
-                                       c.SwaggerDoc(description.GroupName, new OpenApiInfo
+                                       foreach (var description in provider.ApiVersionDescriptions)
+                                       {
+                                         c.SwaggerDoc(description.GroupName, new OpenApiInfo
+                                         {
+                                           Title = "Finance Application API",
+                                           Version = description.ApiVersion.ToString(),
+                                           Description = description.IsDeprecated ? " - DEPRECATED" : ""
+                                         });
+                                       }
+                                     }
+                                     else
+                                     {
+                                       // Fallback for when API versioning is not configured
+                                       c.SwaggerDoc("v1", new OpenApiInfo
                                        {
                                          Title = "Finance Application API",
-                                         Version = description.ApiVersion.ToString(),
-                                         Description = description.IsDeprecated ? " - DEPRECATED" : ""
+                                         Version = "v1",
+                                         Description = "Finance Application API"
                                        });
                                      }
 
@@ -52,15 +66,23 @@ public static class SwaggerExtensions
 
   public static void UseSwaggerConfiguration(this IApplicationBuilder builder)
   {
-    var provider = builder.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+    var provider = builder.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
 
     builder.UseSwagger();
     builder.UseSwaggerUI(c =>
     {
-      foreach (var description in provider.ApiVersionDescriptions)
+      if (provider != null)
       {
-        c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
-                         $"Finance API {description.GroupName.ToUpperInvariant()}");
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+          c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                           $"Finance API {description.GroupName.ToUpperInvariant()}");
+        }
+      }
+      else
+      {
+        // Fallback for when API versioning is not configured (e.g., in test environments)
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finance API V1");
       }
     });
   }
