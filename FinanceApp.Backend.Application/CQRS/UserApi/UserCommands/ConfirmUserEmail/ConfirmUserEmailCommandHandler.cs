@@ -35,7 +35,7 @@ public class ConfirmUserEmailCommandHandler : ICommandHandler<ConfirmUserEmailCo
     if (user is null)
     {
        _logger.LogError("User not found with ID:{Id}", request.Id);
-      return Result.Failure(ApplicationError.UserNotFoundError());
+      return Result.Failure(ApplicationError.UserNotFoundError(userId: request.Id.ToString()));
     }
 
     if(user.EmailConfirmationTokenExpiration < DateTimeOffset.UtcNow)

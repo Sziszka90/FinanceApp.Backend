@@ -15,12 +15,13 @@ namespace FinanceApp.Backend.Testing.Api.Base;
 
 public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDisposable, IAsyncDisposable
 {
-  protected const string TRANSACTIONS = "/api/transactions/";
-  protected const string TRANSACTIONS_SUMMARY = "/api/transactions/summary";
-  protected const string TRANSACTION_GROUPS = "/api/transactiongroups/";
-  protected const string INVESTMENTS = "/api/investments/";
-  protected const string SAVINGS = "/api/savings/";
-  protected const string USERS = "/api/users/";
+  protected const string TRANSACTIONS = "/api/v1/transactions/";
+  protected const string TRANSACTIONS_SUMMARY = "/api/v1/transactions/summary";
+  protected const string TRANSACTION_GROUPS = "/api/v1/transactiongroups/";
+  protected const string INVESTMENTS = "/api/v1/investments/";
+  protected const string SAVINGS = "/api/v1/savings/";
+  protected const string USERS = "/api/v1/users/";
+  protected const string AUTH = "/api/v1/auth/";
 
   private readonly CustomWebApplicationFactory<Program> _factory;
 
@@ -85,7 +86,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       Password = "TestPassword90."
     });
 
-    var response = await GetContentAsync<LoginResponseDto>(await Client.PostAsync("/api/auth/login", loginContent));
+    var response = await GetContentAsync<LoginResponseDto>(await Client.PostAsync(AUTH + "login", loginContent));
 
     Client.DefaultRequestHeaders.Authorization =
       new AuthenticationHeaderValue("Bearer", response!.Token);

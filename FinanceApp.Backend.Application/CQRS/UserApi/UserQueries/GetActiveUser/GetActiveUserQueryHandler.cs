@@ -42,7 +42,7 @@ public class GetActiveUserQueryHandler : IQueryHandler<GetActiveUserQuery, Resul
     if (user is null || user.Count == 0)
     {
       _logger.LogError("User not found with email:{Email}", userEmail);
-      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError(userEmail!));
+      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError(email: userEmail!));
     }
 
     _logger.LogInformation("Retrieved user with email:{Email}", userEmail);

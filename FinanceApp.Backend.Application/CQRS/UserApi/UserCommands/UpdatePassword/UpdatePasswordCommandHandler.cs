@@ -55,7 +55,7 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
     if (user is null)
     {
       _logger.LogError("User not found with email:{Email}", email);
-      return Result.Failure(ApplicationError.UserNotFoundError());
+      return Result.Failure(ApplicationError.UserNotFoundError(email: email));
     }
 
     var passwordHash = _bcryptService.Hash(request.UpdatePasswordDto.Password);

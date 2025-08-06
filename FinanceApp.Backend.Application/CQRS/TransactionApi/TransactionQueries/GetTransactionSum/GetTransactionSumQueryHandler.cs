@@ -47,7 +47,7 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
     if(user is null || user.Count == 0)
     {
       _logger.LogError("User not found for email: {Email}", userEmail);
-      return Result.Failure<Money>(ApplicationError.UserNotFoundError(userEmail!));
+      return Result.Failure<Money>(ApplicationError.UserNotFoundError(email: userEmail!));
     }
 
     var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);

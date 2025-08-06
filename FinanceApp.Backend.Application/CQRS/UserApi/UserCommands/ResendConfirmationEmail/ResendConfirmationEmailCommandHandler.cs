@@ -44,7 +44,7 @@ public class ResendConfirmationEmailCommandHandler : ICommandHandler<ResendConfi
     if (user is null)
     {
       _logger.LogWarning("User not found with email: {Email}", request.EmailDto.Email);
-      return Result.Failure<ResendEmailConfirmationResponse>(ApplicationError.UserNotFoundError(request.EmailDto.Email));
+      return Result.Failure<ResendEmailConfirmationResponse>(ApplicationError.UserNotFoundError(email: request.EmailDto.Email));
     }
 
     if (user.IsEmailConfirmed)

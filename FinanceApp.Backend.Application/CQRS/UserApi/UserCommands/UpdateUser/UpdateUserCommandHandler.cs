@@ -46,7 +46,7 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
     if (string.IsNullOrEmpty(userEmail))
     {
       _logger.LogError("User email not found in claims.");
-      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError("User email not found in claims."));
+      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError());
     }
 
     var user = await _userRepository.GetUserByEmailAsync(userEmail, noTracking: false, cancellationToken: cancellationToken);

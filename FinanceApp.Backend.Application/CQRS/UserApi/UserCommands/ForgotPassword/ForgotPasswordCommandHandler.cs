@@ -38,7 +38,7 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
     if (user is null)
     {
       _logger.LogWarning("User not found: {Email}", request.EmailDto.Email);
-      return Result.Failure(ApplicationError.UserNotFoundError(request.EmailDto.Email));
+      return Result.Failure(ApplicationError.UserNotFoundError(email: request.EmailDto.Email));
     }
 
     if(!user.IsEmailConfirmed)

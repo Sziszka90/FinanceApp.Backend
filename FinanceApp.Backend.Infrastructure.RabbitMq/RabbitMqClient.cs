@@ -50,14 +50,16 @@ public class RabbitMqClient : IRabbitMqClient
 
   public async Task SubscribeAllAsync(CancellationToken cancellationToken = default)
   {
-    if (_connectionManager.IsConnected == false)
-    {
-      _logger.LogError("RabbitMQ connection is not established. Cannot subscribe to queues.");
-      throw new RabbitMqException("SUBSCRIBE_ALL", "RabbitMQ connection is not established.");
-    }
     try
     {
       await _connectionManager.InitializeAsync(cancellationToken);
+
+      if (_connectionManager.IsConnected == false)
+      {
+        _logger.LogError("RabbitMQ connection could not be established. Cannot subscribe to queues.");
+        throw new RabbitMqException("SUBSCRIBE_ALL", "RabbitMQ connection could not be established.");
+      }
+
       await DeclareExchangesAndQueuesAsync(cancellationToken);
       await BindQueuesAsync(cancellationToken);
       await SetupConsumersAsync(cancellationToken);

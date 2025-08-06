@@ -48,7 +48,7 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
     if (user is null)
     {
       _logger.LogError("User not found.");
-      return Result.Failure<List<GetTransactionDto>>(ApplicationError.UserNotFoundError());
+      return Result.Failure<List<GetTransactionDto>>(ApplicationError.UserNotFoundError(email: userEmail!));
     }
 
     var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);

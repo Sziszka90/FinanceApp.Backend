@@ -60,7 +60,7 @@ public class CreateTransactionGroupCommandHandler : ICommandHandler<CreateTransa
     if (user is null)
     {
       _logger.LogError("User not found with email:{Email}", userEmail);
-      return Result.Failure<GetTransactionGroupDto>(ApplicationError.UserNotFoundError(userEmail!));
+      return Result.Failure<GetTransactionGroupDto>(ApplicationError.UserNotFoundError(email: userEmail!));
     }
 
     var result = await _transactionGroupRepository.CreateAsync(new TransactionGroup(

@@ -257,7 +257,7 @@ public class UserApi : TestBase
     var token = "mock_email_confirmation_token";
 
     // act
-    var user = await Client.GetAsync("api/users");
+    var user = await Client.GetAsync(USERS);
     var userDto = await GetContentAsync<GetUserDto>(user);
     var response = await Client.GetAsync($"{USERS}{userDto!.Id}/confirm-email?token={token}");
 
@@ -274,7 +274,7 @@ public class UserApi : TestBase
     var invalidToken = "invalid-token";
 
     // act
-    var user = await Client.GetAsync("api/users");
+    var user = await Client.GetAsync(USERS);
     var userDto = await GetContentAsync<GetUserDto>(user);
     var response = await Client.GetAsync($"{USERS}{userDto!.Id}/confirm-email?token={invalidToken}");
 

@@ -1,6 +1,7 @@
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.BackgroundJobs.RabbitMQ;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit.BackgroundJobTests;
@@ -21,10 +22,12 @@ public class RabbitMqConsumerBackgroundJobTests : TestBase
     ExchangeRateRunSignalMock.Setup(s => s.WaitForFirstRunAsync()).Returns(Task.CompletedTask);
     RabbitMQConsumerRunSignalMock.Setup(s => s.WaitForFirstRunAsync()).Returns(Task.CompletedTask);
 
+    var loggerMock = new Mock<ILogger<RabbitMqConsumerServiceBackgroundJob>>();
     var job = new RabbitMqConsumerServiceBackgroundJob(
         RabbitMqClientMock.Object,
         ExchangeRateRunSignalMock.Object,
-        RabbitMQConsumerRunSignalMock.Object);
+        RabbitMQConsumerRunSignalMock.Object,
+        loggerMock.Object);
 
     var cancellationTokenSource = new CancellationTokenSource();
     cancellationTokenSource.CancelAfter(100);
@@ -51,14 +54,18 @@ public class RabbitMqConsumerBackgroundJobTests : TestBase
     var cancellationTokenSource = new CancellationTokenSource();
     cancellationTokenSource.CancelAfter(100);
 
+    var loggerMock = new Mock<ILogger<RabbitMqConsumerServiceBackgroundJob>>();
     // act
     var job = new RabbitMqConsumerServiceBackgroundJob(
         RabbitMqClientMock.Object,
         ExchangeRateRunSignalMock.Object,
-        RabbitMQConsumerRunSignalMock.Object);
+        RabbitMQConsumerRunSignalMock.Object,
+        loggerMock.Object);
+
+    // The new implementation doesn't throw exceptions anymore, it handles them gracefully
+    await job.StartAsync(cancellationTokenSource.Token);
 
     // assert
-    await Assert.ThrowsAsync<Exception>(() => job.StartAsync(cancellationTokenSource.Token));
     RabbitMqClientMock.Verify(c => c.SubscribeAllAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce());
   }
 }

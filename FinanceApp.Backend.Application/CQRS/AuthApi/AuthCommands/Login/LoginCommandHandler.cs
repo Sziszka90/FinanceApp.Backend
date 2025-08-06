@@ -31,7 +31,7 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
     if (user is null)
     {
       _logger.LogWarning("User not found with email:{Email}", request.LoginRequestDto.Email);
-      return Result.Failure<LoginResponseDto>(ApplicationError.UserNotFoundError());
+      return Result.Failure<LoginResponseDto>(ApplicationError.UserNotFoundError(email: request.LoginRequestDto.Email));
     }
 
     if(!user.IsEmailConfirmed)

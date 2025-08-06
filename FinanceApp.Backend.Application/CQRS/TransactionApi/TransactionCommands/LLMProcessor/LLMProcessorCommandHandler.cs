@@ -48,7 +48,7 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
     if (user is null)
     {
       _logger.LogError("User not found with ID: {UserId}", request.ResponseDto.UserId);
-      return Result.Failure<bool>(ApplicationError.UserNotFoundError());
+      return Result.Failure<bool>(ApplicationError.UserNotFoundError(userId: request.ResponseDto.UserId));
     }
 
     var existingTransactionGroups = await _transactionGroupRepository.GetAllByUserIdAsync(user.Id, noTracking: false, cancellationToken: cancellationToken);

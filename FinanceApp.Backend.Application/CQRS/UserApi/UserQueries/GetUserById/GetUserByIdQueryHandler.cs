@@ -30,7 +30,7 @@ public class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, Result<Ge
     if (user == null)
     {
       _logger.LogWarning("User with ID:{Id} not found", request.Id);
-      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError(request.Id.ToString()));
+      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError(userId: request.Id.ToString()));
     }
 
     _logger.LogInformation("Retrieved user with ID:{Id}", request.Id);

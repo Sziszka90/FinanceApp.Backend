@@ -100,13 +100,13 @@ public class TransactionsController : ControllerBase
     return this.GetResult(result, StatusCodes.Status204NoContent);
   }
 
-  [HttpPost("upload-csv")]
+  [HttpPost("import")]
   [Produces("application/json")]
   [Consumes("multipart/form-data")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<IActionResult> UploadCsv([FromForm] UploadCsvFileDto uploadCsvFileDto, CancellationToken cancellationToken)
+  public async Task<IActionResult> ImportTransactions([FromForm] UploadCsvFileDto uploadCsvFileDto, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new UploadCsvCommand(uploadCsvFileDto, cancellationToken));
     return this.GetResult(result);

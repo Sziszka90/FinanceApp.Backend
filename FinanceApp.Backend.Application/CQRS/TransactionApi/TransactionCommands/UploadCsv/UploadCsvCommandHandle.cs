@@ -64,7 +64,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     if (user is null)
     {
       _logger.LogError("User not found with email: {Email}", userEmail);
-      return Result.Failure<List<GetTransactionDto>>(ApplicationError.UserNotFoundError());
+      return Result.Failure<List<GetTransactionDto>>(ApplicationError.UserNotFoundError(email: userEmail!));
     }
 
     var transactions = await ImportTransactions(request.uploadCsvFileDto.File, user!);

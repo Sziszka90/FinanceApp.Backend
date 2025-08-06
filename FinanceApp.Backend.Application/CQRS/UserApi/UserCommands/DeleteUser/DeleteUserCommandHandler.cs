@@ -38,7 +38,7 @@ public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Resul
     if (user is null)
     {
       _logger.LogError("User not found with ID:{Id}", request.Id);
-      return Result.Failure(ApplicationError.UserNotFoundError(request.Id.ToString()));
+      return Result.Failure(ApplicationError.UserNotFoundError(userId: request.Id.ToString()));
     }
 
     await _transactionRepository.DeleteAllByUserIdAsync(user.Id, cancellationToken);

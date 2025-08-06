@@ -51,7 +51,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
     if (user is null)
     {
       _logger.LogError("User not found with email:{Email}", userEmail);
-      return Result.Failure<GetTransactionDto>(ApplicationError.UserNotFoundError(userEmail!));
+      return Result.Failure<GetTransactionDto>(ApplicationError.UserNotFoundError(email: userEmail!));
     }
 
     TransactionGroup? transactionGroup = null;

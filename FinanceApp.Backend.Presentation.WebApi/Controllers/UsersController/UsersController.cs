@@ -29,7 +29,7 @@ public class UsersController : ControllerBase
     _mediator = mediator;
   }
 
-  [HttpGet("{id}/confirm-email")]
+  [HttpPatch("{id}/email-confirmation")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
@@ -41,31 +41,31 @@ public class UsersController : ControllerBase
     return this.RedirectToUrl(result, "https://www.financeapp.fun/login");
   }
 
-  [HttpPost("resend-confirmation-email")]
+  [HttpPost("email-confirmations")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<IActionResult> ResendConfirmationEmail([FromBody] EmailDto email, CancellationToken cancellationToken)
+  public async Task<IActionResult> CreateEmailConfirmation([FromBody] EmailDto email, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new ResendConfirmationEmailCommand(email, cancellationToken));
     return this.GetResult(result);
   }
 
-  [HttpPost("forgot-password")]
+  [HttpPost("password-resets")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<IActionResult> ForgotPassword([FromBody] EmailDto email, CancellationToken cancellationToken)
+  public async Task<IActionResult> CreatePasswordReset([FromBody] EmailDto email, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new ForgotPasswordCommand(email, cancellationToken));
     return this.GetResult(result);
   }
 
-  [HttpPost("update-password")]
+  [HttpPatch("password")]
   [Produces("application/json")]
   [Consumes("application/json")]
   [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]

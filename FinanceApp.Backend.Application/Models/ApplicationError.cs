@@ -189,12 +189,12 @@ public class ApplicationError
   /// <param name="userId"></param>
   /// <param name="userName"></param>
   /// <returns>ApplicationError</returns>
-  public static ApplicationError UserNotFoundError(string userId = "", string userName = "")
+  public static ApplicationError UserNotFoundError(string userId = "", string email = "")
   {
     return new ApplicationError(USERNOTFOUND_MESSAGE, USERNOTFOUND_CODE, new Dictionary<string, object>
     {
-      { "userName", userName },
-      { "identifier", userId }
+      { "userId", userId },
+      { "email", email }
     });
   }
 
