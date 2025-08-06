@@ -11,11 +11,9 @@ using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
-using FinanceApp.Backend.Domain.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit;
