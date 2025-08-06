@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 using FinanceApp.Backend.Application.BackgroundJobs.RabbitMQ;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceApp.Backend.Testing.Api.Base;
 
@@ -27,6 +29,22 @@ public class CustomWebApplicationFactory<TProgram>
 
     builder.ConfigureServices(services =>
     {
+      // Add API Versioning services for test environment
+      services.AddApiVersioning(options =>
+      {
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.ApiVersionReader = ApiVersionReader.Combine(
+          new UrlSegmentApiVersionReader(),
+          new QueryStringApiVersionReader("version"),
+          new HeaderApiVersionReader("X-Version")
+        );
+      }).AddApiExplorer(setup =>
+      {
+        setup.GroupNameFormat = "'v'VVV";
+        setup.SubstituteApiVersionInUrl = true;
+      });
+
       services.AddAuthentication("Test")
         .AddScheme<AuthenticationSchemeOptions, MockJwtAuthHandler>("Test", options => { });
 
