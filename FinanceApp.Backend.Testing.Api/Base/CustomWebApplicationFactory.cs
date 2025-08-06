@@ -13,7 +13,6 @@ using Microsoft.Extensions.Hosting;
 using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 using FinanceApp.Backend.Application.BackgroundJobs.RabbitMQ;
 using Asp.Versioning;
-using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceApp.Backend.Testing.Api.Base;
 
