@@ -1,11 +1,10 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
@@ -13,45 +12,38 @@ namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.Crea
 public class CreateTransactionCommandHandler : ICommandHandler<CreateTransactionCommand, Result<GetTransactionDto>>
 {
   private readonly ILogger<CreateTransactionCommandHandler> _logger;
-  private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly IMapper _mapper;
-  private readonly IRepository<Transaction> _transactionRepository;
-  private readonly IUserRepository _userRepository;
-  private readonly IRepository<TransactionGroup> _transactionGroupRepository;
+  private readonly ITransactionRepository _transactionRepository;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly IUnitOfWork _unitOfWork;
+  private readonly IUserService _userService;
 
   public CreateTransactionCommandHandler(
     ILogger<CreateTransactionCommandHandler> logger,
-    IHttpContextAccessor httpContextAccessor,
     IMapper mapper,
-    IRepository<Transaction> transactionRepository,
-    IUserRepository userRepository,
-    IRepository<TransactionGroup> transactionGroupRepository,
-    IUnitOfWork unitOfWork)
+    ITransactionRepository transactionRepository,
+    ITransactionGroupRepository transactionGroupRepository,
+    IUnitOfWork unitOfWork,
+    IUserService userService)
   {
     _logger = logger;
-    _httpContextAccessor = httpContextAccessor;
     _mapper = mapper;
     _transactionRepository = transactionRepository;
-    _userRepository = userRepository;
     _transactionGroupRepository = transactionGroupRepository;
     _unitOfWork = unitOfWork;
+    _userService = userService;
+
   }
 
   /// <inheritdoc />
   public async Task<Result<GetTransactionDto>> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
   {
-    var httpContext = _httpContextAccessor.HttpContext;
+    var user = await _userService.GetActiveUserAsync(cancellationToken);
 
-    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
-                                      ?.Value;
-
-    var user = await _userRepository.GetUserByEmailAsync(userEmail!, noTracking: false, cancellationToken: cancellationToken);
-
-    if (user is null)
+    if (!user.IsSuccess)
     {
-      _logger.LogError("User not found with email:{Email}", userEmail);
-      return Result.Failure<GetTransactionDto>(ApplicationError.UserNotFoundError(email: userEmail!));
+      _logger.LogError("Failed to retrieve active user: {Error}", user.ApplicationError?.Message);
+      return Result.Failure<GetTransactionDto>(user.ApplicationError!);
     }
 
     TransactionGroup? transactionGroup = null;
@@ -73,7 +65,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
                                                                     request.CreateTransactionDto.Value,
                                                                     transactionGroup,
                                                                     request.CreateTransactionDto.TransactionDate,
-                                                                    user!), cancellationToken);
+                                                                    user.Data!), cancellationToken);
 
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);

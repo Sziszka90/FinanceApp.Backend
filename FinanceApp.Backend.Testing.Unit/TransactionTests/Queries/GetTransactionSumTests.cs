@@ -19,9 +19,8 @@ public class GetTransactionSumTests : TestBase
     _handler = new GetTransactionSumQueryHandler(
         _loggerMock.Object,
         TransactionRepositoryMock.Object,
-        UserRepositoryMock.Object,
         ExchangeRateRepositoryMock.Object,
-        HttpContextAccessorMock.Object
+        UserServiceMock.Object
     );
   }
 
@@ -97,21 +96,9 @@ public class GetTransactionSumTests : TestBase
   public async Task Handle_UserNotFound_ReturnsFailureResult()
   {
     // arrange
-    var nonExistentUser = new User(null, "nonexistent", "nonexistent@example.com", true, "hash", CurrencyEnum.USD);
-
-    // Mock HTTP context with a user that doesn't exist in repository
-    var claims = new[] { new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, nonExistentUser.Email) };
-    var identity = new System.Security.Claims.ClaimsIdentity(claims, "TestAuthType");
-    var principal = new System.Security.Claims.ClaimsPrincipal(identity);
-    var httpContext = new DefaultHttpContext { User = principal };
-    HttpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
-
-    // Return empty list to simulate user not found in database
-    UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new List<User>());
-
-    TransactionRepositoryMock.Setup(x => x.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new List<Transaction>());
+    UserServiceMock
+      .Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError()));
 
     var query = new GetTransactionSumQuery(CancellationToken.None);
 

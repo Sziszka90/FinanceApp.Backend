@@ -1,4 +1,4 @@
-using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroup;
+using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroups;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
@@ -8,13 +8,13 @@ namespace FinanceApp.Backend.Testing.Unit.TransactionTests.Queries;
 
 public class GetAllTransactionGroupTests : TestBase
 {
-  private readonly Mock<ILogger<GetAllTransactionGroupQueryHandler>> _loggerMock;
-  private readonly GetAllTransactionGroupQueryHandler _handler;
+  private readonly Mock<ILogger<GetAllTransactionGroupsQueryHandler>> _loggerMock;
+  private readonly GetAllTransactionGroupsQueryHandler _handler;
 
   public GetAllTransactionGroupTests()
   {
-    _loggerMock = CreateLoggerMock<GetAllTransactionGroupQueryHandler>();
-    _handler = new GetAllTransactionGroupQueryHandler(
+    _loggerMock = CreateLoggerMock<GetAllTransactionGroupsQueryHandler>();
+    _handler = new GetAllTransactionGroupsQueryHandler(
         _loggerMock.Object,
         Mapper,
         TransactionGroupRepositoryMock.Object
@@ -27,7 +27,7 @@ public class GetAllTransactionGroupTests : TestBase
     // arrange
     var user = new User("TestUser", "test@example.com", "hash", CurrencyEnum.USD);
     TransactionGroupRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>())).ReturnsAsync(new List<TransactionGroup> { new TransactionGroup("TestGroup", "desc", null, user) });
-    var query = new GetAllTransactionGroupQuery(CancellationToken.None);
+    var query = new GetAllTransactionGroupsQuery(CancellationToken.None);
 
     // act
     var result = await _handler.Handle(query, CancellationToken.None);

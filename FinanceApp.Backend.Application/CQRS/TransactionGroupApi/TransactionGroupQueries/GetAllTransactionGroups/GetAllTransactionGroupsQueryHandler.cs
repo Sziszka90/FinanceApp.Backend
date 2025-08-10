@@ -6,16 +6,16 @@ using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroup;
+namespace FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroups;
 
-public class GetAllTransactionGroupQueryHandler : IQueryHandler<GetAllTransactionGroupQuery, Result<List<GetTransactionGroupDto>>>
+public class GetAllTransactionGroupsQueryHandler : IQueryHandler<GetAllTransactionGroupsQuery, Result<List<GetTransactionGroupDto>>>
 {
-  private readonly ILogger<GetAllTransactionGroupQueryHandler> _logger;
+  private readonly ILogger<GetAllTransactionGroupsQueryHandler> _logger;
   private readonly IMapper _mapper;
   private readonly IRepository<TransactionGroup> _transactionGroupRepository;
 
-  public GetAllTransactionGroupQueryHandler(
-    ILogger<GetAllTransactionGroupQueryHandler> logger,
+  public GetAllTransactionGroupsQueryHandler(
+    ILogger<GetAllTransactionGroupsQueryHandler> logger,
     IMapper mapper,
     IRepository<TransactionGroup> transactionGroupRepository)
   {
@@ -24,7 +24,7 @@ public class GetAllTransactionGroupQueryHandler : IQueryHandler<GetAllTransactio
     _transactionGroupRepository = transactionGroupRepository;
   }
 
-  public async Task<Result<List<GetTransactionGroupDto>>> Handle(GetAllTransactionGroupQuery request, CancellationToken cancellationToken)
+  public async Task<Result<List<GetTransactionGroupDto>>> Handle(GetAllTransactionGroupsQuery request, CancellationToken cancellationToken)
   {
     var result = await _transactionGroupRepository.GetAllAsync(noTracking: true, cancellationToken);
     _logger.LogInformation("Retrieved {Count} Transaction Groups", result.Count);

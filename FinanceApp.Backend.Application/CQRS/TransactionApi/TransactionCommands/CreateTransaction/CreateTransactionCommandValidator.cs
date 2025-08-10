@@ -1,8 +1,7 @@
-using System.Security.Claims;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
@@ -10,34 +9,31 @@ namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.Crea
 public class CreateTransactionCommandValidator : AbstractValidator<CreateTransactionCommand>
 {
   private readonly ILogger<CreateTransactionCommandValidator> _logger;
-  private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IUserService _userService;
 
   public CreateTransactionCommandValidator(
     ILogger<CreateTransactionCommandValidator> logger,
     IValidator<CreateTransactionDto> createTransactionDtoValidator,
-    IHttpContextAccessor httpContextAccessor)
+    IUserService userService)
   {
     _logger = logger;
-    _httpContextAccessor = httpContextAccessor;
+    _userService = userService;
 
     RuleFor(x => x.CreateTransactionDto)
       .SetValidator(createTransactionDtoValidator);
 
     RuleFor(x => x.CreateTransactionDto)
-      .Must(ValidateUserLoggedIn)
+      .MustAsync(ValidateUserLoggedIn)
       .WithMessage(ApplicationError.USERNAME_NOT_LOGGED_IN_MESSAGE);
   }
 
-  private bool ValidateUserLoggedIn(CreateTransactionDto createTransactionDto)
+  private async Task<bool> ValidateUserLoggedIn(CreateTransactionDto dto, CancellationToken cancellationToken)
   {
-    var httpContext = _httpContextAccessor.HttpContext;
+    var user = await _userService.GetActiveUserAsync(cancellationToken);
 
-    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
-                                      ?.Value;
-
-    if (userEmail is null)
+    if (!user.IsSuccess)
     {
-      _logger.LogError("User is not logged in");
+      _logger.LogError("Failed to retrieve active user: {Error}", user.ApplicationError?.Message);
       return false;
     }
     return true;

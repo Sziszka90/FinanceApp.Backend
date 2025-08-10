@@ -1,8 +1,7 @@
-using System.Security.Claims;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.Models;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupCommands.CreateTransactionGroup;
@@ -10,30 +9,27 @@ namespace FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupCom
 public class CreateTransactionGroupCommandValidator : AbstractValidator<CreateTransactionGroupCommand>
 {
   private readonly ILogger<CreateTransactionGroupCommandValidator> _logger;
-  private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IUserService _userService;
 
   public CreateTransactionGroupCommandValidator(
     ILogger<CreateTransactionGroupCommandValidator> logger,
     IValidator<CreateTransactionGroupDto> createTransactionGroupDto,
-    IHttpContextAccessor httpContextAccessor)
+    IUserService userService)
   {
     _logger = logger;
-    _httpContextAccessor = httpContextAccessor;
+    _userService = userService;
 
     RuleFor(x => x.CreateTransactionGroupDto)
       .SetValidator(createTransactionGroupDto);
 
     RuleFor(x => x.CreateTransactionGroupDto)
-      .Must(ValidateUserLoggedIn)
+      .MustAsync(ValidateUserLoggedIn)
       .WithMessage(ApplicationError.USERNAME_NOT_LOGGED_IN_MESSAGE);
   }
 
-  private bool ValidateUserLoggedIn(CreateTransactionGroupDto createTransactionDto)
+  private async Task<bool> ValidateUserLoggedIn(CreateTransactionGroupDto dto, CancellationToken cancellationToken)
   {
-    var httpContext = _httpContextAccessor.HttpContext;
-
-    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
-                                      ?.Value;
+    var userEmail = await _userService.GetActiveUserAsync(cancellationToken);
 
     if (userEmail is null)
     {

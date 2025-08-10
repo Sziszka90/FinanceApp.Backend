@@ -10,5 +10,6 @@ public class TransactionGroupProfile : Profile
     CreateMap<Domain.Entities.TransactionGroup, GetTransactionGroupDto>();
     CreateMap<UpdateTransactionGroupDto, Domain.Entities.TransactionGroup>();
     CreateMap<CreateTransactionGroupDto, Domain.Entities.TransactionGroup>();
+    CreateMap<Domain.Entities.TransactionGroup, TopTransactionGroupDto>();
   }
 }

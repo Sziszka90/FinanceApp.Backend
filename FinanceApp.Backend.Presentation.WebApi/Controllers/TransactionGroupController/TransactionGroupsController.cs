@@ -2,13 +2,14 @@
 using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupCommands.CreateTransactionGroup;
 using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupCommands.DeleteTransactionGroup;
 using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupCommands.UpdateTransactionGroup;
-using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroup;
 using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetTransactionGroupById;
+using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetTopTransactionGroups;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
+using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroups;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Controllers.TransactionGroupController;
 
@@ -34,7 +35,7 @@ public class TransactionGroupsController : ControllerBase
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<ActionResult<List<GetTransactionGroupDto>>> GetTransactionGroups(CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new GetAllTransactionGroupQuery(cancellationToken));
+    var result = await _mediator.Send(new GetAllTransactionGroupsQuery(cancellationToken));
     return this.GetResult(result);
   }
 
@@ -84,5 +85,20 @@ public class TransactionGroupsController : ControllerBase
   {
     var result = await _mediator.Send(new DeleteTransactionGroupCommand(id, cancellationToken));
     return this.GetResult(result, StatusCodes.Status204NoContent);
+  }
+
+  [HttpGet("top")]
+  [Produces("application/json")]
+  [ProducesResponseType(typeof(List<TopTransactionGroupDto>), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<ActionResult<List<TopTransactionGroupDto>>> GetTopTransactionGroups(
+    [FromQuery] DateTimeOffset startDate,
+    [FromQuery] DateTimeOffset endDate,
+    [FromQuery] int top = 10,
+    CancellationToken cancellationToken = default)
+  {
+    var result = await _mediator.Send(new GetTopTransactionGroupsQuery(startDate, endDate, top), cancellationToken);
+    return this.GetResult(result);
   }
 }

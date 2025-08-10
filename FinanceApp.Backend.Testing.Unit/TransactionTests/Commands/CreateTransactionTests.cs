@@ -1,9 +1,9 @@
-using System.Security.Claims;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
+using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
-using Microsoft.AspNetCore.Http;
+
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -19,12 +19,11 @@ public class CreateTransactionTests : TestBase
     _loggerMock = CreateLoggerMock<CreateTransactionCommandHandler>();
     _handler = new CreateTransactionCommandHandler(
         _loggerMock.Object,
-        HttpContextAccessorMock.Object,
         Mapper,
         TransactionRepositoryMock.Object,
-        UserRepositoryMock.Object,
         TransactionGroupRepositoryMock.Object,
-        UnitOfWorkMock.Object
+        UnitOfWorkMock.Object,
+        UserServiceMock.Object
     );
   }
 
@@ -58,7 +57,7 @@ public class CreateTransactionTests : TestBase
 
     // assert
     Assert.True(result.IsSuccess);
-    UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<Transaction>(), It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
@@ -68,12 +67,8 @@ public class CreateTransactionTests : TestBase
   {
     // arrange
     var userEmail = "notfound@example.com";
-    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userEmail) };
-    var identity = new ClaimsIdentity(claims, "TestAuthType");
-    var principal = new ClaimsPrincipal(identity);
-    var httpContext = new DefaultHttpContext { User = principal };
-    HttpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(userEmail, false, It.IsAny<CancellationToken>())).ReturnsAsync((User)null!);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError(userEmail)));
     var createDto = new CreateTransactionDto();
     var command = new CreateTransactionCommand(createDto, CancellationToken.None);
 
@@ -82,7 +77,7 @@ public class CreateTransactionTests : TestBase
 
     // assert
     Assert.False(result.IsSuccess);
-    UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(userEmail, false, It.IsAny<CancellationToken>()), Times.Once);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<Transaction>(), It.IsAny<CancellationToken>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }

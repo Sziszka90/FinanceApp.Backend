@@ -19,8 +19,7 @@ public class GetActiveUserQueryTests : TestBase
     _handler = new GetActiveUserQueryHandler(
         _loggerMock.Object,
         Mapper,
-        UserRepositoryMock.Object,
-        HttpContextAccessorMock.Object
+        UserServiceMock.Object
     );
   }
 
@@ -30,13 +29,8 @@ public class GetActiveUserQueryTests : TestBase
     // arrange
     var userEmail = "test@example.com";
     var user = new User(null, "testuser", userEmail, true, "hash", Domain.Enums.CurrencyEnum.USD);
-    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userEmail) };
-    var identity = new ClaimsIdentity(claims, "TestAuthType");
-    var principal = new ClaimsPrincipal(identity);
-    var httpContext = new DefaultHttpContext { User = principal };
-    HttpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
-    UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), true, It.IsAny<CancellationToken>()))
-        .ReturnsAsync(new List<User> { user });
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(user));
 
     var query = new GetActiveUserQuery(CancellationToken.None);
 
@@ -47,7 +41,7 @@ public class GetActiveUserQueryTests : TestBase
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
     Assert.Equal(userEmail, result.Data.Email);
-    UserRepositoryMock.Verify(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), true, It.IsAny<CancellationToken>()), Times.Once);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
 
   [Fact]
@@ -55,13 +49,8 @@ public class GetActiveUserQueryTests : TestBase
   {
     // arrange
     var userEmail = "notfound@example.com";
-    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userEmail) };
-    var identity = new ClaimsIdentity(claims, "TestAuthType");
-    var principal = new ClaimsPrincipal(identity);
-    var httpContext = new DefaultHttpContext { User = principal };
-    HttpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
-    UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), true, It.IsAny<CancellationToken>()))
-        .ReturnsAsync(new List<User>());
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError(userEmail)));
 
     var query = new GetActiveUserQuery(CancellationToken.None);
 
@@ -71,6 +60,6 @@ public class GetActiveUserQueryTests : TestBase
     // assert
     Assert.False(result.IsSuccess);
     Assert.Null(result.Data);
-    UserRepositoryMock.Verify(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), true, It.IsAny<CancellationToken>()), Times.Once);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
 }

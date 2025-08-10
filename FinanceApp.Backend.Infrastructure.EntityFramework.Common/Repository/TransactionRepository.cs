@@ -2,6 +2,7 @@ using EFCore.BulkExtensions;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Exceptions;
+using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
@@ -163,6 +164,46 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     catch (Exception ex)
     {
       throw new DatabaseException("GET_ALL_BY_USER_ID", nameof(Transaction), userId.ToString(), ex);
+    }
+  }
+
+  public async Task<List<TransactionGroupAggregate>> GetTransactionGroupAggregatesAsync(
+    Guid userId,
+    DateTimeOffset startDate,
+    DateTimeOffset endDate,
+    int topCount,
+    bool noTracking = false,
+    CancellationToken cancellationToken = default)
+  {
+    try
+    {
+      var query = _dbContext.Transaction
+        .Include(t => t.TransactionGroup)
+        .Where(t => t.User.Id == userId &&
+                   t.TransactionDate >= startDate &&
+                   t.TransactionDate <= endDate &&
+                   t.TransactionGroup != null)
+        .GroupBy(t => new { t.TransactionGroup, t.Value.Currency })
+        .Select(g => new TransactionGroupAggregate
+        {
+          TransactionGroup = g.Key.TransactionGroup!,
+          Currency = g.Key.Currency,
+          TotalAmount = g.Sum(t => t.Value.Amount),
+          TransactionCount = g.Count()
+        })
+        .OrderByDescending(g => g.TotalAmount)
+        .Take(topCount);
+
+      if (noTracking)
+      {
+        query = query.AsNoTracking();
+      }
+
+      return await query.ToListAsync(cancellationToken);
+    }
+    catch (Exception ex)
+    {
+      throw new DatabaseException("GET_TRANSACTION_GROUP_AGGREGATES", nameof(Transaction), userId.ToString(), ex);
     }
   }
 }

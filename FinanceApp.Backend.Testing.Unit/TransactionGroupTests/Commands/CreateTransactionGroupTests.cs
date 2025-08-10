@@ -20,9 +20,8 @@ public class CreateTransactionGroupTests : TestBase
       _loggerMock.Object,
       Mapper,
       TransactionGroupRepositoryMock.Object,
-      UserRepositoryMock.Object,
       UnitOfWorkMock.Object,
-      HttpContextAccessorMock.Object
+      UserServiceMock.Object
     );
   }
 

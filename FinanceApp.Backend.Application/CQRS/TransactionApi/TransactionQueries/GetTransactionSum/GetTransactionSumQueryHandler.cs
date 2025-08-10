@@ -1,11 +1,8 @@
-﻿using System.Security.Claims;
-using AutoMapper;
-using FinanceApp.Backend.Application.Abstraction.Repositories;
+﻿using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Models;
-using FinanceApp.Backend.Application.QueryCriteria;
 using FinanceApp.Backend.Domain.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetTransactionSum;
@@ -13,57 +10,50 @@ namespace FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetTr
 public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuery, Result<Money>>
 {
   private readonly ILogger<GetTransactionSumQueryHandler> _logger;
-  private readonly IRepository<Transaction> _transactionRepository;
-  private readonly IRepository<User> _userRepository;
+  private readonly ITransactionRepository _transactionRepository;
   private readonly IExchangeRateRepository _exchangeRateRepository;
-  private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IUserService _userService;
 
   public GetTransactionSumQueryHandler(
     ILogger<GetTransactionSumQueryHandler> logger,
-    IRepository<Transaction> transactionRepository,
-    IRepository<User> userRepository,
+    ITransactionRepository transactionRepository,
     IExchangeRateRepository exchangeRateRepository,
-    IHttpContextAccessor httpContextAccessor)
+    IUserService userService)
   {
     _logger = logger;
     _transactionRepository = transactionRepository;
-    _userRepository = userRepository;
     _exchangeRateRepository = exchangeRateRepository;
-    _httpContextAccessor = httpContextAccessor;
+    _userService = userService;
   }
 
   public async Task<Result<Money>> Handle(GetTransactionSumQuery request, CancellationToken cancellationToken)
   {
-    var httpContext = _httpContextAccessor.HttpContext;
+    var user = await _userService.GetActiveUserAsync(cancellationToken);
+
+    if (!user.IsSuccess)
+    {
+      _logger.LogError("Failed to retrieve active user: {Error}", user.ApplicationError?.Message);
+      return Result.Failure<Money>(user.ApplicationError!);
+    }
 
     var allTransaction = await _transactionRepository.GetAllAsync(false, cancellationToken);
 
-    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    var criteria = UserQueryCriteria.FindUserEmail(userEmail!);
-
-    var user = await _userRepository.GetQueryAsync(criteria, cancellationToken: cancellationToken);
-
-    if(user is null || user.Count == 0)
-    {
-      _logger.LogError("User not found for email: {Email}", userEmail);
-      return Result.Failure<Money>(ApplicationError.UserNotFoundError(email: userEmail!));
-    }
+    var userEmail = user.Data!.Email;
 
     var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
 
     var summAmount = new Money
     {
       Amount = 0,
-      Currency = user[0].BaseCurrency
+      Currency = user.Data!.BaseCurrency
     };
 
     foreach (var transaction in allTransaction)
     {
-      if (transaction.Value.Currency != user[0].BaseCurrency)
+      if (transaction.Value.Currency != user.Data!.BaseCurrency)
       {
         summAmount.Amount =
-        summAmount.Amount + (transaction.Value.Amount * exchangeRates.Where(er => er.BaseCurrency == transaction.Value.Currency.ToString() && er.TargetCurrency == user[0].BaseCurrency.ToString()).Select(er => er.Rate).FirstOrDefault());
+        summAmount.Amount + (transaction.Value.Amount * exchangeRates.Where(er => er.BaseCurrency == transaction.Value.Currency.ToString() && er.TargetCurrency == user.Data!.BaseCurrency.ToString()).Select(er => er.Rate).FirstOrDefault());
       }
       else
       {

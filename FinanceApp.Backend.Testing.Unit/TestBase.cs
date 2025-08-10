@@ -29,6 +29,7 @@ public abstract class TestBase
   protected readonly Mock<ISmtpEmailSender> SmtpEmailSenderMock = new Mock<ISmtpEmailSender>();
   protected readonly Mock<IBcryptService> BcryptServiceMock = new Mock<IBcryptService>();
   protected readonly Mock<ITokenService> TokenServiceMock = new Mock<ITokenService>();
+  protected readonly Mock<IUserService> UserServiceMock = new Mock<IUserService>();
   protected readonly Mock<IHttpContextAccessor> HttpContextAccessorMock = new Mock<IHttpContextAccessor>();
   protected readonly Mock<ILogger<object>> LoggerMock = new Mock<ILogger<object>>();
   protected readonly Mock<IServiceProvider> ServiceProviderMock = new Mock<IServiceProvider>();
@@ -74,6 +75,7 @@ public abstract class TestBase
     SetupUnitOfWorkMock();
     SetupSmtpEmailSenderMock();
     SetupExchangeRateRepositoryMock();
+    SetupUserServiceMock();
   }
 
   protected virtual void SetupUserRepositoryMock()
@@ -137,6 +139,10 @@ public abstract class TestBase
     TransactionRepositoryMock
       .Setup(x => x.DeleteAllByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
       .Returns(Task.CompletedTask);
+
+    TransactionRepositoryMock
+      .Setup(x => x.GetTransactionGroupAggregatesAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<TransactionGroupAggregate>());
   }
 
   protected virtual void SetupUnitOfWorkMock()
@@ -177,6 +183,14 @@ public abstract class TestBase
     TokenServiceMock
       .Setup(x => x.GetEmailFromTokenAsync(It.IsAny<string>()))
       .Returns("test@example.com");
+  }
+
+  protected virtual void SetupUserServiceMock()
+  {
+    UserServiceMock
+      .Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD)));
+
   }
 
   protected virtual void SetupHttpContextAccessorMock()

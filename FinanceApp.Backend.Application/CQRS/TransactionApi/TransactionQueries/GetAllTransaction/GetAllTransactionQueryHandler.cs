@@ -1,12 +1,12 @@
-using System.Security.Claims;
 using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
+using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetAllTransaction;
@@ -17,38 +17,31 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
   private readonly IMapper _mapper;
   private readonly ITransactionRepository _transactionRepository;
   private readonly IExchangeRateRepository _exchangeRateRepository;
-  private readonly IUserRepository _userRepository;
-  private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IUserService _userService;
 
   public GetAllTransactionQueryHandler(
     ILogger<GetAllTransactionQueryHandler> logger,
     IMapper mapper,
     ITransactionRepository transactionRepository,
     IExchangeRateRepository exchangeRateRepository,
-    IUserRepository userRepository,
-    IHttpContextAccessor httpContextAccessor
+    IUserService userService
   )
   {
     _logger = logger;
     _mapper = mapper;
     _transactionRepository = transactionRepository;
     _exchangeRateRepository = exchangeRateRepository;
-    _userRepository = userRepository;
-    _httpContextAccessor = httpContextAccessor;
+    _userService = userService;
   }
 
   public async Task<Result<List<GetTransactionDto>>> Handle(GetAllTransactionQuery request, CancellationToken cancellationToken)
   {
-    var httpContext = _httpContextAccessor.HttpContext;
+    var user = await _userService.GetActiveUserAsync(cancellationToken);
 
-    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    var user = await _userRepository.GetUserByEmailAsync(userEmail!, noTracking: true, cancellationToken: cancellationToken);
-
-    if (user is null)
+    if (!user.IsSuccess)
     {
-      _logger.LogError("User not found.");
-      return Result.Failure<List<GetTransactionDto>>(ApplicationError.UserNotFoundError(email: userEmail!));
+      _logger.LogError("Failed to retrieve active user: {Error}", user.ApplicationError?.Message);
+      return Result.Failure<List<GetTransactionDto>>(user.ApplicationError!);
     }
 
     var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
@@ -72,24 +65,15 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
 
     foreach (var transaction in result)
     {
-      if (transaction.Value.Currency != user.BaseCurrency)
+      if (transaction.Value.Currency != user.Data!.BaseCurrency)
       {
 
-        transaction.Value.Amount = ConvertToUserCurrency(transaction.Value.Amount, transaction.Value.Currency, user.BaseCurrency, exchangeRates);
-        transaction.Value.Currency = user.BaseCurrency;
+        transaction.Value.Amount = CurrencyConverter.ConvertToUserCurrency(transaction.Value.Amount, transaction.Value.Currency, user.Data!.BaseCurrency, exchangeRates);
+        transaction.Value.Currency = user.Data!.BaseCurrency;
       }
     }
 
-    _logger.LogInformation("Retrieved {Count} transactions for user {UserEmail}", result.Count, userEmail);
+    _logger.LogInformation("Retrieved {Count} transactions for user {UserEmail}", result.Count, user.Data!.Email);
     return Result.Success(_mapper.Map<List<GetTransactionDto>>(result));
-  }
-
-  private decimal ConvertToUserCurrency(decimal amount, CurrencyEnum fromCurrency, CurrencyEnum toCurrency, List<FinanceApp.Backend.Domain.Entities.ExchangeRate> rates)
-  {
-    if (fromCurrency == toCurrency)
-      return Math.Round(amount, 2);
-    var rate = rates.FirstOrDefault(r => r.BaseCurrency == fromCurrency.ToString() && r.TargetCurrency == toCurrency.ToString());
-
-    return Math.Round(amount * rate!.Rate, 2);
   }
 }

@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
@@ -18,56 +18,42 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 {
   private readonly ILogger<UploadCsvCommandHandler> _logger;
   private readonly IMapper _mapper;
-  private readonly IHttpContextAccessor _httpContextAccessor;
-  private readonly IUserRepository _userRepository;
   private readonly ITransactionRepository _transactionRepository;
   private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly IUnitOfWork _unitOfWork;
+  private readonly IUserService _userService;
   private readonly ILLMProcessorClient _llmProcessorClient;
 
   public UploadCsvCommandHandler(
     ILogger<UploadCsvCommandHandler> logger,
     IMapper mapper,
-    IHttpContextAccessor httpContextAccessor,
-    IUserRepository userRepository,
     ITransactionRepository transactionRepository,
     ITransactionGroupRepository transactionGroupRepository,
     IUnitOfWork unitOfWork,
+    IUserService userService,
     ILLMProcessorClient llmProcessorClient)
   {
     _logger = logger;
     _mapper = mapper;
-    _httpContextAccessor = httpContextAccessor;
-    _userRepository = userRepository;
     _transactionRepository = transactionRepository;
     _transactionGroupRepository = transactionGroupRepository;
     _unitOfWork = unitOfWork;
+    _userService = userService;
     _llmProcessorClient = llmProcessorClient;
   }
 
   /// <inheritdoc />
   public async Task<Result<List<GetTransactionDto>>> Handle(UploadCsvCommand request, CancellationToken cancellationToken)
   {
-    var httpContext = _httpContextAccessor.HttpContext;
+    var user = await _userService.GetActiveUserAsync(cancellationToken);
 
-    var userEmail = httpContext!.User.FindFirst(ClaimTypes.NameIdentifier)
-                                      ?.Value;
-
-    if (userEmail is null)
+    if(!user.IsSuccess)
     {
-      _logger.LogError("User is not logged in");
-      return Result.Failure<List<GetTransactionDto>>(ApplicationError.UserNotFoundError());
+      _logger.LogError("Failed to retrieve active user: {Error}", user.ApplicationError?.Message);
+      return Result.Failure<List<GetTransactionDto>>(user.ApplicationError!);
     }
 
-    var user = await _userRepository.GetUserByEmailAsync(userEmail!);
-
-    if (user is null)
-    {
-      _logger.LogError("User not found with email: {Email}", userEmail);
-      return Result.Failure<List<GetTransactionDto>>(ApplicationError.UserNotFoundError(email: userEmail!));
-    }
-
-    var transactions = await ImportTransactions(request.uploadCsvFileDto.File, user!);
+    var transactions = await ImportTransactions(request.uploadCsvFileDto.File, user.Data!);
 
     await _transactionRepository.BatchCreateTransactionsAsync(transactions, cancellationToken);
 
@@ -78,7 +64,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     var llmProcessResult = await _llmProcessorClient.MatchTransactionGroup(
       transactions.Select(t => t.Name).ToList(),
       existingTransactionGroups.Select(g => g.Name).ToList(),
-      user.Id.ToString(),
+      user.Data!.Id.ToString(),
       request.uploadCsvFileDto.CorrelationId
     );
 
@@ -90,7 +76,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
     var allTransactions = await _transactionRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
 
-    _logger.LogInformation("CSV file uploaded and transactions created for user: {UserId}", user.Id);
+    _logger.LogInformation("CSV file uploaded and transactions created for user: {UserId}", user.Data!.Id);
     return Result.Success(_mapper.Map<List<GetTransactionDto>>(allTransactions));
   }
 

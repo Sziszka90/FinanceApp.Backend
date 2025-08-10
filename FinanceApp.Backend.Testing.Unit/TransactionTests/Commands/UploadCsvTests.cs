@@ -27,11 +27,10 @@ public class UploadCsvTests : TestBase
     _handler = new UploadCsvCommandHandler(
       _loggerMock.Object,
       Mapper,
-      HttpContextAccessorMock.Object,
-      UserRepositoryMock.Object,
       TransactionRepositoryMock.Object,
       TransactionGroupRepositoryMock.Object,
       UnitOfWorkMock.Object,
+      UserServiceMock.Object,
       _llmProcessorClientMock.Object
     );
   }
@@ -65,9 +64,8 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
-    SetupHttpContextWithUser("test@example.com");
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync("test@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
       .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
@@ -108,7 +106,7 @@ public class UploadCsvTests : TestBase
     Assert.Equal(CurrencyEnum.USD, gasTransaction.Value.Currency);
 
     // Verify repository calls
-    UserRepositoryMock.Verify(x => x.GetUserByEmailAsync("test@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 
@@ -132,8 +130,8 @@ public class UploadCsvTests : TestBase
     };
     var command = new UploadCsvCommand(uploadDto, CancellationToken.None);
 
-    // Setup empty claims (no user)
-    SetupHttpContextWithUser(null);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError("test@example.com")));
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -144,7 +142,7 @@ public class UploadCsvTests : TestBase
     Assert.Equal(ApplicationError.UserNotFoundError().Message, result.ApplicationError.Message);
 
     // Verify no repository calls were made
-    UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -160,9 +158,8 @@ public class UploadCsvTests : TestBase
     };
     var command = new UploadCsvCommand(uploadDto, CancellationToken.None);
 
-    SetupHttpContextWithUser("nonexistent@example.com");
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync("nonexistent@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync((User?)null);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError("nonexistent@example.com")));
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -173,7 +170,7 @@ public class UploadCsvTests : TestBase
     Assert.Equal(ApplicationError.UserNotFoundError().Message, result.ApplicationError.Message);
 
     // Verify user lookup was attempted
-    UserRepositoryMock.Verify(x => x.GetUserByEmailAsync("nonexistent@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -200,9 +197,8 @@ public class UploadCsvTests : TestBase
     };
 
     // Setup mocks
-    SetupHttpContextWithUser("test@example.com");
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync("test@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction>());
@@ -257,9 +253,8 @@ public class UploadCsvTests : TestBase
     var emptyTransactions = new List<Transaction>();
 
     // Setup mocks
-    SetupHttpContextWithUser("test@example.com");
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync("test@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(emptyTransactions);
@@ -316,9 +311,8 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
-    SetupHttpContextWithUser("test@example.com");
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync("test@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
       .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
@@ -375,9 +369,8 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
-    SetupHttpContextWithUser("test@example.com");
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync("test@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
       .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
@@ -429,9 +422,8 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
-    SetupHttpContextWithUser("test@example.com");
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync("test@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
       .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
@@ -482,9 +474,8 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
-    SetupHttpContextWithUser("test@example.com");
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync("test@example.com", It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
       .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
@@ -526,18 +517,5 @@ public class UploadCsvTests : TestBase
     mockFile.Setup(f => f.ContentType).Returns(contentType);
 
     return mockFile.Object;
-  }
-
-  private void SetupHttpContextWithUser(string? userEmail)
-  {
-    var claims = userEmail != null
-      ? new[] { new Claim(ClaimTypes.NameIdentifier, userEmail) }
-      : Array.Empty<Claim>();
-
-    var identity = new ClaimsIdentity(claims, "TestAuthType");
-    var principal = new ClaimsPrincipal(identity);
-    var httpContext = new DefaultHttpContext { User = principal };
-
-    HttpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
   }
 }

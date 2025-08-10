@@ -20,7 +20,7 @@ public class UpdateUserTests : TestBase
       Mapper,
       UserRepositoryMock.Object,
       UnitOfWorkMock.Object,
-      HttpContextAccessorMock.Object,
+      UserServiceMock.Object,
       BcryptServiceMock.Object
     );
   }

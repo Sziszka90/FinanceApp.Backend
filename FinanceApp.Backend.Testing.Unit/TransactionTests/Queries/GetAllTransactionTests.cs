@@ -19,8 +19,7 @@ public class GetAllTransactionTests : TestBase
         Mapper,
         TransactionRepositoryMock.Object,
         ExchangeRateRepositoryMock.Object,
-        UserRepositoryMock.Object,
-        HttpContextAccessorMock.Object
+        UserServiceMock.Object
     );
   }
 
@@ -56,7 +55,7 @@ public class GetAllTransactionTests : TestBase
     // assert
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
-    UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(user.Email, true, It.IsAny<CancellationToken>()), Times.Once);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
   }
 
@@ -88,7 +87,7 @@ public class GetAllTransactionTests : TestBase
 
     // assert
     Assert.False(result.IsSuccess);
-    UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(user.Email, true, It.IsAny<CancellationToken>()), Times.Once);
+    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
   }
 }
