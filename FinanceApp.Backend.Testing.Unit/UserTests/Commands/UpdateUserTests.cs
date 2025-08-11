@@ -1,4 +1,5 @@
 using FinanceApp.Backend.Application.Dtos.UserDtos;
+using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.UserApi.UserCommands.UpdateUser;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
@@ -50,16 +51,13 @@ public class UpdateUserTests : TestBase
       Id = userId
     };
 
-    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     BcryptServiceMock.Setup(x => x.Hash(newPassword)).Returns(hashedPassword);
 
     UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
       .Returns(Task.CompletedTask);
-
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -87,13 +85,16 @@ public class UpdateUserTests : TestBase
     };
     var command = new UpdateUserCommand(updateUserDto, CancellationToken.None);
 
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError()));
+
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
 
     // assert
     Assert.False(result.IsSuccess);
     Assert.NotNull(result.ApplicationError);
-    Assert.Equal("ENTITY_NOT_FOUND", result.ApplicationError.Code);
+    Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
     BcryptServiceMock.Verify(x => x.Hash(It.IsAny<string>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }

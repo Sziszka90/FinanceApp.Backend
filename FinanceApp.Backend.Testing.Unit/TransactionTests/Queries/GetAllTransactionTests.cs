@@ -1,3 +1,4 @@
+using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetAllTransaction;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
@@ -43,7 +44,7 @@ public class GetAllTransactionTests : TestBase
       user
     );
 
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, true, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result<User>.Success(user));
     TransactionRepositoryMock.Setup(x => x.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync(new List<Transaction> { transaction });
 
 
@@ -79,7 +80,7 @@ public class GetAllTransactionTests : TestBase
       user
     );
 
-    UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, true, It.IsAny<CancellationToken>())).ReturnsAsync((User)null!);
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError()));
     var query = new GetAllTransactionQuery(CancellationToken.None, null);
 
     // act

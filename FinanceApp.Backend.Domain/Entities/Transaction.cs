@@ -31,9 +31,19 @@ public class Transaction : BaseEntity, IUserOwned
   public TransactionGroup? TransactionGroup { get; set; }
 
   /// <summary>
+  /// Id of the transaction group
+  /// </summary>
+  public Guid? TransactionGroupId { get; set; }
+
+  /// <summary>
   /// User which owns the entity
   /// </summary>
   public User User { get; set; }
+
+  /// <summary>
+  /// Id of the user which owns the entity
+  /// </summary>
+  public Guid UserId { get; set; }
 
   /// <summary>
   /// Date when Transaction occured
@@ -58,7 +68,7 @@ public class Transaction : BaseEntity, IUserOwned
     User = user;
   }
 
-  #pragma warning disable CS8618
+#pragma warning disable CS8618
   protected Transaction() { }
 
   public void Update(

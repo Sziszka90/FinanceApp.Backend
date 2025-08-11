@@ -1,6 +1,9 @@
 using System.Net;
 using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
+using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Domain.Enums;
 using FinanceApp.Backend.Testing.Api.Base;
 
 namespace FinanceApp.Backend.Testing.Api.TransactionGroupApi;
@@ -225,5 +228,169 @@ public class TransactionGroupApi : TestBase
     Assert.NotNull(response);
     // Note: There might be default groups, so we check that we get a valid response
     Assert.True(response.Count >= 0);
+  }
+
+  [Fact]
+  public async Task GetTopTransactionGroups_WithValidParameters_ReturnsTopGroups()
+  {
+    // arrange
+    await InitializeAsync();
+
+    // Create transaction groups with transactions
+    var transactionGroup1 = await CreateTransactionGroupAsync();
+    var transactionGroup2 = await CreateTransactionGroupAsync();
+
+    // Create transactions for each group to have different totals
+    await CreateTransactionForGroupAsync(transactionGroup1!.Id, 1000, CurrencyEnum.EUR);
+    await CreateTransactionForGroupAsync(transactionGroup1.Id, 500, CurrencyEnum.EUR);
+    await CreateTransactionForGroupAsync(transactionGroup2!.Id, 200, CurrencyEnum.EUR);
+
+    var startDate = DateTimeOffset.UtcNow.AddDays(-30);
+    var endDate = DateTimeOffset.UtcNow;
+    var top = 5;
+
+    // act
+    var response = await GetContentAsync<List<TopTransactionGroupDto>>(
+      await Client.GetAsync($"{TRANSACTION_GROUPS}top?startDate={startDate:yyyy-MM-ddTHH:mm:ssZ}&endDate={endDate:yyyy-MM-ddTHH:mm:ssZ}&top={top}"));
+
+    // assert
+    Assert.NotNull(response);
+    Assert.True(response.Count <= top);
+
+    // Verify the response contains our transaction groups
+    var group1InResponse = response.FirstOrDefault(g => g.Id == transactionGroup1.Id);
+    var group2InResponse = response.FirstOrDefault(g => g.Id == transactionGroup2.Id);
+
+    Assert.NotNull(group1InResponse);
+    Assert.NotNull(group2InResponse);
+
+    // Verify that groups are ordered by total amount (descending)
+    if (response.Count > 1)
+    {
+      for (int i = 0; i < response.Count - 1; i++)
+      {
+        Assert.True(response[i].TotalAmount.Amount >= response[i + 1].TotalAmount.Amount);
+      }
+    }
+  }
+
+  [Fact]
+  public async Task GetTopTransactionGroups_WithDefaultTopParameter_ReturnsMaxTenGroups()
+  {
+    // arrange
+    await InitializeAsync();
+
+    var startDate = DateTimeOffset.UtcNow.AddDays(-30);
+    var endDate = DateTimeOffset.UtcNow;
+
+    // act
+    var response = await GetContentAsync<List<TopTransactionGroupDto>>(
+      await Client.GetAsync($"{TRANSACTION_GROUPS}top?startDate={startDate:yyyy-MM-ddTHH:mm:ssZ}&endDate={endDate:yyyy-MM-ddTHH:mm:ssZ}"));
+
+    // assert
+    Assert.NotNull(response);
+    Assert.True(response.Count <= 10); // Default top value is 10
+  }
+
+  [Fact]
+  public async Task GetTopTransactionGroups_WithInvalidDateRange_ReturnsBadRequest()
+  {
+    // arrange
+    await InitializeAsync();
+
+    var startDate = DateTimeOffset.UtcNow;
+    var endDate = DateTimeOffset.UtcNow.AddDays(-30); // End date before start date
+    var top = 5;
+
+    // act
+    var response = await Client.GetAsync($"{TRANSACTION_GROUPS}top?startDate={startDate:yyyy-MM-ddTHH:mm:ssZ}&endDate={endDate:yyyy-MM-ddTHH:mm:ssZ}&top={top}");
+
+    // assert
+    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+  }
+
+  [Fact]
+  public async Task GetTopTransactionGroups_WithNegativeTopParameter_ReturnsBadRequest()
+  {
+    // arrange
+    await InitializeAsync();
+
+    var startDate = DateTimeOffset.UtcNow.AddDays(-30);
+    var endDate = DateTimeOffset.UtcNow;
+    var top = -1;
+
+    // act
+    var response = await Client.GetAsync($"{TRANSACTION_GROUPS}top?startDate={startDate:yyyy-MM-ddTHH:mm:ssZ}&endDate={endDate:yyyy-MM-ddTHH:mm:ssZ}&top={top}");
+
+    // assert
+    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+  }
+
+  [Fact]
+  public async Task GetTopTransactionGroups_WithNoTransactionsInRange_ReturnsEmptyList()
+  {
+    // arrange
+    await InitializeAsync();
+
+    // Use a date range in the far future where no transactions exist
+    var startDate = DateTimeOffset.UtcNow.AddYears(1);
+    var endDate = DateTimeOffset.UtcNow.AddYears(2);
+    var top = 5;
+
+    // act
+    var response = await GetContentAsync<List<TopTransactionGroupDto>>(
+      await Client.GetAsync($"{TRANSACTION_GROUPS}top?startDate={startDate:yyyy-MM-ddTHH:mm:ssZ}&endDate={endDate:yyyy-MM-ddTHH:mm:ssZ}&top={top}"));
+
+    // assert
+    Assert.NotNull(response);
+    Assert.Empty(response);
+  }
+
+  [Fact]
+  public async Task GetTopTransactionGroups_WithoutAuthorization_ReturnsUnauthorized()
+  {
+    // arrange - Don't call InitializeAsync() to avoid authentication
+    var startDate = DateTimeOffset.UtcNow.AddDays(-30);
+    var endDate = DateTimeOffset.UtcNow;
+    var top = 5;
+
+    // act
+    var response = await Client.GetAsync($"{TRANSACTION_GROUPS}top?startDate={startDate:yyyy-MM-ddTHH:mm:ssZ}&endDate={endDate:yyyy-MM-ddTHH:mm:ssZ}&top={top}");
+
+    // assert
+    Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+  }
+
+  [Fact]
+  public async Task GetTopTransactionGroups_WithMissingRequiredParameters_ReturnsBadRequest()
+  {
+    // arrange
+    await InitializeAsync();
+
+    // act - Missing startDate and endDate parameters
+    var response = await Client.GetAsync($"{TRANSACTION_GROUPS}top?top=5");
+
+    // assert
+    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+  }
+
+  private async Task<GetTransactionDto?> CreateTransactionForGroupAsync(Guid transactionGroupId, decimal amount, CurrencyEnum currency)
+  {
+    var transactionContent = CreateContent(new CreateTransactionDto
+    {
+      Name = $"Test Transaction {Guid.NewGuid()}",
+      Description = "Test Transaction for Top Groups",
+      Value = new Money
+      {
+        Amount = amount,
+        Currency = currency
+      },
+      TransactionType = TransactionTypeEnum.Expense,
+      TransactionDate = DateTimeOffset.UtcNow.AddDays(-5), // Within the typical test date range
+      TransactionGroupId = transactionGroupId.ToString()
+    });
+
+    var result = await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContent));
+    return result;
   }
 }

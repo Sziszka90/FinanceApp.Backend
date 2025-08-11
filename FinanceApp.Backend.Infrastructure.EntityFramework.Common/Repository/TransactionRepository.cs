@@ -177,29 +177,37 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
   {
     try
     {
+      // Use direct foreign key properties to avoid complex JOIN translation issues
       var query = _dbContext.Transaction
-        .Include(t => t.TransactionGroup)
-        .Where(t => t.User.Id == userId &&
-                   t.TransactionDate >= startDate &&
-                   t.TransactionDate <= endDate &&
-                   t.TransactionGroup != null)
-        .GroupBy(t => new { t.TransactionGroup, t.Value.Currency })
-        .Select(g => new TransactionGroupAggregate
-        {
-          TransactionGroup = g.Key.TransactionGroup!,
-          Currency = g.Key.Currency,
-          TotalAmount = g.Sum(t => t.Value.Amount),
-          TransactionCount = g.Count()
-        })
-        .OrderByDescending(g => g.TotalAmount)
-        .Take(topCount);
+          .Include(t => t.TransactionGroup)
+          .Where(t => t.UserId == userId &&
+                      t.TransactionDate >= startDate &&
+                      t.TransactionDate <= endDate &&
+                      t.TransactionGroupId != null);
 
       if (noTracking)
       {
         query = query.AsNoTracking();
       }
 
-      return await query.ToListAsync(cancellationToken);
+      // Load data from database
+      var transactions = await query.ToListAsync(cancellationToken);
+
+      // Group and aggregate in memory
+      var result = transactions
+        .GroupBy(t => new { TransactionGroupId = t.TransactionGroup!.Id, Currency = t.Value.Currency })
+        .Select(g => new TransactionGroupAggregate
+        {
+          TransactionGroup = g.First().TransactionGroup!,
+          Currency = g.Key.Currency,
+          TotalAmount = g.Sum(t => t.Value.Amount),
+          TransactionCount = g.Count()
+        })
+        .OrderByDescending(g => g.TotalAmount)
+        .Take(topCount)
+        .ToList();
+
+      return result;
     }
     catch (Exception ex)
     {

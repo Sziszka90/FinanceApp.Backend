@@ -29,7 +29,7 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
     _mapper = mapper;
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
-    _userService = userService  ;
+    _userService = userService;
     _bcryptService = bcryptService;
   }
 
@@ -72,6 +72,6 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
 
     _logger.LogInformation("User updated with ID:{Id}", user.Data!.Id);
 
-    return Result.Success(_mapper.Map<GetUserDto>(user));
+    return Result.Success(_mapper.Map<GetUserDto>(user.Data));
   }
 }

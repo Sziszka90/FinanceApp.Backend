@@ -280,8 +280,8 @@ public class GetTransactionSumTests : TestBase
         new Money { Amount = 25, Currency = CurrencyEnum.EUR }, transactionGroup, DateTime.UtcNow, user)
     };
 
-    UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new List<User> { user });
+    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactions);
