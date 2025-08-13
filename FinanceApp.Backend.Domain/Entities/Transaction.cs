@@ -66,6 +66,7 @@ public class Transaction : BaseEntity, IUserOwned
     TransactionType = transactionType;
     TransactionDate = transactionDate;
     User = user;
+    UserId = user.Id;
   }
 
 #pragma warning disable CS8618

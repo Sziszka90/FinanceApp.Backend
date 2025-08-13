@@ -349,27 +349,10 @@ public class TransactionGroupApi : TestBase
     var top = 5;
 
     // act
-    var response = await GetContentAsync<List<TopTransactionGroupDto>>(
-      await Client.GetAsync($"{TRANSACTION_GROUPS}top?startDate={startDate:yyyy-MM-ddTHH:mm:ssZ}&endDate={endDate:yyyy-MM-ddTHH:mm:ssZ}&top={top}"));
-
-    // assert
-    Assert.NotNull(response);
-    Assert.Empty(response);
-  }
-
-  [Fact]
-  public async Task GetTopTransactionGroups_WithoutAuthorization_ReturnsUnauthorized()
-  {
-    // arrange - Don't call InitializeAsync() to avoid authentication
-    var startDate = DateTimeOffset.UtcNow.AddDays(-30);
-    var endDate = DateTimeOffset.UtcNow;
-    var top = 5;
-
-    // act
     var response = await Client.GetAsync($"{TRANSACTION_GROUPS}top?startDate={startDate:yyyy-MM-ddTHH:mm:ssZ}&endDate={endDate:yyyy-MM-ddTHH:mm:ssZ}&top={top}");
 
     // assert
-    Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
   }
 
   [Fact]

@@ -146,7 +146,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
     var transactionGroup = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
 
-    var transactionContent = CreateContent(new CreateTransactionDto
+    var transaction = new CreateTransactionDto
     {
       Name = "TestTransaction",
       Description = "Test Transaction",
@@ -156,9 +156,10 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
         Currency = CurrencyEnum.HUF
       },
       TransactionType = TransactionTypeEnum.Expense,
-      TransactionDate = new DateTimeOffset(),
+      TransactionDate = DateTimeOffset.Now,
       TransactionGroupId = transactionGroup!.Id.ToString()
-    });
+    };
+    var transactionContent = CreateContent(transaction);
 
     var result = await GetContentAsync<GetTransactionDto>(await Client.PostAsync(TRANSACTIONS, transactionContent));
     return result;
