@@ -91,8 +91,7 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
       return Result.Failure<GetUserDto>(confirmationToken.ApplicationError!);
     }
 
-    user.EmailConfirmationToken = confirmationToken.Data;
-    user.EmailConfirmationTokenExpiration = DateTimeOffset.UtcNow.AddHours(1);
+    user.SetEmailConfirmationToken(confirmationToken.Data!, DateTimeOffset.UtcNow.AddHours(1));
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

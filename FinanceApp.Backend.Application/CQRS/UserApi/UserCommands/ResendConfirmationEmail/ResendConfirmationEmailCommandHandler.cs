@@ -1,7 +1,6 @@
 using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
-using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Application.Models;
@@ -14,7 +13,6 @@ namespace FinanceApp.Backend.Application.UserApi.UserCommands.ResendConfirmation
 public class ResendConfirmationEmailCommandHandler : ICommandHandler<ResendConfirmationEmailCommand, Result<ResendEmailConfirmationResponse>>
 {
   private readonly ILogger<ResendConfirmationEmailCommandHandler> _logger;
-  private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IUserRepository _userRepository;
   private readonly ISmtpEmailSender _smtpEmailSender;
@@ -22,14 +20,12 @@ public class ResendConfirmationEmailCommandHandler : ICommandHandler<ResendConfi
 
   public ResendConfirmationEmailCommandHandler(
     ILogger<ResendConfirmationEmailCommandHandler> logger,
-    IMapper mapper,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     ISmtpEmailSender smtpEmailSender,
     ITokenService tokenService)
   {
     _logger = logger;
-    _mapper = mapper;
     _userRepository = userRepository;
     _unitOfWork = unitOfWork;
     _smtpEmailSender = smtpEmailSender;
