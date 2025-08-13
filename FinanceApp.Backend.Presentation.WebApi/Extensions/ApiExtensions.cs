@@ -1,11 +1,11 @@
-﻿using System.Text;
+
+using System.Text;
 using System.Text.Json.Serialization;
-using FinanceApp.Backend.Domain.Options;
-using FinanceApp.Backend.Presentation.WebApi.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Asp.Versioning;
+using FinanceApp.Backend.Domain.Options;
+using FinanceApp.Backend.Presentation.WebApi.HealthChecks;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Extensions;
 
