@@ -25,10 +25,15 @@ dotnet build "$SOLUTION_PATH" --no-restore --verbosity normal
 
 # 3. Format check (optional - shows what would be changed)
 echo "🎨 Checking code formatting..."
-if dotnet format "$SOLUTION_PATH" --verify-no-changes --verbosity normal; then
-    echo "✅ Code formatting is good!"
+
+# 3. Format check (fail if issues found)
+echo "🎨 Checking code formatting..."
+dotnet format "$SOLUTION_PATH" --verify-no-changes --verbosity normal
+if [[ $? -ne 0 ]]; then
+    echo "❌ Code formatting issues found. Run 'dotnet format' to fix them."
+    exit 1
 else
-    echo "⚠️  Code formatting issues found. Run 'dotnet format' to fix them."
+    echo "✅ Code formatting is good!"
 fi
 
 echo "✨ Code analysis complete!"
