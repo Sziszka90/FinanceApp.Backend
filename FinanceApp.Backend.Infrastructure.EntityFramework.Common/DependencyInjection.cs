@@ -1,9 +1,11 @@
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 
 namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common;
 
@@ -13,6 +15,8 @@ public static class DependencyInjection
   {
     services.AddScoped<IFilteredQueryProvider, FilteredQueryProvider.FilteredQueryProvider>();
     services.AddScoped<IUnitOfWork, UnitOfWork>();
+    services.AddScoped<ISqlQueryBuilder, SqlQueryBuilder>();
+    services.AddScoped<IDatabaseCommandService, DatabaseCommandService>();
     services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
     services.AddScoped(typeof(ITransactionGroupRepository), typeof(TransactionGroupRepository));
     services.AddScoped(typeof(ITransactionRepository), typeof(TransactionRepository));

@@ -1,6 +1,6 @@
 using FinanceApp.Backend.Application.Services;
 
-namespace FinanceApp.Backend.Testing.Unit.ServiceTests;
+namespace FinanceApp.Backend.Testing.Unit.ServiceTests.Application;
 
 public class BcryptServiceTests
 {

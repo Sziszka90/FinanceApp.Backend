@@ -3,7 +3,7 @@ using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Options;
 using Microsoft.Extensions.Options;
 
-namespace FinanceApp.Backend.Testing.Unit.ServiceTests;
+namespace FinanceApp.Backend.Testing.Unit.ServiceTests.Application;
 
 public class JwtServiceTests
 {

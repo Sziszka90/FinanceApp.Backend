@@ -6,7 +6,7 @@ using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace FinanceApp.Backend.Testing.Unit.ServiceTests;
+namespace FinanceApp.Backend.Testing.Unit.ServiceTests.Application;
 
 public class TokenServiceTests
 {

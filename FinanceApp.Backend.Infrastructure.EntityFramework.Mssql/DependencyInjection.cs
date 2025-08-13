@@ -15,7 +15,7 @@ public static class DependencyInjection
   {
     services.AddPooledDbContextFactory<FinanceAppMssqlDbContext>(options =>
                                                                  {
-                                                                   options.UseSqlServer(configuration.GetConnectionString(Constants.ConfigurationKeys.MSSQL_CONNECTION_STRING),
+                                                                   options.UseSqlServer(configuration.GetConnectionString(Constants.ConfigurationKeys.MSSQL_PROVIDER),
                                                                                        sqlOptions =>
                                                                                        {
                                                                                          sqlOptions.EnableRetryOnFailure();

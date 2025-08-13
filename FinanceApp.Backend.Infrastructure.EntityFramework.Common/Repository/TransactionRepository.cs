@@ -1,3 +1,4 @@
+using System.Data.Common;
 using EFCore.BulkExtensions;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
@@ -5,9 +6,10 @@ using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Extensions;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
@@ -15,14 +17,20 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
 public class TransactionRepository : GenericRepository<Transaction>, ITransactionRepository
 {
   private readonly IFilteredQueryProvider _filteredQueryProvider;
+  private readonly ISqlQueryBuilder _sqlQueryBuilder;
+  private readonly IDatabaseCommandService _databaseCommandService;
 
   /// <inheritdoc />
   public TransactionRepository(
     FinanceAppDbContext dbContext,
-    IFilteredQueryProvider filteredQueryProvider
+    IFilteredQueryProvider filteredQueryProvider,
+    ISqlQueryBuilder sqlQueryBuilder,
+    IDatabaseCommandService databaseCommandService
   ) : base(dbContext, filteredQueryProvider)
   {
     _filteredQueryProvider = filteredQueryProvider;
+    _sqlQueryBuilder = sqlQueryBuilder;
+    _databaseCommandService = databaseCommandService;
   }
 
   public async Task<bool> TransactionGroupUsedAsync(Guid transactionGroupId, CancellationToken cancellationToken = default)
@@ -179,71 +187,33 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
   {
     try
     {
-      // Use raw SQL with proper parameterization for aggregation at database level
-      var sql = @"
-        SELECT
-          tg.Id as TransactionGroupId,
-          tg.Name,
-          tg.Description,
-          tg.GroupIcon,
-          t.Currency,
-          SUM(t.Amount) as TotalAmount,
-          COUNT(*) as TransactionCount
-        FROM ""Transaction"" t
-        INNER JOIN ""TransactionGroup"" tg ON t.TransactionGroupId = tg.Id
-        WHERE t.UserId = @userId AND t.TransactionGroupId IS NOT NULL
-        AND t.TransactionDate >= @startDate AND t.TransactionDate <= @endDate
-        GROUP BY tg.Id, t.Currency
-        ORDER BY SUM(t.Amount) DESC
-        LIMIT @topCount";
+      var providerName = _dbContext.Database.ProviderName ?? throw new InvalidOperationException("Database provider name is null");
+      var sql = _sqlQueryBuilder.BuildTransactionGroupAggregateQuery(providerName);
 
-      using var command = _dbContext.Database.GetDbConnection().CreateCommand();
-      command.CommandText = sql;
-
-      // Use database-agnostic parameter creation
-      var userIdParam = command.CreateParameter();
-      userIdParam.ParameterName = "@userId";
-      userIdParam.Value = userId;
-      command.Parameters.Add(userIdParam);
-
-      var startDateParam = command.CreateParameter();
-      startDateParam.ParameterName = "@startDate";
-      startDateParam.Value = startDate;
-      command.Parameters.Add(startDateParam);
-
-      var endDateParam = command.CreateParameter();
-      endDateParam.ParameterName = "@endDate";
-      endDateParam.Value = endDate;
-      command.Parameters.Add(endDateParam);
-
-      var topCountParam = command.CreateParameter();
-      topCountParam.ParameterName = "@topCount";
-      topCountParam.Value = topCount;
-      command.Parameters.Add(topCountParam);
-
-      var result = new List<TransactionGroupAggregate>();
-      using var reader = await command.ExecuteReaderAsync(cancellationToken);
-
-      while (await reader.ReadAsync(cancellationToken))
+      var parameters = new Dictionary<string, object>
       {
-        var transactionGroupId = reader.GetGuid(0); // TransactionGroupId
-        var name = reader.GetString(1); // Name
-        var description = reader.IsDBNull(2) ? null : reader.GetString(2); // Description
-        var groupIcon = reader.IsDBNull(3) ? null : reader.GetString(3); // GroupIcon
-        var currency = (CurrencyEnum)reader.GetInt32(4); // Currency
-        var totalAmount = reader.GetDecimal(5); // TotalAmount
-        var transactionCount = reader.GetInt32(6); // TransactionCount
+        { "@userId", userId },
+        { "@startDate", startDate },
+        { "@endDate", endDate },
+        { "@topCount", topCount }
+      };
 
-        var transactionGroup = new TransactionGroup(name, description, groupIcon, null!) { Id = transactionGroupId };
-
-        result.Add(new TransactionGroupAggregate
+      var result = await _databaseCommandService.ExecuteQueryAsync(
+        sql,
+        parameters,
+        reader => new TransactionGroupAggregate
         {
-          TransactionGroup = transactionGroup,
-          Currency = currency,
-          TotalAmount = totalAmount,
-          TransactionCount = transactionCount
-        });
-      }
+          TransactionGroup = new TransactionGroup(
+            reader.GetString(1), // Name
+            reader.GetNullableString(2), // Description
+            reader.GetNullableString(3), // GroupIcon
+            null!)
+          { Id = reader.GetGuid(0) }, // TransactionGroupId
+          Currency = (CurrencyEnum)reader.GetInt32(4),
+          TotalAmount = reader.GetDecimal(5),
+          TransactionCount = reader.GetInt32(6)
+        },
+        cancellationToken);
 
       return result;
     }

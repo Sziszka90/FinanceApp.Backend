@@ -5,6 +5,7 @@ using FinanceApp.Backend.Domain.Enums;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.FilteredQueryProvider;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,8 @@ public class TransactionRepositoryTests : IDisposable
 {
   protected readonly FinanceAppSqliteDbContext _dbContext;
   protected readonly IFilteredQueryProvider _filteredQueryProvider;
+  protected readonly Mock<ISqlQueryBuilder> _sqlQueryBuilderMock;
+  protected readonly Mock<IDatabaseCommandService> _databaseCommandServiceMock;
   protected readonly TransactionRepository _repository;
 
   public TransactionRepositoryTests()
@@ -33,7 +36,11 @@ public class TransactionRepositoryTests : IDisposable
     var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
     _filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
 
-    _repository = new TransactionRepository(_dbContext, _filteredQueryProvider);
+    // Create mocks for additional dependencies
+    _sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+    _databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+
+    _repository = new TransactionRepository(_dbContext, _filteredQueryProvider, _sqlQueryBuilderMock.Object, _databaseCommandServiceMock.Object);
   }
 
   public void Dispose()
@@ -93,7 +100,13 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+
+      var repository = new TransactionRepository(
+        _dbContext,
+        filteredQueryProvider,
+        _sqlQueryBuilderMock.Object,
+        _databaseCommandServiceMock.Object
+      );
 
       // act
       var result = await repository.TransactionGroupUsedAsync(groupId);
@@ -190,7 +203,9 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+      var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+      var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+      var repository = new TransactionRepository(_dbContext, filteredQueryProvider, sqlQueryBuilderMock.Object, databaseCommandServiceMock.Object);
 
       var filter = new TransactionFilter { TransactionGroupName = "Shopping" };
 
@@ -256,7 +271,9 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+      var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+      var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+      var repository = new TransactionRepository(_dbContext, filteredQueryProvider, sqlQueryBuilderMock.Object, databaseCommandServiceMock.Object);
 
       var filter = new TransactionFilter { OrderBy = "TransactionName", Ascending = true };
 
@@ -312,7 +329,9 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+      var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+      var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+      var repository = new TransactionRepository(_dbContext, filteredQueryProvider, sqlQueryBuilderMock.Object, databaseCommandServiceMock.Object);
 
       var filter = new TransactionFilter();
 
@@ -347,7 +366,7 @@ public class TransactionRepositoryTests : IDisposable
     public async Task BatchCreateTransactionsAsync_WithValidTransactions_ShouldReturnTransactions()
     {
       // arrange
-      var user = new User("testuser", "test_user@example.com", "hash", CurrencyEnum.USD) { Id = Guid.NewGuid() };
+      var user = new User("testuser", "test@example.com", "hash", CurrencyEnum.USD) { Id = Guid.NewGuid() };
       await _dbContext.Set<User>().AddAsync(user);
       await _dbContext.SaveChangesAsync();
 
@@ -471,7 +490,9 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+      var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+      var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+      var repository = new TransactionRepository(_dbContext, filteredQueryProvider, sqlQueryBuilderMock.Object, databaseCommandServiceMock.Object);
 
       // act
       await repository.DeleteAllByUserIdAsync(userId);
@@ -556,7 +577,9 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+      var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+      var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+      var repository = new TransactionRepository(_dbContext, filteredQueryProvider, sqlQueryBuilderMock.Object, databaseCommandServiceMock.Object);
 
       // act
       var result = await repository.GetAllByUserIdAsync(userId);
@@ -608,7 +631,9 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+      var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+      var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+      var repository = new TransactionRepository(_dbContext, filteredQueryProvider, sqlQueryBuilderMock.Object, databaseCommandServiceMock.Object);
 
       // act
       var result = await repository.GetAllByUserIdAsync(userId, noTracking: true);
@@ -680,7 +705,9 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+      var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+      var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+      var repository = new TransactionRepository(_dbContext, filteredQueryProvider, sqlQueryBuilderMock.Object, databaseCommandServiceMock.Object);
 
       // act
       var result = await repository.GetAllAsync();
@@ -737,7 +764,9 @@ public class TransactionRepositoryTests : IDisposable
 
       // Create a new repository with the properly configured HTTP context
       var filteredQueryProvider = new FilteredQueryProvider(_dbContext, httpContextAccessorMock.Object);
-      var repository = new TransactionRepository(_dbContext, filteredQueryProvider);
+      var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+      var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+      var repository = new TransactionRepository(_dbContext, filteredQueryProvider, sqlQueryBuilderMock.Object, databaseCommandServiceMock.Object);
 
       // act
       var result = await repository.GetByIdAsync(transactionId);
