@@ -237,8 +237,19 @@ public class TransactionGroupApi : TestBase
     await InitializeAsync();
 
     // Create transaction groups with transactions
-    var transactionGroup1 = await CreateTransactionGroupAsync();
-    var transactionGroup2 = await CreateTransactionGroupAsync();
+    var transactionGroup1 = await CreateTransactionGroupAsync(new CreateTransactionGroupDto
+    {
+      Name = "Test Group 1",
+      Description = "Test Group 1 Description",
+      GroupIcon = "icon1"
+    });
+
+    var transactionGroup2 = await CreateTransactionGroupAsync(new CreateTransactionGroupDto
+    {
+      Name = "Test Group 2",
+      Description = "Test Group 2 Description",
+      GroupIcon = "icon2"
+    });
 
     // Create transactions for each group to have different totals
     await CreateTransactionForGroupAsync(transactionGroup1!.Id, 1000, CurrencyEnum.EUR);

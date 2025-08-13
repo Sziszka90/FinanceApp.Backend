@@ -90,7 +90,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     var response = await GetContentAsync<LoginResponseDto>(await Client.PostAsync(AUTH + "login", loginContent));
 
     Token = response!.Token;
-    
+
     Client.DefaultRequestHeaders.Authorization =
       new AuthenticationHeaderValue("Bearer", response!.Token);
   }
@@ -257,6 +257,15 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       Description = "Transaction group",
       GroupIcon = "icon"
     });
+
+    var result = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
+
+    return result;
+  }
+
+  protected async Task<GetTransactionGroupDto?> CreateTransactionGroupAsync(CreateTransactionGroupDto createTransactionGroupDto)
+  {
+    var transactionGroupContent = CreateContent(createTransactionGroupDto);
 
     var result = await GetContentAsync<GetTransactionGroupDto>(await Client.PostAsync(TRANSACTION_GROUPS, transactionGroupContent));
 

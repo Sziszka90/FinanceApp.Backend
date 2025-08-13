@@ -16,6 +16,7 @@ public class TransactionConfiguration : BaseEntityTypeConfiguration<Transaction>
         owned.Property(v => v.Currency).HasColumnName("Currency");
       });
 
+    // Configure relationships
     builder.HasOne(t => t.User)
            .WithMany()
            .HasForeignKey(t => t.UserId)
@@ -25,5 +26,6 @@ public class TransactionConfiguration : BaseEntityTypeConfiguration<Transaction>
            .WithMany()
            .HasForeignKey(t => t.TransactionGroupId)
            .OnDelete(DeleteBehavior.SetNull);
+
   }
 }

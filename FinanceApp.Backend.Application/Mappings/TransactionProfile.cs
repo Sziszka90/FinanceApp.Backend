@@ -8,8 +8,10 @@ public class TransactionProfile : Profile
 {
   public TransactionProfile()
   {
-    CreateMap<Transaction, GetTransactionDto>();
-    CreateMap<UpdateTransactionDto, Transaction>();
-    CreateMap<CreateTransactionDto, Transaction>();
+    CreateMap<UpdateTransactionDto, Transaction>()
+      .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(src => src.TransactionDate.ToUniversalTime()));
+
+    CreateMap<CreateTransactionDto, Transaction>()
+      .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(src => src.TransactionDate.ToUniversalTime()));
   }
 }

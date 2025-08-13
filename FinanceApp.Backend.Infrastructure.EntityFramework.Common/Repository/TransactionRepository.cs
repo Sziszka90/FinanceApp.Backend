@@ -177,21 +177,22 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
   {
     try
     {
-      // Use direct foreign key properties to avoid complex JOIN translation issues
-      var query = _dbContext.Transaction
-          .Include(t => t.TransactionGroup)
-          .Where(t => t.UserId == userId &&
-                      t.TransactionDate >= startDate &&
-                      t.TransactionDate <= endDate &&
-                      t.TransactionGroupId != null);
+      // Use raw SQL for optimal performance with datetimeoffset comparison
+      IQueryable<Transaction> query = _dbContext.Transaction
+        .FromSqlRaw(@"
+          SELECT t.* FROM [Transaction] t
+          WHERE t.UserId = {0} AND t.TransactionGroupId IS NOT NULL
+          AND t.TransactionDate >= {1} AND t.TransactionDate <= {2}",
+          userId, startDate, endDate);
 
       if (noTracking)
       {
         query = query.AsNoTracking();
       }
 
-      // Load data from database
-      var transactions = await query.ToListAsync(cancellationToken);
+      var transactions = await query
+        .Include(t => t.TransactionGroup)
+        .ToListAsync(cancellationToken);
 
       // Group and aggregate in memory
       var result = transactions

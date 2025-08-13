@@ -17,7 +17,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.ExchangeRate", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.ExchangeRate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,7 +47,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
                     b.ToTable("ExchangeRate", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Transaction", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -67,7 +67,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("TransactionDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("TransactionGroupId")
                         .HasColumnType("TEXT");
@@ -87,7 +87,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
                     b.ToTable("Transaction", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.TransactionGroup", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.TransactionGroup", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -119,7 +119,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
                     b.ToTable("TransactionGroup", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.User", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,19 +166,20 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
                     b.ToTable("User", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Transaction", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.Transaction", b =>
                 {
-                    b.HasOne("FinanceApp.Domain.Entities.TransactionGroup", "TransactionGroup")
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.TransactionGroup", "TransactionGroup")
                         .WithMany()
-                        .HasForeignKey("TransactionGroupId");
+                        .HasForeignKey("TransactionGroupId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("FinanceApp.Domain.Entities.User", "User")
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("FinanceApp.Domain.Entities.Money", "Value", b1 =>
+                    b.OwnsOne("FinanceApp.Backend.Domain.Entities.Money", "Value", b1 =>
                         {
                             b1.Property<Guid>("TransactionId")
                                 .HasColumnType("TEXT");
@@ -207,9 +208,9 @@ namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.TransactionGroup", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.TransactionGroup", b =>
                 {
-                    b.HasOne("FinanceApp.Domain.Entities.User", "User")
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

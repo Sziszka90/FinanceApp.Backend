@@ -46,7 +46,7 @@ public class Transaction : BaseEntity, IUserOwned
   public Guid UserId { get; set; }
 
   /// <summary>
-  /// Date when Transaction occured
+  /// Date when Transaction occurred (stored in UTC)
   /// </summary>
   public DateTimeOffset TransactionDate { get; set; }
 

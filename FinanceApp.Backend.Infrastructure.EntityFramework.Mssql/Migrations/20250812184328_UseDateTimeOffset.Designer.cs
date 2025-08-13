@@ -4,6 +4,7 @@ using FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 {
     [DbContext(typeof(FinanceAppMssqlDbContext))]
-    partial class FinanceAppMssqlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250812184328_UseDateTimeOffset")]
+    partial class UseDateTimeOffset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

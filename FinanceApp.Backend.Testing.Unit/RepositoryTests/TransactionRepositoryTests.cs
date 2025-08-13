@@ -347,7 +347,7 @@ public class TransactionRepositoryTests : IDisposable
     public async Task BatchCreateTransactionsAsync_WithValidTransactions_ShouldReturnTransactions()
     {
       // arrange
-      var user = new User("testuser", "test@example.com", "hash", CurrencyEnum.USD) { Id = Guid.NewGuid() };
+      var user = new User("testuser", "test_user@example.com", "hash", CurrencyEnum.USD) { Id = Guid.NewGuid() };
       await _dbContext.Set<User>().AddAsync(user);
       await _dbContext.SaveChangesAsync();
 

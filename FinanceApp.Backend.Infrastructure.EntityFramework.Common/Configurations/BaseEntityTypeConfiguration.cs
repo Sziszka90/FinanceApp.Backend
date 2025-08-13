@@ -6,9 +6,10 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common.Configuration
 
 public abstract class BaseEntityTypeConfiguration<TDerived> : IEntityTypeConfiguration<TDerived> where TDerived : BaseEntity
 {
-   public void Configure(EntityTypeBuilder<TDerived> builder)
+  public void Configure(EntityTypeBuilder<TDerived> builder)
   {
     builder.HasKey(e => e.Id);
+
     ConfigureSpecificProperties(builder);
   }
 
