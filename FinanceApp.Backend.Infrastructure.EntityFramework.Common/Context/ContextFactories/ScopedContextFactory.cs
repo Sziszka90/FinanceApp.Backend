@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Infrastructure.EntityFramework.Interfaces;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Backend.Infrastructure.EntityFramework.Context.ContextFactories;

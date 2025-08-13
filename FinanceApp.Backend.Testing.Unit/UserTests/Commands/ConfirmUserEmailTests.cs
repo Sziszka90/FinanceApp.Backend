@@ -1,9 +1,9 @@
-using FinanceApp.Backend.Application.UserApi.UserCommands.ConfirmUserEmail;
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Application.UserApi.UserCommands.ConfirmUserEmail;
+using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
-using FinanceApp.Backend.Domain.Entities;
 
 namespace FinanceApp.Backend.Testing.Unit.UserTests.Commands;
 

@@ -1,4 +1,5 @@
-﻿using FinanceApp.Backend.Application.Dtos.TransactionDtos;
+using Asp.Versioning;
+using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.DeleteTransaction;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UpdateTransaction;
@@ -10,7 +11,6 @@ using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Asp.Versioning;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Controllers.TransactionsController;
 

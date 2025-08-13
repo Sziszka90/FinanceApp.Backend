@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Application.Models;
 
 namespace FinanceApp.Backend.Application.Abstraction.Clients;
 

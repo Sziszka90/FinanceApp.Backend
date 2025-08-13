@@ -1,35 +1,35 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace FinanceApp.Infrastructure.EntityFramework.Sqlite.Migrations
 {
+  /// <inheritdoc />
+  public partial class UseDateTimeOffset : Migration
+  {
     /// <inheritdoc />
-    public partial class UseDateTimeOffset : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AlterColumn<DateTimeOffset>(
-                name: "TransactionDate",
-                table: "Transaction",
-                type: "datetimeoffset",
-                nullable: false,
-                oldClrType: typeof(DateTimeOffset),
-                oldType: "TEXT");
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AlterColumn<DateTimeOffset>(
-                name: "TransactionDate",
-                table: "Transaction",
-                type: "TEXT",
-                nullable: false,
-                oldClrType: typeof(DateTimeOffset),
-                oldType: "datetimeoffset");
-        }
+      migrationBuilder.AlterColumn<DateTimeOffset>(
+          name: "TransactionDate",
+          table: "Transaction",
+          type: "datetimeoffset",
+          nullable: false,
+          oldClrType: typeof(DateTimeOffset),
+          oldType: "TEXT");
     }
+
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+      migrationBuilder.AlterColumn<DateTimeOffset>(
+          name: "TransactionDate",
+          table: "Transaction",
+          type: "TEXT",
+          nullable: false,
+          oldClrType: typeof(DateTimeOffset),
+          oldType: "datetimeoffset");
+    }
+  }
 }

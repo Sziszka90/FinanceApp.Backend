@@ -1,4 +1,4 @@
-﻿namespace FinanceApp.Backend.Application.Dtos.ExchangeRateDtos;
+namespace FinanceApp.Backend.Application.Dtos.ExchangeRateDtos;
 
 public class ExchangeRateResponseDto
 {

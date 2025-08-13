@@ -19,9 +19,9 @@ public static class ResultHandler
   public static ActionResult GetResult<T>(this ControllerBase controller, Result<T> appResult, int succeededStatusCode = StatusCodes.Status200OK)
   {
 
-    if(succeededStatusCode == StatusCodes.Status302Found)
+    if (succeededStatusCode == StatusCodes.Status302Found)
     {
-      if(!appResult.IsSuccess)
+      if (!appResult.IsSuccess)
       {
         controller.Response.Headers.Location = $"https://www.financeapp.fun/validation-failed";
         return controller.StatusCode(succeededStatusCode);
@@ -31,9 +31,9 @@ public static class ResultHandler
     }
 
     if (!appResult.IsSuccess)
-      {
-        return AssignHttpCodeToError(controller, appResult.ApplicationError!);
-      }
+    {
+      return AssignHttpCodeToError(controller, appResult.ApplicationError!);
+    }
 
     return controller.StatusCode(succeededStatusCode, appResult.Data);
   }
@@ -60,7 +60,7 @@ public static class ResultHandler
   /// </summary>
   public static ActionResult RedirectToUrl(this ControllerBase controller, Result appResult, string url)
   {
-    if(!appResult.IsSuccess)
+    if (!appResult.IsSuccess)
     {
       controller.Response.Headers.Location = $"https://www.financeapp.fun/validation-failed";
       return controller.StatusCode(StatusCodes.Status302Found);

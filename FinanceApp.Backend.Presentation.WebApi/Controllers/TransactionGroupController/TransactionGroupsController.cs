@@ -1,15 +1,15 @@
-﻿using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
+using Asp.Versioning;
+using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupCommands.CreateTransactionGroup;
 using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupCommands.DeleteTransactionGroup;
 using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupCommands.UpdateTransactionGroup;
-using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetTransactionGroupById;
+using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroups;
 using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetTopTransactionGroups;
+using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetTransactionGroupById;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Asp.Versioning;
-using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetAllTransactionGroups;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Controllers.TransactionGroupController;
 

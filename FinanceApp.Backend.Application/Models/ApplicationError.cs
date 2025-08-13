@@ -85,8 +85,8 @@ public class ApplicationError
   public const string INVALID_FILE_TYPE_ERROR_MESSAGE = "Invalid file type.";
   public const string INVALID_FILE_TYPE_ERROR_CODE = "INVALID_FILE_TYPE";
 
-  private const string UNKNOWN_TOKEN_TYPE_MESSAGE = "Unknown token type.";
-  private const string UNKNOWN_TOKEN_TYPE_CODE = "UNKNOWN_TOKEN_TYPE";
+  public const string UNKNOWN_TOKEN_TYPE_MESSAGE = "Unknown token type.";
+  public const string UNKNOWN_TOKEN_TYPE_CODE = "UNKNOWN_TOKEN_TYPE";
 
   public const string PARSING_ERROR_MESSAGE = "Parsing error.";
   public const string PARSING_ERROR_CODE = "PARSING_ERROR";

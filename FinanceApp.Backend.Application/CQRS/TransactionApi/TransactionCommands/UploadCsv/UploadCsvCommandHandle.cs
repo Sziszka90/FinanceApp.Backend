@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Clients;
@@ -47,7 +47,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
   {
     var user = await _userService.GetActiveUserAsync(cancellationToken);
 
-    if(!user.IsSuccess)
+    if (!user.IsSuccess)
     {
       _logger.LogError("Failed to retrieve active user: {Error}", user.ApplicationError?.Message);
       return Result.Failure<List<GetTransactionDto>>(user.ApplicationError!);
@@ -82,10 +82,17 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
   private string CleanCsvField(string input)
   {
-    if (string.IsNullOrEmpty(input)) return input;
+    if (string.IsNullOrEmpty(input))
+    {
+      return input;
+    }
+
     var cleaned = input.Trim();
     if (cleaned.StartsWith("\"") && cleaned.EndsWith("\""))
+    {
       cleaned = cleaned.Substring(1, cleaned.Length - 2);
+    }
+
     cleaned = cleaned.Replace("\\", "");
     return cleaned;
   }
@@ -101,7 +108,11 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
       while (!reader.EndOfStream)
       {
         var line = await reader.ReadLineAsync();
-        if (string.IsNullOrWhiteSpace(line)) continue;
+        if (string.IsNullOrWhiteSpace(line))
+        {
+          continue;
+        }
+
         var columns = line.Split(',');
 
         var amount = decimal.TryParse(CleanCsvField(columns[3]), NumberStyles.Number | NumberStyles.AllowThousands,
@@ -128,7 +139,11 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
   private string NormalizeSpaces(string input)
   {
-    if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+    if (string.IsNullOrWhiteSpace(input))
+    {
+      return string.Empty;
+    }
+
     return Regex.Replace(input.Trim(), @"\s+", " ");
   }
 

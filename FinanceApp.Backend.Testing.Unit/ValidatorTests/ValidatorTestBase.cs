@@ -34,11 +34,16 @@ public abstract class ValidatorTestBase
   /// <returns>A password with uppercase, lowercase, digit, and special character</returns>
   protected static string CreateValidPassword(int length = 12)
   {
-    if (length < 8) length = 8;
+    if (length < 8)
+    {
+      length = 8;
+    }
 
     var basePassword = "Password123@";
     if (length <= basePassword.Length)
+    {
       return basePassword.Substring(0, length);
+    }
 
     return basePassword + new string('x', length - basePassword.Length);
   }

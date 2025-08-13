@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Application.Abstraction.Clients;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApp.Backend.Infrastructure.RabbitMq;

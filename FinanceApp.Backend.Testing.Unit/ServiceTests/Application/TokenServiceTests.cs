@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Services;
+using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;

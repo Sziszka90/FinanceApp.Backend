@@ -1,11 +1,11 @@
-using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Domain.Entities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit.BackgroundJobTests;
 

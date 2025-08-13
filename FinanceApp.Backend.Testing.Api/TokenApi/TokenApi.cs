@@ -1,5 +1,4 @@
 using System.Net;
-using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Application.Dtos.TokenDtos;
 using FinanceApp.Backend.Application.UserApi.UserCommands.ValidateToken;
 using FinanceApp.Backend.Testing.Api.Base;

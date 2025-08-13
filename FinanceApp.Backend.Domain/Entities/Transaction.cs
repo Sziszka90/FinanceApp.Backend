@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Domain.Common;
+using FinanceApp.Backend.Domain.Common;
 using FinanceApp.Backend.Domain.Interfaces;
 
 namespace FinanceApp.Backend.Domain.Entities;

@@ -1,8 +1,8 @@
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.ValidateToken;
+using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
-using FinanceApp.Backend.Application.Services;
 
 namespace FinanceApp.Backend.Testing.Unit.AuthTests;
 

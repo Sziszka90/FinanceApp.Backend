@@ -1,6 +1,6 @@
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
-using FinanceApp.Backend.Application.Validators;
 using FinanceApp.Backend.Application.ExpenseTransaction.ExpenseTransactionCommands;
+using FinanceApp.Backend.Application.Validators;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using FluentValidation.TestHelper;

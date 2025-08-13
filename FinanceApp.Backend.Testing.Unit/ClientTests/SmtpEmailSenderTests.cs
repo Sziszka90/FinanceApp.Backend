@@ -37,7 +37,10 @@ public class SmtpEmailSenderTests
     // Simulate missing template file
     var originalBaseDir = AppDomain.CurrentDomain.BaseDirectory;
     var templatePath = Path.Combine(originalBaseDir, "Clients/EmailTemplates", "EmailConfirmationTemplate.html");
-    if (File.Exists(templatePath)) File.Delete(templatePath);
+    if (File.Exists(templatePath))
+    {
+      File.Delete(templatePath);
+    }
 
     // act
     var result = await sender.SendEmailConfirmationAsync(user, token);
@@ -56,7 +59,10 @@ public class SmtpEmailSenderTests
     // Simulate missing template file
     var originalBaseDir = AppDomain.CurrentDomain.BaseDirectory;
     var templatePath = Path.Combine(originalBaseDir, "Clients/EmailTemplates", "ForgotPasswordTemplate.html");
-    if (File.Exists(templatePath)) File.Delete(templatePath);
+    if (File.Exists(templatePath))
+    {
+      File.Delete(templatePath);
+    }
 
     // act
     var result = await sender.SendForgotPasswordAsync(email, token);

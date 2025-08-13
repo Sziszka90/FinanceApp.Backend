@@ -40,7 +40,7 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
       return Result.Failure(ApplicationError.UserNotFoundError(email: request.EmailDto.Email));
     }
 
-    if(!user.IsEmailConfirmed)
+    if (!user.IsEmailConfirmed)
     {
       _logger.LogWarning("Email not confirmed for user: {Email}", request.EmailDto.Email);
       return Result.Failure(ApplicationError.EmailConfirmationError(user.Email));

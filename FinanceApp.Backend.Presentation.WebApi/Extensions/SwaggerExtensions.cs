@@ -1,5 +1,5 @@
-using Microsoft.OpenApi.Models;
 using Asp.Versioning.ApiExplorer;
+using Microsoft.OpenApi.Models;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Extensions;
 

@@ -1,19 +1,19 @@
 using System.Data.Common;
+using Asp.Versioning;
+using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
+using FinanceApp.Backend.Application.BackgroundJobs.RabbitMQ;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Interceptors;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.Context;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
-using FinanceApp.Backend.Application.BackgroundJobs.RabbitMQ;
-using Asp.Versioning;
-using Microsoft.AspNetCore.Http;
 
 namespace FinanceApp.Backend.Testing.Api.Base;
 

@@ -1,6 +1,6 @@
-﻿using FinanceApp.Backend.Application.Abstraction.Clients;
-using FinanceApp.Backend.Application.Dtos.LLMProcessorDtos;
+using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Clients.HttpClients;
+using FinanceApp.Backend.Application.Dtos.LLMProcessorDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Options;
 using Microsoft.Extensions.Logging;

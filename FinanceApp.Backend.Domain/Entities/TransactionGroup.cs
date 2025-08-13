@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Domain.Common;
+using FinanceApp.Backend.Domain.Common;
 using FinanceApp.Backend.Domain.Interfaces;
 
 namespace FinanceApp.Backend.Domain.Entities;
@@ -37,7 +37,7 @@ public class TransactionGroup : BaseEntity, IUserOwned
     User = user;
   }
 
-  #pragma warning disable CS8618
+#pragma warning disable CS8618
   protected TransactionGroup() { }
 
   public void Update(

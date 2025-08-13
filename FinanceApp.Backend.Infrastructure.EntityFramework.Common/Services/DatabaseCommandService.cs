@@ -42,7 +42,9 @@ public class DatabaseCommandService : IDatabaseCommandService
     var result = await command.ExecuteScalarAsync(cancellationToken);
 
     if (result == null || result == DBNull.Value)
+    {
       return default(T);
+    }
 
     try
     {

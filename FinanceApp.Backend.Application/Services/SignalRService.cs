@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.SignalR;
-using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Application.Abstraction.Services;
+using FinanceApp.Backend.Application.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace FinanceApp.Backend.Application.Services;
 

@@ -114,23 +114,23 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
   {
     var groups = new List<Domain.Entities.TransactionGroup>
     {
-      new Domain.Entities.TransactionGroup("Groceries", "Payment for groceries", Icons.IconGroceries, user),
-      new Domain.Entities.TransactionGroup("Entertainment", "Expense for entertainment", Icons.IconEntertainment, user),
-      new Domain.Entities.TransactionGroup("Car", "Car cost and fuel", Icons.IconCar, user),
-      new Domain.Entities.TransactionGroup("Transport", "Transport costs like ticket or pass", Icons.IconTransport, user),
-      new Domain.Entities.TransactionGroup("Health", "Medical and health-related expenses", Icons.IconHealth, user),
-      new Domain.Entities.TransactionGroup("Utilities", "Utility bills and services", Icons.IconUtilities, user),
-      new Domain.Entities.TransactionGroup("Education", "Education and learning expenses", Icons.IconEducation, user),
-      new Domain.Entities.TransactionGroup("Travel", "Travel and vacation expenses", Icons.IconTravel, user),
-      new Domain.Entities.TransactionGroup("Dining", "Restaurant and dining out", Icons.IconDining, user),
-      new Domain.Entities.TransactionGroup("Gifts", "Gifts and donations", Icons.IconGifts, user),
-      new Domain.Entities.TransactionGroup("Salary", "Income from salary or wages", Icons.IconSalary, user),
-      new Domain.Entities.TransactionGroup("Home", "Home maintenance and rent", Icons.IconHome, user),
-      new Domain.Entities.TransactionGroup("Personal Care", "Personal care and hygiene", Icons.IconPersonalCare, user),
-      new Domain.Entities.TransactionGroup("Clothing", "Clothing and accessories", Icons.IconClothing, user),
-      new Domain.Entities.TransactionGroup("Phone & Internet", "Phone, internet, and communication", Icons.IconPhoneInternet, user),
-      new Domain.Entities.TransactionGroup("Taxes", "Tax payments and refunds", Icons.IconTaxes, user),
-      new Domain.Entities.TransactionGroup("Miscellaneous", "Other uncategorized expenses", Icons.IconMiscellaneous, user)
+      new Domain.Entities.TransactionGroup("Groceries", "Payment for groceries", Icons.ICON_GROCERIES, user),
+      new Domain.Entities.TransactionGroup("Entertainment", "Expense for entertainment", Icons.ICON_ENTERTAINMENT, user),
+      new Domain.Entities.TransactionGroup("Car", "Car cost and fuel", Icons.ICON_CAR, user),
+      new Domain.Entities.TransactionGroup("Transport", "Transport costs like ticket or pass", Icons.ICON_TRANSPORT, user),
+      new Domain.Entities.TransactionGroup("Health", "Medical and health-related expenses", Icons.ICON_HEALTH, user),
+      new Domain.Entities.TransactionGroup("Utilities", "Utility bills and services", Icons.ICON_UTILITIES, user),
+      new Domain.Entities.TransactionGroup("Education", "Education and learning expenses", Icons.ICON_EDUCATION, user),
+      new Domain.Entities.TransactionGroup("Travel", "Travel and vacation expenses", Icons.ICON_TRAVEL, user),
+      new Domain.Entities.TransactionGroup("Dining", "Restaurant and dining out", Icons.ICON_DINING, user),
+      new Domain.Entities.TransactionGroup("Gifts", "Gifts and donations", Icons.ICON_GIFTS, user),
+      new Domain.Entities.TransactionGroup("Salary", "Income from salary or wages", Icons.ICON_SALARY, user),
+      new Domain.Entities.TransactionGroup("Home", "Home maintenance and rent", Icons.ICON_HOME, user),
+      new Domain.Entities.TransactionGroup("Personal Care", "Personal care and hygiene", Icons.ICON_PERSONAL_CARE, user),
+      new Domain.Entities.TransactionGroup("Clothing", "Clothing and accessories", Icons.ICON_CLOTHING, user),
+      new Domain.Entities.TransactionGroup("Phone & Internet", "Phone, internet, and communication", Icons.ICON_PHONE_INTERNET, user),
+      new Domain.Entities.TransactionGroup("Taxes", "Tax payments and refunds", Icons.ICON_TAXES, user),
+      new Domain.Entities.TransactionGroup("Miscellaneous", "Other uncategorized expenses", Icons.ICON_MISCELLANEOUS, user)
     };
 
     return groups;

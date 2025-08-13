@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;

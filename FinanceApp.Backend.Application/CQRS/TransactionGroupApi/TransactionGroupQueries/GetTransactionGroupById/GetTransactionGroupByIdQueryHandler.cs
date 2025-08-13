@@ -32,7 +32,7 @@ public class GetTransactionGroupByIdQueryHandler : IQueryHandler<GetTransactionG
       _logger.LogWarning("Transaction Group not found with ID:{Id}", request.Id);
       return Result.Failure<GetTransactionGroupDto>(ApplicationError.EntityNotFoundError(request.Id.ToString()));
     }
-    
+
     _logger.LogInformation("Retrieved Transaction Group with ID:{Id}", request.Id);
     return Result.Success(_mapper.Map<GetTransactionGroupDto>(result));
   }

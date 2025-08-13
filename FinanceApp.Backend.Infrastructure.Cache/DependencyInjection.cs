@@ -1,7 +1,7 @@
-﻿
+
+using FinanceApp.Backend.Application.Abstraction.Clients;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FinanceApp.Backend.Application.Abstraction.Clients;
 
 namespace FinanceApp.Backend.Infrastructure.Cache;
 

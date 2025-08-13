@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Models;
@@ -57,8 +57,15 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
       }
       else
       {
-        if (transaction.TransactionType == TransactionTypeEnum.Expense) summAmount.Amount -= transaction.Value.Amount;
-        if (transaction.TransactionType == TransactionTypeEnum.Income) summAmount.Amount += transaction.Value.Amount;
+        if (transaction.TransactionType == TransactionTypeEnum.Expense)
+        {
+          summAmount.Amount -= transaction.Value.Amount;
+        }
+
+        if (transaction.TransactionType == TransactionTypeEnum.Income)
+        {
+          summAmount.Amount += transaction.Value.Amount;
+        }
       }
     }
 

@@ -1,10 +1,10 @@
-﻿using FinanceApp.Backend.Application.AuthApi.AuthCommands.Login;
+using Asp.Versioning;
+using FinanceApp.Backend.Application.AuthApi.AuthCommands.Login;
 using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Asp.Versioning;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Controllers.AuthController;
 

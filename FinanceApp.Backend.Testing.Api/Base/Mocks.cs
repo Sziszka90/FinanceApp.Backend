@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Models;
@@ -7,7 +8,6 @@ using FinanceApp.Backend.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using System.Security.Claims;
 
 namespace FinanceApp.Backend.Testing.Api.Base;
 

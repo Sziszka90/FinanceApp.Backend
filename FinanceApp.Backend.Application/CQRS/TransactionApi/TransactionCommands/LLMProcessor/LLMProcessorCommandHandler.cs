@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
@@ -99,7 +99,10 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
   private decimal ConvertToUserCurrency(decimal amount, CurrencyEnum fromCurrency, CurrencyEnum toCurrency, List<Domain.Entities.ExchangeRate> rates)
   {
     if (fromCurrency == toCurrency)
+    {
       return Math.Round(amount, 2);
+    }
+
     var rate = rates.FirstOrDefault(r => r.BaseCurrency == fromCurrency.ToString() && r.TargetCurrency == toCurrency.ToString());
 
     return Math.Round(amount * rate!.Rate, 2);

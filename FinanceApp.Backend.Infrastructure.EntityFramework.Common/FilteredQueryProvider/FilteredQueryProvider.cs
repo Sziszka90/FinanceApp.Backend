@@ -30,7 +30,9 @@ public class FilteredQueryProvider : IFilteredQueryProvider
     var set = _dbContext.Set<T>();
 
     if (userEmail == null || !typeof(IUserOwned).IsAssignableFrom(typeof(T)))
+    {
       return set;
+    }
 
     var predicate = WhereUserEmail<T>(userEmail);
     var lambda = IncludeUser<T>();

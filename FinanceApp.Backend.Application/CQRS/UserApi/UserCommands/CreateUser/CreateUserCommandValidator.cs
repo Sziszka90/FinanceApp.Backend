@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Application.Dtos.UserDtos;
+using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FluentValidation;
 
 namespace FinanceApp.Backend.Application.UserApi.UserCommands.CreateUser;

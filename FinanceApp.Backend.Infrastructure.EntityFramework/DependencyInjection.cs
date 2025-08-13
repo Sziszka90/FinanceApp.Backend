@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Infrastructure.EntityFramework.Common;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Mssql;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite;
 using Microsoft.Extensions.Configuration;

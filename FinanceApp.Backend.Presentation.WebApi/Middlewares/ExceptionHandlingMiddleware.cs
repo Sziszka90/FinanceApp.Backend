@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using FinanceApp.Backend.Application.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Middlewares;
 

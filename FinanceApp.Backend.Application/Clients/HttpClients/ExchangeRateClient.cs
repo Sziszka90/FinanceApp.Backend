@@ -38,7 +38,11 @@ public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchange
     {
       foreach (var targetCurrency in currencies)
       {
-        if (baseCurrency == targetCurrency) continue;
+        if (baseCurrency == targetCurrency)
+        {
+          continue;
+        }
+
         decimal rate = 0;
         if (baseCurrency == CurrencyEnum.USD.ToString())
         {

@@ -161,7 +161,9 @@ public class RabbitMqClient : IRabbitMqClient
     {
       var message = JsonSerializer.Deserialize<RabbitMqPayload>(body);
       if (message == null)
+      {
         throw new JsonException("Deserialized message is null");
+      }
 
       using var scope = _serviceProvider.CreateScope();
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();

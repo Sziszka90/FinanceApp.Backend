@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Application.Dtos.UserDtos;
+using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Application.Models;
 using FluentValidation;
 

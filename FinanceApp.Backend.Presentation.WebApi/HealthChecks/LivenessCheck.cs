@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace FinanceApp.Backend.Presentation.WebApi.HealthChecks;
 
@@ -8,7 +8,7 @@ public class LivenessCheck : IHealthCheck
   private readonly ILogger<LivenessCheck> _logger;
   private readonly FinanceAppDbContext _dbContext;
 
-  public LivenessCheck(ILogger<LivenessCheck> logger,FinanceAppDbContext dbContext)
+  public LivenessCheck(ILogger<LivenessCheck> logger, FinanceAppDbContext dbContext)
   {
     _logger = logger;
     _dbContext = dbContext;

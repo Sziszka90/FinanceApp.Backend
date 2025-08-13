@@ -1,11 +1,11 @@
 using FinanceApp.Backend.Application.Abstraction.Repositories;
-using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 
 namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common;
 

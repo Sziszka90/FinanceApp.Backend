@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace FinanceApp.Backend.Presentation.WebApi.HealthChecks;
 

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.FilteredQueryProvider;
@@ -7,7 +8,6 @@ using FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using System.Security.Claims;
 
 namespace FinanceApp.Backend.Testing.Unit.RepositoryTests;
 

@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Domain.Entities;
 
 namespace FinanceApp.Backend.Application.Dtos.TransactionDtos;
 

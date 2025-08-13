@@ -1,5 +1,5 @@
-using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Application.Hubs;
+using FinanceApp.Backend.Application.Services;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
 

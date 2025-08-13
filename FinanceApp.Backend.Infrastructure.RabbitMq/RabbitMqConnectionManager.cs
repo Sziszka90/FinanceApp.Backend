@@ -125,8 +125,15 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
   {
     try
     {
-      if (_channel != null) await _channel.CloseAsync();
-      if (_connection != null) await _connection.CloseAsync();
+      if (_channel != null)
+      {
+        await _channel.CloseAsync();
+      }
+
+      if (_connection != null)
+      {
+        await _connection.CloseAsync();
+      }
     }
     catch (Exception ex)
     {

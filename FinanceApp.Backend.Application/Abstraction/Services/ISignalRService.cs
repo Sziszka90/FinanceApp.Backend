@@ -1,4 +1,4 @@
-namespace   FinanceApp.Backend.Application.Abstraction.Services;
+namespace FinanceApp.Backend.Application.Abstraction.Services;
 
 public interface ISignalRService
 {

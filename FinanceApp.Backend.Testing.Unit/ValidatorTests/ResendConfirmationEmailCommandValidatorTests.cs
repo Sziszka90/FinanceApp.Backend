@@ -1,5 +1,5 @@
-using FinanceApp.Backend.Application.UserApi.UserCommands.ResendConfirmationEmail;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
+using FinanceApp.Backend.Application.UserApi.UserCommands.ResendConfirmationEmail;
 using FinanceApp.Backend.Application.Validators;
 using FluentValidation.TestHelper;
 
@@ -105,43 +105,43 @@ public class ResendConfirmationEmailCommandValidatorTests : ValidatorTestBase
   }
 
   public class CancellationTokenValidationTests : ResendConfirmationEmailCommandValidatorTests
+  {
+    [Fact]
+    public void CancellationToken_WhenAnyValue_ShouldNotHaveValidationError()
     {
-      [Fact]
-      public void CancellationToken_WhenAnyValue_ShouldNotHaveValidationError()
-      {
-        // arrange
-        using var cts = new CancellationTokenSource();
-        var command = new ResendConfirmationEmailCommand(CreateEmailDto(CreateValidEmail()), cts.Token);
+      // arrange
+      using var cts = new CancellationTokenSource();
+      var command = new ResendConfirmationEmailCommand(CreateEmailDto(CreateValidEmail()), cts.Token);
 
-        // act & assert
-        var result = _validator.TestValidate(command);
-        result.ShouldNotHaveValidationErrorFor(x => x.CancellationToken);
-      }
-
-      [Fact]
-      public void CancellationToken_WhenCancelled_ShouldNotHaveValidationError()
-      {
-        // arrange
-        using var cts = new CancellationTokenSource();
-        cts.Cancel();
-        var command = new ResendConfirmationEmailCommand(CreateEmailDto(CreateValidEmail()), cts.Token);
-
-        // act & assert
-        var result = _validator.TestValidate(command);
-        result.ShouldNotHaveValidationErrorFor(x => x.CancellationToken);
-      }
-
-      [Fact]
-      public void CancellationToken_WhenDefault_ShouldNotHaveValidationError()
-      {
-        // arrange
-        var command = new ResendConfirmationEmailCommand(CreateEmailDto(CreateValidEmail()), CancellationToken.None);
-
-        // act & assert
-        var result = _validator.TestValidate(command);
-        result.ShouldNotHaveValidationErrorFor(x => x.CancellationToken);
-      }
+      // act & assert
+      var result = _validator.TestValidate(command);
+      result.ShouldNotHaveValidationErrorFor(x => x.CancellationToken);
     }
+
+    [Fact]
+    public void CancellationToken_WhenCancelled_ShouldNotHaveValidationError()
+    {
+      // arrange
+      using var cts = new CancellationTokenSource();
+      cts.Cancel();
+      var command = new ResendConfirmationEmailCommand(CreateEmailDto(CreateValidEmail()), cts.Token);
+
+      // act & assert
+      var result = _validator.TestValidate(command);
+      result.ShouldNotHaveValidationErrorFor(x => x.CancellationToken);
+    }
+
+    [Fact]
+    public void CancellationToken_WhenDefault_ShouldNotHaveValidationError()
+    {
+      // arrange
+      var command = new ResendConfirmationEmailCommand(CreateEmailDto(CreateValidEmail()), CancellationToken.None);
+
+      // act & assert
+      var result = _validator.TestValidate(command);
+      result.ShouldNotHaveValidationErrorFor(x => x.CancellationToken);
+    }
+  }
 
   public class EdgeCaseTests : ResendConfirmationEmailCommandValidatorTests
   {

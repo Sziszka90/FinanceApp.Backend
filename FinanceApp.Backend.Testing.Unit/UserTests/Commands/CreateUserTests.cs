@@ -1,6 +1,6 @@
-﻿using FinanceApp.Backend.Application.UserApi.UserCommands.CreateUser;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Application.UserApi.UserCommands.CreateUser;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;

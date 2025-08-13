@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 

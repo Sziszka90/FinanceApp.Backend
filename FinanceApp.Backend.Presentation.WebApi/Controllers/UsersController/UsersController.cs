@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Application.UserApi.UserCommands.ConfirmUserEmail;
 using FinanceApp.Backend.Application.UserApi.UserCommands.CreateUser;
@@ -12,7 +13,6 @@ using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Asp.Versioning;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Controllers.UsersController;
 

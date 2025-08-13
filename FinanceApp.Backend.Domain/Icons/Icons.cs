@@ -2,22 +2,22 @@ namespace FinanceApp.Backend.Domain.Icons;
 
 public static class Icons
 {
-  public const string IconShopping = "fa-solid fa-bag-shopping";
-  public const string IconGroceries = "fa-solid fa-cart-shopping";
-  public const string IconEntertainment = "fa-solid fa-gamepad";
-  public const string IconCar = "fa-solid fa-car";
-  public const string IconTransport = "fa-solid fa-train";
-  public const string IconHealth = "fa-solid fa-suitcase-medical";
-  public const string IconUtilities = "fa-solid fa-plug";
-  public const string IconEducation = "fa-solid fa-book";
-  public const string IconTravel = "fa-solid fa-umbrella-beach";
-  public const string IconDining = "fa-solid fa-utensils";
-  public const string IconGifts = "fa-solid fa-gift";
-  public const string IconSalary = "fa-solid fa-sack-dollar";
-  public const string IconHome = "fa-solid fa-house";
-  public const string IconPersonalCare = "fa-solid fa-bath";
-  public const string IconClothing = "fa-solid fa-shirt";
-  public const string IconPhoneInternet = "fa-solid fa-phone";
-  public const string IconTaxes = "fa-solid fa-money-bill";
-  public const string IconMiscellaneous = "fa-solid fa-question";
+  public const string ICON_SHOPPING = "fa-solid fa-bag-shopping";
+  public const string ICON_GROCERIES = "fa-solid fa-cart-shopping";
+  public const string ICON_ENTERTAINMENT = "fa-solid fa-gamepad";
+  public const string ICON_CAR = "fa-solid fa-car";
+  public const string ICON_TRANSPORT = "fa-solid fa-train";
+  public const string ICON_HEALTH = "fa-solid fa-suitcase-medical";
+  public const string ICON_UTILITIES = "fa-solid fa-plug";
+  public const string ICON_EDUCATION = "fa-solid fa-book";
+  public const string ICON_TRAVEL = "fa-solid fa-umbrella-beach";
+  public const string ICON_DINING = "fa-solid fa-utensils";
+  public const string ICON_GIFTS = "fa-solid fa-gift";
+  public const string ICON_SALARY = "fa-solid fa-sack-dollar";
+  public const string ICON_HOME = "fa-solid fa-house";
+  public const string ICON_PERSONAL_CARE = "fa-solid fa-bath";
+  public const string ICON_CLOTHING = "fa-solid fa-shirt";
+  public const string ICON_PHONE_INTERNET = "fa-solid fa-phone";
+  public const string ICON_TAXES = "fa-solid fa-money-bill";
+  public const string ICON_MISCELLANEOUS = "fa-solid fa-question";
 }

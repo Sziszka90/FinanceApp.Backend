@@ -1,4 +1,4 @@
-﻿using FinanceApp.Backend.Application.Abstractions.CQRS;
+using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 
