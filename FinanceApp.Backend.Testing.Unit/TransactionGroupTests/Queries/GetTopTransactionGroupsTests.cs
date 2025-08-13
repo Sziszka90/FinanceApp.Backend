@@ -21,7 +21,6 @@ public class GetTopTransactionGroupsTests : TestBase
     _handler = new GetTopTransactionGroupsQueryHandler(
       _loggerMock.Object,
       TransactionRepositoryMock.Object,
-      UserRepositoryMock.Object,
       ExchangeRateRepositoryMock.Object,
       _userServiceMock.Object
     );

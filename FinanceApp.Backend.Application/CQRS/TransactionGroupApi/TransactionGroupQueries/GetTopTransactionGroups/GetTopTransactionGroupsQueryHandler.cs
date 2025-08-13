@@ -13,20 +13,17 @@ public class GetTopTransactionGroupsQueryHandler : IQueryHandler<GetTopTransacti
 {
   private readonly ILogger<GetTopTransactionGroupsQueryHandler> _logger;
   private readonly ITransactionRepository _transactionRepository;
-  private readonly IUserRepository _userRepository;
   private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUserService _userService;
 
   public GetTopTransactionGroupsQueryHandler(
     ILogger<GetTopTransactionGroupsQueryHandler> logger,
     ITransactionRepository transactionRepository,
-    IUserRepository userRepository,
     IExchangeRateRepository exchangeRateRepository,
     IUserService userService)
   {
     _logger = logger;
     _transactionRepository = transactionRepository;
-    _userRepository = userRepository;
     _exchangeRateRepository = exchangeRateRepository;
     _userService = userService;
   }

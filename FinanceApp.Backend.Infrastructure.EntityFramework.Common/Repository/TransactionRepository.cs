@@ -4,8 +4,10 @@ using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Domain.Enums;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
@@ -177,36 +179,71 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
   {
     try
     {
-      // Use raw SQL for optimal performance with datetimeoffset comparison
-      IQueryable<Transaction> query = _dbContext.Transaction
-        .FromSqlRaw(@"
-          SELECT t.* FROM [Transaction] t
-          WHERE t.UserId = {0} AND t.TransactionGroupId IS NOT NULL
-          AND t.TransactionDate >= {1} AND t.TransactionDate <= {2}",
-          userId, startDate, endDate);
+      // Use raw SQL with proper parameterization for aggregation at database level
+      var sql = @"
+        SELECT
+          tg.Id as TransactionGroupId,
+          tg.Name,
+          tg.Description,
+          tg.GroupIcon,
+          t.Currency,
+          SUM(t.Amount) as TotalAmount,
+          COUNT(*) as TransactionCount
+        FROM ""Transaction"" t
+        INNER JOIN ""TransactionGroup"" tg ON t.TransactionGroupId = tg.Id
+        WHERE t.UserId = @userId AND t.TransactionGroupId IS NOT NULL
+        AND t.TransactionDate >= @startDate AND t.TransactionDate <= @endDate
+        GROUP BY tg.Id, t.Currency
+        ORDER BY SUM(t.Amount) DESC
+        LIMIT @topCount";
 
-      if (noTracking)
+      using var command = _dbContext.Database.GetDbConnection().CreateCommand();
+      command.CommandText = sql;
+
+      // Use database-agnostic parameter creation
+      var userIdParam = command.CreateParameter();
+      userIdParam.ParameterName = "@userId";
+      userIdParam.Value = userId;
+      command.Parameters.Add(userIdParam);
+
+      var startDateParam = command.CreateParameter();
+      startDateParam.ParameterName = "@startDate";
+      startDateParam.Value = startDate;
+      command.Parameters.Add(startDateParam);
+
+      var endDateParam = command.CreateParameter();
+      endDateParam.ParameterName = "@endDate";
+      endDateParam.Value = endDate;
+      command.Parameters.Add(endDateParam);
+
+      var topCountParam = command.CreateParameter();
+      topCountParam.ParameterName = "@topCount";
+      topCountParam.Value = topCount;
+      command.Parameters.Add(topCountParam);
+
+      var result = new List<TransactionGroupAggregate>();
+      using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+      while (await reader.ReadAsync(cancellationToken))
       {
-        query = query.AsNoTracking();
-      }
+        var transactionGroupId = reader.GetGuid(0); // TransactionGroupId
+        var name = reader.GetString(1); // Name
+        var description = reader.IsDBNull(2) ? null : reader.GetString(2); // Description
+        var groupIcon = reader.IsDBNull(3) ? null : reader.GetString(3); // GroupIcon
+        var currency = (CurrencyEnum)reader.GetInt32(4); // Currency
+        var totalAmount = reader.GetDecimal(5); // TotalAmount
+        var transactionCount = reader.GetInt32(6); // TransactionCount
 
-      var transactions = await query
-        .Include(t => t.TransactionGroup)
-        .ToListAsync(cancellationToken);
+        var transactionGroup = new TransactionGroup(name, description, groupIcon, null!) { Id = transactionGroupId };
 
-      // Group and aggregate in memory
-      var result = transactions
-        .GroupBy(t => new { TransactionGroupId = t.TransactionGroup!.Id, Currency = t.Value.Currency })
-        .Select(g => new TransactionGroupAggregate
+        result.Add(new TransactionGroupAggregate
         {
-          TransactionGroup = g.First().TransactionGroup!,
-          Currency = g.Key.Currency,
-          TotalAmount = g.Sum(t => t.Value.Amount),
-          TransactionCount = g.Count()
-        })
-        .OrderByDescending(g => g.TotalAmount)
-        .Take(topCount)
-        .ToList();
+          TransactionGroup = transactionGroup,
+          Currency = currency,
+          TotalAmount = totalAmount,
+          TransactionCount = transactionCount
+        });
+      }
 
       return result;
     }
