@@ -18,7 +18,6 @@ public class ResendConfirmationEmailTests : TestBase
 
     _handler = new ResendConfirmationEmailCommandHandler(
       _loggerMock.Object,
-      Mapper,
       UserRepositoryMock.Object,
       UnitOfWorkMock.Object,
       SmtpEmailSenderMock.Object,
