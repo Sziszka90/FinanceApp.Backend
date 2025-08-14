@@ -75,8 +75,6 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
                                                    passwordHash,
                                                    request.CreateUserDto.BaseCurrency), cancellationToken);
 
-    await _unitOfWork.SaveChangesAsync(cancellationToken);
-
     _logger.LogInformation("User created with ID:{Id}", user.Id);
 
     var defaultGroups = CreateDefaultTransactionGroups(user);
