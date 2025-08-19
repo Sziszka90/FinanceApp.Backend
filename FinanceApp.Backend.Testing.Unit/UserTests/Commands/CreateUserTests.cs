@@ -157,8 +157,8 @@ public class CreateUserTests : TestBase
 
     UserRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     TransactionGroupRepositoryMock.Verify(x => x.BatchCreateTransactionGroupsAsync(
-      It.IsAny<List<TransactionGroup>>(), It.IsAny<CancellationToken>()), Times.Once);
-    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+      It.IsAny<List<TransactionGroup>>(), It.IsAny<CancellationToken>()), Times.Never);
+    UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
   }
 

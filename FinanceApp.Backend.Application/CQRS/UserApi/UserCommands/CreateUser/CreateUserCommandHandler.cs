@@ -75,12 +75,6 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
                                                    passwordHash,
                                                    request.CreateUserDto.BaseCurrency), cancellationToken);
 
-    _logger.LogInformation("User created with ID:{Id}", user.Id);
-
-    var defaultGroups = CreateDefaultTransactionGroups(user);
-
-    await _transactionGroupRepository.BatchCreateTransactionGroupsAsync(defaultGroups, cancellationToken);
-
     var confirmationToken = await _tokenService.GenerateTokenAsync(user.Email, TokenType.EmailConfirmation);
 
     if (!confirmationToken.IsSuccess)
@@ -94,6 +88,14 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
     _logger.LogInformation("User created with ID:{Id}", user.Id);
+
+    var defaultGroups = CreateDefaultTransactionGroups(user);
+
+    await _transactionGroupRepository.BatchCreateTransactionGroupsAsync(defaultGroups, cancellationToken);
+
+    await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+    _logger.LogInformation("Default transaction groups created for user with ID:{Id}", user.Id);
 
     var emailConfirmationResult = await _smtpEmailSender.SendEmailConfirmationAsync(user, confirmationToken.Data!);
 

@@ -1,11 +1,9 @@
-using System.Security.Claims;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 

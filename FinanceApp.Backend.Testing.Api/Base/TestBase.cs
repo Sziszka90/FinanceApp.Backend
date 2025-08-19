@@ -115,7 +115,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
     var user = await dbContext.User.FindAsync(CreatedUserId);
     if (user != null)
     {
-      user.IsEmailConfirmed = true;
+      user.ConfirmEmail();
       await dbContext.SaveChangesAsync();
     }
   }
