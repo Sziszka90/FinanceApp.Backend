@@ -29,7 +29,7 @@ public class SmtpEmailSender : ISmtpEmailSender
       EnableSsl = true
     };
 
-    var confirmationLink = $"https://www.financeapp.fun/api/users/{user.Id}/email-confirmation?token={confirmationToken}";
+    var confirmationLink = $"https://www.financeapp.fun/api/v1/users/{user.Id}/email-confirmation?token={confirmationToken}";
 
     var model = new
     {
@@ -85,7 +85,7 @@ public class SmtpEmailSender : ISmtpEmailSender
       EnableSsl = true
     };
 
-    var resetPasswordLink = $"https://www.financeapp.fun/password-reset?token={resetPasswordToken}";
+    var resetPasswordLink = $"https://www.financeapp.fun/api/v1/password-reset?token={resetPasswordToken}";
 
     var model = new
     {
