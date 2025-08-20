@@ -115,7 +115,9 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
         var columns = line.Split(',');
 
-        var amount = decimal.TryParse(CleanCsvField(columns[3]), NumberStyles.Number | NumberStyles.AllowThousands,
+        var cleanedAmount = CleanCsvField(RemoveSpaces(columns[3]));
+
+        var amount = decimal.TryParse(cleanedAmount, NumberStyles.Number | NumberStyles.AllowThousands,
           CultureInfo.InvariantCulture, out var parsedAmount) ? parsedAmount : 0;
 
         var transaction = new Transaction(
@@ -147,4 +149,12 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     return Regex.Replace(input.Trim(), @"\s+", " ");
   }
 
+  private string RemoveSpaces(string input)
+  {
+    if (string.IsNullOrEmpty(input))
+    {
+      return input;
+    }
+    return Regex.Replace(input, @"\s+", "");
+  }
 }
