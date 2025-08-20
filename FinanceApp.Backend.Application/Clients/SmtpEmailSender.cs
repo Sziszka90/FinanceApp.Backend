@@ -85,7 +85,7 @@ public class SmtpEmailSender : ISmtpEmailSender
       EnableSsl = true
     };
 
-    var resetPasswordLink = $"https://www.financeapp.fun/api/v1/password-reset?token={resetPasswordToken}";
+    var resetPasswordLink = $"https://www.financeapp.fun/api/v1/users/password-reset?token={resetPasswordToken}";
 
     var model = new
     {
