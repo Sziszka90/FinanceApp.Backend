@@ -1,6 +1,5 @@
 using Asp.Versioning;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.ValidateToken;
-using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Application.Dtos.TokenDtos;
 using FinanceApp.Backend.Application.UserApi.UserCommands.ValidateToken;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
