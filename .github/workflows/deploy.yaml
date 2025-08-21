@@ -76,7 +76,7 @@ jobs:
         run: |
           method_coverage=$(grep "Method coverage:" coverage-report/Summary.txt | grep -o '[0-9.]*%' | head -1 | tr -d '%')
           echo "Method Coverage (Application + Domain): ${method_coverage}%"
-          threshold=50
+          threshold=80
           coverage_int=${method_coverage%.*}
           if [ "$coverage_int" -lt "$threshold" ]; then
             echo "❌ Combined coverage $coverage_int% is below threshold $threshold%"

@@ -2,21 +2,21 @@
 
 📦 **A sophisticated personal finance management platform with intelligent transaction processing**
 
-This project is a full-stack personal finance application designed to help users track, categorize, and analyze their financial transactions with AI-powered insights. It provides a complete enterprise-grade solution from frontend UI to backend APIs, intelligent processing, and secure data management.
+This project is a full-stack personal finance application designed to help users track, categorize, and analyze their financial transactions with AI-powered insights. It provides a complete solution from frontend UI to backend APIs, intelligent processing, and secure data management.
 
 ### 🎯 Current Features
 
-✅ **User Management** - Registration, email confirmation, password reset, user base currency  
+✅ **User Management** - Registration, email confirmation, password reset, user base currency
 
-✅ **Authentication** - JWT-based auth with token caching and invalidation  
+✅ **Authentication** - JWT-based auth with token caching and invalidation
 
-✅ **Transactions CRUD** - Create, read, update, delete transactions  
+✅ **Transactions CRUD** - Create, read, update, delete transactions
 
 ✅ **Transaction Groups CRUD** - Create, read, update, delete transaction groups
 
 ✅ **AI Integration** - Async LLM processing via RabbitMQ for matching transactions and transaction groups
 
-✅ **Currency Exchange** - Recurring background job querying live exchange rates for multi-currency support 
+✅ **Currency Exchange** - Recurring background job querying live exchange rates for multi-currency support
 
 ✅ **Caching System** - Redis-based token caching
 
@@ -50,7 +50,7 @@ For detailed upcoming features and development progress, please check our [GitHu
 - **Domain Layer** Domain objects enforce self-mutation constraints
 - **Service Layer Pattern** - Business logic encapsulation in dedicated services
 - **Client Pattern** - External API integration through dedicated client classes
-- **Background Jobs** - Scheduled and recurring tasks for maintenance operations
+- **Background Jobs** - Scheduled and recurring tasks for operations
 - **Dependency Injection** throughout all layers
 - **Async/Await** for non-blocking operations
 - **Event-Driven Architecture** with RabbitMQ
@@ -142,44 +142,51 @@ Production configuration is managed through **GitHub Actions env variables** and
 ### **Authentication Endpoints**
 
 ```http
-POST /api/auth/login             # User login
-POST /api/auth/validate-token    # Validate JWT token
+POST   /api/v1/auth/login                   # User login
+POST   /api/v1/auth/logout                  # User logout
+```
+
+### **Token Endpoints**
+
+```http
+POST   /api/v1/token/validate               # Validate token
 ```
 
 ### **User Management Endpoints**
 
 ```http
-GET    /api/users                    # Get current active user (requires auth)
-GET    /api/users/{id}               # Get user by ID (requires auth)
-POST   /api/users                    # Create new user (registration)
-PUT    /api/users                    # Update current user (requires auth)
-DELETE /api/users/{id}               # Delete user by ID (requires auth)
-GET    /api/users/{id}/confirm-email # Confirm user email with token
-POST   /api/users/resend-confirmation-email  # Resend email confirmation
-POST   /api/users/forgot-password    # Request password reset
-POST   /api/users/update-password    # Update password with reset token
+GET    /api/v1/users/{id}/email-confirmation    # Confirm user email with token
+POST   /api/v1/users/email-confirmation         # Resend email confirmation
+POST   /api/v1/users/password-reset             # Request password reset email
+PATCH  /api/v1/users/password                   # Update password
+GET    /api/v1/users/{id}                       # Get user by ID
+GET    /api/v1/users                            # Get current active user (requires auth)
+POST   /api/v1/users                            # Register new user
+PUT    /api/v1/users                            # Update current user (requires auth)
+DELETE /api/v1/users/{id}                       # Delete user by ID (requires auth)
 ```
 
 ### **Transaction Endpoints**
 
 ```http
-GET    /api/transactions             # Get all transactions with optional filters (requires auth)
-GET    /api/transactions/{id}        # Get transaction by ID (requires auth)
-POST   /api/transactions             # Create new transaction (requires auth)
-PUT    /api/transactions/{id}        # Update transaction (requires auth)
-DELETE /api/transactions/{id}        # Delete transaction (requires auth)
-GET    /api/transactions/summary     # Get transaction summary/analytics (requires auth)
-POST   /api/transactions/upload-csv  # Bulk CSV upload (requires auth)
+GET    /api/v1/transactions                 # Get all transactions (requires auth)
+GET    /api/v1/transactions/{id}            # Get transaction by ID (requires auth)
+POST   /api/v1/transactions                 # Create new transaction (requires auth)
+PUT    /api/v1/transactions/{id}            # Update transaction (requires auth)
+DELETE /api/v1/transactions/{id}            # Delete transaction (requires auth)
+GET    /api/v1/transactions/summary         # Get transaction summary/analytics (requires auth)
+POST   /api/v1/transactions/import          # Bulk CSV upload (requires auth)
 ```
 
 ### **Transaction Group Endpoints**
 
 ```http
-GET    /api/transactiongroups           # Get all transaction groups (requires auth)
-GET    /api/transactiongroups/{id}      # Get transaction group by ID (requires auth)
-POST   /api/transactiongroups           # Create new transaction group (requires auth)
-PUT    /api/transactiongroups/{id}      # Update transaction group (requires auth)
-DELETE /api/transactiongroups/{id}      # Delete transaction group (requires auth)
+GET    /api/v1/transactiongroups            # Get all transaction groups (requires auth)
+GET    /api/v1/transactiongroups/{id}       # Get transaction group by ID (requires auth)
+POST   /api/v1/transactiongroups            # Create new transaction group (requires auth)
+PUT    /api/v1/transactiongroups/{id}       # Update transaction group (requires auth)
+DELETE /api/v1/transactiongroups/{id}       # Delete transaction group (requires auth)
+GET    /api/v1/transactiongroups/top        # Get top transaction groups (requires auth)
 ```
 
 ### **Response Formats**
@@ -211,16 +218,8 @@ All endpoints use standardized **Result objects** for consistent response handli
 
 ## 🧪 Testing
 
-```bash
-# Run unit tests
-dotnet test FinanceApp.Backend.Testing.Unit
-
-# Run integration tests
-dotnet test FinanceApp.Backend.Testing.Integration
-
-# Generate coverage report
-dotnet test --collect:"XPlat Code Coverage"
-```
+All unit and integration tests are run automatically in the CI/CD pipeline.  
+Test coverage is checked in each build and is consistently above **80%**.
 
 ## 🚀 Deployment
 
@@ -250,6 +249,7 @@ The application is deployed as **containerized microservices** on **Azure Contai
 **Deployment Flow:**
 
 1. **Push to main** → Triggers GitHub Actions workflow
+2. **Code quality** → Runs code quality che
 2. **Build & Test** → Runs automated test suite
 3. **Containerize** → Creates optimized Docker images
 4. **Deploy** → Updates Azure Container Apps with zero downtime
