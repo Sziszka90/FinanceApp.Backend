@@ -7,9 +7,10 @@ public interface ILLMProcessorClient
   /// <summary>
   /// Matches transaction names with existing groups.
   /// </summary>
+  /// <param name="userId"></param>
   /// <param name="transactionNames"></param>
   /// <param name="existingGroups"></param>
   /// <param name="correlationId"></param>
   /// <returns>Matched Dictionary</returns>
-  Task<Result<bool>> MatchTransactionGroup(List<string> transactionNames, List<string> existingGroups, string correlationId);
+  Task<Result<bool>> MatchTransactionGroup(string userId, List<string> transactionNames, List<string> existingGroups, string correlationId);
 }

@@ -62,9 +62,9 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     var existingTransactionGroups = await _transactionGroupRepository.GetAllAsync(false, cancellationToken: cancellationToken);
 
     var llmProcessResult = await _llmProcessorClient.MatchTransactionGroup(
+      user.Data!.Id.ToString(),
       transactions.Select(t => t.Name).ToList(),
       existingTransactionGroups.Select(g => g.Name).ToList(),
-      user.Data!.Id.ToString(),
       request.uploadCsvFileDto.CorrelationId
     );
 
