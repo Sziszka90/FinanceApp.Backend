@@ -96,9 +96,10 @@ public class TransactionGroupsController : ControllerBase
     [FromQuery] DateTimeOffset startDate,
     [FromQuery] DateTimeOffset endDate,
     [FromQuery] int top = 10,
+    [FromQuery] string? userId = null,
     CancellationToken cancellationToken = default)
   {
-    var result = await _mediator.Send(new GetTopTransactionGroupsQuery(startDate, endDate, top), cancellationToken);
+    var result = await _mediator.Send(new GetTopTransactionGroupsQuery(startDate, endDate, top, userId), cancellationToken);
     return this.GetResult(result);
   }
 }

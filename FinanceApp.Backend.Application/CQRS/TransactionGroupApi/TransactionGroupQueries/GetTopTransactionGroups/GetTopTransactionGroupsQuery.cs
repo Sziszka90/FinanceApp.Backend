@@ -7,5 +7,6 @@ namespace FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQue
 public record GetTopTransactionGroupsQuery(
     DateTimeOffset StartDate,
     DateTimeOffset EndDate,
-    int Top
+    int Top,
+    string? UserId
 ) : IQuery<Result<List<TopTransactionGroupDto>>>;
