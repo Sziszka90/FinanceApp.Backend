@@ -22,21 +22,21 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
   /// <inheritdoc />
   public async Task<Result<McpEnvelope>> Handle(McpCommand request, CancellationToken cancellationToken)
   {
-    request.McpRequest.Arguments.TryGetValue("userId", out var userIdObj);
+    request.McpRequest.Parameters.TryGetValue("userId", out var userIdObj);
     Guid userId = ConvertUserIdToGuid(userIdObj);
 
-    request.McpRequest.Arguments.TryGetValue("startDate", out var startDateObj);
+    request.McpRequest.Parameters.TryGetValue("startDate", out var startDateObj);
     DateTimeOffset startDate = ConvertToDateTimeOffset(startDateObj);
 
-    request.McpRequest.Arguments.TryGetValue("endDate", out var endDateObj);
+    request.McpRequest.Parameters.TryGetValue("endDate", out var endDateObj);
     DateTimeOffset endDate = ConvertToDateTimeOffset(endDateObj);
 
-    request.McpRequest.Arguments.TryGetValue("top", out var topObj);
+    request.McpRequest.Parameters.TryGetValue("top", out var topObj);
     int top = topObj is int t ? t : 10;
 
-    switch (request.McpRequest.Name)
+    switch (request.McpRequest.Action)
     {
-      case "GetTopTransactionGroups":
+      case "get_top_transaction_groups":
         {
           var transactionGroups = await _transactionRepository.GetTransactionGroupAggregatesAsync(
             userId: userId,
@@ -49,14 +49,14 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
 
           return Result.Success(new McpEnvelope
           {
-            ToolName = request.McpRequest.Name,
+            ToolName = request.McpRequest.Action,
             Payload = transactionGroups
           });
         }
 
       default:
-        _logger.LogError("Unsupported MCP request name: {RequestName}", request.McpRequest.Name);
-        return Result.Failure<McpEnvelope>(ApplicationError.DefaultError($"MCP Command Handler: Unsupported MCP request name '{request.McpRequest.Name}'"));
+        _logger.LogError("Unsupported MCP request action: {RequestAction}", request.McpRequest.Action);
+        return Result.Failure<McpEnvelope>(ApplicationError.DefaultError($"MCP Command Handler: Unsupported MCP request action '{request.McpRequest.Action}'"));
     }
   }
 

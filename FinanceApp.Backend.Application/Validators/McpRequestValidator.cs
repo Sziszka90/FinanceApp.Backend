@@ -6,34 +6,113 @@ namespace FinanceApp.Backend.Application.Validators;
 
 public class McpRequestValidator : AbstractValidator<McpRequest>
 {
+  private static bool IsConvertibleToDateTimeOffset(object? value)
+  {
+    if (value is DateTimeOffset || value is DateTime)
+    {
+      return true;
+    }
+
+    if (value is string s && DateTimeOffset.TryParse(s, out _))
+    {
+      return true;
+    }
+
+    if (value is System.Text.Json.JsonElement json)
+    {
+      if (json.ValueKind == System.Text.Json.JsonValueKind.String &&
+          DateTimeOffset.TryParse(json.GetString(), out _))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static bool IsConvertibleToInt(object? value)
+  {
+    if (value is int)
+    {
+      return true;
+    }
+
+    if (value is string s && int.TryParse(s, out _))
+    {
+      return true;
+    }
+
+    if (value is System.Text.Json.JsonElement json)
+    {
+      if (json.ValueKind == System.Text.Json.JsonValueKind.Number && json.TryGetInt32(out _))
+      {
+        return true;
+      }
+
+      if (json.ValueKind == System.Text.Json.JsonValueKind.String && int.TryParse(json.GetString(), out _))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static bool IsConvertibleToGuid(object? value)
+  {
+    if (value is Guid)
+    {
+      return true;
+    }
+
+    if (value is string s && Guid.TryParse(s, out _))
+    {
+      return true;
+    }
+
+    if (value is System.Text.Json.JsonElement json)
+    {
+      if (json.ValueKind == System.Text.Json.JsonValueKind.String && Guid.TryParse(json.GetString(), out _))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public McpRequestValidator()
   {
-    RuleFor(x => x.Arguments)
+    RuleFor(x => x.Parameters)
       .NotEmpty()
-      .WithMessage("Arguments cannot be empty.");
+      .WithMessage("Parameters cannot be empty.");
 
-    RuleFor(x => x.Name)
+    RuleFor(x => x.Action)
       .NotEmpty()
-      .WithMessage("Name cannot be empty.");
+      .WithMessage("Action cannot be empty.");
 
-    RuleFor(x => x.Arguments)
+    RuleFor(x => x.Parameters)
       .Must(args => args is not null && args.Count > 0)
-      .WithMessage("Arguments must contain at least one entry.");
+      .WithMessage("Parameters must contain at least one entry.");
 
-    RuleFor(x => x.Arguments)
-      .Must(args => args != null && args.TryGetValue("startDate", out var value) && value is DateTime)
-      .WithMessage("Argument 'startDate' is required and must be of type DateTime.");
+    RuleFor(x => x.Parameters)
+      .Must(args => args != null && args.TryGetValue("startDate", out var value) && IsConvertibleToDateTimeOffset(value))
+      .WithMessage("Parameter 'startDate' is required and must be convertible to DateTimeOffset.");
 
-    RuleFor(x => x.Arguments)
-      .Must(args => args != null && args.TryGetValue("endDate", out var value) && value is DateTime)
-      .WithMessage("Argument 'endDate' is required and must be of type DateTime.");
+    RuleFor(x => x.Parameters)
+      .Must(args => args != null && args.TryGetValue("endDate", out var value) && IsConvertibleToDateTimeOffset(value))
+      .WithMessage("Parameter 'endDate' is required and must be convertible to DateTimeOffset.");
 
-    RuleFor(x => x.Arguments)
-      .Must(args => args != null && args.TryGetValue("top", out var value) && value is int)
-      .WithMessage("Argument 'top' is required and must be of type int.");
+    RuleFor(x => x.Parameters)
+      .Must(args => args != null && args.TryGetValue("top", out var value) && IsConvertibleToInt(value))
+      .WithMessage("Parameter 'top' is required and must be of type int.");
 
-    RuleFor(x => x.Arguments)
-      .Must(args => args != null && args.TryGetValue("userId", out var value) && value is Guid)
-      .WithMessage("Argument 'userId' is required and must be of type Guid.");
+    RuleFor(x => x.Parameters)
+      .Must(args => args != null && args.TryGetValue("userId", out var value) && IsConvertibleToGuid(value))
+      .WithMessage("Parameter 'userId' is required and must be of type Guid.");
+
+    RuleFor(x => x.Parameters)
+      .Must(args => args != null && args.TryGetValue("correlationId", out var value) && IsConvertibleToGuid(value))
+      .WithMessage("Parameter 'correlationId' is required and must be of type Guid.");
   }
 }
