@@ -12,20 +12,20 @@ public class SqlQueryBuilder : ISqlQueryBuilder
     var limitClause = isSqlServer ? "OFFSET 0 ROWS FETCH NEXT @topCount ROWS ONLY" : "LIMIT @topCount";
 
     return $@"
-        SELECT
-          tg.Id as TransactionGroupId,
-          tg.Name,
-          tg.Description,
-          tg.GroupIcon,
-          t.Currency,
-          SUM(t.Amount) as TotalAmount,
-          COUNT(*) as TransactionCount
-        FROM {transactionTable} t
-        INNER JOIN {transactionGroupTable} tg ON t.TransactionGroupId = tg.Id
-        WHERE t.UserId = @userId AND t.TransactionGroupId IS NOT NULL
+      SELECT
+        tg.Id as TransactionGroupId,
+        tg.Name,
+        tg.Description,
+        tg.GroupIcon,
+        t.Currency,
+        SUM(t.Amount) as TotalAmount,
+        COUNT(*) as TransactionCount
+      FROM {transactionTable} t
+      INNER JOIN {transactionGroupTable} tg ON t.TransactionGroupId = tg.Id
+      WHERE t.UserId = @userId AND t.TransactionGroupId IS NOT NULL
         AND t.TransactionDate >= @startDate AND t.TransactionDate <= @endDate
-        GROUP BY tg.Id, t.Currency
-        ORDER BY SUM(t.Amount) DESC
-        {limitClause}";
+      GROUP BY tg.Id, tg.Name, tg.Description, tg.GroupIcon, t.Currency
+      ORDER BY SUM(t.Amount) DESC
+      {limitClause}";
   }
 }

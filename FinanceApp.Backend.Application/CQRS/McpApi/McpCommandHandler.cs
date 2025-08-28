@@ -32,7 +32,7 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
     DateTimeOffset endDate = ConvertToDateTimeOffset(endDateObj);
 
     request.McpRequest.Parameters.TryGetValue("top", out var topObj);
-    int top = topObj is int t ? t : 10;
+    int top = ConvertToInt(topObj);
 
     switch (request.McpRequest.Action)
     {
@@ -60,19 +60,27 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
     }
   }
 
-  private Guid ConvertUserIdToGuid(object? userIdObj)
+  private Guid ConvertUserIdToGuid(object? value)
   {
-    if (userIdObj is Guid guid)
+    if (value is Guid guid)
     {
       return guid;
     }
 
-    if (userIdObj is string str && Guid.TryParse(str, out var parsedGuid))
+    if (value is string str && Guid.TryParse(str, out var parsedGuid))
     {
       return parsedGuid;
     }
 
-    throw new ArgumentException("Value cannot be converted to Guid.", nameof(userIdObj));
+    if (value is System.Text.Json.JsonElement json)
+    {
+      if (json.ValueKind == System.Text.Json.JsonValueKind.String && Guid.TryParse(json.GetString(), out var jsonGuid))
+      {
+        return jsonGuid;
+      }
+    }
+
+    throw new ArgumentException("Value cannot be converted to Guid.", nameof(value));
   }
 
   private DateTimeOffset ConvertToDateTimeOffset(object? value)
@@ -92,6 +100,42 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
       return parsed;
     }
 
+    if (value is System.Text.Json.JsonElement json)
+    {
+      if (json.ValueKind == System.Text.Json.JsonValueKind.String && DateTimeOffset.TryParse(json.GetString(), out var jsonDateTime))
+      {
+        return jsonDateTime;
+      }
+    }
+
     throw new ArgumentException("Value cannot be converted to DateTimeOffset.", nameof(value));
+  }
+
+  private int ConvertToInt(object? value)
+  {
+    if (value is int i)
+    {
+      return i;
+    }
+
+    if (value is string s && int.TryParse(s, out var parsedInt))
+    {
+      return parsedInt;
+    }
+
+    if (value is System.Text.Json.JsonElement json)
+    {
+      if (json.ValueKind == System.Text.Json.JsonValueKind.String && int.TryParse(json.GetString(), out var jsonIntStr))
+      {
+        return jsonIntStr;
+      }
+
+      if (json.ValueKind == System.Text.Json.JsonValueKind.Number && json.TryGetInt32(out var jsonInt))
+      {
+        return jsonInt;
+      }
+    }
+
+    throw new ArgumentException("Value cannot be converted to int.", nameof(value));
   }
 }
