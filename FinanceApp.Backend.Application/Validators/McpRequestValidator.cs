@@ -1,5 +1,5 @@
-using System.Data;
 using FinanceApp.Backend.Application.Dtos.McpDtos;
+using FinanceApp.Backend.Application.Models;
 using FluentValidation;
 
 namespace FinanceApp.Backend.Application.Validators;
@@ -89,7 +89,9 @@ public class McpRequestValidator : AbstractValidator<McpRequest>
 
     RuleFor(x => x.Action)
       .NotEmpty()
-      .WithMessage("Action cannot be empty.");
+      .WithMessage("Action cannot be empty.")
+      .Must(action => SupportedTools.SupportedActions.Contains(action))
+      .WithMessage("Action must be one of the supported tools.");
 
     RuleFor(x => x.Parameters)
       .Must(parameters => parameters != null && parameters.TryGetValue("user_id", out var value) && IsConvertibleToGuid(value))

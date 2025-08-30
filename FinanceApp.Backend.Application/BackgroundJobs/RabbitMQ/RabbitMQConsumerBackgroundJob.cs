@@ -68,7 +68,7 @@ public class RabbitMqConsumerServiceBackgroundJob : BackgroundService
       catch (OperationCanceledException)
       {
         _logger.LogInformation("RabbitMQ consumer service was cancelled");
-        throw; 
+        throw;
       }
       catch (Exception ex)
       {

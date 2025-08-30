@@ -75,10 +75,10 @@ public class UploadCsvTests : TestBase
       .ReturnsAsync(transactionGroups);
 
     _llmProcessorClientMock.Setup(x => x.MatchTransactionGroup(
+        user.Id.ToString(),
         It.IsAny<List<string>>(),
         It.IsAny<List<string>>(),
-        It.IsAny<string>(),
-        correlationId))
+        It.IsAny<string>()))
       .ReturnsAsync(Result.Success(true));
 
     TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
@@ -112,9 +112,9 @@ public class UploadCsvTests : TestBase
 
     // Verify LLM processor call
     _llmProcessorClientMock.Verify(x => x.MatchTransactionGroup(
+      user.Id.ToString(),
       It.Is<List<string>>(names => names.Contains("Coffee Shop") && names.Contains("Gas Station")),
       It.Is<List<string>>(groups => groups.Contains("Food") && groups.Contains("Transport")),
-      user.Id.ToString(),
       correlationId), Times.Once);
   }
 
@@ -209,9 +209,9 @@ public class UploadCsvTests : TestBase
     // LLM processor fails
     var llmError = ApplicationError.ExternalCallError("LLM service unavailable");
     _llmProcessorClientMock.Setup(x => x.MatchTransactionGroup(
+        user.Id.ToString(),
         It.IsAny<List<string>>(),
         It.IsAny<List<string>>(),
-        It.IsAny<string>(),
         correlationId))
       .ReturnsAsync(Result.Failure<bool>(llmError));
 
@@ -227,9 +227,9 @@ public class UploadCsvTests : TestBase
     TransactionRepositoryMock.Verify(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     _llmProcessorClientMock.Verify(x => x.MatchTransactionGroup(
-      It.IsAny<List<string>>(),
-      It.IsAny<List<string>>(),
       user.Id.ToString(),
+      It.IsAny<List<string>>(),
+      It.IsAny<List<string>>(),
       correlationId), Times.Once);
   }
 
@@ -263,9 +263,9 @@ public class UploadCsvTests : TestBase
       .ReturnsAsync(transactionGroups);
 
     _llmProcessorClientMock.Setup(x => x.MatchTransactionGroup(
+        user.Id.ToString(),
         It.IsAny<List<string>>(),
         It.IsAny<List<string>>(),
-        It.IsAny<string>(),
         correlationId))
       .ReturnsAsync(Result.Success(true));
 
@@ -282,9 +282,9 @@ public class UploadCsvTests : TestBase
 
     // Verify LLM processor was called with empty transaction list
     _llmProcessorClientMock.Verify(x => x.MatchTransactionGroup(
+      user.Id.ToString(),
       It.Is<List<string>>(names => names.Count == 0),
       It.Is<List<string>>(groups => groups.Count == 0),
-      user.Id.ToString(),
       correlationId), Times.Once);
   }
 
@@ -322,9 +322,9 @@ public class UploadCsvTests : TestBase
       .ReturnsAsync(transactionGroups);
 
     _llmProcessorClientMock.Setup(x => x.MatchTransactionGroup(
-        It.IsAny<List<string>>(),
-        It.IsAny<List<string>>(),
         It.IsAny<string>(),
+        It.IsAny<List<string>>(),
+        It.IsAny<List<string>>(),
         correlationId))
       .ReturnsAsync(Result.Success(true));
 
@@ -380,9 +380,9 @@ public class UploadCsvTests : TestBase
       .ReturnsAsync(new List<TransactionGroup>());
 
     _llmProcessorClientMock.Setup(x => x.MatchTransactionGroup(
-        It.IsAny<List<string>>(),
-        It.IsAny<List<string>>(),
         It.IsAny<string>(),
+        It.IsAny<List<string>>(),
+        It.IsAny<List<string>>(),
         correlationId))
       .ReturnsAsync(Result.Success(true));
 
@@ -433,9 +433,9 @@ public class UploadCsvTests : TestBase
       .ReturnsAsync(new List<TransactionGroup>());
 
     _llmProcessorClientMock.Setup(x => x.MatchTransactionGroup(
-        It.IsAny<List<string>>(),
-        It.IsAny<List<string>>(),
         It.IsAny<string>(),
+        It.IsAny<List<string>>(),
+        It.IsAny<List<string>>(),
         correlationId))
       .ReturnsAsync(Result.Success(true));
 
@@ -485,9 +485,9 @@ public class UploadCsvTests : TestBase
       .ReturnsAsync(new List<TransactionGroup>());
 
     _llmProcessorClientMock.Setup(x => x.MatchTransactionGroup(
-        It.IsAny<List<string>>(),
-        It.IsAny<List<string>>(),
         It.IsAny<string>(),
+        It.IsAny<List<string>>(),
+        It.IsAny<List<string>>(),
         correlationId))
       .ReturnsAsync(Result.Success(true));
 

@@ -26,7 +26,7 @@ public class SqlQueryBuilderTests
     Assert.Contains("OFFSET 0 ROWS FETCH NEXT @topCount ROWS ONLY", result);
     Assert.DoesNotContain("LIMIT", result);
     Assert.Contains("WHERE t.UserId = @userId", result);
-    Assert.Contains("GROUP BY tg.Id, t.Currency", result);
+    Assert.Contains("GROUP BY tg.Id, tg.Name, tg.Description, tg.GroupIcon, t.Currency", result);
     Assert.Contains("ORDER BY SUM(t.Amount) DESC", result);
   }
 
@@ -46,7 +46,7 @@ public class SqlQueryBuilderTests
     Assert.DoesNotContain("OFFSET", result);
     Assert.DoesNotContain("FETCH", result);
     Assert.Contains("WHERE t.UserId = @userId", result);
-    Assert.Contains("GROUP BY tg.Id, t.Currency", result);
+    Assert.Contains("GROUP BY tg.Id, tg.Name, tg.Description, tg.GroupIcon, t.Currency", result);
     Assert.Contains("ORDER BY SUM(t.Amount) DESC", result);
   }
 
