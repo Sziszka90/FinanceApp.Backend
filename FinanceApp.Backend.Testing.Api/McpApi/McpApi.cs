@@ -1,22 +1,17 @@
 using System.Net;
 using System.Net.Http.Json;
 using FinanceApp.Backend.Application.Dtos.McpDtos;
-using Microsoft.AspNetCore.Mvc.Testing;
+using FinanceApp.Backend.Testing.Api.Base;
 
-namespace FinanceApp.Backend.Testing.Api.McpControllerTests;
+namespace FinanceApp.Backend.Testing.Api.McpApi;
 
-public class McpApi : IClassFixture<WebApplicationFactory<Program>>
+public class McpApi : TestBase
 {
-  private readonly HttpClient _client;
-
-  public McpApi(WebApplicationFactory<Program> factory)
-  {
-    _client = factory.CreateClient();
-  }
-
   [Fact]
   public async Task Post_ValidMcpRequest_ReturnsSuccessEnvelope()
   {
+    // arrange
+    await InitializeAsync();
     var mcpRequest = new McpRequest
     {
       Action = "get_top_transaction_groups",
@@ -30,14 +25,15 @@ public class McpApi : IClassFixture<WebApplicationFactory<Program>>
       }
     };
 
-    var response = await _client.PostAsJsonAsync("/api/v1/mcp", mcpRequest);
+    // act
+    var response = await Client.PostAsync(MCP, CreateContent(mcpRequest));
+    var result = await GetContentAsync<McpEnvelope>(response);
 
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-    var envelope = await response.Content.ReadFromJsonAsync<McpEnvelope>();
-    Assert.NotNull(envelope);
-    Assert.Equal("get_top_transaction_groups", envelope.ToolName);
-    Assert.NotNull(envelope.Payload);
+    Assert.NotNull(result);
+    Assert.Equal("get_top_transaction_groups", result.ToolName);
+    Assert.NotNull(result.Payload);
   }
 
   [Fact]
@@ -56,7 +52,7 @@ public class McpApi : IClassFixture<WebApplicationFactory<Program>>
       }
     };
 
-    var response = await _client.PostAsJsonAsync("/api/v1/mcp", mcpRequest);
+    var response = await Client.PostAsync(MCP, CreateContent(mcpRequest));
 
     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
   }

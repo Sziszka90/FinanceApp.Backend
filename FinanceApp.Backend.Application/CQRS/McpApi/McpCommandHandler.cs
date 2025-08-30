@@ -36,7 +36,7 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
 
     switch (request.McpRequest.Action)
     {
-      case "get_top_transaction_groups":
+      case SupportedTools.GET_TOP_TRANSACTION_GROUPS:
         {
           var transactionGroups = await _transactionRepository.GetTransactionGroupAggregatesAsync(
             userId: userId,
