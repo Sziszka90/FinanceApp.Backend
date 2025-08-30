@@ -22,6 +22,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
   protected const string SAVINGS = "/api/v1/savings/";
   protected const string USERS = "/api/v1/users/";
   protected const string AUTH = "/api/v1/auth/";
+  protected const string MCP = "/api/v1/mcp/";
 
   private readonly CustomWebApplicationFactory<Program> _factory;
 

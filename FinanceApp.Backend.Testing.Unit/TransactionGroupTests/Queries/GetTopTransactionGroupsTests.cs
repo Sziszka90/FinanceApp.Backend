@@ -22,6 +22,7 @@ public class GetTopTransactionGroupsTests : TestBase
       _loggerMock.Object,
       TransactionRepositoryMock.Object,
       ExchangeRateRepositoryMock.Object,
+      UserRepositoryMock.Object,
       _userServiceMock.Object
     );
   }
@@ -65,8 +66,6 @@ public class GetTopTransactionGroupsTests : TestBase
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(aggregatedData);
 
-
-
     var exchangeRates = new List<ExchangeRate>();
 
     _userServiceMock
@@ -90,7 +89,8 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      10
+      10,
+      null
     );
 
     // act
@@ -137,7 +137,8 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      10
+      10,
+      null
     );
 
     // Act
@@ -182,7 +183,8 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      10
+      10,
+      null
     );
 
     // Act
@@ -253,7 +255,8 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      10
+      10,
+      null
     );
 
     // Act
@@ -322,7 +325,8 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      topLimit
+      topLimit,
+      null
     );
 
     // Act

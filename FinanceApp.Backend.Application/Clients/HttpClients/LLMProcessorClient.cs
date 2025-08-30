@@ -23,13 +23,13 @@ public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProce
   }
 
   public async Task<Result<bool>> MatchTransactionGroup(
+    string userId,
     List<string> transactionNames,
     List<string> existingGroups,
-    string userId,
     string correlationId)
   {
-    var response = await PostAsync<LLMProcessorRequestDto, LLMProcessorResponseDto>(_llmProcessorSettings.MatchTransactionEndpoint,
-      new LLMProcessorRequestDto
+    _ = await PostAsync<MatchTransactionRequestDto, LLMProcessorResponseDto>(_llmProcessorSettings.MatchTransactionEndpoint,
+      new MatchTransactionRequestDto
       {
         UserId = userId,
         TransactionNames = transactionNames,

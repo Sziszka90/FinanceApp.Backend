@@ -10,6 +10,9 @@ public class RabbitMqPayload
   [JsonPropertyName("success")]
   public required bool Success { get; set; }
 
+  [JsonPropertyName("error")]
+  public string? Error { get; set; }
+
   [JsonPropertyName("user_id")]
   public required string UserId { get; set; }
 

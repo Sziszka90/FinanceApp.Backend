@@ -112,7 +112,7 @@ public static class Mocks
     var llmProcessorClientMock = new Mock<ILLMProcessorClient>();
 
     llmProcessorClientMock
-        .Setup(x => x.MatchTransactionGroup(It.IsAny<List<string>>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>()))
+        .Setup(x => x.MatchTransactionGroup(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>(), It.IsAny<string>()))
         .ReturnsAsync(Result.Success(true));
 
     services.AddSingleton(llmProcessorClientMock.Object);

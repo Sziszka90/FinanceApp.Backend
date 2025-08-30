@@ -29,6 +29,7 @@ public class LLMProcessorClientTests : TestBase
     _llmProcessorSettings = new LLMProcessorSettings
     {
       MatchTransactionEndpoint = "api/v1/match-transactions",
+      PromptEndpoint = "api/v1/prompt",
       Token = "test-token",
       ApiUrl = "https://api.llmprocessor.com/"
     };
@@ -80,7 +81,7 @@ public class LLMProcessorClientTests : TestBase
 
       // act
       var result = await _llmProcessorClient.MatchTransactionGroup(
-        transactionNames, existingGroups, userId, correlationId);
+        userId, transactionNames, existingGroups, correlationId);
 
       // assert
       Assert.True(result.IsSuccess);
@@ -124,12 +125,12 @@ public class LLMProcessorClientTests : TestBase
 
       // act
       await _llmProcessorClient.MatchTransactionGroup(
-        transactionNames, existingGroups, userId, correlationId);
+        userId, transactionNames, existingGroups, correlationId);
 
       // assert
       Assert.NotNull(capturedRequestContent);
 
-      var sentRequest = JsonSerializer.Deserialize<LLMProcessorRequestDto>(capturedRequestContent,
+      var sentRequest = JsonSerializer.Deserialize<MatchTransactionRequestDto>(capturedRequestContent,
         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
       Assert.NotNull(sentRequest);
@@ -169,7 +170,7 @@ public class LLMProcessorClientTests : TestBase
 
       // act
       var result = await _llmProcessorClient.MatchTransactionGroup(
-        transactionNames, existingGroups, userId, correlationId);
+        userId, transactionNames, existingGroups, correlationId);
 
       // assert
       Assert.True(result.IsSuccess);
@@ -205,7 +206,7 @@ public class LLMProcessorClientTests : TestBase
 
       // act
       var result = await _llmProcessorClient.MatchTransactionGroup(
-        transactionNames, existingGroups, userId, correlationId);
+        userId, transactionNames, existingGroups, correlationId);
 
       // assert
       Assert.True(result.IsSuccess);
@@ -233,7 +234,7 @@ public class LLMProcessorClientTests : TestBase
       // act & assert
       var exception = await Assert.ThrowsAsync<HttpClientException>(
           () => _llmProcessorClient.MatchTransactionGroup(
-              transactionNames, existingGroups, userId, correlationId));
+              userId, transactionNames, existingGroups, correlationId));
       Assert.Equal("POST", exception.Operation);
       Assert.Contains("External service call failed", exception.Message);
     }
@@ -256,7 +257,7 @@ public class LLMProcessorClientTests : TestBase
       // act
       var exception = await Assert.ThrowsAsync<HttpClientException>(
         () => _llmProcessorClient.MatchTransactionGroup(
-            transactionNames, existingGroups, userId, correlationId));
+            userId, transactionNames, existingGroups, correlationId));
 
       Assert.Equal("POST", exception.Operation);
       Assert.Contains("An error occurred while making the request", exception.Message);
@@ -287,7 +288,7 @@ public class LLMProcessorClientTests : TestBase
       // act
       var exception = await Assert.ThrowsAsync<HttpClientException>(
           () => _llmProcessorClient.MatchTransactionGroup(
-              transactionNames, existingGroups, userId, correlationId));
+              userId, transactionNames, existingGroups, correlationId));
 
       // assert
       Assert.Equal("POST", exception.Operation);
@@ -318,7 +319,7 @@ public class LLMProcessorClientTests : TestBase
       // act
       var exception = await Assert.ThrowsAsync<HttpClientException>(
         () => _llmProcessorClient.MatchTransactionGroup(
-            transactionNames, existingGroups, userId, correlationId));
+          userId, transactionNames, existingGroups, correlationId));
 
       // assert
       Assert.Equal("POST_DESERIALIZE", exception.Operation);
@@ -360,7 +361,7 @@ public class LLMProcessorClientTests : TestBase
 
       // act
       await _llmProcessorClient.MatchTransactionGroup(
-        transactionNames, existingGroups, userId, correlationId);
+        userId, transactionNames, existingGroups, correlationId);
 
       // assert
       Assert.NotNull(capturedUri);
@@ -402,7 +403,7 @@ public class LLMProcessorClientTests : TestBase
 
       // act
       await _llmProcessorClient.MatchTransactionGroup(
-        transactionNames, existingGroups, userId, correlationId);
+        userId, transactionNames, existingGroups, correlationId);
 
       // assert
       Assert.Equal("application/json", capturedContentType);

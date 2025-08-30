@@ -204,11 +204,11 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
         reader => new TransactionGroupAggregate
         {
           TransactionGroup = new TransactionGroup(
-            reader.GetString(1), // Name
-            reader.GetNullableString(2), // Description
-            reader.GetNullableString(3), // GroupIcon
+            reader.GetString(1),
+            reader.GetNullableString(2),
+            reader.GetNullableString(3),
             null!)
-          { Id = reader.GetGuid(0) }, // TransactionGroupId
+          { Id = reader.GetGuid(0) },
           Currency = (CurrencyEnum)reader.GetInt32(4),
           TotalAmount = reader.GetDecimal(5),
           TransactionCount = reader.GetInt32(6)
