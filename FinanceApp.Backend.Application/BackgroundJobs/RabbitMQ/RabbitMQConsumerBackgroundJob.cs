@@ -44,9 +44,8 @@ public class RabbitMqConsumerServiceBackgroundJob : BackgroundService
 
         _logger.LogInformation("RabbitMQ consumer service started successfully");
 
-        // Keep the service running
         await Task.Delay(Timeout.Infinite, stoppingToken);
-        break; // Exit the retry loop if successful
+        break;
       }
       catch (RabbitMqException ex)
       {
@@ -58,11 +57,10 @@ public class RabbitMqConsumerServiceBackgroundJob : BackgroundService
         {
           _logger.LogCritical("Failed to establish RabbitMQ connection after {MaxRetries} attempts. " +
             "RabbitMQ consumer service will be disabled.", maxRetries + 1);
-          _rabbitMQConsumerRunSignal.SignalFirstRunCompleted(); // Signal anyway to prevent blocking
-          return; // Exit without throwing to prevent application shutdown
+          _rabbitMQConsumerRunSignal.SignalFirstRunCompleted();
+          return;
         }
 
-        // Wait before retrying with exponential backoff
         var delay = TimeSpan.FromSeconds(Math.Min(Math.Pow(2, retryCount), 60));
         _logger.LogInformation("Retrying RabbitMQ connection in {Delay} seconds...", delay.TotalSeconds);
         await Task.Delay(delay, stoppingToken);
@@ -70,7 +68,7 @@ public class RabbitMqConsumerServiceBackgroundJob : BackgroundService
       catch (OperationCanceledException)
       {
         _logger.LogInformation("RabbitMQ consumer service was cancelled");
-        throw; // Re-throw cancellation
+        throw; 
       }
       catch (Exception ex)
       {

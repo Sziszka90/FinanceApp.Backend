@@ -92,22 +92,22 @@ public class McpRequestValidator : AbstractValidator<McpRequest>
       .WithMessage("Action cannot be empty.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters != null && parameters.TryGetValue("userId", out var value) && IsConvertibleToGuid(value))
-      .WithMessage("Parameter 'userId' is required and must be of type Guid.");
+      .Must(parameters => parameters != null && parameters.TryGetValue("user_id", out var value) && IsConvertibleToGuid(value))
+      .WithMessage("Parameter 'user_id' is required and must be of type Guid.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters != null && parameters.TryGetValue("correlationId", out var value) && IsConvertibleToGuid(value))
-      .WithMessage("Parameter 'correlationId' is required and must be of type Guid.");
+      .Must(parameters => parameters != null && parameters.TryGetValue("correlation_id", out var value) && IsConvertibleToGuid(value))
+      .WithMessage("Parameter 'correlation_id' is required and must be of type Guid.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters.TryGetValue("startDate", out var value) && IsConvertibleToDateTimeOffset(value))
-      .When(x => x.Parameters != null && x.Parameters.ContainsKey("startDate"))
-      .WithMessage("Parameter 'startDate' must be convertible to DateTimeOffset.");
+      .Must(parameters => parameters.TryGetValue("start_date", out var value) && IsConvertibleToDateTimeOffset(value))
+      .When(x => x.Parameters != null && x.Parameters.ContainsKey("start_date"))
+      .WithMessage("Parameter 'start_date' must be convertible to DateTimeOffset.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters.TryGetValue("endDate", out var value) && IsConvertibleToDateTimeOffset(value))
-      .When(x => x.Parameters != null && x.Parameters.ContainsKey("endDate"))
-      .WithMessage("Parameter 'endDate' must be convertible to DateTimeOffset.");
+      .Must(parameters => parameters.TryGetValue("end_date", out var value) && IsConvertibleToDateTimeOffset(value))
+      .When(x => x.Parameters != null && x.Parameters.ContainsKey("end_date"))
+      .WithMessage("Parameter 'end_date' must be convertible to DateTimeOffset.");
 
     RuleFor(x => x.Parameters)
       .Must(parameters => parameters.TryGetValue("top", out var value) && IsConvertibleToInt(value))
