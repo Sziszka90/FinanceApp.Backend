@@ -87,33 +87,33 @@ public class McpRequestValidator : AbstractValidator<McpRequest>
       .NotEmpty()
       .WithMessage("Parameters cannot be empty.");
 
-    RuleFor(x => x.Action)
+    RuleFor(x => x.Tool)
       .NotEmpty()
-      .WithMessage("Action cannot be empty.")
-      .Must(action => SupportedTools.SupportedActions.Contains(action))
-      .WithMessage("Action must be one of the supported tools.");
+      .WithMessage("Tool cannot be empty.")
+      .Must(tool => SupportedTools.SupportedActions.Contains(tool))
+      .WithMessage("Tool must be one of the supported tools.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters != null && parameters.TryGetValue("user_id", out var value) && IsConvertibleToGuid(value))
-      .WithMessage("Parameter 'user_id' is required and must be of type Guid.");
+      .Must(parameters => parameters != null && parameters.TryGetValue("UserId", out var value) && IsConvertibleToGuid(value))
+      .WithMessage("Parameter 'UserId' is required and must be of type Guid.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters != null && parameters.TryGetValue("correlation_id", out var value) && IsConvertibleToGuid(value))
-      .WithMessage("Parameter 'correlation_id' is required and must be of type Guid.");
+      .Must(parameters => parameters != null && parameters.TryGetValue("CorrelationId", out var value) && IsConvertibleToGuid(value))
+      .WithMessage("Parameter 'CorrelationId' is required and must be of type Guid.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters.TryGetValue("start_date", out var value) && IsConvertibleToDateTimeOffset(value))
-      .When(x => x.Parameters != null && x.Parameters.ContainsKey("start_date"))
-      .WithMessage("Parameter 'start_date' must be convertible to DateTimeOffset.");
+      .Must(parameters => parameters.TryGetValue("StartDate", out var value) && IsConvertibleToDateTimeOffset(value))
+      .When(x => x.Parameters != null && x.Parameters.ContainsKey("StartDate"))
+      .WithMessage("Parameter 'StartDate' must be convertible to DateTimeOffset.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters.TryGetValue("end_date", out var value) && IsConvertibleToDateTimeOffset(value))
-      .When(x => x.Parameters != null && x.Parameters.ContainsKey("end_date"))
-      .WithMessage("Parameter 'end_date' must be convertible to DateTimeOffset.");
+      .Must(parameters => parameters.TryGetValue("EndDate", out var value) && IsConvertibleToDateTimeOffset(value))
+      .When(x => x.Parameters != null && x.Parameters.ContainsKey("EndDate"))
+      .WithMessage("Parameter 'EndDate' must be convertible to DateTimeOffset.");
 
     RuleFor(x => x.Parameters)
-      .Must(parameters => parameters.TryGetValue("top", out var value) && IsConvertibleToInt(value))
-      .When(x => x.Parameters != null && x.Parameters.ContainsKey("top"))
-      .WithMessage("Parameter 'top' must be of type int.");
+      .Must(parameters => parameters.TryGetValue("Top", out var value) && IsConvertibleToInt(value))
+      .When(x => x.Parameters != null && x.Parameters.ContainsKey("Top"))
+      .WithMessage("Parameter 'Top' must be of type int.");
   }
 }
