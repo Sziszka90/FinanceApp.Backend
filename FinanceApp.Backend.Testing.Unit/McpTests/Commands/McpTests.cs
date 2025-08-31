@@ -22,13 +22,13 @@ public class McpTests
     var userId = Guid.NewGuid();
     var mcpRequest = new McpRequest
     {
-      ToolName = "GetTopTransactionGroups",
+      ToolName = SupportedTools.GET_TOP_TRANSACTION_GROUPS,
       Parameters = new Dictionary<string, object>
       {
-        { "user_id", userId },
-        { "start_date", DateTimeOffset.Now.AddDays(-30) },
-        { "end_date", DateTimeOffset.Now },
-        { "top", 5 }
+        { "UserId", userId },
+        { "StartDate", DateTimeOffset.Now.AddDays(-30) },
+        { "EndDate", DateTimeOffset.Now },
+        { "Top", 5 }
       }
     };
 
@@ -64,10 +64,10 @@ public class McpTests
       ToolName = "GetTopTransactionGroups",
       Parameters = new Dictionary<string, object>
             {
-                { "userId", "not-a-guid" },
-                { "startDate", DateTimeOffset.Now.AddDays(-30) },
-                { "endDate", DateTimeOffset.Now },
-                { "top", 5 }
+                { "UserId", "not-a-guid" },
+                { "StartDate", DateTimeOffset.Now.AddDays(-30) },
+                { "EndDate", DateTimeOffset.Now },
+                { "Top", 5 }
             }
     };
 
@@ -85,8 +85,8 @@ public class McpTests
       ToolName = "unsupported_tool",
       Parameters = new Dictionary<string, object>
       {
-        { "user_id", Guid.NewGuid() },
-        { "correlation_id", Guid.NewGuid() }
+        { "UserId", Guid.NewGuid() },
+        { "CorrelationId", Guid.NewGuid() }
       }
     };
 
