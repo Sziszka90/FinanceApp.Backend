@@ -36,6 +36,7 @@ public static class ApiExtensions
                            {
                              options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                              options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                             options.JsonSerializerOptions.PropertyNamingPolicy = null;
                            });
 
     // Add API Versioning (.NET 8+ approach)
