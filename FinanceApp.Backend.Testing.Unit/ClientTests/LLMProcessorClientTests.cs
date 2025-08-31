@@ -28,17 +28,15 @@ public class LLMProcessorClientTests : TestBase
 
     _llmProcessorSettings = new LLMProcessorSettings
     {
-      MatchTransactionEndpoint = "api/v1/match-transactions",
-      PromptEndpoint = "api/v1/prompt",
+      ApiUrl = "https://api.llmprocessor.com/",
       Token = "test-token",
-      ApiUrl = "https://api.llmprocessor.com/"
     };
 
     _llmProcessorOptionsMock.Setup(x => x.Value).Returns(_llmProcessorSettings);
 
     _httpClient = new HttpClient(HttpMessageHandlerMock.Object)
     {
-      BaseAddress = new Uri(_llmProcessorSettings.ApiUrl)
+      BaseAddress = new Uri("https://api.llmprocessor.com/")
     };
 
     _llmProcessorClient = new LLMProcessorClient(
@@ -71,7 +69,7 @@ public class LLMProcessorClientTests : TestBase
         .Setup<Task<HttpResponseMessage>>("SendAsync",
             ItExpr.Is<HttpRequestMessage>(req =>
                 req.Method == HttpMethod.Post &&
-                req.RequestUri!.ToString().Contains(_llmProcessorSettings.MatchTransactionEndpoint)),
+                req.RequestUri!.ToString().Contains("/llmProcessor/match-transactions")),
             ItExpr.IsAny<CancellationToken>())
         .ReturnsAsync(new HttpResponseMessage
         {
@@ -365,7 +363,7 @@ public class LLMProcessorClientTests : TestBase
 
       // assert
       Assert.NotNull(capturedUri);
-      Assert.Contains(_llmProcessorSettings.MatchTransactionEndpoint, capturedUri);
+      Assert.Contains("/llmProcessor/match-transactions", capturedUri);
     }
 
     [Fact]

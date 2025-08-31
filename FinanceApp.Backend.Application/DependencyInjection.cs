@@ -98,7 +98,7 @@ public static class DependencyInjection
     services.AddSignalR(options =>
     {
       options.EnableDetailedErrors = true;
-      options.MaximumReceiveMessageSize = 32 * 1024; // 32KB
+      options.MaximumReceiveMessageSize = 32 * 1024;
     });
     return services;
   }
