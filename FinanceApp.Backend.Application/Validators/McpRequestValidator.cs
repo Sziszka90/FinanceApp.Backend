@@ -87,11 +87,11 @@ public class McpRequestValidator : AbstractValidator<McpRequest>
       .NotEmpty()
       .WithMessage("Parameters cannot be empty.");
 
-    RuleFor(x => x.Tool)
+    RuleFor(x => x.ToolName)
       .NotEmpty()
-      .WithMessage("Tool cannot be empty.")
-      .Must(tool => SupportedTools.SupportedActions.Contains(tool))
-      .WithMessage("Tool must be one of the supported tools.");
+      .WithMessage("ToolName cannot be empty.")
+      .Must(tool => SupportedTools.SupportedToolsList.Contains(tool))
+      .WithMessage("ToolName must be one of the supported tools.");
 
     RuleFor(x => x.Parameters)
       .Must(parameters => parameters != null && parameters.TryGetValue("UserId", out var value) && IsConvertibleToGuid(value))

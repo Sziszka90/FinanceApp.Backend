@@ -14,7 +14,7 @@ public class McpApi : TestBase
     await InitializeAsync();
     var mcpRequest = new McpRequest
     {
-      Action = "get_top_transaction_groups",
+      ToolName = "GetTopTransactionGroups",
       Parameters = new Dictionary<string, object>
       {
         { "start_date", "2023-01-01T00:00:00Z" },
@@ -41,7 +41,7 @@ public class McpApi : TestBase
   {
     var mcpRequest = new McpRequest
     {
-      Action = "get_top_transaction_groups",
+      ToolName = "GetTopTransactionGroups",
       Parameters = new Dictionary<string, object>
       {
         { "start_date", 123 },

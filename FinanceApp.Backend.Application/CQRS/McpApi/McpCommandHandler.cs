@@ -34,7 +34,7 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
     request.McpRequest.Parameters.TryGetValue("top", out var topObj);
     int top = ConvertToInt(topObj);
 
-    switch (request.McpRequest.Action)
+    switch (request.McpRequest.ToolName)
     {
       case SupportedTools.GET_TOP_TRANSACTION_GROUPS:
         {
@@ -49,14 +49,14 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
 
           return Result.Success(new McpEnvelope
           {
-            ToolName = request.McpRequest.Action,
+            ToolName = request.McpRequest.ToolName,
             Payload = transactionGroups
           });
         }
 
       default:
-        _logger.LogError("Unsupported MCP request action: {RequestAction}", request.McpRequest.Action);
-        return Result.Failure<McpEnvelope>(ApplicationError.DefaultError($"MCP Command Handler: Unsupported MCP request action '{request.McpRequest.Action}'"));
+        _logger.LogError("Unsupported MCP request tool: {RequestTool}", request.McpRequest.ToolName);
+        return Result.Failure<McpEnvelope>(ApplicationError.DefaultError($"MCP Command Handler: Unsupported MCP request tool '{request.McpRequest.ToolName}'"));
     }
   }
 

@@ -22,7 +22,7 @@ public class McpTests
     var userId = Guid.NewGuid();
     var mcpRequest = new McpRequest
     {
-      Action = "get_top_transaction_groups",
+      ToolName = "GetTopTransactionGroups",
       Parameters = new Dictionary<string, object>
       {
         { "user_id", userId },
@@ -52,7 +52,7 @@ public class McpTests
 
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
-    Assert.Equal("get_top_transaction_groups", result.Data.ToolName);
+    Assert.Equal(SupportedTools.GET_TOP_TRANSACTION_GROUPS, result.Data.ToolName);
     Assert.Equal(aggregates, result.Data.Payload);
   }
 
@@ -61,7 +61,7 @@ public class McpTests
   {
     var mcpRequest = new McpRequest
     {
-      Action = "get_top_transaction_groups",
+      ToolName = "GetTopTransactionGroups",
       Parameters = new Dictionary<string, object>
             {
                 { "userId", "not-a-guid" },
@@ -82,7 +82,7 @@ public class McpTests
   {
     var mcpRequest = new McpRequest
     {
-      Action = "unsupported_action",
+      ToolName = "unsupported_tool",
       Parameters = new Dictionary<string, object>
       {
         { "user_id", Guid.NewGuid() },
@@ -94,6 +94,6 @@ public class McpTests
     var validationResult = validator.Validate(mcpRequest);
 
     Assert.False(validationResult.IsValid);
-    Assert.Contains(validationResult.Errors, e => e.ErrorMessage.Contains("Action must be one of the supported tools."));
+    Assert.Contains(validationResult.Errors, e => e.ErrorMessage.Contains("ToolName must be one of the supported tools."));
   }
 }
