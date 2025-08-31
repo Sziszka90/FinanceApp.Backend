@@ -28,7 +28,7 @@ public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProce
     List<string> existingGroups,
     string correlationId)
   {
-    _ = await PostAsync<MatchTransactionRequestDto, LLMProcessorResponseDto>("/llmProcessor/match-transactions",
+    _ = await PostAsync<MatchTransactionRequestDto, LLMProcessorResponseDto>("/llmprocessor/match-transactions",
       new MatchTransactionRequestDto
       {
         UserId = userId,

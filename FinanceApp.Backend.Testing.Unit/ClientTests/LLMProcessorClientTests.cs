@@ -69,7 +69,7 @@ public class LLMProcessorClientTests : TestBase
         .Setup<Task<HttpResponseMessage>>("SendAsync",
             ItExpr.Is<HttpRequestMessage>(req =>
                 req.Method == HttpMethod.Post &&
-                req.RequestUri!.ToString().Contains("/llmProcessor/match-transactions")),
+                req.RequestUri!.ToString().Contains("/llmprocessor/match-transactions")),
             ItExpr.IsAny<CancellationToken>())
         .ReturnsAsync(new HttpResponseMessage
         {
@@ -363,7 +363,7 @@ public class LLMProcessorClientTests : TestBase
 
       // assert
       Assert.NotNull(capturedUri);
-      Assert.Contains("/llmProcessor/match-transactions", capturedUri);
+      Assert.Contains("/llmprocessor/match-transactions", capturedUri);
     }
 
     [Fact]
