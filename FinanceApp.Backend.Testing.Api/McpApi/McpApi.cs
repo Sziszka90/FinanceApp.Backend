@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FinanceApp.Backend.Application.Dtos.McpDtos;
+using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Testing.Api.Base;
 
 namespace FinanceApp.Backend.Testing.Api.McpApi;
@@ -17,11 +18,11 @@ public class McpApi : TestBase
       ToolName = "GetTopTransactionGroups",
       Parameters = new Dictionary<string, object>
       {
-        { "start_date", "2023-01-01T00:00:00Z" },
-        { "end_date", "2023-01-31T23:59:59Z" },
-        { "top", 5 },
-        { "user_id", Guid.NewGuid().ToString() },
-        { "correlation_id", Guid.NewGuid().ToString() }
+        { "StartDate", "2023-01-01T00:00:00Z" },
+        { "EndDate", "2023-01-31T23:59:59Z" },
+        { "Top", 5 },
+        { "UserId", Guid.NewGuid().ToString() },
+        { "CorrelationId", Guid.NewGuid().ToString() }
       }
     };
 
@@ -32,7 +33,7 @@ public class McpApi : TestBase
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
     Assert.NotNull(result);
-    Assert.Equal("get_top_transaction_groups", result.ToolName);
+    Assert.Equal(SupportedTools.GET_TOP_TRANSACTION_GROUPS, result.ToolName);
     Assert.NotNull(result.Payload);
   }
 
@@ -41,14 +42,14 @@ public class McpApi : TestBase
   {
     var mcpRequest = new McpRequest
     {
-      ToolName = "GetTopTransactionGroups",
+      ToolName = SupportedTools.GET_TOP_TRANSACTION_GROUPS,
       Parameters = new Dictionary<string, object>
       {
-        { "start_date", 123 },
-        { "end_date", "not-a-date" },
-        { "top", "not-an-int" },
-        { "user_id", Guid.NewGuid().ToString() },
-        { "correlation_id", Guid.NewGuid().ToString() }
+        { "StartDate", 123 },
+        { "EndDate", "not-a-date" },
+        { "Top", "not-an-int" },
+        { "UserId", Guid.NewGuid().ToString() },
+        { "CorrelationId", Guid.NewGuid().ToString() }
       }
     };
 

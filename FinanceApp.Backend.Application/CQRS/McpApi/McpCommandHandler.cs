@@ -22,16 +22,16 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
   /// <inheritdoc />
   public async Task<Result<McpEnvelope>> Handle(McpCommand request, CancellationToken cancellationToken)
   {
-    request.McpRequest.Parameters.TryGetValue("user_id", out var userIdObj);
+    request.McpRequest.Parameters.TryGetValue("UserId", out var userIdObj);
     Guid userId = ConvertUserIdToGuid(userIdObj);
 
-    request.McpRequest.Parameters.TryGetValue("start_date", out var startDateObj);
+    request.McpRequest.Parameters.TryGetValue("StartDate", out var startDateObj);
     DateTimeOffset startDate = ConvertToDateTimeOffset(startDateObj);
 
-    request.McpRequest.Parameters.TryGetValue("end_date", out var endDateObj);
+    request.McpRequest.Parameters.TryGetValue("EndDate", out var endDateObj);
     DateTimeOffset endDate = ConvertToDateTimeOffset(endDateObj);
 
-    request.McpRequest.Parameters.TryGetValue("top", out var topObj);
+    request.McpRequest.Parameters.TryGetValue("Top", out var topObj);
     int top = ConvertToInt(topObj);
 
     switch (request.McpRequest.ToolName)
