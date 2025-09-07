@@ -63,7 +63,7 @@ app.MapHealthChecks("/health/startup", new HealthCheckOptions
   Predicate = check => check.Tags.Contains("startup")
 });
 
-app.MapPost("/wakeup", async (IServiceProvider services) =>
+app.MapPost("/api/v{version:apiVersion}/wakeup", async (IServiceProvider services) =>
 {
   using var scope = services.CreateScope();
   var serviceWakeup = scope.ServiceProvider.GetRequiredService<ServiceWakeup>();
