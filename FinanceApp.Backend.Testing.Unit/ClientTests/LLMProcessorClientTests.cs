@@ -41,8 +41,7 @@ public class LLMProcessorClientTests : TestBase
 
     _llmProcessorClient = new LLMProcessorClient(
       _llmProcessorLoggerMock.Object,
-      _httpClient,
-      _llmProcessorOptionsMock.Object);
+      _httpClient);
   }
 
   public class MatchTransactionGroupTests : LLMProcessorClientTests
