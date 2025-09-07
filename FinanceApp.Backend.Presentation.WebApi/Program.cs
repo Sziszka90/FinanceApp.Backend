@@ -2,6 +2,7 @@ using FinanceApp.Backend.Application;
 using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Infrastructure;
 using FinanceApp.Backend.Presentation.WebApi.Extensions;
+using FinanceApp.Backend.Presentation.WebApi.HealthChecks;
 using FinanceApp.Backend.Presentation.WebApi.Middlewares;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
@@ -60,6 +61,18 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 app.MapHealthChecks("/health/startup", new HealthCheckOptions
 {
   Predicate = check => check.Tags.Contains("startup")
+});
+
+app.MapPost("/wakeup", async (IServiceProvider services) =>
+{
+  using var scope = services.CreateScope();
+  var serviceWakeup = scope.ServiceProvider.GetRequiredService<ServiceWakeup>();
+  var result = await serviceWakeup.WakeupAsync();
+  if(result)
+  {
+    return Results.Ok("Services are awake");
+  }
+  return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
 });
 
 app.MapHub<NotificationHub>("/notificationHub")

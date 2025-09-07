@@ -31,6 +31,8 @@ public static class ApiExtensions
         .AddCheck<ReadinessCheck>("readiness_check", tags: new[] { "readiness" })
         .AddCheck<StartupCheck>("startup_check", tags: new[] { "startup" });
 
+    builder.Services.AddScoped<ServiceWakeup>();
+
     builder.Services.AddControllers()
            .AddJsonOptions(options =>
                            {
@@ -39,19 +41,18 @@ public static class ApiExtensions
                              options.JsonSerializerOptions.PropertyNamingPolicy = null;
                            });
 
-    // Add API Versioning (.NET 8+ approach)
     builder.Services.AddApiVersioning(options =>
     {
       options.AssumeDefaultVersionWhenUnspecified = true;
-      options.DefaultApiVersion = new ApiVersion(1, 0); // Default to v1.0
+      options.DefaultApiVersion = new ApiVersion(1, 0);
       options.ApiVersionReader = ApiVersionReader.Combine(
-        new UrlSegmentApiVersionReader(), // /api/v1/controller
-        new QueryStringApiVersionReader("version"), // ?version=1.0
-        new HeaderApiVersionReader("X-Version") // X-Version: 1.0
+        new UrlSegmentApiVersionReader(),
+        new QueryStringApiVersionReader("version"),
+        new HeaderApiVersionReader("X-Version")
       );
     }).AddApiExplorer(setup =>
     {
-      setup.GroupNameFormat = "'v'VVV"; // Format: v1.0, v2.0, etc.
+      setup.GroupNameFormat = "'v'VVV";
       setup.SubstituteApiVersionInUrl = true;
     });
 
@@ -72,7 +73,6 @@ public static class ApiExtensions
                              IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.SecretKey))
                            };
 
-                           // Enable SignalR authentication via query string
                            options.Events = new JwtBearerEvents
                            {
                              OnMessageReceived = context =>
@@ -80,7 +80,6 @@ public static class ApiExtensions
                                var accessToken = context.Request.Query["access_token"];
                                var path = context.HttpContext.Request.Path;
 
-                               // If the request is for SignalR hub and we have a token in query string
                                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
                                {
                                  context.Token = accessToken;

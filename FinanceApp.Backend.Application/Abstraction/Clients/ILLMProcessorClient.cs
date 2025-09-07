@@ -13,4 +13,11 @@ public interface ILLMProcessorClient
   /// <param name="correlationId"></param>
   /// <returns>Matched Dictionary</returns>
   Task<Result<bool>> MatchTransactionGroup(string userId, List<string> transactionNames, List<string> existingGroups, string correlationId);
+
+  /// <summary>
+  /// Wakeup LLM Processor service.
+  /// </summary>
+  /// <returns>True if the service is awake, false otherwise.</returns>
+  Task<Result<bool>> WakeupAsync();
+
 }

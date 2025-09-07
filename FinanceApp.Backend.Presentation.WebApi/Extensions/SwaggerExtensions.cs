@@ -10,7 +10,6 @@ public static class SwaggerExtensions
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
                                    {
-                                     // Configure Swagger to generate documentation for each API version
                                      var serviceProvider = builder.Services.BuildServiceProvider();
                                      var provider = serviceProvider.GetService<IApiVersionDescriptionProvider>();
 
@@ -28,7 +27,6 @@ public static class SwaggerExtensions
                                      }
                                      else
                                      {
-                                       // Fallback for when API versioning is not configured
                                        c.SwaggerDoc("v1", new OpenApiInfo
                                        {
                                          Title = "Finance Application API",
@@ -37,7 +35,6 @@ public static class SwaggerExtensions
                                        });
                                      }
 
-                                     // Add JWT Bearer Authentication to Swagger
                                      c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                                      {
                                        In = ParameterLocation.Header,
@@ -46,7 +43,6 @@ public static class SwaggerExtensions
                                        Type = SecuritySchemeType.ApiKey
                                      });
 
-                                     // Add security requirement to use the Bearer token for all Swagger operations
                                      c.AddSecurityRequirement(new OpenApiSecurityRequirement
                                      {
                                        {
@@ -81,7 +77,6 @@ public static class SwaggerExtensions
       }
       else
       {
-        // Fallback for when API versioning is not configured (e.g., in test environments)
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finance API V1");
       }
     });

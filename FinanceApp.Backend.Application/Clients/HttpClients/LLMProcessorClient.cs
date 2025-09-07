@@ -2,9 +2,7 @@ using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Clients.HttpClients;
 using FinanceApp.Backend.Application.Dtos.LLMProcessorDtos;
 using FinanceApp.Backend.Application.Models;
-using FinanceApp.Backend.Domain.Options;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace FinanceApp.Backend.Application.Clients;
 
@@ -13,7 +11,7 @@ public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProce
   public LLMProcessorClient(
     ILogger<ILLMProcessorClient> logger,
     HttpClient httpClient) : base(logger, httpClient)
-  {}
+  { }
 
   public async Task<Result<bool>> MatchTransactionGroup(
     string userId,
@@ -30,6 +28,12 @@ public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProce
         CorrelationId = correlationId
       });
 
+    return Result.Success(true);
+  }
+
+  public async Task<Result<bool>> WakeupAsync()
+  {
+    await PostAsync("/wakeup");
     return Result.Success(true);
   }
 }

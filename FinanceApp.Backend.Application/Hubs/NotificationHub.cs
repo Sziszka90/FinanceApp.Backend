@@ -36,29 +36,29 @@ public class NotificationHub : Hub
     }
   }
 
-  public async Task JoinGroup(string userId)
+  public async Task JoinGroup(string groupId)
   {
     try
     {
-      await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+      await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error joining group for ConnectionId: {ConnectionId}, UserId: {UserId}", Context.ConnectionId, userId);
-      throw new SignalRException("JOIN_GROUP", Context.ConnectionId, userId, userId, "Failed to join SignalR group.", ex);
+      _logger.LogError(ex, "Error joining group for ConnectionId: {ConnectionId}, GroupId: {GroupId}", Context.ConnectionId, groupId);
+      throw new SignalRException("JOIN_GROUP", Context.ConnectionId, groupId, groupId, "Failed to join SignalR group.", ex);
     }
   }
 
-  public async Task LeaveGroup(string userId)
+  public async Task LeaveGroup(string groupId)
   {
     try
     {
-      await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId);
+      await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error leaving group for ConnectionId: {ConnectionId}, UserId: {UserId}", Context.ConnectionId, userId);
-      throw new SignalRException("LEAVE_GROUP", Context.ConnectionId, userId, userId, "Failed to leave SignalR group.", ex);
+      _logger.LogError(ex, "Error leaving group for ConnectionId: {ConnectionId}, GroupId: {GroupId}", Context.ConnectionId, groupId);
+      throw new SignalRException("LEAVE_GROUP", Context.ConnectionId, groupId, groupId, "Failed to leave SignalR group.", ex);
     }
   }
 }

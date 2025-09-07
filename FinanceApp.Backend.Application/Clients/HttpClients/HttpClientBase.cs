@@ -95,7 +95,32 @@ public abstract class HttpClientBase<T> : IHttpClientBase
     }
   }
 
-  public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
+  public async Task PostAsync(string endpoint)
+  {
+    var content = new StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+
+    try
+    {
+      var response = await _httpClient.PostAsync(endpoint, content);
+
+      if (!response.IsSuccessStatusCode)
+      {
+        _logger.LogError("Failed to post data to external service. Status code: {StatusCode}", response.StatusCode);
+        throw new HttpClientException("POST", endpoint, (int)response.StatusCode, "External service call failed.");
+      }
+    }
+    catch (HttpClientException)
+    {
+      throw;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "An error occurred while making a POST request to {Endpoint}", endpoint);
+      throw new HttpClientException("POST", endpoint, "An error occurred while making the request.", ex);
+    }
+  }
+
+    public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
   {
     var json = JsonSerializer.Serialize(data);
     var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
