@@ -68,7 +68,7 @@ app.MapPost("/wakeup", async (IServiceProvider services) =>
   using var scope = services.CreateScope();
   var serviceWakeup = scope.ServiceProvider.GetRequiredService<ServiceWakeup>();
   var result = await serviceWakeup.WakeupAsync();
-  if(result)
+  if (result)
   {
     return Results.Ok("Services are awake");
   }
