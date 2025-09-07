@@ -120,7 +120,7 @@ public abstract class HttpClientBase<T> : IHttpClientBase
     }
   }
 
-    public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
+  public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
   {
     var json = JsonSerializer.Serialize(data);
     var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
