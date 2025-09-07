@@ -10,17 +10,10 @@ namespace FinanceApp.Backend.Application.Clients;
 
 public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProcessorClient
 {
-  private readonly ILogger<ILLMProcessorClient> _logger;
-  private readonly LLMProcessorSettings _llmProcessorSettings;
-
   public LLMProcessorClient(
     ILogger<ILLMProcessorClient> logger,
-    HttpClient httpClient,
-    IOptions<LLMProcessorSettings> llmProcessorSettings) : base(logger, httpClient)
-  {
-    _logger = logger;
-    _llmProcessorSettings = llmProcessorSettings.Value;
-  }
+    HttpClient httpClient) : base(logger, httpClient)
+  {}
 
   public async Task<Result<bool>> MatchTransactionGroup(
     string userId,
