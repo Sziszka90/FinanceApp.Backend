@@ -1,11 +1,9 @@
-using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Enums;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
@@ -41,8 +39,6 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
   /// <inheritdoc />
   public async Task<Result<bool>> Handle(LLMProcessorCommand request, CancellationToken cancellationToken)
   {
-    var matchedTransactions = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(request.ResponseDto.Response);
-
     var user = await _userRepository.GetByIdAsync(new Guid(request.ResponseDto.UserId), noTracking: false, cancellationToken: cancellationToken);
 
     if (user is null)
@@ -70,12 +66,11 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
 
     foreach (var transaction in existingTransactions)
     {
-      var matchedGroup = matchedTransactions!.FirstOrDefault(dict => dict.ContainsKey(transaction.Name));
+      var matchedGroup = request.ResponseDto.Response.Transactions.TryGetValue(transaction.Name, out var groupName) ? groupName : null;
 
       if (matchedGroup != null)
       {
-        var groupName = matchedGroup.Values.FirstOrDefault();
-        var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == groupName);
+        var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == matchedGroup);
         transaction.TransactionGroup = group;
       }
 

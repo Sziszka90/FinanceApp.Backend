@@ -130,7 +130,11 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
             Currency = Enum.TryParse<CurrencyEnum>(CleanCsvField(columns[4]), out var currency) ? currency : CurrencyEnum.EUR
           },
           null,
-          DateTimeOffset.TryParse(CleanCsvField(columns[2]), out var date) ? date : DateTimeOffset.UtcNow,
+          DateTimeOffset.TryParse(
+            CleanCsvField(columns[2]),
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+            out var date) ? date : DateTimeOffset.UtcNow,
           user!
         );
         transactions.Add(transaction);

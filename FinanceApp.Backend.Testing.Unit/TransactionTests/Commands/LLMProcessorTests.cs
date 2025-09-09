@@ -49,19 +49,22 @@ public class LLMProcessorTests : TestBase
     var transaction2 = new Transaction("Bus ticket", "Daily bus ticket", TransactionTypeEnum.Expense,
       new Money { Amount = 3.50m, Currency = CurrencyEnum.USD }, transactionGroup2, DateTime.UtcNow, user);
 
-    var matchedTransactions = new List<Dictionary<string, string>>
+    var matchedTransactions = new Dictionary<string, string>
     {
-      new() { { "Coffee", "Food" } },
-      new() { { "Bus ticket", "Transport" } }
+      { "Coffee", "Food" },
+      { "Bus ticket", "Transport" }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload
+    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = JsonSerializer.Serialize(matchedTransactions)
+      Response = new MatchTransactionResponseDto
+      {
+        Transactions = matchedTransactions
+      }
     };
 
     var command = new LLMProcessorCommand(rabbitMqPayload);
@@ -108,13 +111,16 @@ public class LLMProcessorTests : TestBase
   {
     // arrange
     var userId = Guid.NewGuid();
-    var rabbitMqPayload = new RabbitMqPayload
+    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = JsonSerializer.Serialize(new List<Dictionary<string, string>>())
+      Response = new MatchTransactionResponseDto
+      {
+        Transactions = new Dictionary<string, string>()
+      }
     };
 
     var command = new LLMProcessorCommand(rabbitMqPayload);
@@ -145,13 +151,16 @@ public class LLMProcessorTests : TestBase
     var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
     user.GetType().GetProperty("Id")?.SetValue(user, userId);
 
-    var rabbitMqPayload = new RabbitMqPayload
+    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = JsonSerializer.Serialize(new List<Dictionary<string, string>>())
+      Response = new MatchTransactionResponseDto
+      {
+        Transactions = new Dictionary<string, string>()
+      }
     };
 
     var command = new LLMProcessorCommand(rabbitMqPayload);
@@ -186,13 +195,20 @@ public class LLMProcessorTests : TestBase
     var transaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
       new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, null, DateTime.UtcNow, user);
 
-    var rabbitMqPayload = new RabbitMqPayload
+    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = JsonSerializer.Serialize(new List<Dictionary<string, string>>())
+      Response = new MatchTransactionResponseDto
+      {
+        Transactions = new Dictionary<string, string>
+        {
+          { "Coffee", "Food" },
+          { "Bus ticket", "Transport" }
+        }
+      }
     };
 
     var command = new LLMProcessorCommand(rabbitMqPayload);
@@ -238,13 +254,20 @@ public class LLMProcessorTests : TestBase
       new() { { "Coffee", "Food" } }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload
+    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = JsonSerializer.Serialize(matchedTransactions)
+      Response = new MatchTransactionResponseDto
+      {
+        Transactions = new Dictionary<string, string>
+        {
+          { "Coffee", "Food" },
+          { "Bus ticket", "Transport" }
+        }
+      }
     };
 
     var command = new LLMProcessorCommand(rabbitMqPayload);
@@ -292,13 +315,19 @@ public class LLMProcessorTests : TestBase
       new() { { "Coffee", "Food" } }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload
+    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = JsonSerializer.Serialize(matchedTransactions)
+      Response = new MatchTransactionResponseDto
+      {
+        Transactions = new Dictionary<string, string>
+        {
+          { "Coffee", "Food" }
+        }
+      }
     };
 
     var command = new LLMProcessorCommand(rabbitMqPayload);
@@ -354,13 +383,21 @@ public class LLMProcessorTests : TestBase
       new() { { "Train ticket", "Transport" } }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload
+    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = JsonSerializer.Serialize(matchedTransactions)
+      Response = new MatchTransactionResponseDto
+      {
+        Transactions = new Dictionary<string, string>
+        {
+          { "Coffee", "Food" },
+          { "Lunch", "Food" },
+          { "Train ticket", "Transport" }
+        }
+      }
     };
 
     var command = new LLMProcessorCommand(rabbitMqPayload);
@@ -396,32 +433,6 @@ public class LLMProcessorTests : TestBase
   }
 
   [Fact]
-  public async Task Handle_InvalidJson_ThrowsJsonException()
-  {
-    // arrange
-    var userId = Guid.NewGuid();
-    var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
-    user.GetType().GetProperty("Id")?.SetValue(user, userId);
-
-    var rabbitMqPayload = new RabbitMqPayload
-    {
-      CorrelationId = Guid.NewGuid().ToString(),
-      Success = true,
-      UserId = userId.ToString(),
-      Prompt = "Match transactions to groups",
-      Response = "invalid json string"
-    };
-
-    var command = new LLMProcessorCommand(rabbitMqPayload);
-
-    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .ReturnsAsync(user);
-
-    // act & assert
-    await Assert.ThrowsAsync<JsonException>(() => _handler.Handle(command, CancellationToken.None));
-  }
-
-  [Fact]
   public async Task Handle_TransactionNotInMatchedResults_TransactionGroupRemainsNull()
   {
     // arrange
@@ -438,18 +449,21 @@ public class LLMProcessorTests : TestBase
       new Money { Amount = 10.00m, Currency = CurrencyEnum.USD }, null, DateTime.UtcNow, user);
 
     // Only match one transaction
-    var matchedTransactions = new List<Dictionary<string, string>>
+    var matchedTransactions = new Dictionary<string, string>
     {
-      new() { { "Coffee", "Food" } }
+      { "Coffee", "Food" }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload
+    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = JsonSerializer.Serialize(matchedTransactions)
+      Response = new MatchTransactionResponseDto
+      {
+        Transactions = matchedTransactions
+      }
     };
 
     var command = new LLMProcessorCommand(rabbitMqPayload);

@@ -159,7 +159,7 @@ public class RabbitMqClient : IRabbitMqClient
 
     try
     {
-      var message = JsonSerializer.Deserialize<RabbitMqPayload>(body) ?? throw new JsonException("Deserialized message is null");
+      var message = JsonSerializer.Deserialize<RabbitMqPayload<MatchTransactionResponseDto>>(body) ?? throw new JsonException("Deserialized message is null");
       using var scope = _serviceProvider.CreateScope();
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
