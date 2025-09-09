@@ -7,7 +7,7 @@ namespace FinanceApp.Backend.Testing.Unit.ValidatorTests;
 
 public class LLMProcessorCommandValidatorTests : ValidatorTestBase
 {
-  private readonly LLMProcessorCommandValidator _validator;
+  protected readonly LLMProcessorCommandValidator _validator;
 
   public LLMProcessorCommandValidatorTests()
   {
@@ -569,5 +569,4 @@ public class PropertyPathTests : LLMProcessorCommandValidatorTests
     result.ShouldHaveValidationErrorFor("ResponseDto.CorrelationId");
     result.ShouldHaveValidationErrorFor("ResponseDto.UserId");
   }
-}
 }
