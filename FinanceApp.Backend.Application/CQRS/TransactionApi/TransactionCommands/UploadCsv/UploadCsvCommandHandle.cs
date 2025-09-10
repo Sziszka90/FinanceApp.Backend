@@ -113,11 +113,12 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
           continue;
         }
 
-        var columns = line.Split(',');
+        var columns = Regex.Split(line, ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
         var cleanedAmount = CleanCsvField(RemoveSpaces(columns[3]));
 
-        var amount = decimal.TryParse(cleanedAmount, NumberStyles.Number | NumberStyles.AllowThousands,
+        var normalizedAmount = cleanedAmount.Replace(',', '.');
+        var amount = decimal.TryParse(normalizedAmount, NumberStyles.Number | NumberStyles.AllowThousands,
           CultureInfo.InvariantCulture, out var parsedAmount) ? parsedAmount : 0;
 
         var transaction = new Transaction(
