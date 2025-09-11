@@ -152,6 +152,12 @@ POST   /api/v1/auth/logout                  # User logout
 POST   /api/v1/token/validate               # Validate token
 ```
 
+### **MCP Endpoints**
+
+```http
+POST   /api/v1/mcp                          # MCP endpoint for tool call
+```
+
 ### **User Management Endpoints**
 
 ```http
