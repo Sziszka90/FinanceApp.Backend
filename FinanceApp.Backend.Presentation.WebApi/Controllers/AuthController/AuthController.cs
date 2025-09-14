@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.Login;
+using FinanceApp.Backend.Application.AuthApi.AuthCommands.Logout;
 using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
@@ -29,6 +30,18 @@ public class AuthController : ControllerBase
   public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto loginRequestDto, CancellationToken cancellationToken)
   {
     var result = await _mediator.Send(new LoginCommand(loginRequestDto, cancellationToken));
+    return this.GetResult(result);
+  }
+
+  [HttpPost("logout")]
+  [Produces("application/json")]
+  [Consumes("application/json")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<ActionResult<LoginResponseDto>> Logout(CancellationToken cancellationToken)
+  {
+    var result = await _mediator.Send(new LogoutCommand(cancellationToken));
     return this.GetResult(result);
   }
 }

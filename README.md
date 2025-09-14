@@ -14,7 +14,9 @@ This project is a full-stack personal finance application designed to help users
 
 ✅ **Transaction Groups CRUD** - Create, read, update, delete transaction groups
 
-✅ **AI Integration** - Async LLM processing via RabbitMQ for matching transactions and transaction groups
+✅ **Import transactions from CSV** - Import CSV file and create transactions with AI driven transaction group match
+
+✅ **MCP endpoint** - Standardized MCP endpoint to call backend tools to provide data to user
 
 ✅ **Currency Exchange** - Recurring background job querying live exchange rates for multi-currency support
 
@@ -74,16 +76,17 @@ For detailed upcoming features and development progress, please check our [GitHu
 
 ### **👤 User Management**
 
-- **Registration Flow** with email verification
-- **Password Reset** with secure token-based recovery
-- **Profile Management** with account settings
-- **Session Management** with token invalidation
+- **Registration Flow** with email verification, option to resend email confirmation email
+- **Password Reset** - Reset password via a secure email link (for safety)
+- **Profile Management** with account settings, possibility to change password, username and base currency
+- **Token Management** Tokens are differentiated as login tokens, password reset tokens, and confirmation tokens. All are stored in cache and invalidated after 1 hour.
+- **User Data** Each user has their own data in a shared database and can only access their own records. The active user is determined via HttpContext.
 
 ### **💰 Transaction and Transaction Group Management**
 
 - **CRUD Operations** - Full transaction and transaction group lifecycle
-- **Bulk Operations** - CSV import/export capabilities
-- **Transaction Grouping** - Organize by categories
+- **Bulk Operations** - CSV import capabilities use the LLMProcessor service to match created transactions with existing transaction groups. The backend sends transaction groups to LLMProcessor via a REST call, receives the results through a messaging queue, and then notifies the frontend about updated values using SignalR.
+- **Transaction Grouping** - Organize by categories, initial transaction groups are created during user registration.
 - **Real-time Validation** - Immediate feedback on data entry
 
 ### **🤖 AI-Powered Features**

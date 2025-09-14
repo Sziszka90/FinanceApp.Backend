@@ -11,4 +11,10 @@ public interface IUserService
   /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
   /// <returns>A result containing the active user entity.</returns>
   Task<Result<User>> GetActiveUserAsync(CancellationToken cancellationToken);
+
+  /// <summary>
+  /// Retrieves the authorization token of the currently active user.
+  /// </summary>
+  /// <returns>A result containing the authorization token as a string.</returns>
+  Result<string> GetActiveUserToken();
 }

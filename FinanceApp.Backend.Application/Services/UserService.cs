@@ -48,4 +48,17 @@ public class UserService : IUserService
 
     return Result.Success(user.FirstOrDefault()!);
   }
+
+  public Result<string> GetActiveUserToken()
+  {
+    var httpContext = _httpContextAccessor.HttpContext;
+    var token = httpContext!.Request.Headers.Authorization.FirstOrDefault();
+
+    if (string.IsNullOrEmpty(token))
+    {
+      _logger.LogError("Authorization token not found.");
+      return Result.Failure<string>(ApplicationError.InvalidTokenError());
+    }
+    return Result.Success(token);
+  }
 }
