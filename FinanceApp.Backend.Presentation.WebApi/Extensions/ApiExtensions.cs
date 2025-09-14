@@ -1,5 +1,5 @@
-
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Asp.Versioning;
 using FinanceApp.Backend.Domain.Options;
@@ -38,7 +38,7 @@ public static class ApiExtensions
                            {
                              options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                              options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                             options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                            });
 
     builder.Services.AddApiVersioning(options =>
