@@ -21,7 +21,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     {
       // arrange
       var command = new ValidateTokenCommand(
-        new ValidateTokenRequest(){ Token = "valid_token_123", TokenType = TokenType.Login }, CancellationToken.None);
+        new ValidateTokenRequest() { Token = "valid_token_123", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -35,7 +35,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenEmpty_ShouldHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = string.Empty, TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = string.Empty, TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -47,7 +47,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenNull_ShouldHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = null!, TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = null!, TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -59,7 +59,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenWhitespace_ShouldHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "   ", TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "   ", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -77,7 +77,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenValid_ShouldNotHaveValidationError(string token)
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = token, TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = token, TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -89,7 +89,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     {
       // arrange
       var jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = jwtToken, TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = jwtToken, TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -101,7 +101,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     {
       // arrange
       var longToken = CreateStringOfLength(1000);
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = longToken, TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = longToken, TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -116,7 +116,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     {
       // arrange
       using var cts = new CancellationTokenSource();
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "valid_token", TokenType = TokenType.Login }, cts.Token);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "valid_token", TokenType = TokenType.Login }, cts.Token);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -129,7 +129,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
       // arrange
       using var cts = new CancellationTokenSource();
       cts.Cancel();
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "valid_token", TokenType = TokenType.Login }, cts.Token);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "valid_token", TokenType = TokenType.Login }, cts.Token);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -140,7 +140,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void CancellationToken_WhenDefault_ShouldNotHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "valid_token", TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "valid_token", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -160,7 +160,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenValidFormat_ShouldNotHaveValidationError(string token)
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = token, TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = token, TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -171,7 +171,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenTabCharacter_ShouldHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "\t", TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "\t", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -183,7 +183,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenNewlineCharacter_ShouldHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "\n", TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "\n", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -195,7 +195,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenMixedWhitespace_ShouldHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = " \t\n ", TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = " \t\n ", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -207,7 +207,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenContainsWhitespaceInMiddle_ShouldNotHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "token with spaces", TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "token with spaces", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -218,7 +218,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenMinimalLength_ShouldNotHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "a", TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "a", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);
@@ -229,7 +229,7 @@ public class ValidateTokenCommandValidatorTests : ValidatorTestBase
     public void Token_WhenUnicodeCharacters_ShouldNotHaveValidationError()
     {
       // arrange
-      var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "token_with_unicode_🔑", TokenType = TokenType.Login }, CancellationToken.None);
+      var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "token_with_unicode_🔑", TokenType = TokenType.Login }, CancellationToken.None);
 
       // act & assert
       var result = _validator.TestValidate(command);

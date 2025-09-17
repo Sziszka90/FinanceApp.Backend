@@ -22,7 +22,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
   public async Task ValidateToken_ReturnsValidTrue_WhenTokenIsValid()
   {
     // arrange
-    var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "valid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
+    var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "valid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
     _tokenServiceMock.Setup(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset)).ReturnsAsync(true);
 
     // act
@@ -39,7 +39,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
   public async Task ValidateToken_ReturnsValidFalse_WhenTokenIsInvalid()
   {
     // arrange
-    var command = new ValidateTokenCommand(new ValidateTokenRequest(){ Token = "invalid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
+    var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "invalid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
     _tokenServiceMock.Setup(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset)).ReturnsAsync(false);
 
     // act
