@@ -1,6 +1,7 @@
 using System.Net;
 using FinanceApp.Backend.Application.Dtos.TokenDtos;
 using FinanceApp.Backend.Application.UserApi.UserCommands.ValidateToken;
+using FinanceApp.Backend.Domain.Enums;
 using FinanceApp.Backend.Testing.Api.Base;
 
 namespace FinanceApp.Backend.Testing.Api.TokenApi;
@@ -16,7 +17,8 @@ public class TokenApi : TestBase
     await InitializeAsync();
     var validateTokenRequest = new ValidateTokenRequest
     {
-      Token = "mock_password_reset_token"
+      Token = "mock_password_reset_token",
+      TokenType = TokenType.PasswordReset
     };
 
     // act

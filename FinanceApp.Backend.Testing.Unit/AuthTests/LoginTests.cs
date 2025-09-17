@@ -20,7 +20,8 @@ public class LoginTests : TestBase
     _handler = new LoginCommandHandler(
       _loggerMock.Object,
       UserRepositoryMock.Object,
-      TokenServiceMock.Object
+      TokenServiceMock.Object,
+      BcryptServiceMock.Object
     );
   }
 
