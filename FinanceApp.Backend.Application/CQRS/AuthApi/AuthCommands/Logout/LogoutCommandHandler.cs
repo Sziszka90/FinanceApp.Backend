@@ -26,15 +26,19 @@ public class LogoutCommandHandler : ICommandHandler<LogoutCommand, Result>
   /// <inheritdoc />
   public async Task<Result> Handle(LogoutCommand request, CancellationToken cancellationToken)
   {
-    var token = _userService.GetActiveUserToken();
+    var result = _userService.GetActiveUserToken();
 
-    if (!token.IsSuccess)
+    if (!result.IsSuccess)
     {
       _logger.LogWarning("User not logged in");
-      return Result.Failure<LoginResponseDto>(token.ApplicationError!);
+      return Result.Failure<LoginResponseDto>(result.ApplicationError!);
     }
 
-    await _tokenService.InvalidateTokenAsync(token.Data!, TokenType.Login);
+    var token = result.Data!.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+    ? result.Data.Substring("Bearer ".Length).Trim()
+    : result.Data.Trim();
+
+    await _tokenService.InvalidateTokenAsync(token, TokenType.Login);
 
     _logger.LogInformation("Login token invalidated successful!");
 
