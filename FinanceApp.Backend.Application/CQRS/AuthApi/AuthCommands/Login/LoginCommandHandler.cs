@@ -1,4 +1,5 @@
 using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Application.Models;
@@ -13,14 +14,17 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
   private readonly ILogger<LoginCommandHandler> _logger;
   private readonly IUserRepository _userRepository;
   private readonly ITokenService _tokenService;
+  private readonly IBcryptService _bcryptService;
 
   public LoginCommandHandler(ILogger<LoginCommandHandler> logger,
                              IUserRepository userRepository,
-                             ITokenService tokenService)
+                             ITokenService tokenService,
+                             IBcryptService bcryptService)
   {
     _logger = logger;
     _userRepository = userRepository;
     _tokenService = tokenService;
+    _bcryptService = bcryptService;
   }
 
   /// <inheritdoc />
@@ -38,6 +42,12 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
     {
       _logger.LogWarning("User with email:{Email} has not confirmed email", request.LoginRequestDto.Email);
       return Result.Failure<LoginResponseDto>(ApplicationError.EmailNotYetConfirmedError(user.Email));
+    }
+
+    if (!_bcryptService.Verify(request.LoginRequestDto.Password, user.PasswordHash))
+    {
+      _logger.LogWarning("Invalid password for user with email:{Email}", request.LoginRequestDto.Email);
+      return Result.Failure<LoginResponseDto>(ApplicationError.InvalidPasswordError(user.Email));
     }
 
     var token = await _tokenService.GenerateTokenAsync(request.LoginRequestDto.Email, TokenType.Login);

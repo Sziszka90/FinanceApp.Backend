@@ -29,7 +29,7 @@ public class TokenController : ControllerBase
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<IActionResult> ValidateToken([FromBody] ValidateTokenRequest request, CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new ValidateTokenCommand(request.Token, cancellationToken));
+    var result = await _mediator.Send(new ValidateTokenCommand(request, cancellationToken));
     return this.GetResult(result);
   }
 }

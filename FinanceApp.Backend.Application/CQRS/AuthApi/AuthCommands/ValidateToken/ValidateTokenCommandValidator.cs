@@ -6,8 +6,12 @@ public class ValidateTokenCommandValidator : AbstractValidator<ValidateTokenComm
 {
   public ValidateTokenCommandValidator()
   {
-    RuleFor(x => x.Token)
+    RuleFor(x => x.validateTokenRequest.Token)
       .NotEmpty()
       .WithMessage("Token is required.");
+
+    RuleFor(x => x.validateTokenRequest.TokenType)
+      .NotNull()
+      .WithMessage("Token type is required.");
   }
 }
