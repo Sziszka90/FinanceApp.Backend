@@ -10,6 +10,7 @@ using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace FinanceApp.Backend.Testing.Api.Base;
 
@@ -276,21 +277,41 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
 
   protected async Task<T?> GetContentAsync<T>(HttpResponseMessage message)
   {
-    var options = new JsonSerializerOptions
+    var optionsCamel = new JsonSerializerSettings
     {
-      PropertyNameCaseInsensitive = true
+      ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+      {
+        NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()
+      },
+      Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() },
+      ReferenceLoopHandling = ReferenceLoopHandling.Ignore
     };
 
-    options.Converters.Add(new JsonStringEnumConverter());
+    var optionsSnake = new JsonSerializerSettings
+    {
+      ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+      {
+        NamingStrategy = new Newtonsoft.Json.Serialization.SnakeCaseNamingStrategy()
+      },
+      Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() },
+      ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+    };
 
-    var objectAsString = await message.Content.ReadAsStringAsync();
-    return string.IsNullOrEmpty(objectAsString) ? default : JsonSerializer.Deserialize<T>(objectAsString, options);
-    ;
+    try
+    {
+      var objectAsString = await message.Content.ReadAsStringAsync();
+      return string.IsNullOrEmpty(objectAsString) ? default : JsonConvert.DeserializeObject<T>(objectAsString, optionsCamel);
+    }
+    catch
+    {
+      var objectAsString = await message.Content.ReadAsStringAsync();
+      return string.IsNullOrEmpty(objectAsString) ? default : JsonConvert.DeserializeObject<T>(objectAsString, optionsSnake);
+    }
   }
 
   protected StringContent CreateContent<T>(T objectToConvert)
   {
-    var objectAsString = JsonSerializer.Serialize(objectToConvert);
+    var objectAsString = JsonConvert.SerializeObject(objectToConvert);
     var result = new StringContent(objectAsString, Encoding.UTF8, "application/json");
     return result;
   }

@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using FinanceApp.Backend.Application.Dtos.McpDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Testing.Api.Base;
@@ -13,16 +12,17 @@ public class McpApi : TestBase
   {
     // arrange
     await InitializeAsync();
-    var mcpRequest = new McpRequest
+    var mcpRequest = new Dictionary<string, object>
     {
-      ToolName = "GetTopTransactionGroups",
-      Parameters = new Dictionary<string, object>
-      {
-        { "StartDate", "2023-01-01T00:00:00Z" },
-        { "EndDate", "2023-01-31T23:59:59Z" },
-        { "Top", 5 },
-        { "UserId", Guid.NewGuid().ToString() },
-        { "CorrelationId", Guid.NewGuid().ToString() }
+      { "tool_name", "GetTopTransactionGroups" },
+      { "parameters", new Dictionary<string, object>
+        {
+          { "start_date", "2023-01-01T00:00:00Z" },
+          { "end_date", "2023-01-31T23:59:59Z" },
+          { "top", 5 },
+          { "user_id", Guid.NewGuid().ToString() },
+          { "correlation_id", Guid.NewGuid().ToString() }
+        }
       }
     };
 
