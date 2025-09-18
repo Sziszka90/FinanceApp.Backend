@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Application.Dtos.McpDtos;
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
 using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
@@ -159,7 +160,17 @@ public class RabbitMqClient : IRabbitMqClient
 
     try
     {
-      var message = JsonSerializer.Deserialize<RabbitMqPayload<MatchTransactionResponseDto>>(body) ?? throw new JsonException("Deserialized message is null");
+      var settings = new Newtonsoft.Json.JsonSerializerSettings
+      {
+        ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+        {
+          NamingStrategy = new Newtonsoft.Json.Serialization.SnakeCaseNamingStrategy()
+        }
+      };
+
+      var jsonString = Encoding.UTF8.GetString(body);
+      var message = Newtonsoft.Json.JsonConvert.DeserializeObject<RabbitMqPayload<MatchTransactionResponseDto>>(jsonString, settings) ?? throw new JsonException("Deserialized message is null");
+
       using var scope = _serviceProvider.CreateScope();
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 

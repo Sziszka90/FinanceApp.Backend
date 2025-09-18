@@ -32,7 +32,7 @@ public class McpRequestValidator : AbstractValidator<McpRequest>
 
   private static bool IsConvertibleToInt(object? value)
   {
-    if (value is int)
+    if (value is int || value is long)
     {
       return true;
     }

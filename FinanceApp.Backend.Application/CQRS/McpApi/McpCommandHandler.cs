@@ -118,6 +118,11 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
       return i;
     }
 
+    if (value is long l)
+    {
+      return (int)l;
+    }
+
     if (value is string s && int.TryParse(s, out var parsedInt))
     {
       return parsedInt;

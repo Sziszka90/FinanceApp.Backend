@@ -1,6 +1,4 @@
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Asp.Versioning;
 using FinanceApp.Backend.Domain.Options;
 using FinanceApp.Backend.Presentation.WebApi.HealthChecks;
@@ -19,7 +17,7 @@ public static class ApiExtensions
                              {
                                options.AddPolicy("AllowAllOrigins", policy =>
                                                                     {
-                                                                      policy.WithOrigins("https://www.financeapp.fun")
+                                                                      policy.WithOrigins("https://financeapp.fun")
                                                                             .AllowAnyHeader()
                                                                             .AllowAnyMethod()
                                                                             .AllowCredentials();
@@ -33,13 +31,15 @@ public static class ApiExtensions
 
     builder.Services.AddScoped<ServiceWakeup>();
 
-    builder.Services.AddControllers()
-           .AddJsonOptions(options =>
-                           {
-                             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                           });
+    builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    {
+      options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+      {
+        NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy()
+      };
+      options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+      options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
 
     builder.Services.AddApiVersioning(options =>
     {
