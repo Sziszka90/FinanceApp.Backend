@@ -78,7 +78,11 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
           return Result.Success(new McpEnvelope
           {
             ToolName = request.McpRequest.ToolName,
-            Payload = transactionGroups
+            Payload = new Dictionary<string, object>
+            {
+              { "TransactionGroups", transactionGroups },
+              { "BaseCurrency", user.BaseCurrency }
+            }
           });
         }
 
