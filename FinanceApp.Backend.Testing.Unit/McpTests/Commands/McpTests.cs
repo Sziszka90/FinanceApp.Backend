@@ -68,7 +68,10 @@ public class McpTests
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
     Assert.Equal(SupportedTools.GET_TOP_TRANSACTION_GROUPS, result.Data.ToolName);
-    Assert.Equal(aggregates, result.Data.Payload);
+    var payload = result.Data.Payload as Dictionary<string, object>;
+    Assert.NotNull(payload);
+    Assert.Equal(aggregates, payload["TransactionGroups"]);
+    Assert.Equal(CurrencyEnum.USD, payload["BaseCurrency"]);
   }
 
   [Fact]
