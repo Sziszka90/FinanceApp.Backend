@@ -23,7 +23,8 @@ public class CreateTransactionTests : TestBase
         TransactionRepositoryMock.Object,
         TransactionGroupRepositoryMock.Object,
         UnitOfWorkMock.Object,
-        UserServiceMock.Object
+        UserServiceMock.Object,
+        ExchangeRateRepositoryMock.Object
     );
   }
 

@@ -20,7 +20,7 @@ public class McpApi : TestBase
           { "start_date", "2023-01-01T00:00:00Z" },
           { "end_date", "2023-01-31T23:59:59Z" },
           { "top", 5 },
-          { "user_id", Guid.NewGuid().ToString() },
+          { "user_id", CreatedUserId.ToString() },
           { "correlation_id", Guid.NewGuid().ToString() }
         }
       }

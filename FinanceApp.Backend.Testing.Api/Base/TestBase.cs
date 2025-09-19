@@ -1,7 +1,5 @@
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
@@ -101,12 +99,25 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
   {
     using var scope = _factory.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<FinanceAppDbContext>();
-    var exchangeRate = new ExchangeRate(
-      CurrencyEnum.HUF.ToString(),
-      CurrencyEnum.EUR.ToString(),
-      404.8m
-    );
-    dbContext.ExchangeRate.Add(exchangeRate);
+    var exchangeRates = new List<ExchangeRate>
+    {
+      new ExchangeRate(
+        CurrencyEnum.HUF.ToString(),
+        CurrencyEnum.EUR.ToString(),
+        404.8m
+      ),
+      new ExchangeRate(
+        CurrencyEnum.USD.ToString(),
+        CurrencyEnum.EUR.ToString(),
+        1.1m
+      ),
+      new ExchangeRate(
+        CurrencyEnum.EUR.ToString(),
+        CurrencyEnum.USD.ToString(),
+        0.85m
+      )
+    };
+    dbContext.ExchangeRate.AddRange(exchangeRates);
     await dbContext.SaveChangesAsync();
   }
 

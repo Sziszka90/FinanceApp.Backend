@@ -20,7 +20,8 @@ public class UpdateTransactionTests : TestBase
         UnitOfWorkMock.Object,
         TransactionRepositoryMock.Object,
         TransactionGroupRepositoryMock.Object,
-        _loggerMock.Object
+        _loggerMock.Object,
+        ExchangeRateRepositoryMock.Object
     );
   }
 

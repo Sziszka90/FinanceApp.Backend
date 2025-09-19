@@ -1,4 +1,5 @@
 using System.Net;
+using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.Models;
@@ -167,7 +168,7 @@ public class TransactionApi : TestBase
     var sum = await GetContentAsync<Money>(response);
 
     // assert
-    Assert.True(sum!.Amount > transaction?.Value.Amount);
+    Assert.True(sum!.Amount == -transaction?.Value.Amount);
   }
 
   [Fact]
@@ -197,7 +198,7 @@ public class TransactionApi : TestBase
       Description = "Updated Description",
       Value = new Money
       {
-        Currency = CurrencyEnum.USD,
+        Currency = CurrencyEnum.EUR,
         Amount = 200
       },
       TransactionDate = transaction.TransactionDate,

@@ -3,6 +3,8 @@ using FinanceApp.Backend.Application.Dtos.McpDtos;
 using FinanceApp.Backend.Application.McpApi.McpCommands;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.Validators;
+using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -12,9 +14,11 @@ public class McpTests
 {
   private readonly Mock<ILogger<McpCommandHandler>> _loggerMock = new();
   private readonly Mock<ITransactionRepository> _transactionRepositoryMock = new();
+  private readonly Mock<IExchangeRateRepository> _exchangeRateRepositoryMock = new();
+  private readonly Mock<IUserRepository> _userRepositoryMock = new();
 
   private McpCommandHandler CreateHandler() =>
-      new McpCommandHandler(_loggerMock.Object, _transactionRepositoryMock.Object);
+      new McpCommandHandler(_loggerMock.Object, _transactionRepositoryMock.Object, _exchangeRateRepositoryMock.Object, _userRepositoryMock.Object);
 
   [Fact]
   public async Task Handle_GetTopTransactionGroups_ReturnsSuccess()
@@ -44,6 +48,17 @@ public class McpTests
           It.IsAny<CancellationToken>()
       ))
       .Returns(Task.FromResult(aggregates));
+
+    _userRepositoryMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .Returns(Task.FromResult<User?>(
+        new User(
+          userId,
+          "testuser",
+          "testuser@example.com",
+          true,
+          "hash",
+          CurrencyEnum.USD)));
 
     var handler = CreateHandler();
     var command = new McpCommand(mcpRequest, CancellationToken.None);
