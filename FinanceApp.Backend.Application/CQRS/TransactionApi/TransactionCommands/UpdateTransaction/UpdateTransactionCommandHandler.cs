@@ -1,9 +1,11 @@
 using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
+using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UpdateTransaction;
@@ -15,19 +17,22 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
   private readonly IRepository<Transaction> _transactionRepository;
   private readonly IRepository<TransactionGroup> _transactionGroupRepository;
   private readonly ILogger<UpdateTransactionCommandHandler> _logger;
+  private readonly IExchangeRateRepository _exchangeRateRepository;
 
   public UpdateTransactionCommandHandler(
     IMapper mapper,
     IUnitOfWork unitOfWork,
     IRepository<Transaction> transactionRepository,
     IRepository<TransactionGroup> transactionGroupRepository,
-    ILogger<UpdateTransactionCommandHandler> logger)
+    ILogger<UpdateTransactionCommandHandler> logger,
+    IExchangeRateRepository exchangeRateRepository)
   {
     _mapper = mapper;
     _unitOfWork = unitOfWork;
     _transactionRepository = transactionRepository;
     _transactionGroupRepository = transactionGroupRepository;
     _logger = logger;
+    _exchangeRateRepository = exchangeRateRepository;
   }
 
   /// <inheritdoc />
@@ -54,10 +59,22 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
       return Result.Failure<GetTransactionDto>(ApplicationError.EntityNotFoundError(request.Id.ToString()));
     }
 
+    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
+
+    var convertedAmount = CurrencyConverter.ConvertToUserCurrency(
+      request.UpdateTransactionDto.Value.Amount,
+      request.UpdateTransactionDto.Value.Currency,
+      CurrencyEnum.EUR,
+      exchangeRates);
+
     transaction.Update(
       request.UpdateTransactionDto.Name,
       request.UpdateTransactionDto.Description,
-      request.UpdateTransactionDto.Value,
+      new Money()
+      {
+        Amount = convertedAmount,
+        Currency = CurrencyEnum.EUR
+      },
       request.UpdateTransactionDto.TransactionType,
       request.UpdateTransactionDto.TransactionDate,
       transactionGroup

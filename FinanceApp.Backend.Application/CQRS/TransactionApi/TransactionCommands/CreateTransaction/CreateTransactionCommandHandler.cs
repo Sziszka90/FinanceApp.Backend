@@ -2,9 +2,11 @@ using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
+using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
+using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
@@ -17,6 +19,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
   private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IUserService _userService;
+  private readonly IExchangeRateRepository _exchangeRateRepository;
 
   public CreateTransactionCommandHandler(
     ILogger<CreateTransactionCommandHandler> logger,
@@ -24,7 +27,8 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
     ITransactionRepository transactionRepository,
     ITransactionGroupRepository transactionGroupRepository,
     IUnitOfWork unitOfWork,
-    IUserService userService)
+    IUserService userService,
+    IExchangeRateRepository exchangeRateRepository)
   {
     _logger = logger;
     _mapper = mapper;
@@ -32,7 +36,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
     _transactionGroupRepository = transactionGroupRepository;
     _unitOfWork = unitOfWork;
     _userService = userService;
-
+    _exchangeRateRepository = exchangeRateRepository;
   }
 
   /// <inheritdoc />
@@ -58,11 +62,23 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
       }
     }
 
+    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
+
+    var convertedAmount = CurrencyConverter.ConvertToUserCurrency(
+      request.CreateTransactionDto.Value.Amount,
+      request.CreateTransactionDto.Value.Currency,
+      CurrencyEnum.EUR,
+      exchangeRates);
+
     var transaction = await _transactionRepository.CreateAsync(new Transaction(
                                                                     request.CreateTransactionDto.Name,
                                                                     request.CreateTransactionDto.Description,
                                                                     request.CreateTransactionDto.TransactionType,
-                                                                    request.CreateTransactionDto.Value,
+                                                                    new Money()
+                                                                    {
+                                                                      Amount = convertedAmount,
+                                                                      Currency = CurrencyEnum.EUR
+                                                                    },
                                                                     transactionGroup,
                                                                     request.CreateTransactionDto.TransactionDate,
                                                                     user.Data!), cancellationToken);

@@ -1,7 +1,10 @@
 using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
+using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.McpDtos;
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.McpApi.McpCommands;
@@ -10,13 +13,19 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
 {
   private readonly ILogger<McpCommandHandler> _logger;
   private readonly ITransactionRepository _transactionRepository;
+  private readonly IExchangeRateRepository _exchangeRateRepository;
+  private readonly IUserRepository _userRepository;
 
   public McpCommandHandler(
     ILogger<McpCommandHandler> logger,
-    ITransactionRepository transactionRepository)
+    ITransactionRepository transactionRepository,
+    IExchangeRateRepository exchangeRateRepository,
+    IUserRepository userRepository)
   {
     _logger = logger;
     _transactionRepository = transactionRepository;
+    _exchangeRateRepository = exchangeRateRepository;
+    _userRepository = userRepository;
   }
 
   /// <inheritdoc />
@@ -46,6 +55,25 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
             cancellationToken: cancellationToken);
 
           _logger.LogInformation("MCP Command Handler: Successfully retrieved transaction groups for user {UserId}", userId);
+
+          var user = await _userRepository.GetByIdAsync(userId, cancellationToken: cancellationToken);
+
+          if (user == null)
+          {
+            _logger.LogWarning("MCP Command Handler: User not found for ID {UserId}", userId);
+            return Result.Failure<McpEnvelope>(ApplicationError.UserNotFoundError($"MCP Command Handler: User not found for ID '{userId}'"));
+          }
+
+          var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(cancellationToken: cancellationToken);
+
+          foreach (var transactionGroup in transactionGroups)
+          {
+            transactionGroup.TotalAmount = CurrencyConverter.ConvertToUserCurrency(
+              transactionGroup.TotalAmount,
+              CurrencyEnum.EUR,
+              user.BaseCurrency,
+              exchangeRates);
+          }
 
           return Result.Success(new McpEnvelope
           {

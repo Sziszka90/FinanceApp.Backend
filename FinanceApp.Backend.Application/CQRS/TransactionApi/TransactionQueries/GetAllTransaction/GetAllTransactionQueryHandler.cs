@@ -6,7 +6,6 @@ using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
-using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetAllTransaction;
