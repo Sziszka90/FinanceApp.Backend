@@ -73,16 +73,13 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
               CurrencyEnum.EUR,
               user.BaseCurrency,
               exchangeRates);
+            transactionGroup.Currency = user.BaseCurrency;
           }
 
           return Result.Success(new McpEnvelope
           {
             ToolName = request.McpRequest.ToolName,
-            Payload = new Dictionary<string, object>
-            {
-              { "TransactionGroups", transactionGroups },
-              { "BaseCurrency", user.BaseCurrency }
-            }
+            Payload = transactionGroups
           });
         }
 
