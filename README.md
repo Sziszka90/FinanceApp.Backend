@@ -61,7 +61,7 @@ For detailed upcoming features and development progress, please check our [GitHu
 - **Async/Await** for non-blocking operations
 - **Event-Driven Architecture** with RabbitMQ
 
-## 🚀 Tech Stack
+## 💻 Tech Stack
 
 - **ASP.NET Core 8** - Web API framework
 - **AutoMapper** - Object-to-object mapping
