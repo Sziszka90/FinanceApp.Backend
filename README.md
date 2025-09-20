@@ -1,30 +1,34 @@
-# 💼 Personal Finance App - Backend
+# 💼 Finance App - Backend
 
-📦 **A sophisticated personal finance management platform with intelligent transaction processing**
+## 📦 A sophisticated personal finance management platform with intelligent transaction processing
 
 This project is a full-stack personal finance application designed to help users track, categorize, and analyze their financial transactions with AI-powered insights. It provides a complete solution from frontend UI to backend APIs, intelligent processing, and secure data management.
 
-### 🎯 Current Features
+## 🎯 Current Features
 
-✅ **User Management** - Registration, email confirmation, password reset, user base currency
+✅ **User Management** 
+  - Login, registration, password reset with JWT integration and email confirmation
+  - User profile where users can set their preferred currency
+  - JWT-based auth with token caching and invalidation
+  - Separated tokens for password reset, login and email confirmation
 
-✅ **Authentication** - JWT-based auth with token caching and invalidation
+✅ **Transactions** 
+  - Create, read, update, delete transactions with input validation
+  - Import transactions from CSV files with automatic, asynchronous transaction group matching powered by AI, RabbitMQ and SignalR
 
-✅ **Transactions CRUD** - Create, read, update, delete transactions
+✅ **Transaction Groups** 
+  - Create, read, update, delete transaction groups with input validation
 
-✅ **Transaction Groups CRUD** - Create, read, update, delete transaction groups
+✅ **MCP endpoint** 
+  - Standardized MCP endpoint to call backend tools to provide data to user via LLMProcessor Service
 
-✅ **Import transactions from CSV** - Import CSV file and create transactions with AI driven transaction group match
+✅ **Currency Exchange** 
+  - Recurring background job querying live exchange rates for multi-currency support. Stored in internal database
 
-✅ **MCP endpoint** - Standardized MCP endpoint to call backend tools to provide data to user
+✅ **Email Services** 
+  - SMTP integration for notifications
 
-✅ **Currency Exchange** - Recurring background job querying live exchange rates for multi-currency support
-
-✅ **Caching System** - Redis-based token caching
-
-✅ **Email Services** - SMTP integration for notifications
-
-### 🔮 Upcoming Features
+## 🔮 Upcoming Features
 
 For detailed upcoming features and development progress, please check our [GitHub Issues](https://github.com/Sziszka90/FinanceApp.Backend/issues).
 
@@ -71,74 +75,6 @@ For detailed upcoming features and development progress, please check our [GitHu
 - **SQLite** - Lightweight database for development and testing environments
 - **Redis** - High-performance in-memory caching and session management
 - **RabbitMQ** - Reliable message broker for async communication
-
-## 🔧 Features Deep Dive
-
-### **👤 User Management**
-
-- **Registration Flow** with email verification, option to resend email confirmation email
-- **Password Reset** - Reset password via a secure email link (for safety)
-- **Profile Management** with account settings, possibility to change password, username and base currency
-- **Token Management** Tokens are differentiated as login tokens, password reset tokens, and confirmation tokens. All are stored in cache and invalidated after 1 hour.
-- **User Data** Each user has their own data in a shared database and can only access their own records. The active user is determined via HttpContext.
-
-### **💰 Transaction and Transaction Group Management**
-
-- **CRUD Operations** - Full transaction and transaction group lifecycle
-- **Bulk Operations** - CSV import capabilities use the LLMProcessor service to match created transactions with existing transaction groups. The backend sends transaction groups to LLMProcessor via a REST call, receives the results through a messaging queue, and then notifies the frontend about updated values using SignalR.
-- **Transaction Grouping** - Organize by categories, initial transaction groups are created during user registration.
-- **Real-time Validation** - Immediate feedback on data entry
-
-### **🤖 AI-Powered Features**
-
-- **Transaction Matching** - AI-powered matching of transactions to appropriate categories
-- **Async Processing** - Non-blocking AI analysis via RabbitMQ message queues
-
-### **⚡ Performance & Scalability**
-
-- **Redis Caching** - Token management
-- **Async Operations** - Non-blocking database and external service calls
-- **Connection Pooling** - Optimized database connections
-
-### **🔒 Security Features**
-
-- **Token Invalidation** - Secure logout and session management
-- **Input Validation** - Protection against malicious data
-- **CORS Configuration** - Cross-origin request security
-
-## 🚦 Getting Started
-
-### **Prerequisites**
-
-```bash
-# Required software
-.NET 8 SDK
-SQL Server (or SQLite for development)
-Redis Server
-RabbitMQ Server
-```
-
-### **Configuration**
-
-The application uses **layered configuration** with multiple sources:
-
-- **appsettings.json** - Development defaults and structure
-- **appsettings.Development.json** - Local development overrides
-- **appsettings.Database.json** - Database specific settings
-- **appsettings.Messaging.json** - Messaging specific settings
-- **appsettings.Testing.json** - Testing specific settings
-
-**Key Configuration Areas:**
-
-- Database connections (SQL Server/SQLite)
-- Redis caching settings
-- RabbitMQ message queuing
-- SMTP email services
-- JWT authentication
-- External API integrations
-- Logging and monitoring
-
-Production configuration is managed through **GitHub Actions env variables** and **GitHub Actions secrets** for security and deployment automation.
 
 ## 📋 API Documentation
 
@@ -198,77 +134,36 @@ DELETE /api/v1/transactiongroups/{id}       # Delete transaction group (requires
 GET    /api/v1/transactiongroups/top        # Get top transaction groups (requires auth)
 ```
 
-### **Response Formats**
+### **Wakeup Endpoints**
 
-All endpoints use standardized **Result objects** for consistent response handling. The API returns JSON responses with the following structure:
-
-```json
-// Success Response
-{
-  "data": { /* response data */ },
-  "isSuccess": true,
-  "message": "Operation completed successfully"
-}
-
-// Error Response
-{
-  "errors": ["Error message"],
-  "isSuccess": false,
-  "message": "Operation failed"
-}
+```http
+POST   /api/v1/wakeup                       # Wakeup endpoint to wakeup cloud services
 ```
 
-**Result Pattern Benefits:**
-
-- **Consistent error handling** across all endpoints
-- **Type-safe responses** with clear success/failure indicators
-- **Standardized messaging** for better client-side integration
-- **Multiple error support** for comprehensive validation feedback
-
-## 🧪 Testing
+## 🧪 Testing and Quality
 
 All unit and integration tests are run automatically in the CI/CD pipeline.  
 Test coverage is checked in each build and is consistently above **80%**.
+Code quality is enforced using linting tools to ensure consistent style and catch potential errors.
 
 ## 🚀 Deployment
 
 ### **Azure Container Apps**
 
-The application is deployed as **containerized microservices** on **Azure Container Apps**, providing:
-
-- **Auto-scaling** based on demand
-- **Container orchestration** with built-in load balancing
-- **Blue-green deployments** for zero-downtime updates
-- **Integrated monitoring** and logging
-
-### **CI/CD Pipeline**
-
-**GitHub Actions** handles the complete CI/CD workflow:
-
-```yaml
-# Automated pipeline includes:
-✅ Code quality checks and linting
-✅ Unit and integration test execution
-✅ Docker image building and optimization
-✅ Container registry push (Azure Container Registry)
-✅ Automated deployment to Azure Container Apps
-✅ Health checks and rollback capabilities
-```
+The application is deployed as **containerized microservices** on **Azure Container Apps** using GitHub Actions.
 
 **Deployment Flow:**
 
 1. **Push to main** → Triggers GitHub Actions workflow
-2. **Code quality** → Runs code quality che
-2. **Build & Test** → Runs automated test suite
-3. **Containerize** → Creates optimized Docker images
-4. **Deploy** → Updates Azure Container Apps with zero downtime
+2. **Build & Test** → Runs automated test suite and linting
+3. **Bundle** → Creates production build
+4. **Deploy** → Updates hosting platform with new version
 5. **Verify** → Automated health checks ensure successful deployment
 
 ## 📊 Monitoring & Logging
 
 - **Health Checks** for database and external services
 - **Logging** for easy debugging
-- **Error Tracking** with custom exception handling
 
 ## 🤝 Contributing
 
