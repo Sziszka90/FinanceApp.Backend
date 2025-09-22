@@ -42,6 +42,13 @@ public interface ICacheManager
   Task<bool> IsLoginTokenValidAsync(string token);
 
   /// <summary>
+  /// Checks if a refresh token is valid.
+  /// </summary>
+  /// <param name="token">The token to check.</param>
+  /// <returns>Boolean indicating whether the refresh token is valid.</returns>
+  Task<bool> IsRefreshTokenValidAsync(string token);
+
+  /// <summary>
   /// Saves a token in the cache.
   /// </summary>
   /// <param name="token">The token to cache.</param>
@@ -54,6 +61,13 @@ public interface ICacheManager
   /// <param name="token">The email confirmation token to cache.</param>
   /// <returns>A task that represents the asynchronous operation.</returns>
   Task SaveEmailConfirmationTokenAsync(string token);
+
+  /// <summary>
+  /// Saves a refresh token in the cache with 24-hour expiration.
+  /// </summary>
+  /// <param name="token">The refresh token to cache.</param>
+  /// <returns>A task that represents the asynchronous operation.</returns>
+  Task SaveRefreshTokenAsync(string token);
 
   /// <summary>
   /// Invalidates an email confirmation token by marking it as invalid in the cache.
@@ -91,6 +105,13 @@ public interface ICacheManager
   Task InvalidatePasswordResetTokenAsync(string token);
 
   /// <summary>
+  /// Invalidates a refresh token by marking it as invalid in the cache.
+  /// </summary>
+  /// <param name="token">The refresh token to invalidate.</param>
+  /// <returns>A task that represents the asynchronous operation.</returns>
+  Task InvalidateRefreshTokenAsync(string token);
+
+  /// <summary>
   /// Checks if a password reset token is valid.
   /// </summary>
   /// <param name="token">The password reset token to check.</param>
@@ -124,6 +145,13 @@ public interface ICacheManager
   /// <param name="token">The password reset token to check for existence.</param>
   /// <returns>Boolean indicating whether the token exists in cache.</returns>
   Task<bool> PasswordResetTokenExistsAsync(string token);
+
+  /// <summary>
+  /// Checks if a refresh token exists in the cache (regardless of its validity).
+  /// </summary>
+  /// <param name="token">The refresh token to check for existence.</param>
+  /// <returns>Boolean indicating whether the token exists in cache.</returns>
+  Task<bool> RefreshTokenExistsAsync(string token);
 
   /// <summary>
   /// Removes a value from the cache.

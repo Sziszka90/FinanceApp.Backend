@@ -17,4 +17,10 @@ public interface IUserService
   /// </summary>
   /// <returns>A result containing the authorization token as a string.</returns>
   Result<string> GetActiveUserToken();
+
+  /// <summary>
+  /// Retrieves the refresh token of the currently active user.
+  /// </summary>
+  /// <returns>A result containing the refresh token as a string.</returns>
+  Result<string> GetActiveUserRefreshToken();
 }

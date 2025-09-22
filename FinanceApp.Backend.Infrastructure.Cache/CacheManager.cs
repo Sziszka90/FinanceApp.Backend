@@ -162,6 +162,12 @@ public class CacheManager : ICacheManager
     return json is not null;
   }
 
+  public async Task<bool> RefreshTokenExistsAsync(string token)
+  {
+    var json = await GetCacheStringAsync($"RefreshToken:{token}");
+    return json is not null;
+  }
+
   private async Task<string?> GetCacheStringAsync(string key)
   {
     try
@@ -173,5 +179,26 @@ public class CacheManager : ICacheManager
       _logger.LogError(ex, "Failed to get cache string for key: {Key}", key);
       throw new CacheException("GET_STRING", key, ex);
     }
+  }
+
+  public Task<bool> IsRefreshTokenValidAsync(string token)
+  {
+    return GetAsync<bool>($"RefreshToken:{token}");
+  }
+
+  public Task SaveRefreshTokenAsync(string token)
+  {
+    return SetAsync($"RefreshToken:{token}", true, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(8)
+    });
+  }
+
+  public Task InvalidateRefreshTokenAsync(string token)
+  {
+    return SetAsync($"RefreshToken:{token}", false, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(8)
+    });
   }
 }

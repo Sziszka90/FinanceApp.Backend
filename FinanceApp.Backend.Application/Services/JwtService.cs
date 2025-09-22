@@ -41,6 +41,28 @@ public class JwtService : IJwtService
     return new JwtSecurityTokenHandler().WriteToken(token);
   }
 
+  public string GenerateRefreshToken(string email)
+  {
+    var claims = new[]
+    {
+      new Claim(JwtRegisteredClaimNames.Sub, email),
+      new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid()
+                                                 .ToString())
+    };
+
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.SecretKey));
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+    var token = new JwtSecurityToken(
+      _authenticationSettings.Issuer,
+      _authenticationSettings.Audience,
+      claims,
+      expires: DateTime.UtcNow.AddHours(8),
+      signingCredentials: credentials);
+
+    return new JwtSecurityTokenHandler().WriteToken(token);
+  }
+
   /// <inheritdoc />
   public bool ValidateToken(string token)
   {

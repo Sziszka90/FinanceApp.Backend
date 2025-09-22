@@ -207,4 +207,55 @@ public class TokenService : ITokenService
     }
     _logger.LogInformation("Token invalidated: {Token}, Type: {TokenType}", token, tokenType);
   }
+
+  public async Task<Result<string>> GenerateRefreshTokenAsync(string userEmail)
+  {
+    try
+    {
+      var token = await _tokenGenerationRetryPolicy.ExecuteAsync(async () =>
+      {
+        var generatedToken = _jwtService.GenerateRefreshToken(userEmail);
+
+        if (await _cacheManager.RefreshTokenExistsAsync(generatedToken))
+        {
+          throw new InvalidOperationException("RefreshToken collision detected");
+        }
+        await _cacheManager.SaveRefreshTokenAsync(generatedToken);
+        return generatedToken;
+
+      });
+
+      _logger.LogInformation("Refresh token generated and saved: {Token}", token);
+      return Result.Success(token);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to generate unique refresh token after all retry attempts");
+      return Result.Failure<string>(ApplicationError.TokenGenerationError());
+    }
+  }
+
+  public async Task<Result<bool>> IsRefreshTokenValidAsync(string token)
+  {
+    if (!_jwtService.ValidateToken(token))
+    {
+      _logger.LogWarning("Invalid token provided: {Token}", token);
+      await _cacheManager.InvalidateLoginTokenAsync(token);
+      return Result.Failure<bool>(ApplicationError.InvalidTokenError("RefreshToken"));
+    }
+
+    if (!await _cacheManager.IsRefreshTokenValidAsync(token))
+    {
+      _logger.LogWarning("Invalid refresh token in cache: {Token}", token);
+      return Result.Failure<bool>(ApplicationError.InvalidTokenError("RefreshToken"));
+    }
+    _logger.LogInformation("Refresh token validated: {Token}", token);
+    return Result.Success(true);
+  }
+
+  public async Task InvalidateRefreshTokenAsync(string token)
+  {
+    await _cacheManager.InvalidateRefreshTokenAsync(token);
+    _logger.LogInformation("Refresh token invalidated: {Token}", token);
+  }
 }

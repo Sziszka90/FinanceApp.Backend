@@ -32,9 +32,9 @@ builder.Services.AddLogging(config =>
                             {
                               config.AddSimpleConsole(options =>
                                                       {
-                                                        options.IncludeScopes = false; // Whether to include log scopes
-                                                        options.SingleLine = true; // Output logs in a single line
-                                                        options.TimestampFormat = "yyyy-MM-dd HH:mm:ss "; // Format for timestamps
+                                                        options.IncludeScopes = false;
+                                                        options.SingleLine = true;
+                                                        options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
                                                       });
                               config.AddDebug();
                             });
@@ -47,7 +47,6 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseApi(builder.Configuration);
 app.UseSwaggerConfiguration();
 
-// Map each probe separately
 app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
   Predicate = check => check.Tags.Contains("liveness")

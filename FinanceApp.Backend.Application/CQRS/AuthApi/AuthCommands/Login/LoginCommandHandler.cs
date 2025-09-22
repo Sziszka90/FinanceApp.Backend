@@ -58,10 +58,19 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, Result<LoginRes
       return Result.Failure<LoginResponseDto>(token.ApplicationError!);
     }
 
+    var refreshToken = await _tokenService.GenerateRefreshTokenAsync(request.LoginRequestDto.Email);
+
+    if (!refreshToken.IsSuccess)
+    {
+      _logger.LogError("Failed to generate refresh token for user with email:{Email}. Error: {Error}", request.LoginRequestDto.Email, refreshToken.ApplicationError?.Message);
+      return Result.Failure<LoginResponseDto>(refreshToken.ApplicationError!);
+    }
+
     _logger.LogInformation("Login successful!");
 
     return Result.Success(new LoginResponseDto
     {
+      RefreshToken = refreshToken.Data!,
       Token = token.Data!
     });
   }

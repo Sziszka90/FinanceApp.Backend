@@ -52,11 +52,24 @@ public class UserService : IUserService
   public Result<string> GetActiveUserToken()
   {
     var httpContext = _httpContextAccessor.HttpContext;
-    var token = httpContext!.Request.Headers.Authorization.FirstOrDefault();
+    var token = httpContext!.Request.Cookies["Token"];
 
     if (string.IsNullOrEmpty(token))
     {
       _logger.LogError("Authorization token not found.");
+      return Result.Failure<string>(ApplicationError.InvalidTokenError());
+    }
+    return Result.Success(token);
+  }
+
+  public Result<string> GetActiveUserRefreshToken()
+  {
+    var httpContext = _httpContextAccessor.HttpContext;
+    var token = httpContext!.Request.Cookies["RefreshToken"];
+
+    if (string.IsNullOrEmpty(token))
+    {
+      _logger.LogError("Refresh token not found.");
       return Result.Failure<string>(ApplicationError.InvalidTokenError());
     }
     return Result.Success(token);
