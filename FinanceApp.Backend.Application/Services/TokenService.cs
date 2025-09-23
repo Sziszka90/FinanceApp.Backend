@@ -85,11 +85,11 @@ public class TokenService : ITokenService
     {
       var token = await _tokenGenerationRetryPolicy.ExecuteAsync(async () =>
       {
-        var generatedToken = _jwtService.GenerateToken(userEmail);
-
         switch (tokenType)
         {
           case TokenType.Login:
+            var generatedToken = _jwtService.GenerateToken(userEmail);
+
             if (await _cacheManager.LoginTokenExistsAsync(generatedToken))
             {
               throw new InvalidOperationException("Token collision detected");
@@ -98,20 +98,24 @@ public class TokenService : ITokenService
             return generatedToken;
 
           case TokenType.PasswordReset:
-            if (await _cacheManager.PasswordResetTokenExistsAsync(generatedToken))
+            var generatedPasswordResetToken = _jwtService.GeneratePasswordResetToken(userEmail);
+
+            if (await _cacheManager.PasswordResetTokenExistsAsync(generatedPasswordResetToken))
             {
               throw new InvalidOperationException("Token collision detected");
             }
-            await _cacheManager.SavePasswordResetTokenAsync(generatedToken);
-            return generatedToken;
+            await _cacheManager.SavePasswordResetTokenAsync(generatedPasswordResetToken);
+            return generatedPasswordResetToken;
 
           case TokenType.EmailConfirmation:
-            if (await _cacheManager.EmailConfirmationTokenExistsAsync(generatedToken))
+            var generatedEmailConfirmationToken = _jwtService.GenerateEmailConfirmationToken(userEmail);
+
+            if (await _cacheManager.EmailConfirmationTokenExistsAsync(generatedEmailConfirmationToken))
             {
               throw new InvalidOperationException("Token collision detected");
             }
-            await _cacheManager.SaveEmailConfirmationTokenAsync(generatedToken);
-            return generatedToken;
+            await _cacheManager.SaveEmailConfirmationTokenAsync(generatedEmailConfirmationToken);
+            return generatedEmailConfirmationToken;
 
           default:
             throw new ArgumentException($"Unknown token type: {tokenType}");

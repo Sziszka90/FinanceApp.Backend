@@ -67,15 +67,31 @@ public class CacheManager : ICacheManager
   {
     await SetAsync($"EmailToken:{token}", true, new DistributedCacheEntryOptions
     {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
     });
   }
 
-  public async Task InvalidateEmailConfirmationTokenAsync(string token)
+  public async Task SavePasswordResetTokenAsync(string token)
   {
-    await SetAsync($"EmailToken:{token}", false, new DistributedCacheEntryOptions
+    await SetAsync($"PasswordResetToken:{token}", true, new DistributedCacheEntryOptions
     {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+    });
+  }
+
+  public async Task SaveLoginTokenAsync(string token)
+  {
+    await SetAsync($"LoginToken:{token}", true, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+    });
+  }
+
+  public Task SaveRefreshTokenAsync(string token)
+  {
+    return SetAsync($"RefreshToken:{token}", true, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7)
     });
   }
 
@@ -90,23 +106,7 @@ public class CacheManager : ICacheManager
     return !isValid;
   }
 
-  public async Task SavePasswordResetTokenAsync(string token)
-  {
-    await SetAsync($"PasswordResetToken:{token}", true, new DistributedCacheEntryOptions
-    {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-    });
-  }
-
-  public async Task InvalidatePasswordResetTokenAsync(string token)
-  {
-    await SetAsync($"PasswordResetToken:{token}", false, new DistributedCacheEntryOptions
-    {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-    });
-  }
-
-  public async Task<bool> IsPasswordResetTokenValidAsync(string token)
+    public async Task<bool> IsPasswordResetTokenValidAsync(string token)
   {
     return await GetAsync<bool>($"PasswordResetToken:{token}");
   }
@@ -115,22 +115,6 @@ public class CacheManager : ICacheManager
   {
     var isValid = await IsPasswordResetTokenValidAsync(token);
     return !isValid;
-  }
-
-  public async Task InvalidateLoginTokenAsync(string token)
-  {
-    await SetAsync($"LoginToken:{token}", false, new DistributedCacheEntryOptions
-    {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-    });
-  }
-
-  public async Task SaveLoginTokenAsync(string token)
-  {
-    await SetAsync($"LoginToken:{token}", true, new DistributedCacheEntryOptions
-    {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-    });
   }
 
   public async Task<bool> IsLoginTokenValidAsync(string token)
@@ -142,6 +126,43 @@ public class CacheManager : ICacheManager
   {
     var isValid = await IsLoginTokenValidAsync(token);
     return !isValid;
+  }
+
+  public Task<bool> IsRefreshTokenValidAsync(string token)
+  {
+    return GetAsync<bool>($"RefreshToken:{token}");
+  }
+
+  public async Task InvalidateEmailConfirmationTokenAsync(string token)
+  {
+    await SetAsync($"EmailToken:{token}", false, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+    });
+  }
+
+  public async Task InvalidatePasswordResetTokenAsync(string token)
+  {
+    await SetAsync($"PasswordResetToken:{token}", false, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+    });
+  }
+
+  public async Task InvalidateLoginTokenAsync(string token)
+  {
+    await SetAsync($"LoginToken:{token}", false, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+    });
+  }
+
+  public Task InvalidateRefreshTokenAsync(string token)
+  {
+    return SetAsync($"RefreshToken:{token}", false, new DistributedCacheEntryOptions
+    {
+      AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60)
+    });
   }
 
   public async Task<bool> LoginTokenExistsAsync(string token)
@@ -179,26 +200,5 @@ public class CacheManager : ICacheManager
       _logger.LogError(ex, "Failed to get cache string for key: {Key}", key);
       throw new CacheException("GET_STRING", key, ex);
     }
-  }
-
-  public Task<bool> IsRefreshTokenValidAsync(string token)
-  {
-    return GetAsync<bool>($"RefreshToken:{token}");
-  }
-
-  public Task SaveRefreshTokenAsync(string token)
-  {
-    return SetAsync($"RefreshToken:{token}", true, new DistributedCacheEntryOptions
-    {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(8)
-    });
-  }
-
-  public Task InvalidateRefreshTokenAsync(string token)
-  {
-    return SetAsync($"RefreshToken:{token}", false, new DistributedCacheEntryOptions
-    {
-      AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(8)
-    });
   }
 }

@@ -17,7 +17,7 @@ public static class ApiExtensions
                              {
                                options.AddPolicy("AllowAllOrigins", policy =>
                                                                     {
-                                                                      policy.WithOrigins("http://localhost:4200")
+                                                                      policy.WithOrigins("https://www.financeapp.fun")
                                                                             .AllowAnyHeader()
                                                                             .AllowAnyMethod()
                                                                             .AllowCredentials();

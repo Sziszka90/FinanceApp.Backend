@@ -10,6 +10,20 @@ public interface IJwtService
   string GenerateToken(string email);
 
   /// <summary>
+  /// Generates a JWT email confirmation token for the given email address.
+  /// </summary>
+  /// <param name="email"></param>
+  /// <returns>Generated Token</returns>
+  string GenerateEmailConfirmationToken(string email);
+
+  /// <summary>
+  /// Generates a JWT password reset token for the given email address.
+  /// </summary>
+  /// <param name="email"></param>
+  /// <returns>Generated Token</returns>
+  string GeneratePasswordResetToken(string email);
+
+  /// <summary>
   /// Generates a JWT refresh token for the given email address.
   /// </summary>
   /// <param name="email"></param>
