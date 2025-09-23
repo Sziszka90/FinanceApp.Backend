@@ -48,7 +48,7 @@ public interface ITokenService
   /// </summary>
   /// <param name="token">The token to extract the email from.</param>
   /// <returns>The user email associated with the token.</returns>
-  string GetEmailFromTokenAsync(string token);
+  string GetEmailFromToken(string token);
 
   /// <summary>
   /// Invalidates a token by removing it from the cache.

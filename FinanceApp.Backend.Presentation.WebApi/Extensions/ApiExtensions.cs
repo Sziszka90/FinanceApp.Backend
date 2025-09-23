@@ -70,7 +70,8 @@ public static class ApiExtensions
            ValidateIssuerSigningKey = true,
            ValidIssuer = authenticationSettings!.Issuer,
            ValidAudience = authenticationSettings.Audience,
-           IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.SecretKey))
+           IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.SecretKey)),
+           ClockSkew = TimeSpan.Zero
          };
 
          options.Events = new JwtBearerEvents

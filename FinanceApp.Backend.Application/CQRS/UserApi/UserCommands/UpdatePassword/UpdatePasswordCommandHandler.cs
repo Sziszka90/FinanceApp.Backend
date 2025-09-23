@@ -41,7 +41,7 @@ public class UpdatePasswordCommandHandler : ICommandHandler<UpdatePasswordComman
       return Result.Failure(ApplicationError.InvalidTokenError());
     }
 
-    var email = _tokenService.GetEmailFromTokenAsync(request.UpdatePasswordDto.Token);
+    var email = _tokenService.GetEmailFromToken(request.UpdatePasswordDto.Token);
 
     if (email is null)
     {

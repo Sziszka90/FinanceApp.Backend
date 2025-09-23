@@ -185,7 +185,7 @@ public abstract class TestBase
       .ReturnsAsync(Result.Success(true));
 
     TokenServiceMock
-      .Setup(x => x.GetEmailFromTokenAsync(It.IsAny<string>()))
+      .Setup(x => x.GetEmailFromToken(It.IsAny<string>()))
       .Returns("test@example.com");
   }
 

@@ -51,7 +51,7 @@ public class UpdatePasswordTests : TestBase
       .ReturnsAsync(Result.Success(true));
 
     TokenServiceMock
-      .Setup(x => x.GetEmailFromTokenAsync(token))
+      .Setup(x => x.GetEmailFromToken(token))
       .Returns(user.Email);
 
     BcryptServiceMock.Setup(x => x.Hash(newPassword)).Returns("hashed_new_password");

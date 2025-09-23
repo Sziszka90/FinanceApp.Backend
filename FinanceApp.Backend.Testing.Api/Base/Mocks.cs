@@ -101,7 +101,7 @@ public static class Mocks
       .ReturnsAsync(false);
 
     tokenServiceMock
-      .Setup(x => x.GetEmailFromTokenAsync(It.IsAny<string>()))
+      .Setup(x => x.GetEmailFromToken(It.IsAny<string>()))
       .Returns("test_user90@example.com");
 
     tokenServiceMock

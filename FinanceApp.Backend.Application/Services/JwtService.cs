@@ -35,7 +35,7 @@ public class JwtService : IJwtService
       _authenticationSettings.Issuer,
       _authenticationSettings.Audience,
       claims,
-      expires: DateTime.UtcNow.AddHours(1),
+      expires: DateTime.UtcNow.AddSeconds(20),
       signingCredentials: credentials);
 
     return new JwtSecurityTokenHandler().WriteToken(token);
@@ -57,7 +57,7 @@ public class JwtService : IJwtService
       _authenticationSettings.Issuer,
       _authenticationSettings.Audience,
       claims,
-      expires: DateTime.UtcNow.AddHours(8),
+      expires: DateTime.UtcNow.AddMinutes(5),
       signingCredentials: credentials);
 
     return new JwtSecurityTokenHandler().WriteToken(token);

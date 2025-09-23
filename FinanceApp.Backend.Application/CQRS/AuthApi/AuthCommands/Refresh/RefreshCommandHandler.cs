@@ -33,14 +33,14 @@ public class RefreshCommandHandler : ICommandHandler<RefreshCommand, Result<stri
       return Result.Failure<string>(ApplicationError.InvalidTokenError("RefreshToken"));
     }
 
-    var user = await _userService.GetActiveUserAsync(cancellationToken);
-    if (!user.IsSuccess)
+    var email = _tokenService.GetEmailFromToken(request.RefreshToken);
+    if (string.IsNullOrEmpty(email))
     {
       _logger.LogWarning("No active user found for token refresh.");
       return Result.Failure<string>(ApplicationError.UserNotFoundError("Unknown"));
     }
 
-    var token = await _tokenService.GenerateTokenAsync(user.Data!.Email, TokenType.Login);
+    var token = await _tokenService.GenerateTokenAsync(email, TokenType.Login);
 
     _logger.LogInformation("Token validated successfully: {Token}", request.RefreshToken);
 

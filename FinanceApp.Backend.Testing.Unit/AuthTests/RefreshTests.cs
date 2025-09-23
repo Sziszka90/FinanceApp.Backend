@@ -4,6 +4,7 @@ using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
+using RTools_NTS.Util;
 
 namespace FinanceApp.Backend.Testing.Unit.AuthTests;
 
@@ -43,7 +44,7 @@ public class RefreshTests : TestBase
     Assert.True(result.IsSuccess);
     Assert.Equal("new-token", result.Data);
     TokenServiceMock.Verify(x => x.IsRefreshTokenValidAsync(refreshToken), Times.Once);
-    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.GetEmailFromToken(refreshToken), Times.Once);
     TokenServiceMock.Verify(x => x.GenerateTokenAsync(user.Email, TokenType.Login), Times.Once);
   }
 
@@ -75,8 +76,8 @@ public class RefreshTests : TestBase
     var refreshToken = "valid-refresh-token";
     TokenServiceMock.Setup(x => x.IsRefreshTokenValidAsync(refreshToken))
       .ReturnsAsync(Result.Success(true));
-    UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
-      .ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError("Unknown")));
+    TokenServiceMock.Setup(x => x.GetEmailFromToken(refreshToken))
+      .Returns(() => null!);
     var command = new RefreshCommand(refreshToken, CancellationToken.None);
 
     // act
@@ -87,7 +88,7 @@ public class RefreshTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
     TokenServiceMock.Verify(x => x.IsRefreshTokenValidAsync(refreshToken), Times.Once);
-    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
+    TokenServiceMock.Verify(x => x.GetEmailFromToken(refreshToken), Times.Once);
     TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
   }
 }

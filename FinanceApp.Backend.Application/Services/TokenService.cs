@@ -180,7 +180,7 @@ public class TokenService : ITokenService
     }
   }
 
-  public string GetEmailFromTokenAsync(string token)
+  public string GetEmailFromToken(string token)
   {
     return _jwtService.GetUserEmailFromToken(token) ?? String.Empty;
   }
