@@ -52,6 +52,10 @@ public static class Mocks
         .Setup(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
         .ReturnsAsync(Result.Success(false));
 
+      tokenServiceMock
+        .Setup(x => x.GenerateRefreshTokenAsync(It.IsAny<string>()))
+        .ReturnsAsync(Result.Success("mock_refresh_token"));
+
     tokenServiceMock
         .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.Login))
         .ReturnsAsync(Result.Success("mock_login_token"));

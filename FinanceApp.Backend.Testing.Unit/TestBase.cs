@@ -177,6 +177,10 @@ public abstract class TestBase
       .ReturnsAsync(Result.Success("default_token"));
 
     TokenServiceMock
+      .Setup(x => x.GenerateRefreshTokenAsync(It.IsAny<string>()))
+      .ReturnsAsync(Result.Success("refresh_token"));
+
+    TokenServiceMock
       .Setup(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
       .ReturnsAsync(Result.Success(true));
 

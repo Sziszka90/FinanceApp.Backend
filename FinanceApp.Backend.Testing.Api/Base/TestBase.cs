@@ -87,12 +87,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
       Password = "TestPassword90."
     });
 
-    var response = await GetContentAsync<LoginResponseDto>(await Client.PostAsync(AUTH + "login", loginContent));
-
-    Token = response!.Token;
-
-    Client.DefaultRequestHeaders.Authorization =
-      new AuthenticationHeaderValue("Bearer", response!.Token);
+    await GetContentAsync<LoginResponseDto>(await Client.PostAsync(AUTH + "login", loginContent));
   }
 
   private async Task GenerateExchangeRatesAsync()

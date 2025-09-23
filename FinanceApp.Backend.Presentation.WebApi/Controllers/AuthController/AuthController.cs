@@ -4,7 +4,6 @@ using FinanceApp.Backend.Application.AuthApi.AuthCommands.Logout;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.Refresh;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.SetToken;
 using FinanceApp.Backend.Application.Dtos.AuthDtos;
-using FinanceApp.Backend.Application.Dtos.UserDtos;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

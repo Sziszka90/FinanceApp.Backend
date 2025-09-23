@@ -34,7 +34,7 @@ public class RefreshCommandHandler : ICommandHandler<RefreshCommand, Result<stri
     }
 
     var user = await _userService.GetActiveUserAsync(cancellationToken);
-    if (user is null)
+    if (!user.IsSuccess)
     {
       _logger.LogWarning("No active user found for token refresh.");
       return Result.Failure<string>(ApplicationError.UserNotFoundError("Unknown"));
