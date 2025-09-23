@@ -106,7 +106,7 @@ public class CacheManager : ICacheManager
     return !isValid;
   }
 
-    public async Task<bool> IsPasswordResetTokenValidAsync(string token)
+  public async Task<bool> IsPasswordResetTokenValidAsync(string token)
   {
     return await GetAsync<bool>($"PasswordResetToken:{token}");
   }
