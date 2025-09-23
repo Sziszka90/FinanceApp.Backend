@@ -1,7 +1,7 @@
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Models;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.AuthApi.AuthCommands.SetToken;
 

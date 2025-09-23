@@ -49,64 +49,64 @@ public static class Mocks
     var tokenServiceMock = new Mock<ITokenService>();
 
     tokenServiceMock
-        .Setup(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
-        .ReturnsAsync(Result.Success(false));
-
-      tokenServiceMock
-        .Setup(x => x.GenerateRefreshTokenAsync(It.IsAny<string>()))
-        .ReturnsAsync(Result.Success("mock_refresh_token"));
+      .Setup(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
+      .ReturnsAsync(Result.Success(false));
 
     tokenServiceMock
-        .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.Login))
-        .ReturnsAsync(Result.Success("mock_login_token"));
+      .Setup(x => x.GenerateRefreshTokenAsync(It.IsAny<string>()))
+      .ReturnsAsync(Result.Success("mock_refresh_token"));
 
     tokenServiceMock
-        .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.PasswordReset))
-        .ReturnsAsync(Result.Success("mock_password_reset_token"));
+      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.Login))
+      .ReturnsAsync(Result.Success("mock_login_token"));
 
     tokenServiceMock
-        .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.EmailConfirmation))
-        .ReturnsAsync(Result.Success("mock_email_confirmation_token"));
+      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.PasswordReset))
+      .ReturnsAsync(Result.Success("mock_password_reset_token"));
 
     tokenServiceMock
-        .Setup(x => x.ValidateTokenAsync("mock_login_token", TokenType.Login))
-        .ReturnsAsync(Result.Success(true));
+      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.EmailConfirmation))
+      .ReturnsAsync(Result.Success("mock_email_confirmation_token"));
 
     tokenServiceMock
-        .Setup(x => x.ValidateTokenAsync("mock_password_reset_token", TokenType.PasswordReset))
-        .ReturnsAsync(Result.Success(true));
+      .Setup(x => x.ValidateTokenAsync("mock_login_token", TokenType.Login))
+      .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-        .Setup(x => x.ValidateTokenAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
-        .ReturnsAsync(Result.Success(true));
+      .Setup(x => x.ValidateTokenAsync("mock_password_reset_token", TokenType.PasswordReset))
+      .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-        .Setup(x => x.ValidateTokenAsync("invalid-token", It.IsAny<TokenType>()))
-        .ReturnsAsync(Result.Success(false));
+      .Setup(x => x.ValidateTokenAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
+      .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-        .Setup(x => x.IsTokenValidAsync("mock_login_token", TokenType.Login))
-        .ReturnsAsync(true);
+      .Setup(x => x.ValidateTokenAsync("invalid-token", It.IsAny<TokenType>()))
+      .ReturnsAsync(Result.Success(false));
 
     tokenServiceMock
-        .Setup(x => x.IsTokenValidAsync("mock_password_reset_token", TokenType.PasswordReset))
-        .ReturnsAsync(true);
+      .Setup(x => x.IsTokenValidAsync("mock_login_token", TokenType.Login))
+      .ReturnsAsync(true);
 
     tokenServiceMock
-        .Setup(x => x.IsTokenValidAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
-        .ReturnsAsync(true);
+      .Setup(x => x.IsTokenValidAsync("mock_password_reset_token", TokenType.PasswordReset))
+      .ReturnsAsync(true);
 
     tokenServiceMock
-        .Setup(x => x.IsTokenValidAsync("invalid_token", It.IsAny<TokenType>()))
-        .ReturnsAsync(false);
+      .Setup(x => x.IsTokenValidAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
+      .ReturnsAsync(true);
 
     tokenServiceMock
-        .Setup(x => x.GetEmailFromTokenAsync(It.IsAny<string>()))
-        .Returns("test_user90@example.com");
+      .Setup(x => x.IsTokenValidAsync("invalid_token", It.IsAny<TokenType>()))
+      .ReturnsAsync(false);
 
     tokenServiceMock
-        .Setup(x => x.InvalidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
-        .Returns(Task.CompletedTask);
+      .Setup(x => x.GetEmailFromTokenAsync(It.IsAny<string>()))
+      .Returns("test_user90@example.com");
+
+    tokenServiceMock
+      .Setup(x => x.InvalidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
+      .Returns(Task.CompletedTask);
 
     services.AddSingleton(tokenServiceMock.Object);
   }
@@ -116,8 +116,8 @@ public static class Mocks
     var llmProcessorClientMock = new Mock<ILLMProcessorClient>();
 
     llmProcessorClientMock
-        .Setup(x => x.MatchTransactionGroup(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-        .ReturnsAsync(Result.Success(true));
+      .Setup(x => x.MatchTransactionGroup(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+      .ReturnsAsync(Result.Success(true));
 
     services.AddSingleton(llmProcessorClientMock.Object);
   }
