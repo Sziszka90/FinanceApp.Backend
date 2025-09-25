@@ -64,7 +64,7 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
     bool currencyChanged = transaction.Value.Currency != request.UpdateTransactionDto.Value.Currency;
     bool amountChanged = transaction.Value.Amount != request.UpdateTransactionDto.Value.Amount;
 
-    if (currencyChanged || amountChanged)
+    if ((currencyChanged || amountChanged) && request.UpdateTransactionDto.Value.Currency != CurrencyEnum.EUR)
     {
       var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
         request.UpdateTransactionDto.Value.Amount,

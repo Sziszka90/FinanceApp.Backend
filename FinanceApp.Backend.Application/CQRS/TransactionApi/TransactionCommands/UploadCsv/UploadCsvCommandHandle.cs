@@ -132,17 +132,22 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
 
         var currencyResult = Enum.TryParse<CurrencyEnum>(CleanCsvField(columns[4]), out var currency) ? currency : CurrencyEnum.EUR;
 
-        var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
-          Math.Abs(amount),
-          transactionDate,
-          currencyResult.ToString(),
-          CurrencyEnum.EUR.ToString(),
-          cancellationToken);
-
-        if (!valueInBaseCurrencyResult.IsSuccess)
+        decimal valueInBaseCurrency = Math.Abs(amount);
+        if (currencyResult != CurrencyEnum.EUR)
         {
-          _logger.LogError("Failed to convert amount: {Error}", valueInBaseCurrencyResult.ApplicationError?.Message);
-          continue;
+          var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
+            Math.Abs(amount),
+            transactionDate,
+            currencyResult.ToString(),
+            CurrencyEnum.EUR.ToString(),
+            cancellationToken);
+
+          if (!valueInBaseCurrencyResult.IsSuccess)
+          {
+            _logger.LogError("Failed to convert amount: {Error}", valueInBaseCurrencyResult.ApplicationError?.Message);
+            continue;
+          }
+          valueInBaseCurrency = valueInBaseCurrencyResult.Data;
         }
 
         var transaction = new Transaction(
@@ -154,7 +159,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
             Amount = Math.Abs(amount),
             Currency = currency
           },
-          valueInBaseCurrencyResult.Data,
+          valueInBaseCurrency,
           null,
           transactionDate,
           user!

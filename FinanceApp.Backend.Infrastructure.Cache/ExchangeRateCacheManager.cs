@@ -1,5 +1,4 @@
 using FinanceApp.Backend.Application.Abstraction.Clients;
-using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 using Microsoft.Extensions.Caching.Distributed;
@@ -9,20 +8,15 @@ namespace FinanceApp.Backend.Infrastructure.Cache;
 public class ExchangeRateCacheManager : IExchangeRateCacheManager
 {
   private readonly IDistributedCache _cache;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
 
   public ExchangeRateCacheManager(
-    IDistributedCache cache,
-    IExchangeRateRepository exchangeRateRepository)
+    IDistributedCache cache)
   {
     _cache = cache;
-    _exchangeRateRepository = exchangeRateRepository;
   }
 
-  public async Task<Result> CacheAllRatesAsync(CancellationToken cancellationToken = default)
+  public async Task<Result> CacheAllRatesAsync(List<ExchangeRate> allRates, CancellationToken cancellationToken = default)
   {
-    var allRates = await _exchangeRateRepository.GetAllAsync();
-
     var groupedRates = allRates
     .GroupBy(r => (r.BaseCurrency, r.TargetCurrency))
     .ToDictionary(
@@ -38,8 +32,8 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
 
       await _cache.SetAsync(cacheKey, bytes, new DistributedCacheEntryOptions
       {
-        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
-      });
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(8)
+      }, cancellationToken);
     }
 
     return Result.Success();
@@ -53,43 +47,31 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
   {
     var cacheKey = $"{fromCurrency}_{toCurrency}";
 
-    byte[]? ratesBytes;
-
-    ratesBytes = await _cache.GetAsync(cacheKey);
-
-    if (ratesBytes is null)
+    if (await _cache.GetAsync(cacheKey, cancellationToken) is byte[] ratesBytes)
     {
-      await _cache.RemoveAsync(cacheKey);
-      await CacheAllRatesAsync();
-      ratesBytes = await _cache.GetAsync(cacheKey);
-    }
-
-    if (ratesBytes is null)
-    {
-      return Result.Failure<decimal>(ApplicationError.MissingExchangeRatesError());
-    }
-
-    var ratesJson = System.Text.Encoding.UTF8.GetString(ratesBytes);
-    if (System.Text.Json.JsonSerializer.Deserialize<List<ExchangeRate>>(ratesJson) is List<ExchangeRate> rates)
-    {
-      var rateEntry = rates
-          .Where(r => r.ValidFrom <= transactionDate
-            && (r.ValidTo == null || r.ValidTo >= transactionDate))
-          .OrderByDescending(r => r.ValidFrom)
-          .FirstOrDefault();
-
-      if (rateEntry is null)
+      var ratesJson = System.Text.Encoding.UTF8.GetString(ratesBytes);
+      if (System.Text.Json.JsonSerializer.Deserialize<List<ExchangeRate>>(ratesJson) is List<ExchangeRate> rates)
       {
-        rateEntry = rates.Where(r => r.Actual).FirstOrDefault();
+        var rateEntry = rates
+            .Where(r => r.ValidFrom <= transactionDate
+              && (r.ValidTo == null || r.ValidTo >= transactionDate))
+            .OrderByDescending(r => r.ValidFrom)
+            .FirstOrDefault();
 
         if (rateEntry is null)
         {
-          return Result.Failure<decimal>(ApplicationError.MissingExchangeRatesError());
+          rateEntry = rates.Where(r => r.Actual).FirstOrDefault();
+
+          if (rateEntry is null)
+          {
+            return Result.Failure<decimal>(ApplicationError.MissingExchangeRatesError());
+          }
+          return Result.Success(rateEntry.Rate);
         }
         return Result.Success(rateEntry.Rate);
       }
-      return Result.Success(rateEntry.Rate);
     }
+
     return Result.Failure<decimal>(ApplicationError.MissingExchangeRatesError());
   }
 }

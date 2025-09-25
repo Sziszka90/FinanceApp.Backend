@@ -1,4 +1,5 @@
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Domain.Entities;
 
 namespace FinanceApp.Backend.Application.Abstraction.Clients;
 
@@ -7,9 +8,10 @@ public interface IExchangeRateCacheManager
   /// <summary>
   /// Caches all exchange rates from the repository into the distributed cache.
   /// </summary>
+  /// <param name="allRates">List of all exchange rates to be cached.</param>
   /// <param name="cancellationToken">Cancellation token.</param>
   /// <returns>A task that represents the asynchronous operation, containing a Result indicating success or failure
-  Task<Result> CacheAllRatesAsync(CancellationToken cancellationToken = default);
+  Task<Result> CacheAllRatesAsync(List<ExchangeRate> allRates, CancellationToken cancellationToken = default);
 
   /// <summary>
   /// Retrieves the exchange rate for the specified currency pair and transaction date.

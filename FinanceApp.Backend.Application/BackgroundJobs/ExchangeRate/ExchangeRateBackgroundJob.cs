@@ -14,15 +14,18 @@ public class ExchangeRateBackgroundJob : BackgroundService
   private readonly IServiceProvider _serviceProvider;
   private readonly ExchangeRateRunSignal _signal;
   private readonly IAsyncPolicy _retryPolicy;
+  private readonly IExchangeRateCacheManager _exchangeRateCacheManager;
 
   public ExchangeRateBackgroundJob(
     ILogger<ExchangeRateBackgroundJob> logger,
     IServiceProvider serviceProvider,
-    ExchangeRateRunSignal signal)
+    ExchangeRateRunSignal signal,
+    IExchangeRateCacheManager exchangeRateCacheManager)
   {
     _logger = logger;
     _serviceProvider = serviceProvider;
     _signal = signal;
+    _exchangeRateCacheManager = exchangeRateCacheManager;
 
     _retryPolicy = Policy
       .Handle<Exception>()
@@ -65,6 +68,15 @@ public class ExchangeRateBackgroundJob : BackgroundService
             await exchangeRateRepository.BatchCreateExchangeRatesAsync(rates.Data!, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Exchange rates updated successfully.");
+
+            var allRates = await exchangeRateRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
+            var cacheResult = await _exchangeRateCacheManager.CacheAllRatesAsync(allRates, cancellationToken);
+
+            if (!cacheResult.IsSuccess)
+            {
+              _logger.LogError("Failed to cache exchange rates: {Error}", cacheResult.ApplicationError?.Message);
+              throw new Exception("Failed to cache exchange rates.");
+            }
             _signal.SignalFirstRunCompleted();
           });
         }

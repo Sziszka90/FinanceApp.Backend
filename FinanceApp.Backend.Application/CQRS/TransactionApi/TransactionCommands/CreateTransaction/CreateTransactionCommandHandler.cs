@@ -61,17 +61,22 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
       }
     }
 
-    var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
-      request.CreateTransactionDto.Value.Amount,
-      request.CreateTransactionDto.TransactionDate,
-      request.CreateTransactionDto.Value.Currency.ToString(),
-      CurrencyEnum.EUR.ToString(),
+    var valueInBaseCurrency = request.CreateTransactionDto.Value.Amount;
+    if (request.CreateTransactionDto.Value.Currency != CurrencyEnum.EUR)
+    {
+      var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
+        request.CreateTransactionDto.Value.Amount,
+        request.CreateTransactionDto.TransactionDate,
+        request.CreateTransactionDto.Value.Currency.ToString(),
+        CurrencyEnum.EUR.ToString(),
       cancellationToken);
 
-    if (!valueInBaseCurrencyResult.IsSuccess)
-    {
-      _logger.LogError("Failed to convert amount: {Error}", valueInBaseCurrencyResult.ApplicationError?.Message);
-      return Result.Failure<GetTransactionDto>(valueInBaseCurrencyResult.ApplicationError!);
+      if (!valueInBaseCurrencyResult.IsSuccess)
+      {
+        _logger.LogError("Failed to convert amount: {Error}", valueInBaseCurrencyResult.ApplicationError?.Message);
+        return Result.Failure<GetTransactionDto>(valueInBaseCurrencyResult.ApplicationError!);
+      }
+      valueInBaseCurrency = valueInBaseCurrencyResult.Data;
     }
 
     var transaction = await _transactionRepository.CreateAsync(new Transaction(
@@ -83,7 +88,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
                                                                       Amount = request.CreateTransactionDto.Value.Amount,
                                                                       Currency = request.CreateTransactionDto.Value.Currency
                                                                     },
-                                                                    valueInBaseCurrencyResult.Data,
+                                                                    valueInBaseCurrency,
                                                                     transactionGroup,
                                                                     request.CreateTransactionDto.TransactionDate,
                                                                     user.Data!), cancellationToken);
