@@ -11,19 +11,19 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
 {
   private readonly ILogger<GetTransactionSumQueryHandler> _logger;
   private readonly ITransactionRepository _transactionRepository;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUserService _userService;
+  private readonly IExchangeRateService _exchangeRateService;
 
   public GetTransactionSumQueryHandler(
     ILogger<GetTransactionSumQueryHandler> logger,
     ITransactionRepository transactionRepository,
-    IExchangeRateRepository exchangeRateRepository,
-    IUserService userService)
+    IUserService userService,
+    IExchangeRateService exchangeRateService)
   {
     _logger = logger;
     _transactionRepository = transactionRepository;
-    _exchangeRateRepository = exchangeRateRepository;
     _userService = userService;
+    _exchangeRateService = exchangeRateService;
   }
 
   public async Task<Result<Money>> Handle(GetTransactionSumQuery request, CancellationToken cancellationToken)
@@ -40,8 +40,6 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
 
     var userEmail = user.Data!.Email;
 
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-
     var summAmount = new Money
     {
       Amount = 0,
@@ -50,22 +48,34 @@ public class GetTransactionSumQueryHandler : IQueryHandler<GetTransactionSumQuer
 
     foreach (var transaction in allTransaction)
     {
+      var transactionValue = transaction.Value.Amount;
+
       if (transaction.Value.Currency != user.Data!.BaseCurrency)
       {
-        summAmount.Amount =
-        summAmount.Amount + (transaction.Value.Amount * exchangeRates.Where(er => er.BaseCurrency == transaction.Value.Currency.ToString() && er.TargetCurrency == user.Data!.BaseCurrency.ToString()).Select(er => er.Rate).FirstOrDefault());
-      }
-      else
-      {
-        if (transaction.TransactionType == TransactionTypeEnum.Expense)
-        {
-          summAmount.Amount -= transaction.Value.Amount;
-        }
+        var valueInUserCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
+          transaction.Value.Amount,
+          transaction.TransactionDate,
+          transaction.Value.Currency.ToString(),
+          user.Data!.BaseCurrency.ToString(),
+          cancellationToken);
 
-        if (transaction.TransactionType == TransactionTypeEnum.Income)
+        if (!valueInUserCurrencyResult.IsSuccess)
         {
-          summAmount.Amount += transaction.Value.Amount;
+          _logger.LogWarning("Failed to convert amount for transaction ID {TransactionId}: {Error}",
+          transaction.Id, valueInUserCurrencyResult.ApplicationError?.Message);
+          continue;
         }
+        transactionValue = valueInUserCurrencyResult.Data;
+      }
+
+      if (transaction.TransactionType == TransactionTypeEnum.Expense)
+      {
+        summAmount.Amount -= transactionValue;
+      }
+
+      if (transaction.TransactionType == TransactionTypeEnum.Income)
+      {
+        summAmount.Amount += transactionValue;
       }
     }
 

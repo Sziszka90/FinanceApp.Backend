@@ -1,6 +1,5 @@
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.ValidateToken;
 using FinanceApp.Backend.Application.Dtos.TokenDtos;
-using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -10,12 +9,11 @@ namespace FinanceApp.Backend.Testing.Unit.AuthTests;
 public class ValidateTokenCommandHandlerTests : TestBase
 {
   private readonly Mock<ILogger<ValidateTokenCommandHandler>> _loggerMock = new();
-  private readonly Mock<ITokenService> _tokenServiceMock = new();
   private readonly ValidateTokenCommandHandler _handler;
 
   public ValidateTokenCommandHandlerTests()
   {
-    _handler = new ValidateTokenCommandHandler(_loggerMock.Object, _tokenServiceMock.Object);
+    _handler = new ValidateTokenCommandHandler(_loggerMock.Object, TokenServiceMock.Object);
   }
 
   [Fact]
@@ -23,7 +21,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
   {
     // arrange
     var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "valid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
-    _tokenServiceMock.Setup(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset)).ReturnsAsync(true);
+    TokenServiceMock.Setup(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset)).ReturnsAsync(true);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -32,7 +30,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
     Assert.True(result.Data.IsValid);
-    _tokenServiceMock.Verify(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset), Times.Once);
+    TokenServiceMock.Verify(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset), Times.Once);
   }
 
   [Fact]
@@ -40,7 +38,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
   {
     // arrange
     var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "invalid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
-    _tokenServiceMock.Setup(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset)).ReturnsAsync(false);
+    TokenServiceMock.Setup(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset)).ReturnsAsync(false);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -49,6 +47,6 @@ public class ValidateTokenCommandHandlerTests : TestBase
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
     Assert.False(result.Data.IsValid);
-    _tokenServiceMock.Verify(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset), Times.Once);
+    TokenServiceMock.Verify(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset), Times.Once);
   }
 }

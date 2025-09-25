@@ -1,6 +1,4 @@
-using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
-using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetTransactionById;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
@@ -44,6 +42,7 @@ public class GetTransactionByIdQueryTests : TestBase
       "Online shopping",
       TransactionTypeEnum.Expense,
       new Money { Amount = 150.75m, Currency = CurrencyEnum.USD },
+      150.75m,
       transactionGroup,
       DateTimeOffset.UtcNow.AddDays(-1),
       user)
@@ -87,10 +86,11 @@ public class GetTransactionByIdQueryTests : TestBase
 
     var transaction = new Transaction(
       "Cash Payment",
-      null, // No description
+      null,
       TransactionTypeEnum.Income,
       new Money { Amount = 500.00m, Currency = CurrencyEnum.EUR },
-      null, // No transaction group
+      500.00m,
+      null,
       DateTimeOffset.UtcNow,
       user)
     {
@@ -225,6 +225,7 @@ public class GetTransactionByIdQueryTests : TestBase
       "Test Description",
       transactionType,
       new Money { Amount = 100m, Currency = CurrencyEnum.USD },
+      100m,
       null,
       DateTimeOffset.UtcNow,
       user)
@@ -262,6 +263,7 @@ public class GetTransactionByIdQueryTests : TestBase
       "Test Description",
       TransactionTypeEnum.Expense,
       new Money { Amount = 100m, Currency = currency },
+      100m,
       null,
       DateTimeOffset.UtcNow,
       user)
@@ -327,6 +329,7 @@ public class GetTransactionByIdQueryTests : TestBase
       "Test description",
       TransactionTypeEnum.Expense,
       new Money { Amount = 100.00m, Currency = CurrencyEnum.USD },
+      100.00m,
       transactionGroup,
       DateTimeOffset.UtcNow,
       user)

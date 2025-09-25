@@ -1,5 +1,4 @@
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
-using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 
 namespace FinanceApp.Backend.Application.Abstraction.Repositories;
@@ -57,21 +56,13 @@ public interface ITransactionRepository : IRepository<Transaction>
   Task DeleteAllByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
   /// <summary>
-  /// Gets aggregated transaction group data for a user within a date range.
+  /// Gets transactions within a date range.
   /// </summary>
-  /// <param name="userId">The ID of the user.</param>
   /// <param name="startDate">Start date of the range.</param>
   /// <param name="endDate">End date of the range.</param>
-  /// <param name="topCount">Maximum number of top groups to return.</param>
-  /// <param name="noTracking">If set to true, disables EF Core tracking mechanism.</param>
+  /// <param name="userId">The ID of the user whose transactions to retrieve.</param>
   /// <param name="cancellationToken">Cancellation token.</param>
-  /// <returns>List of aggregated transaction group data ordered by total amount descending.</returns>
-  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the data.</exception>
-  Task<List<TransactionGroupAggregate>> GetTransactionGroupAggregatesAsync(
-    Guid userId,
-    DateTimeOffset startDate,
-    DateTimeOffset endDate,
-    int topCount,
-    bool noTracking = false,
-    CancellationToken cancellationToken = default);
+  /// <returns>List of transactions within the specified date range.</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the transactions.</exception>
+  Task<List<Transaction>> GetTransactionsByTopTransactionGroups(DateTimeOffset startDate, DateTimeOffset endDate, Guid userId, CancellationToken cancellationToken = default);
 }

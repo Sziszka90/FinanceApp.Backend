@@ -111,6 +111,17 @@ public static class Mocks
     services.AddSingleton(tokenServiceMock.Object);
   }
 
+  public static void RegisterExchangeRateServiceMock(this IServiceCollection services)
+  {
+    var exchangeRateServiceMock = new Mock<IExchangeRateService>();
+
+    exchangeRateServiceMock
+      .Setup(x => x.ConvertAmountAsync(It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(100.0m));
+
+    services.AddSingleton(exchangeRateServiceMock.Object);
+  }
+
   public static void RegisterLLMProcessorClientMock(this IServiceCollection services)
   {
     var llmProcessorClientMock = new Mock<ILLMProcessorClient>();

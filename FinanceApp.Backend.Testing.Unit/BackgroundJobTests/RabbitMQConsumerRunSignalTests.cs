@@ -7,23 +7,23 @@ public class RabbitMQConsumerRunSignalTests
   [Fact]
   public void HasRun_InitialState_ReturnsFalse()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
 
-    // Act & Assert
+    // act & assert
     Assert.False(signal.HasRun);
   }
 
   [Fact]
   public void WaitForFirstRunAsync_InitialState_ReturnsIncompletedTask()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
 
-    // Act
+    // act
     var task = signal.WaitForFirstRunAsync();
 
-    // Assert
+    // assert
     Assert.False(task.IsCompleted);
     Assert.False(task.IsCanceled);
     Assert.False(task.IsFaulted);
@@ -33,14 +33,14 @@ public class RabbitMQConsumerRunSignalTests
   [Fact]
   public async Task SignalFirstRunCompleted_WhenCalled_CompletesWaitingTaskAndSetsHasRun()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
 
-    // Assert
+    // assert
     Assert.True(waitTask.IsCompleted);
     Assert.True(signal.HasRun);
     await waitTask;
@@ -49,15 +49,15 @@ public class RabbitMQConsumerRunSignalTests
   [Fact]
   public async Task SignalFirstRunCompleted_WhenCalledMultipleTimes_OnlyCompletesOnceButHasRunStaysTrue()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
-    signal.SignalFirstRunCompleted(); // Second call should be ignored
+    signal.SignalFirstRunCompleted(); // second call should be ignored
 
-    // Assert
+    // assert
     Assert.True(waitTask.IsCompleted);
     Assert.True(signal.HasRun);
     await waitTask;
@@ -66,14 +66,14 @@ public class RabbitMQConsumerRunSignalTests
   [Fact]
   public async Task WaitForFirstRunAsync_AfterSignalCompleted_ReturnsCompletedTaskAndHasRunIsTrue()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Assert
+    // assert
     Assert.True(waitTask.IsCompleted);
     Assert.True(signal.HasRun);
     await waitTask;
@@ -82,16 +82,16 @@ public class RabbitMQConsumerRunSignalTests
   [Fact]
   public async Task MultipleWaiters_WhenSignaled_AllTasksCompleteAndHasRunIsTrue()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
     var waitTask1 = signal.WaitForFirstRunAsync();
     var waitTask2 = signal.WaitForFirstRunAsync();
     var waitTask3 = signal.WaitForFirstRunAsync();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
 
-    // Assert
+    // assert
     Assert.True(waitTask1.IsCompleted);
     Assert.True(waitTask2.IsCompleted);
     Assert.True(waitTask3.IsCompleted);
@@ -105,12 +105,12 @@ public class RabbitMQConsumerRunSignalTests
   [Fact]
   public async Task ConcurrentSignaling_ThreadSafe_CompletesSuccessfullyAndHasRunIsTrue()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
     var tasks = new List<Task>();
 
-    // Act - Simulate concurrent signaling from multiple threads
+    // act - simulate concurrent signaling from multiple threads
     for (int i = 0; i < 10; i++)
     {
       tasks.Add(Task.Run(() => signal.SignalFirstRunCompleted()));
@@ -118,7 +118,7 @@ public class RabbitMQConsumerRunSignalTests
 
     await Task.WhenAll(tasks);
 
-    // Assert
+    // assert
     Assert.True(waitTask.IsCompleted);
     Assert.True(signal.HasRun);
     await waitTask;
@@ -127,12 +127,12 @@ public class RabbitMQConsumerRunSignalTests
   [Fact]
   public async Task ConcurrentHasRunAccess_ThreadSafe_ConsistentResults()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
     var hasRunResults = new List<bool>();
     var tasks = new List<Task>();
 
-    // Act - Simulate concurrent access to HasRun property
+    // act - simulate concurrent access to HasRun property
     for (int i = 0; i < 100; i++)
     {
       tasks.Add(Task.Run(() =>
@@ -144,43 +144,43 @@ public class RabbitMQConsumerRunSignalTests
       }));
     }
 
-    // Signal completion during concurrent access
+    // signal completion during concurrent access
     await Task.Delay(10);
     signal.SignalFirstRunCompleted();
 
     await Task.WhenAll(tasks);
 
-    // Assert
+    // assert
     Assert.True(signal.HasRun);
-    // All results should be either true or false, no mixed states due to volatile
+    // all results should be either true or false, no mixed states due to volatile
     Assert.All(hasRunResults, result => Assert.True(result == true || result == false));
   }
 
   [Fact]
   public void HasRun_VolatileField_ThreadSafe()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
 
-    // Act & Assert - Initial state
+    // act & assert - initial state
     Assert.False(signal.HasRun);
 
-    // Act - Signal completion
+    // act - signal completion
     signal.SignalFirstRunCompleted();
 
-    // Assert - State changed
+    // assert - state changed
     Assert.True(signal.HasRun);
   }
 
   [Fact]
   public void TaskCreationOptions_UsesRunContinuationsAsynchronously()
   {
-    // Arrange & Act
+    // arrange & act
     var signal = new RabbitMQConsumerRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Assert - The task should be created with RunContinuationsAsynchronously option
-    // This is verified by ensuring the task doesn't run continuations synchronously
+    // assert - the task should be created with RunContinuationsAsynchronously option
+    // this is verified by ensuring the task doesn't run continuations synchronously
     Assert.NotNull(waitTask);
     Assert.IsType<Task<bool>>(waitTask);
   }
@@ -188,14 +188,14 @@ public class RabbitMQConsumerRunSignalTests
   [Fact]
   public async Task StateConsistency_SignalThenCheck_HasRunAndTaskBothTrue()
   {
-    // Arrange
+    // arrange
     var signal = new RabbitMQConsumerRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
 
-    // Assert
+    // assert
     Assert.True(signal.HasRun);
     Assert.True(waitTask.IsCompleted);
     await waitTask;

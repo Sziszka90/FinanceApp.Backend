@@ -29,70 +29,70 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Read_ValidDateTimeString_ShouldReturnCorrectDateTimeOffset()
     {
-      // Arrange
+      // arrange
       var json = "\"2023-12-25 14:30:00+02:00\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
 
-      // Assert
+      // assert
       Assert.Equal(new DateTimeOffset(2023, 12, 25, 14, 30, 0, TimeSpan.FromHours(2)), result);
     }
 
     [Fact]
     public void Read_UtcDateTimeString_ShouldReturnCorrectDateTimeOffset()
     {
-      // Arrange
+      // arrange
       var json = "\"2023-12-25 14:30:00+00:00\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
 
-      // Assert
+      // assert
       Assert.Equal(new DateTimeOffset(2023, 12, 25, 14, 30, 0, TimeSpan.Zero), result);
     }
 
     [Fact]
     public void Read_NegativeOffsetDateTimeString_ShouldReturnCorrectDateTimeOffset()
     {
-      // Arrange
+      // arrange
       var json = "\"2023-12-25 14:30:00-05:00\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
 
-      // Assert
+      // assert
       Assert.Equal(new DateTimeOffset(2023, 12, 25, 14, 30, 0, TimeSpan.FromHours(-5)), result);
     }
 
     [Fact]
     public void Read_Iso8601Format_ShouldParseCorrectly()
     {
-      // Arrange
+      // arrange
       var json = "\"2023-12-25T14:30:00Z\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
 
-      // Assert
+      // assert
       Assert.Equal(new DateTimeOffset(2023, 12, 25, 14, 30, 0, TimeSpan.Zero), result);
     }
 
     [Fact]
     public void Read_DateTimeWithMilliseconds_ShouldParseCorrectly()
     {
-      // Arrange
+      // arrange
       var json = "\"2023-12-25 14:30:15.123+02:00\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
 
-      // Assert
+      // assert
       Assert.Equal(new DateTimeOffset(2023, 12, 25, 14, 30, 15, 123, TimeSpan.FromHours(2)), result);
     }
 
@@ -102,10 +102,10 @@ public class DateTimeOffsetConverterTests
     [InlineData("\"2023-12-31 23:59:59-08:00\"")]
     public void Read_VariousValidFormats_ShouldParseCorrectly(string jsonInput)
     {
-      // Arrange
+      // arrange
       var reader = CreateJsonReaderFromString(jsonInput);
 
-      // Act & Assert - Should not throw
+      // act & assert - should not throw
       var result = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
       Assert.True(result != default(DateTimeOffset));
     }
@@ -113,10 +113,10 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Read_InvalidDateTimeString_ShouldThrowFormatException()
     {
-      // Arrange
+      // arrange
       var json = "\"invalid-date-string\"";
 
-      // Act & Assert
+      // act & assert
       Assert.Throws<FormatException>(() =>
       {
         var reader = CreateJsonReaderFromString(json);
@@ -127,10 +127,10 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Read_EmptyString_ShouldThrowFormatException()
     {
-      // Arrange
+      // arrange
       var json = "\"\"";
 
-      // Act & Assert
+      // act & assert
       Assert.Throws<FormatException>(() =>
       {
         var reader = CreateJsonReaderFromString(json);
@@ -141,10 +141,10 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Read_NullString_ShouldThrowFormatException()
     {
-      // Arrange
+      // arrange
       var json = "null";
 
-      // Act & Assert
+      // act & assert
       Assert.Throws<FormatException>(() =>
       {
         var reader = CreateJsonReaderFromString(json);
@@ -158,16 +158,16 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Write_ValidDateTimeOffset_ShouldWriteCorrectFormat()
     {
-      // Arrange
+      // arrange
       var dateTimeOffset = new DateTimeOffset(2023, 12, 25, 14, 30, 45, TimeSpan.FromHours(2));
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, dateTimeOffset, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal("2023-12-25 14:30:45+02:00", json);
     }
@@ -175,16 +175,16 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Write_UtcDateTimeOffset_ShouldWriteWithZeroOffset()
     {
-      // Arrange
+      // arrange
       var dateTimeOffset = new DateTimeOffset(2023, 12, 25, 14, 30, 45, TimeSpan.Zero);
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, dateTimeOffset, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal("2023-12-25 14:30:45+00:00", json);
     }
@@ -192,16 +192,16 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Write_NegativeOffsetDateTimeOffset_ShouldWriteCorrectFormat()
     {
-      // Arrange
+      // arrange
       var dateTimeOffset = new DateTimeOffset(2023, 12, 25, 14, 30, 45, TimeSpan.FromHours(-5));
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, dateTimeOffset, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal("2023-12-25 14:30:45-05:00", json);
     }
@@ -209,16 +209,16 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Write_MinValue_ShouldWriteCorrectly()
     {
-      // Arrange
+      // arrange
       var dateTimeOffset = DateTimeOffset.MinValue;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, dateTimeOffset, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.NotNull(json);
       Assert.Contains("0001-01-01", json);
@@ -227,16 +227,16 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void Write_MaxValue_ShouldWriteCorrectly()
     {
-      // Arrange
+      // arrange
       var dateTimeOffset = DateTimeOffset.MaxValue;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, dateTimeOffset, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.NotNull(json);
       Assert.Contains("9999-12-31", json);
@@ -250,16 +250,16 @@ public class DateTimeOffsetConverterTests
     [InlineData(-11)]  // -11:00
     public void Write_VariousTimeZoneOffsets_ShouldWriteCorrectFormat(int offsetHours)
     {
-      // Arrange
+      // arrange
       var dateTimeOffset = new DateTimeOffset(2023, 6, 15, 12, 30, 45, TimeSpan.FromHours(offsetHours));
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, dateTimeOffset, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal($"2023-06-15 12:30:45{offsetHours:+00;-00;+00}:00", json);
     }
@@ -270,21 +270,21 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void RoundTrip_WriteAndRead_ShouldReturnOriginalValue()
     {
-      // Arrange
+      // arrange
       var originalValue = new DateTimeOffset(2023, 12, 25, 14, 30, 45, TimeSpan.FromHours(3));
 
-      // Act - Write
+      // act - write
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
       _converter.Write(writer, originalValue, _options);
       writer.Flush();
 
-      // Act - Read
+      // act - read
       var reader = new Utf8JsonReader(stream.ToArray());
       reader.Read();
       var roundTripValue = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
 
-      // Assert
+      // assert
       Assert.Equal(originalValue, roundTripValue);
     }
 
@@ -294,42 +294,42 @@ public class DateTimeOffsetConverterTests
     [InlineData(2023, 12, 31, 23, 59, 59, -8)]
     public void RoundTrip_VariousDateTimes_ShouldMaintainOriginalValue(int year, int month, int day, int hour, int minute, int second, int offsetHours)
     {
-      // Arrange
+      // arrange
       var originalValue = new DateTimeOffset(year, month, day, hour, minute, second, TimeSpan.FromHours(offsetHours));
 
-      // Act - Write
+      // act - write
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
       _converter.Write(writer, originalValue, _options);
       writer.Flush();
 
-      // Act - Read
+      // act - read
       var reader = new Utf8JsonReader(stream.ToArray());
       reader.Read();
       var roundTripValue = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
 
-      // Assert
+      // assert
       Assert.Equal(originalValue, roundTripValue);
     }
 
     [Fact]
     public void RoundTrip_DateTimeOffsetNow_ShouldMaintainPrecision()
     {
-      // Arrange
+      // arrange
       var originalValue = DateTimeOffset.Now;
 
-      // Act - Write
+      // act - write
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
       _converter.Write(writer, originalValue, _options);
       writer.Flush();
 
-      // Act - Read
+      // act - read
       var reader = new Utf8JsonReader(stream.ToArray());
       reader.Read();
       var roundTripValue = _converter.Read(ref reader, typeof(DateTimeOffset), _options);
 
-      // Assert - Allow for millisecond precision differences due to formatting
+      // assert - allow for millisecond precision differences due to formatting
       var timeDifference = Math.Abs((originalValue - roundTripValue).TotalMilliseconds);
       Assert.True(timeDifference < 1000, $"Time difference {timeDifference}ms is too large");
       Assert.Equal(originalValue.Offset, roundTripValue.Offset);
@@ -341,17 +341,17 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void FullSerialization_WithJsonSerializerOptions_ShouldWorkCorrectly()
     {
-      // Arrange
+      // arrange
       var options = new JsonSerializerOptions();
       options.Converters.Add(new DateTimeOffsetConverter());
 
       var testObject = new TestClass { DateTime = new DateTimeOffset(2023, 12, 25, 14, 30, 45, TimeSpan.FromHours(2)) };
 
-      // Act
+      // act
       var json = JsonSerializer.Serialize(testObject, options);
       var deserializedObject = JsonSerializer.Deserialize<TestClass>(json, options);
 
-      // Assert
+      // assert
       Assert.NotNull(deserializedObject);
       Assert.Equal(testObject.DateTime, deserializedObject.DateTime);
     }
@@ -359,7 +359,7 @@ public class DateTimeOffsetConverterTests
     [Fact]
     public void FullSerialization_ArrayOfDateTimeOffsets_ShouldWorkCorrectly()
     {
-      // Arrange
+      // arrange
       var options = new JsonSerializerOptions();
       options.Converters.Add(new DateTimeOffsetConverter());
 
@@ -370,11 +370,11 @@ public class DateTimeOffsetConverterTests
         new DateTimeOffset(2023, 12, 31, 23, 59, 59, TimeSpan.FromHours(-5))
       };
 
-      // Act
+      // act
       var json = JsonSerializer.Serialize(dates, options);
       var deserializedDates = JsonSerializer.Deserialize<DateTimeOffset[]>(json, options);
 
-      // Assert
+      // assert
       Assert.NotNull(deserializedDates);
       Assert.Equal(dates.Length, deserializedDates.Length);
       for (int i = 0; i < dates.Length; i++)

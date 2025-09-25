@@ -11,13 +11,13 @@ public class TokenService : ITokenService
 {
   private readonly ILogger<TokenService> _logger;
   private readonly IJwtService _jwtService;
-  private readonly ICacheManager _cacheManager;
+  private readonly ITokenCacheManager _cacheManager;
   private readonly IAsyncPolicy _tokenGenerationRetryPolicy;
 
   public TokenService(
     ILogger<TokenService> logger,
     IJwtService jwtService,
-    ICacheManager cacheManager)
+    ITokenCacheManager cacheManager)
   {
     _logger = logger;
     _jwtService = jwtService;

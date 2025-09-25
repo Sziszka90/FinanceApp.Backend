@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Services;
@@ -16,7 +15,7 @@ public class TokenServiceTests
     // arrange
     var loggerMock = new Mock<ILogger<TokenService>>();
     var jwtServiceMock = new Mock<IJwtService>();
-    var cacheManagerMock = new Mock<ICacheManager>();
+    var cacheManagerMock = new Mock<ITokenCacheManager>();
     jwtServiceMock.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(false);
     var service = new TokenService(loggerMock.Object, jwtServiceMock.Object, cacheManagerMock.Object);
 
@@ -33,7 +32,7 @@ public class TokenServiceTests
     // arrange
     var loggerMock = new Mock<ILogger<TokenService>>();
     var jwtServiceMock = new Mock<IJwtService>();
-    var cacheManagerMock = new Mock<ICacheManager>();
+    var cacheManagerMock = new Mock<ITokenCacheManager>();
     jwtServiceMock.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(true);
     cacheManagerMock.Setup(x => x.IsLoginTokenValidAsync(It.IsAny<string>())).ReturnsAsync(true);
     var service = new TokenService(loggerMock.Object, jwtServiceMock.Object, cacheManagerMock.Object);

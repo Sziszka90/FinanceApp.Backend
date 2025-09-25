@@ -217,7 +217,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
           Currency = CurrencyEnum.HUF
         },
         TransactionType = TransactionTypeEnum.Expense,
-        TransactionDate = new DateTimeOffset(),
+        TransactionDate = DateTimeOffset.Now.AddDays(-10),
         TransactionGroupId = createdTransactionGroups[0]!.Id.ToString()
       },
       new CreateTransactionDto
@@ -230,7 +230,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
           Currency = CurrencyEnum.HUF
         },
         TransactionType = TransactionTypeEnum.Expense,
-        TransactionDate = new DateTimeOffset(),
+        TransactionDate = DateTimeOffset.Now.AddDays(-5),
         TransactionGroupId = createdTransactionGroups[1]!.Id.ToString()
       },
       new CreateTransactionDto
@@ -243,7 +243,7 @@ public class TestBase : IClassFixture<CustomWebApplicationFactory<Program>>, IDi
           Currency = CurrencyEnum.HUF
         },
         TransactionType = TransactionTypeEnum.Expense,
-        TransactionDate = new DateTimeOffset(),
+        TransactionDate = DateTimeOffset.Now,
         TransactionGroupId = createdTransactionGroups[2]!.Id.ToString()
       }
     };

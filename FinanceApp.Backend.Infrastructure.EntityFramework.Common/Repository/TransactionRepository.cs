@@ -1,15 +1,13 @@
-using System.Data.Common;
 using EFCore.BulkExtensions;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Exceptions;
-using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
-using FinanceApp.Backend.Domain.Enums;
-using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Extensions;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
@@ -50,7 +48,8 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
   {
     try
     {
-      var query = _filteredQueryProvider.Query<Transaction>().Include(x => x.TransactionGroup)
+      var query = _filteredQueryProvider.Query<Transaction>()
+      .Include(x => x.TransactionGroup)
         .Where(x => (transactionFilter.TransactionGroupName == null || (x.TransactionGroup != null && x.TransactionGroup.Name == transactionFilter.TransactionGroupName))
                       && (transactionFilter.TransactionName == null || x.Name == transactionFilter.TransactionName)
                       && (transactionFilter.TransactionType == null || x.TransactionType == transactionFilter.TransactionType)
@@ -148,7 +147,7 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
   {
     try
     {
-      var query = _filteredQueryProvider.Query<Transaction>().Where(x => x.User.Id == userId);
+      var query = _dbContext.Transaction.Where(x => x.User.Id == userId);
 
       _dbContext.Transaction.RemoveRange(await query.ToListAsync(cancellationToken));
     }
@@ -162,7 +161,9 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
   {
     try
     {
-      var query = _dbContext.Transaction.Include(x => x.User).Where(x => x.User.Id == userId);
+      var query = _dbContext.Transaction
+      .Include(x => x.User)
+      .Where(x => x.User.Id == userId);
 
       if (noTracking)
       {
@@ -177,49 +178,48 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     }
   }
 
-  public async Task<List<TransactionGroupAggregate>> GetTransactionGroupAggregatesAsync(
-    Guid userId,
-    DateTimeOffset startDate,
-    DateTimeOffset endDate,
-    int topCount,
-    bool noTracking = false,
-    CancellationToken cancellationToken = default)
+  public async Task<List<Transaction>> GetTransactionsByTopTransactionGroups(DateTimeOffset startDate, DateTimeOffset endDate, Guid userId, CancellationToken cancellationToken = default)
   {
     try
     {
       var providerName = _dbContext.Database.ProviderName ?? throw new InvalidOperationException("Database provider name is null");
-      var sql = _sqlQueryBuilder.BuildTransactionGroupAggregateQuery(providerName);
+      var sql = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
 
-      var parameters = new Dictionary<string, object>
+      object[] parameters;
+
+      if (providerName.Contains("SqlServer"))
       {
-        { "@userId", userId },
-        { "@startDate", startDate },
-        { "@endDate", endDate },
-        { "@topCount", topCount }
-      };
-
-      var result = await _databaseCommandService.ExecuteQueryAsync(
-        sql,
-        parameters,
-        reader => new TransactionGroupAggregate
+        parameters = new[]
         {
-          TransactionGroup = new TransactionGroup(
-            reader.GetString(1),
-            reader.GetNullableString(2),
-            reader.GetNullableString(3),
-            null!)
-          { Id = reader.GetGuid(0) },
-          Currency = (CurrencyEnum)reader.GetInt32(4),
-          TotalAmount = reader.GetDecimal(5),
-          TransactionCount = reader.GetInt32(6)
-        },
-        cancellationToken);
+          new SqlParameter("@userId", userId),
+          new SqlParameter("@startDate", startDate),
+          new SqlParameter("@endDate", endDate)
+        };
+      }
+      else if (providerName.Contains("Sqlite"))
+      {
+        parameters = new[]
+        {
+          new SqliteParameter("@userId", userId),
+          new SqliteParameter("@startDate", startDate),
+          new SqliteParameter("@endDate", endDate)
+        };
+      }
+      else
+      {
+        throw new NotSupportedException($"Unsupported provider: {providerName}");
+      }
 
-      return result;
+      var transactions = await _dbContext.Transaction
+        .FromSqlRaw(sql, parameters)
+        .Include(t => t.TransactionGroup)
+        .ToListAsync(cancellationToken);
+
+      return transactions;
     }
     catch (Exception ex)
     {
-      throw new DatabaseException("GET_TRANSACTION_GROUP_AGGREGATES", nameof(Transaction), userId.ToString(), ex);
+      throw new DatabaseException("GET_TRANSACTIONS_BY_TOP_TRANSACTION_GROUPS", nameof(Transaction), null, ex);
     }
   }
 }

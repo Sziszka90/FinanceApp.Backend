@@ -16,11 +16,11 @@ public class GetAllTransactionTests : TestBase
   {
     _loggerMock = CreateLoggerMock<GetAllTransactionQueryHandler>();
     _handler = new GetAllTransactionQueryHandler(
-        _loggerMock.Object,
-        Mapper,
-        TransactionRepositoryMock.Object,
-        ExchangeRateRepositoryMock.Object,
-        UserServiceMock.Object
+      _loggerMock.Object,
+      Mapper,
+      TransactionRepositoryMock.Object,
+      UserServiceMock.Object,
+      ExchangeRateServiceMock.Object
     );
   }
 
@@ -39,8 +39,9 @@ public class GetAllTransactionTests : TestBase
         Amount = 100,
         Currency = CurrencyEnum.USD
       },
+      100m,
       new TransactionGroup("Test Group", "Description", "", user),
-      DateTime.UtcNow,
+      DateTimeOffset.UtcNow,
       user
     );
 
@@ -75,8 +76,9 @@ public class GetAllTransactionTests : TestBase
         Amount = 100,
         Currency = CurrencyEnum.USD
       },
+      100m,
       new TransactionGroup("Test Group", "Description", "", user),
-      DateTime.UtcNow,
+      DateTimeOffset.UtcNow,
       user
     );
 

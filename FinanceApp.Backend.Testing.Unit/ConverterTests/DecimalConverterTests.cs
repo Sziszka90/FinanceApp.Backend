@@ -37,142 +37,142 @@ public class DecimalConverterTests
     [Fact]
     public void Read_ValidDecimalAsString_ShouldReturnCorrectDecimal()
     {
-      // Arrange
+      // arrange
       var json = "\"123.45\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(123.45m, result);
     }
 
     [Fact]
     public void Read_ValidDecimalAsNumber_ShouldReturnCorrectDecimal()
     {
-      // Arrange
+      // arrange
       var json = "123.45";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(123.45m, result);
     }
 
     [Fact]
     public void Read_IntegerAsString_ShouldReturnCorrectDecimal()
     {
-      // Arrange
+      // arrange
       var json = "\"42\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(42m, result);
     }
 
     [Fact]
     public void Read_IntegerAsNumber_ShouldReturnCorrectDecimal()
     {
-      // Arrange
+      // arrange
       var json = "42";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(42m, result);
     }
 
     [Fact]
     public void Read_ZeroAsString_ShouldReturnZero()
     {
-      // Arrange
+      // arrange
       var json = "\"0\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(0m, result);
     }
 
     [Fact]
     public void Read_ZeroAsNumber_ShouldReturnZero()
     {
-      // Arrange
+      // arrange
       var json = "0";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(0m, result);
     }
 
     [Fact]
     public void Read_NegativeDecimalAsString_ShouldReturnCorrectDecimal()
     {
-      // Arrange
+      // arrange
       var json = "\"-123.45\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(-123.45m, result);
     }
 
     [Fact]
     public void Read_NegativeDecimalAsNumber_ShouldReturnCorrectDecimal()
     {
-      // Arrange
+      // arrange
       var json = "-123.45";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(-123.45m, result);
     }
 
     [Fact]
     public void Read_VeryLargeDecimalAsString_ShouldReturnCorrectDecimal()
     {
-      // Arrange
+      // arrange
       var largeDecimal = "999999999999999999999999999.99";
       var json = $"\"{largeDecimal}\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(decimal.Parse(largeDecimal, CultureInfo.InvariantCulture), result);
     }
 
     [Fact]
     public void Read_VerySmallDecimalAsString_ShouldReturnCorrectDecimal()
     {
-      // Arrange
+      // arrange
       var smallDecimal = "0.0000000000000000000000000001";
       var json = $"\"{smallDecimal}\"";
       var reader = CreateJsonReaderFromString(json);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(decimal.Parse(smallDecimal, CultureInfo.InvariantCulture), result);
     }
 
@@ -185,13 +185,13 @@ public class DecimalConverterTests
     [InlineData("\"0.01\"", 0.01)]
     public void Read_VariousValidStringDecimals_ShouldReturnCorrectValues(string jsonInput, double expectedValue)
     {
-      // Arrange
+      // arrange
       var reader = CreateJsonReaderFromString(jsonInput);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal((decimal)expectedValue, result);
     }
 
@@ -204,23 +204,23 @@ public class DecimalConverterTests
     [InlineData("0.01", 0.01)]
     public void Read_VariousValidNumberDecimals_ShouldReturnCorrectValues(string jsonInput, double expectedValue)
     {
-      // Arrange
+      // arrange
       var reader = CreateJsonReaderFromString(jsonInput);
 
-      // Act
+      // act
       var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal((decimal)expectedValue, result);
     }
 
     [Fact]
     public void Read_InvalidStringDecimal_ShouldThrowJsonException()
     {
-      // Arrange
+      // arrange
       var json = "\"invalid-decimal\"";
 
-      // Act & Assert
+      // act & assert
       var exception = Assert.Throws<JsonException>(() =>
       {
         var reader = CreateJsonReaderFromString(json);
@@ -232,10 +232,10 @@ public class DecimalConverterTests
     [Fact]
     public void Read_EmptyString_ShouldThrowJsonException()
     {
-      // Arrange
+      // arrange
       var json = "\"\"";
 
-      // Act & Assert
+      // act & assert
       var exception = Assert.Throws<JsonException>(() =>
       {
         var reader = CreateJsonReaderFromString(json);
@@ -250,16 +250,16 @@ public class DecimalConverterTests
     [Fact]
     public void Write_NegativeDecimal_ShouldWriteCorrectString()
     {
-      // Arrange
+      // arrange
       var value = -123.45m;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, value, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal("-123.45", json);
     }
@@ -267,16 +267,16 @@ public class DecimalConverterTests
     [Fact]
     public void Write_Zero_ShouldWriteZeroString()
     {
-      // Arrange
+      // arrange
       var value = 0m;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, value, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal("0", json);
     }
@@ -284,16 +284,16 @@ public class DecimalConverterTests
     [Fact]
     public void Write_Integer_ShouldWriteIntegerString()
     {
-      // Arrange
+      // arrange
       var value = 42m;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, value, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal("42", json);
     }
@@ -301,16 +301,16 @@ public class DecimalConverterTests
     [Fact]
     public void Write_VeryLargeDecimal_ShouldWriteCorrectString()
     {
-      // Arrange
+      // arrange
       var value = 999999999999999999999999999.99m;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, value, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal(value.ToString(CultureInfo.InvariantCulture), json);
     }
@@ -318,16 +318,16 @@ public class DecimalConverterTests
     [Fact]
     public void Write_VerySmallDecimal_ShouldWriteCorrectString()
     {
-      // Arrange
+      // arrange
       var value = 0.0000000000000000000000000001m;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, value, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal(value.ToString(CultureInfo.InvariantCulture), json);
     }
@@ -335,16 +335,16 @@ public class DecimalConverterTests
     [Fact]
     public void Write_MaxValue_ShouldWriteCorrectString()
     {
-      // Arrange
+      // arrange
       var value = decimal.MaxValue;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, value, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal(decimal.MaxValue.ToString(CultureInfo.InvariantCulture), json);
     }
@@ -352,16 +352,16 @@ public class DecimalConverterTests
     [Fact]
     public void Write_MinValue_ShouldWriteCorrectString()
     {
-      // Arrange
+      // arrange
       var value = decimal.MinValue;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, value, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal(decimal.MinValue.ToString(CultureInfo.InvariantCulture), json);
     }
@@ -377,16 +377,16 @@ public class DecimalConverterTests
     [InlineData(999.999)]
     public void Write_VariousDecimals_ShouldWriteCorrectStrings(double inputValue)
     {
-      // Arrange
+      // arrange
       var value = (decimal)inputValue;
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
 
-      // Act
+      // act
       _converter.Write(writer, value, _options);
       writer.Flush();
 
-      // Assert
+      // assert
       var json = JsonSerializer.Deserialize<string>(stream.ToArray());
       Assert.Equal(value.ToString(CultureInfo.InvariantCulture), json);
     }
@@ -397,37 +397,37 @@ public class DecimalConverterTests
     [Fact]
     public void RoundTrip_WriteAndReadString_ShouldReturnOriginalValue()
     {
-      // Arrange
+      // arrange
       var originalValue = 123.45m;
 
-      // Act - Write
+      // act - write
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
       _converter.Write(writer, originalValue, _options);
       writer.Flush();
 
-      // Act - Read (the written value will be a string)
+      // act - read (the written value will be a string)
       var jsonString = JsonSerializer.Deserialize<string>(stream.ToArray());
       var quotedJson = $"\"{jsonString}\"";
       var reader = CreateJsonReaderFromString(quotedJson);
       var roundTripValue = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(originalValue, roundTripValue);
     }
 
     [Fact]
     public void RoundTrip_WriteAndReadNumber_ShouldReturnOriginalValue()
     {
-      // Arrange
+      // arrange
       var originalValue = 123.45m;
 
-      // Act - Serialize as number directly
+      // act - serialize as number directly
       var jsonNumber = originalValue.ToString(CultureInfo.InvariantCulture);
       var reader = CreateJsonReaderFromString(jsonNumber);
       var roundTripValue = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(originalValue, roundTripValue);
     }
 
@@ -443,10 +443,10 @@ public class DecimalConverterTests
     [InlineData(12345.6789)]
     public void RoundTrip_VariousDecimals_ShouldMaintainOriginalValue(double inputValue)
     {
-      // Arrange
+      // arrange
       var originalValue = (decimal)inputValue;
 
-      // Act - Test string round trip
+      // act - test string round trip
       using var stream = new MemoryStream();
       using var writer = new Utf8JsonWriter(stream);
       _converter.Write(writer, originalValue, _options);
@@ -457,14 +457,14 @@ public class DecimalConverterTests
       var reader = CreateJsonReaderFromString(quotedJson);
       var roundTripValue = _converter.Read(ref reader, typeof(decimal), _options);
 
-      // Assert
+      // assert
       Assert.Equal(originalValue, roundTripValue);
     }
 
     [Fact]
     public void RoundTrip_ExtremeValues_ShouldMaintainPrecision()
     {
-      // Arrange
+      // arrange
       var extremeValues = new[]
       {
         decimal.MaxValue,
@@ -476,19 +476,19 @@ public class DecimalConverterTests
 
       foreach (var originalValue in extremeValues)
       {
-        // Act - Write
+        // act - write
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
         _converter.Write(writer, originalValue, _options);
         writer.Flush();
 
-        // Act - Read
+        // act - read
         var jsonString = JsonSerializer.Deserialize<string>(stream.ToArray());
         var quotedJson = $"\"{jsonString}\"";
         var reader = CreateJsonReaderFromString(quotedJson);
         var roundTripValue = _converter.Read(ref reader, typeof(decimal), _options);
 
-        // Assert
+        // assert
         Assert.Equal(originalValue, roundTripValue);
       }
     }
@@ -499,17 +499,17 @@ public class DecimalConverterTests
     [Fact]
     public void FullSerialization_WithJsonSerializerOptions_ShouldWorkCorrectly()
     {
-      // Arrange
+      // arrange
       var options = new JsonSerializerOptions();
       options.Converters.Add(new DecimalConverter());
 
       var testObject = new TestClass { Amount = 123.45m };
 
-      // Act
+      // act
       var json = JsonSerializer.Serialize(testObject, options);
       var deserializedObject = JsonSerializer.Deserialize<TestClass>(json, options);
 
-      // Assert
+      // assert
       Assert.NotNull(deserializedObject);
       Assert.Equal(testObject.Amount, deserializedObject.Amount);
     }
@@ -517,17 +517,17 @@ public class DecimalConverterTests
     [Fact]
     public void FullSerialization_ArrayOfDecimals_ShouldWorkCorrectly()
     {
-      // Arrange
+      // arrange
       var options = new JsonSerializerOptions();
       options.Converters.Add(new DecimalConverter());
 
       var amounts = new[] { 0m, 123.45m, -67.89m, 999.999m };
 
-      // Act
+      // act
       var json = JsonSerializer.Serialize(amounts, options);
       var deserializedAmounts = JsonSerializer.Deserialize<decimal[]>(json, options);
 
-      // Assert
+      // assert
       Assert.NotNull(deserializedAmounts);
       Assert.Equal(amounts.Length, deserializedAmounts.Length);
       for (int i = 0; i < amounts.Length; i++)
@@ -539,7 +539,7 @@ public class DecimalConverterTests
     [Fact]
     public void FullSerialization_ComplexObjectWithMultipleDecimals_ShouldWorkCorrectly()
     {
-      // Arrange
+      // arrange
       var options = new JsonSerializerOptions();
       options.Converters.Add(new DecimalConverter());
 
@@ -551,11 +551,11 @@ public class DecimalConverterTests
         Total = 135.79m
       };
 
-      // Act
+      // act
       var json = JsonSerializer.Serialize(testObject, options);
       var deserializedObject = JsonSerializer.Deserialize<ComplexTestClass>(json, options);
 
-      // Assert
+      // assert
       Assert.NotNull(deserializedObject);
       Assert.Equal(testObject.Price, deserializedObject.Price);
       Assert.Equal(testObject.Tax, deserializedObject.Tax);
@@ -566,17 +566,17 @@ public class DecimalConverterTests
     [Fact]
     public void FullSerialization_MixedNumberAndStringInputs_ShouldWorkCorrectly()
     {
-      // Arrange
+      // arrange
       var options = new JsonSerializerOptions();
       options.Converters.Add(new DecimalConverter());
 
       // Manually create JSON with mixed number and string representations
       var mixedJson = "{\"StringAmount\":\"123.45\",\"NumberAmount\":67.89}";
 
-      // Act
+      // act
       var deserializedObject = JsonSerializer.Deserialize<MixedTestClass>(mixedJson, options);
 
-      // Assert
+      // assert
       Assert.NotNull(deserializedObject);
       Assert.Equal(123.45m, deserializedObject.StringAmount);
       Assert.Equal(67.89m, deserializedObject.NumberAmount);
@@ -607,7 +607,7 @@ public class DecimalConverterTests
     [Fact]
     public void Read_InvariantCulture_ShouldParseCorrectly()
     {
-      // Arrange
+      // arrange
       var currentCulture = CultureInfo.CurrentCulture;
       try
       {
@@ -617,10 +617,10 @@ public class DecimalConverterTests
         var json = "\"123.45\""; // Using dot as decimal separator
         var reader = CreateJsonReaderFromString(json);
 
-        // Act
+        // act
         var result = _converter.Read(ref reader, typeof(decimal), _options);
 
-        // Assert
+        // assert
         Assert.Equal(123.45m, result);
       }
       finally
@@ -632,7 +632,7 @@ public class DecimalConverterTests
     [Fact]
     public void Write_InvariantCulture_ShouldWriteWithDot()
     {
-      // Arrange
+      // arrange
       var currentCulture = CultureInfo.CurrentCulture;
       try
       {
@@ -643,11 +643,11 @@ public class DecimalConverterTests
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
-        // Act
+        // act
         _converter.Write(writer, value, _options);
         writer.Flush();
 
-        // Assert
+        // assert
         var json = JsonSerializer.Deserialize<string>(stream.ToArray());
         Assert.Equal("123.45", json); // Should use dot, not comma
       }

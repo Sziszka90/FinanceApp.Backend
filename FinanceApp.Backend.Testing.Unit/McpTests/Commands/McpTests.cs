@@ -1,10 +1,12 @@
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Dtos.McpDtos;
+using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.McpApi.McpCommands;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.Validators;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -16,13 +18,32 @@ public class McpTests
   private readonly Mock<ITransactionRepository> _transactionRepositoryMock = new();
   private readonly Mock<IExchangeRateRepository> _exchangeRateRepositoryMock = new();
   private readonly Mock<IUserRepository> _userRepositoryMock = new();
+  private readonly Mock<IMediator> _mediatorMock = new();
 
   private McpCommandHandler CreateHandler() =>
-      new McpCommandHandler(_loggerMock.Object, _transactionRepositoryMock.Object, _exchangeRateRepositoryMock.Object, _userRepositoryMock.Object);
+    new McpCommandHandler(
+      _loggerMock.Object,
+      _transactionRepositoryMock.Object,
+      _exchangeRateRepositoryMock.Object,
+      _userRepositoryMock.Object,
+      _mediatorMock.Object);
 
   [Fact]
   public async Task Handle_GetTopTransactionGroups_ReturnsSuccess()
   {
+    // arrange
+    var aggregates = new List<TopTransactionGroupDto>() {
+      new TopTransactionGroupDto() {
+        Name = "Group 1",
+        Description = "Description",
+        TransactionCount = 10,
+        TotalAmount = new Money() { Amount = 200, Currency = CurrencyEnum.USD }
+      }
+    };
+
+    _mediatorMock.Setup(m => m.Send(It.IsAny<IRequest<Result<List<TopTransactionGroupDto>>>>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(aggregates));
+
     var userId = Guid.NewGuid();
     var mcpRequest = new McpRequest
     {
@@ -36,39 +57,17 @@ public class McpTests
       }
     };
 
-    var aggregates = new List<TransactionGroupAggregate> { };
-
-    _transactionRepositoryMock
-      .Setup(x => x.GetTransactionGroupAggregatesAsync(
-          userId,
-          It.IsAny<DateTimeOffset>(),
-          It.IsAny<DateTimeOffset>(),
-          5,
-          It.IsAny<bool>(),
-          It.IsAny<CancellationToken>()
-      ))
-      .Returns(Task.FromResult(aggregates));
-
-    _userRepositoryMock
-      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
-      .Returns(Task.FromResult<User?>(
-        new User(
-          userId,
-          "testuser",
-          "testuser@example.com",
-          true,
-          "hash",
-          CurrencyEnum.USD)));
-
     var handler = CreateHandler();
     var command = new McpCommand(mcpRequest, CancellationToken.None);
 
+    // act
     var result = await handler.Handle(command, CancellationToken.None);
 
+    // assert
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
     Assert.Equal(SupportedTools.GET_TOP_TRANSACTION_GROUPS, result.Data.ToolName);
-    var payload = result.Data.Payload as List<TransactionGroupAggregate>;
+    var payload = result.Data.Payload as List<TopTransactionGroupDto>;
     Assert.NotNull(payload);
     Assert.Equal(aggregates, payload);
   }
@@ -76,6 +75,7 @@ public class McpTests
   [Fact]
   public async Task Handle_InvalidUserId_ThrowsArgumentException()
   {
+    // arrange
     var mcpRequest = new McpRequest
     {
       ToolName = "GetTopTransactionGroups",
@@ -91,12 +91,14 @@ public class McpTests
     var handler = CreateHandler();
     var command = new McpCommand(mcpRequest, CancellationToken.None);
 
+    // act & assert
     await Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(command, CancellationToken.None));
   }
 
   [Fact]
   public void Validate_UnsupportedTool_ReturnsValidationError()
   {
+    // arrange
     var mcpRequest = new McpRequest
     {
       ToolName = "unsupported_tool",
@@ -108,8 +110,11 @@ public class McpTests
     };
 
     var validator = new McpRequestValidator();
+
+    // act
     var validationResult = validator.Validate(mcpRequest);
 
+    // assert
     Assert.False(validationResult.IsValid);
     Assert.Contains(validationResult.Errors, e => e.ErrorMessage.Contains("ToolName must be one of the supported tools."));
   }

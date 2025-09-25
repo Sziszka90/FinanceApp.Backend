@@ -31,7 +31,8 @@ public class UploadCsvTests : TestBase
       TransactionGroupRepositoryMock.Object,
       UnitOfWorkMock.Object,
       UserServiceMock.Object,
-      _llmProcessorClientMock.Object
+      _llmProcessorClientMock.Object,
+      ExchangeRateServiceMock.Object
     );
   }
 
@@ -64,11 +65,33 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
+
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
-      .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
+      .Callback<List<Transaction>, CancellationToken>((transactions, ct) =>
+      {
+        expectedTransactions.AddRange(
+          transactions.Select(t => new Transaction(
+            t.Name,
+            t.Description,
+            t.TransactionType ?? TransactionTypeEnum.Income,
+            t.Value,
+            t.Value.Amount,
+            t.TransactionGroup,
+            DateTimeOffset.UtcNow,
+            user
+          ))
+        );
+      })
       .ReturnsAsync(expectedTransactions);
 
     TransactionGroupRepositoryMock.Setup(x => x.GetAllAsync(false, It.IsAny<CancellationToken>()))
@@ -158,6 +181,14 @@ public class UploadCsvTests : TestBase
     };
     var command = new UploadCsvCommand(uploadDto, CancellationToken.None);
 
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
+
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Failure<User>(ApplicationError.UserNotFoundError("nonexistent@example.com")));
 
@@ -197,6 +228,14 @@ public class UploadCsvTests : TestBase
     };
 
     // Setup mocks
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
+
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(user));
 
@@ -253,6 +292,14 @@ public class UploadCsvTests : TestBase
     var emptyTransactions = new List<Transaction>();
 
     // Setup mocks
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
+
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(user));
 
@@ -311,11 +358,33 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
+
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
-      .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
+      .Callback<List<Transaction>, CancellationToken>((transactions, ct) =>
+      {
+        expectedTransactions.AddRange(
+          transactions.Select(t => new Transaction(
+            t.Name,
+            t.Description,
+            t.TransactionType ?? TransactionTypeEnum.Income,
+            t.Value,
+            t.Value.Amount,
+            t.TransactionGroup,
+            DateTimeOffset.UtcNow,
+            user
+          ))
+        );
+      })
       .ReturnsAsync(expectedTransactions);
 
     TransactionGroupRepositoryMock.Setup(x => x.GetAllAsync(false, It.IsAny<CancellationToken>()))
@@ -369,11 +438,33 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
+
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
-      .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
+      .Callback<List<Transaction>, CancellationToken>((transactions, ct) =>
+      {
+        expectedTransactions.AddRange(
+          transactions.Select(t => new Transaction(
+            t.Name,
+            t.Description,
+            t.TransactionType ?? TransactionTypeEnum.Income,
+            t.Value,
+            t.Value.Amount,
+            t.TransactionGroup,
+            DateTimeOffset.UtcNow,
+            user
+          ))
+        );
+      })
       .ReturnsAsync(expectedTransactions);
 
     TransactionGroupRepositoryMock.Setup(x => x.GetAllAsync(false, It.IsAny<CancellationToken>()))
@@ -422,11 +513,33 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
+
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
-      .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
+      .Callback<List<Transaction>, CancellationToken>((transactions, ct) =>
+      {
+        expectedTransactions.AddRange(
+          transactions.Select(t => new Transaction(
+            t.Name,
+            t.Description,
+            t.TransactionType ?? TransactionTypeEnum.Income,
+            t.Value,
+            t.Value.Amount,
+            t.TransactionGroup,
+            DateTimeOffset.UtcNow,
+            user
+          ))
+        );
+      })
       .ReturnsAsync(expectedTransactions);
 
     TransactionGroupRepositoryMock.Setup(x => x.GetAllAsync(false, It.IsAny<CancellationToken>()))
@@ -474,11 +587,33 @@ public class UploadCsvTests : TestBase
     var expectedTransactions = new List<Transaction>();
 
     // Setup mocks
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Failure<decimal>(ApplicationError.MissingExchangeRatesError()));
+
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(user));
 
     TransactionRepositoryMock.Setup(x => x.BatchCreateTransactionsAsync(It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()))
-      .Callback<List<Transaction>, CancellationToken>((transactions, ct) => expectedTransactions.AddRange(transactions))
+      .Callback<List<Transaction>, CancellationToken>((transactions, ct) =>
+      {
+        expectedTransactions.AddRange(
+          transactions.Select(t => new Transaction(
+            t.Name,
+            t.Description,
+            t.TransactionType ?? TransactionTypeEnum.Income,
+            t.Value,
+            t.Value.Amount,
+            t.TransactionGroup,
+            DateTimeOffset.UtcNow,
+            user
+          ))
+        );
+      })
       .ReturnsAsync(expectedTransactions);
 
     TransactionGroupRepositoryMock.Setup(x => x.GetAllAsync(false, It.IsAny<CancellationToken>()))
@@ -499,10 +634,7 @@ public class UploadCsvTests : TestBase
 
     // assert
     Assert.True(result.IsSuccess);
-    Assert.Single(expectedTransactions);
-
-    var transaction = expectedTransactions.First();
-    Assert.Equal(CurrencyEnum.EUR, transaction.Value.Currency); // Default fallback currency
+    Assert.Empty(result.Data!);
   }
 
   private IFormFile CreateMockFormFile(string content, string fileName, string contentType)

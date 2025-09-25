@@ -7,13 +7,13 @@ public class ExchangeRateRunSignalTests
   [Fact]
   public void WaitForFirstRunAsync_InitialState_ReturnsIncompletedTask()
   {
-    // Arrange
+    // arrange
     var signal = new ExchangeRateRunSignal();
 
-    // Act
+    // act
     var task = signal.WaitForFirstRunAsync();
 
-    // Assert
+    // assert
     Assert.False(task.IsCompleted);
     Assert.False(task.IsCanceled);
     Assert.False(task.IsFaulted);
@@ -22,14 +22,14 @@ public class ExchangeRateRunSignalTests
   [Fact]
   public async Task SignalFirstRunCompleted_WhenCalled_CompletesWaitingTask()
   {
-    // Arrange
+    // arrange
     var signal = new ExchangeRateRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
 
-    // Assert
+    // assert
     Assert.True(waitTask.IsCompleted);
     await waitTask;
   }
@@ -37,15 +37,15 @@ public class ExchangeRateRunSignalTests
   [Fact]
   public async Task SignalFirstRunCompleted_WhenCalledMultipleTimes_OnlyCompletesOnce()
   {
-    // Arrange
+    // arrange
     var signal = new ExchangeRateRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
-    signal.SignalFirstRunCompleted(); // Second call should be ignored
+    signal.SignalFirstRunCompleted(); // second call should be ignored
 
-    // Assert
+    // assert
     Assert.True(waitTask.IsCompleted);
     await waitTask;
   }
@@ -53,14 +53,14 @@ public class ExchangeRateRunSignalTests
   [Fact]
   public async Task WaitForFirstRunAsync_AfterSignalCompleted_ReturnsCompletedTask()
   {
-    // Arrange
+    // arrange
     var signal = new ExchangeRateRunSignal();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Assert
+    // assert
     Assert.True(waitTask.IsCompleted);
     await waitTask;
   }
@@ -68,16 +68,16 @@ public class ExchangeRateRunSignalTests
   [Fact]
   public async Task MultipleWaiters_WhenSignaled_AllTasksComplete()
   {
-    // Arrange
+    // arrange
     var signal = new ExchangeRateRunSignal();
     var waitTask1 = signal.WaitForFirstRunAsync();
     var waitTask2 = signal.WaitForFirstRunAsync();
     var waitTask3 = signal.WaitForFirstRunAsync();
 
-    // Act
+    // act
     signal.SignalFirstRunCompleted();
 
-    // Assert
+    // assert
     Assert.True(waitTask1.IsCompleted);
     Assert.True(waitTask2.IsCompleted);
     Assert.True(waitTask3.IsCompleted);
@@ -90,12 +90,12 @@ public class ExchangeRateRunSignalTests
   [Fact]
   public async Task ConcurrentSignaling_ThreadSafe_CompletesSuccessfully()
   {
-    // Arrange
+    // arrange
     var signal = new ExchangeRateRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
     var tasks = new List<Task>();
 
-    // Act - Simulate concurrent signaling from multiple threads
+    // act - simulate concurrent signaling from multiple threads
     for (int i = 0; i < 10; i++)
     {
       tasks.Add(Task.Run(() => signal.SignalFirstRunCompleted()));
@@ -103,7 +103,7 @@ public class ExchangeRateRunSignalTests
 
     await Task.WhenAll(tasks);
 
-    // Assert
+    // assert
     Assert.True(waitTask.IsCompleted);
     await waitTask;
   }
@@ -111,12 +111,12 @@ public class ExchangeRateRunSignalTests
   [Fact]
   public void TaskCreationOptions_UsesRunContinuationsAsynchronously()
   {
-    // Arrange & Act
+    // arrange & act
     var signal = new ExchangeRateRunSignal();
     var waitTask = signal.WaitForFirstRunAsync();
 
-    // Assert - The task should be created with RunContinuationsAsynchronously option
-    // This is verified by ensuring the task doesn't run continuations synchronously
+    // assert - the task should be created with RunContinuationsAsynchronously option
+    // this is verified by ensuring the task doesn't run continuations synchronously
     Assert.NotNull(waitTask);
     Assert.IsType<Task<bool>>(waitTask);
   }

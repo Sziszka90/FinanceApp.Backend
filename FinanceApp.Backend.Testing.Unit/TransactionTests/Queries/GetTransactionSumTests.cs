@@ -19,8 +19,8 @@ public class GetTransactionSumTests : TestBase
     _handler = new GetTransactionSumQueryHandler(
         _loggerMock.Object,
         TransactionRepositoryMock.Object,
-        ExchangeRateRepositoryMock.Object,
-        UserServiceMock.Object
+        UserServiceMock.Object,
+        ExchangeRateServiceMock.Object
     );
   }
 
@@ -34,11 +34,14 @@ public class GetTransactionSumTests : TestBase
     var transactions = new List<Transaction>
     {
       new Transaction("Income 1", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 100, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user),
+        new Money { Amount = 100, Currency = CurrencyEnum.USD },
+        100m, transactionGroup, DateTimeOffset.UtcNow, user),
       new Transaction("Expense 1", "Description", TransactionTypeEnum.Expense,
-        new Money { Amount = 50, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user),
+        new Money { Amount = 50, Currency = CurrencyEnum.USD },
+        50m, transactionGroup, DateTimeOffset.UtcNow, user),
       new Transaction("Income 2", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 200, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user)
+        new Money { Amount = 200, Currency = CurrencyEnum.USD },
+        200m, transactionGroup, DateTimeOffset.UtcNow, user)
     };
 
     UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -68,12 +71,23 @@ public class GetTransactionSumTests : TestBase
     var transactions = new List<Transaction>
     {
       new Transaction("Income USD", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 100, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user),
+        new Money { Amount = 100, Currency = CurrencyEnum.USD },
+        100m, transactionGroup, DateTimeOffset.UtcNow, user),
       new Transaction("Income EUR", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 100, Currency = CurrencyEnum.EUR }, transactionGroup, DateTime.UtcNow, user), // Should be 100 * 1.18 = 118
+        new Money { Amount = 100, Currency = CurrencyEnum.EUR },
+        100m, transactionGroup, DateTimeOffset.UtcNow, user), // Should be 100 * 1.18 = 118
       new Transaction("Expense USD", "Description", TransactionTypeEnum.Expense,
-        new Money { Amount = 50, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user)
+        new Money { Amount = 50, Currency = CurrencyEnum.USD },
+        50m, transactionGroup, DateTimeOffset.UtcNow, user)
     };
+
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.Is<decimal>(amount => amount == 100),
+      It.IsAny<DateTimeOffset>(),
+      It.Is<string>(from => from == CurrencyEnum.EUR.ToString()),
+      It.Is<string>(to => to == CurrencyEnum.USD.ToString()),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(118.0m));
 
     UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<User> { user });
@@ -143,9 +157,11 @@ public class GetTransactionSumTests : TestBase
     var transactions = new List<Transaction>
     {
       new Transaction("Expense 1", "Description", TransactionTypeEnum.Expense,
-        new Money { Amount = 75.50m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user),
+        new Money { Amount = 75.50m, Currency = CurrencyEnum.USD },
+        75.50m, transactionGroup, DateTimeOffset.UtcNow, user),
       new Transaction("Expense 2", "Description", TransactionTypeEnum.Expense,
-        new Money { Amount = 125.75m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user)
+        new Money { Amount = 125.75m, Currency = CurrencyEnum.USD },
+        125.75m, transactionGroup, DateTimeOffset.UtcNow, user)
     };
 
     UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -175,9 +191,11 @@ public class GetTransactionSumTests : TestBase
     var transactions = new List<Transaction>
     {
       new Transaction("Income 1", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 500.25m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user),
+        new Money { Amount = 500.25m, Currency = CurrencyEnum.USD },
+        500.25m, transactionGroup, DateTimeOffset.UtcNow, user),
       new Transaction("Income 2", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 750.50m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user)
+        new Money { Amount = 750.50m, Currency = CurrencyEnum.USD },
+        750.50m, transactionGroup, DateTimeOffset.UtcNow, user)
     };
 
     UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -207,13 +225,17 @@ public class GetTransactionSumTests : TestBase
     var transactions = new List<Transaction>
     {
       new Transaction("Income USD", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 1000, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user),
+        new Money { Amount = 1000, Currency = CurrencyEnum.USD },
+        1000m, transactionGroup, DateTimeOffset.UtcNow, user),
       new Transaction("Income EUR", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 500, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user), // 500 * 1.18 = 590
+        new Money { Amount = 500, Currency = CurrencyEnum.USD },
+        500m, transactionGroup, DateTimeOffset.UtcNow, user), // 500 * 1.18 = 590
       new Transaction("Expense GBP", "Description", TransactionTypeEnum.Expense,
-        new Money { Amount = 200, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user), // 200 * 1.33 = 266
+        new Money { Amount = 200, Currency = CurrencyEnum.USD },
+        200m, transactionGroup, DateTimeOffset.UtcNow, user), // 200 * 1.33 = 266
       new Transaction("Expense USD", "Description", TransactionTypeEnum.Expense,
-        new Money { Amount = 300, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user)
+        new Money { Amount = 300, Currency = CurrencyEnum.USD },
+        300m, transactionGroup, DateTimeOffset.UtcNow, user)
     };
 
     UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -243,9 +265,11 @@ public class GetTransactionSumTests : TestBase
     var transactions = new List<Transaction>
     {
       new Transaction("Income", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 100.123456m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user),
+        new Money { Amount = 100.123456m, Currency = CurrencyEnum.USD },
+        100.123456m, transactionGroup, DateTimeOffset.UtcNow, user),
       new Transaction("Expense", "Description", TransactionTypeEnum.Expense,
-        new Money { Amount = 50.987654m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user)
+        new Money { Amount = 50.987654m, Currency = CurrencyEnum.USD },
+        50.987654m, transactionGroup, DateTimeOffset.UtcNow, user)
     };
 
     UserRepositoryMock.Setup(x => x.GetQueryAsync(It.IsAny<QueryCriteria<User>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -275,9 +299,11 @@ public class GetTransactionSumTests : TestBase
     var transactions = new List<Transaction>
     {
       new Transaction("Income EUR", "Description", TransactionTypeEnum.Income,
-        new Money { Amount = 100, Currency = CurrencyEnum.EUR }, transactionGroup, DateTime.UtcNow, user),
+        new Money { Amount = 100, Currency = CurrencyEnum.EUR },
+        100m, transactionGroup, DateTimeOffset.UtcNow, user),
       new Transaction("Expense EUR", "Description", TransactionTypeEnum.Expense,
-        new Money { Amount = 25, Currency = CurrencyEnum.EUR }, transactionGroup, DateTime.UtcNow, user)
+        new Money { Amount = 25, Currency = CurrencyEnum.EUR },
+        25m, transactionGroup, DateTimeOffset.UtcNow, user)
     };
 
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))

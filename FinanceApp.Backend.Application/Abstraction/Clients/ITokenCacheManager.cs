@@ -2,7 +2,7 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace FinanceApp.Backend.Application.Abstraction.Clients;
 
-public interface ICacheManager
+public interface ITokenCacheManager
 {
   /// <summary>
   /// Sets a value in the cache.

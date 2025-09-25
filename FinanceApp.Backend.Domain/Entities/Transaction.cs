@@ -26,6 +26,11 @@ public class Transaction : BaseEntity, IUserOwned
   public Money Value { get; set; }
 
   /// <summary>
+  /// Value of the transaction in base currency
+  /// </summary>
+  public decimal ValueInBaseCurrency { get; set; }
+
+  /// <summary>
   /// Transaction group
   /// </summary>
   public TransactionGroup? TransactionGroup { get; set; }
@@ -55,15 +60,17 @@ public class Transaction : BaseEntity, IUserOwned
     string? description,
     TransactionTypeEnum transactionType,
     Money value,
+    decimal valueInBaseCurrency,
     TransactionGroup? transactionGroup,
     DateTimeOffset transactionDate,
     User user)
   {
     Name = name;
     Description = description;
-    Value = value;
-    TransactionGroup = transactionGroup;
     TransactionType = transactionType;
+    Value = value;
+    ValueInBaseCurrency = valueInBaseCurrency;
+    TransactionGroup = transactionGroup;
     TransactionDate = transactionDate;
     User = user;
     UserId = user.Id;
@@ -76,6 +83,7 @@ public class Transaction : BaseEntity, IUserOwned
     string name,
     string? description,
     Money value,
+    decimal valueInBaseCurrency,
     TransactionTypeEnum transactionType,
     DateTimeOffset transactionDate,
     TransactionGroup? transactionGroup)
@@ -83,6 +91,7 @@ public class Transaction : BaseEntity, IUserOwned
     Name = name;
     Description = description;
     Value = value;
+    ValueInBaseCurrency = valueInBaseCurrency;
     TransactionGroup = transactionGroup;
     TransactionType = transactionType;
     TransactionDate = transactionDate;

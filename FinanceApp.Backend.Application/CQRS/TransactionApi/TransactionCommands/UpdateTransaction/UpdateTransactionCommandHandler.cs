@@ -1,7 +1,7 @@
 using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
-using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
@@ -17,7 +17,7 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
   private readonly IRepository<Transaction> _transactionRepository;
   private readonly IRepository<TransactionGroup> _transactionGroupRepository;
   private readonly ILogger<UpdateTransactionCommandHandler> _logger;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
+  private readonly IExchangeRateService _exchangeRateService;
 
   public UpdateTransactionCommandHandler(
     IMapper mapper,
@@ -25,14 +25,14 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
     IRepository<Transaction> transactionRepository,
     IRepository<TransactionGroup> transactionGroupRepository,
     ILogger<UpdateTransactionCommandHandler> logger,
-    IExchangeRateRepository exchangeRateRepository)
+    IExchangeRateService exchangeRateService)
   {
     _mapper = mapper;
     _unitOfWork = unitOfWork;
     _transactionRepository = transactionRepository;
     _transactionGroupRepository = transactionGroupRepository;
     _logger = logger;
-    _exchangeRateRepository = exchangeRateRepository;
+    _exchangeRateService = exchangeRateService;
   }
 
   /// <inheritdoc />
@@ -59,22 +59,37 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
       return Result.Failure<GetTransactionDto>(ApplicationError.EntityNotFoundError(request.Id.ToString()));
     }
 
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
+    decimal valueInBaseCurrency = transaction.ValueInBaseCurrency;
 
-    var convertedAmount = CurrencyConverter.ConvertToUserCurrency(
-      request.UpdateTransactionDto.Value.Amount,
-      request.UpdateTransactionDto.Value.Currency,
-      CurrencyEnum.EUR,
-      exchangeRates);
+    bool currencyChanged = transaction.Value.Currency != request.UpdateTransactionDto.Value.Currency;
+    bool amountChanged = transaction.Value.Amount != request.UpdateTransactionDto.Value.Amount;
+
+    if (currencyChanged || amountChanged)
+    {
+      var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
+        request.UpdateTransactionDto.Value.Amount,
+        request.UpdateTransactionDto.TransactionDate,
+        request.UpdateTransactionDto.Value.Currency.ToString(),
+        CurrencyEnum.EUR.ToString(),
+        cancellationToken);
+
+      if (!valueInBaseCurrencyResult.IsSuccess)
+      {
+        _logger.LogError("Failed to convert amount: {Error}", valueInBaseCurrencyResult.ApplicationError?.Message);
+        return Result.Failure<GetTransactionDto>(valueInBaseCurrencyResult.ApplicationError!);
+      }
+      valueInBaseCurrency = valueInBaseCurrencyResult.Data;
+    }
 
     transaction.Update(
       request.UpdateTransactionDto.Name,
       request.UpdateTransactionDto.Description,
       new Money()
       {
-        Amount = convertedAmount,
-        Currency = CurrencyEnum.EUR
+        Amount = request.UpdateTransactionDto.Value.Amount,
+        Currency = request.UpdateTransactionDto.Value.Currency
       },
+      valueInBaseCurrency,
       request.UpdateTransactionDto.TransactionType,
       request.UpdateTransactionDto.TransactionDate,
       transactionGroup

@@ -2,7 +2,6 @@ using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
-using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
@@ -19,7 +18,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
   private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly IUserService _userService;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
+  private readonly IExchangeRateService _exchangeRateService;
 
   public CreateTransactionCommandHandler(
     ILogger<CreateTransactionCommandHandler> logger,
@@ -28,7 +27,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
     ITransactionGroupRepository transactionGroupRepository,
     IUnitOfWork unitOfWork,
     IUserService userService,
-    IExchangeRateRepository exchangeRateRepository)
+    IExchangeRateService exchangeRateService)
   {
     _logger = logger;
     _mapper = mapper;
@@ -36,7 +35,7 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
     _transactionGroupRepository = transactionGroupRepository;
     _unitOfWork = unitOfWork;
     _userService = userService;
-    _exchangeRateRepository = exchangeRateRepository;
+    _exchangeRateService = exchangeRateService;
   }
 
   /// <inheritdoc />
@@ -62,13 +61,18 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
       }
     }
 
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-
-    var convertedAmount = CurrencyConverter.ConvertToUserCurrency(
+    var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
       request.CreateTransactionDto.Value.Amount,
-      request.CreateTransactionDto.Value.Currency,
-      CurrencyEnum.EUR,
-      exchangeRates);
+      request.CreateTransactionDto.TransactionDate,
+      request.CreateTransactionDto.Value.Currency.ToString(),
+      CurrencyEnum.EUR.ToString(),
+      cancellationToken);
+
+    if (!valueInBaseCurrencyResult.IsSuccess)
+    {
+      _logger.LogError("Failed to convert amount: {Error}", valueInBaseCurrencyResult.ApplicationError?.Message);
+      return Result.Failure<GetTransactionDto>(valueInBaseCurrencyResult.ApplicationError!);
+    }
 
     var transaction = await _transactionRepository.CreateAsync(new Transaction(
                                                                     request.CreateTransactionDto.Name,
@@ -76,9 +80,10 @@ public class CreateTransactionCommandHandler : ICommandHandler<CreateTransaction
                                                                     request.CreateTransactionDto.TransactionType,
                                                                     new Money()
                                                                     {
-                                                                      Amount = convertedAmount,
-                                                                      Currency = CurrencyEnum.EUR
+                                                                      Amount = request.CreateTransactionDto.Value.Amount,
+                                                                      Currency = request.CreateTransactionDto.Value.Currency
                                                                     },
+                                                                    valueInBaseCurrencyResult.Data,
                                                                     transactionGroup,
                                                                     request.CreateTransactionDto.TransactionDate,
                                                                     user.Data!), cancellationToken);

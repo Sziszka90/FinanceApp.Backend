@@ -26,6 +26,19 @@ public class TransactionGroup : BaseEntity, IUserOwned
   public User User { get; set; }
 
   public TransactionGroup(
+    Guid id,
+    DateTimeOffset createdAt,
+    DateTimeOffset modifiedAt,
+    string name,
+    string? description,
+    string? groupIcon,
+    User user) : this(name, description, groupIcon, user)
+  {
+    Created = createdAt;
+    Modified = modifiedAt;
+  }
+
+  public TransactionGroup(
     string name,
     string? description,
     string? groupIcon,

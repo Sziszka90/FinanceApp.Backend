@@ -77,6 +77,7 @@ public class TransactionRepositoryTests : IDisposable
         null,
         TransactionTypeEnum.Expense,
         money,
+        money.Amount,
         transactionGroup,
         DateTime.UtcNow,
         user)
@@ -167,18 +168,19 @@ public class TransactionRepositoryTests : IDisposable
         null,
         TransactionTypeEnum.Expense,
         money1,
+        money1.Amount,
         transactionGroup,
         DateTime.UtcNow,
         user)
       {
         Id = Guid.NewGuid()
       };
-
       var transaction2 = new Transaction(
         "Salary",
         null,
         TransactionTypeEnum.Income,
         money2,
+        money2.Amount,
         incomeGroup,
         DateTime.UtcNow,
         user)
@@ -235,18 +237,19 @@ public class TransactionRepositoryTests : IDisposable
         null,
         TransactionTypeEnum.Expense,
         money1,
+        money1.Amount,
         null,
         DateTime.UtcNow,
         user)
       {
         Id = Guid.NewGuid()
       };
-
       var transaction2 = new Transaction(
         "Apple Store",
         null,
         TransactionTypeEnum.Expense,
         money2,
+        money2.Amount,
         null,
         DateTime.UtcNow,
         user)
@@ -305,6 +308,7 @@ public class TransactionRepositoryTests : IDisposable
         null,
         TransactionTypeEnum.Expense,
         money,
+        money.Amount,
         null,
         DateTime.UtcNow,
         user)
@@ -373,6 +377,11 @@ public class TransactionRepositoryTests : IDisposable
       var money1 = new Money { Amount = 100, Currency = CurrencyEnum.USD };
       var money2 = new Money { Amount = 200, Currency = CurrencyEnum.USD };
 
+      var transactionGroup1 = new TransactionGroup("Group1", null, null, user) { Id = Guid.NewGuid() };
+      var transactionGroup2 = new TransactionGroup("Group2", null, null, user) { Id = Guid.NewGuid() };
+      await _dbContext.Set<TransactionGroup>().AddRangeAsync(transactionGroup1, transactionGroup2);
+      await _dbContext.SaveChangesAsync();
+
       var transactions = new List<Transaction>
       {
         new Transaction(
@@ -380,22 +389,26 @@ public class TransactionRepositoryTests : IDisposable
           null,
           TransactionTypeEnum.Expense,
           money1,
-          null,
+          money1.Amount,
+          transactionGroup1,
           DateTime.UtcNow,
           user)
         {
-          Id = Guid.NewGuid()
+          UserId = user.Id,
+          TransactionGroupId = transactionGroup1.Id
         },
         new Transaction(
           "Transaction2",
           null,
           TransactionTypeEnum.Income,
           money2,
-          null,
+          money2.Amount,
+          transactionGroup2,
           DateTime.UtcNow,
           user)
         {
-          Id = Guid.NewGuid()
+          UserId = user.Id,
+          TransactionGroupId = transactionGroup2.Id
         }
       };
 
@@ -421,7 +434,7 @@ public class TransactionRepositoryTests : IDisposable
       var money = new Money { Amount = 100, Currency = CurrencyEnum.USD };
       var transactions = new List<Transaction>
       {
-        new Transaction("Test", null, TransactionTypeEnum.Expense, money, null, DateTime.UtcNow, user)
+        new Transaction("Test", null, TransactionTypeEnum.Expense, money, money.Amount, null, DateTime.UtcNow, user)
       };
 
       // Dispose the context to simulate an error
@@ -454,6 +467,7 @@ public class TransactionRepositoryTests : IDisposable
           null,
           TransactionTypeEnum.Expense,
           money1,
+          money1.Amount,
           null,
           DateTime.UtcNow,
           user)
@@ -465,6 +479,7 @@ public class TransactionRepositoryTests : IDisposable
           null,
           TransactionTypeEnum.Income,
           money2,
+          money2.Amount,
           null,
           DateTime.UtcNow,
           user)
@@ -541,6 +556,7 @@ public class TransactionRepositoryTests : IDisposable
           null,
           TransactionTypeEnum.Expense,
           new Money { Amount = 100, Currency = CurrencyEnum.USD },
+          100m,
           null,
           DateTime.UtcNow,
           user)
@@ -552,6 +568,7 @@ public class TransactionRepositoryTests : IDisposable
           null,
           TransactionTypeEnum.Income,
           new Money { Amount = 200, Currency = CurrencyEnum.USD },
+          200m,
           null,
           DateTime.UtcNow,
           user)
@@ -607,6 +624,7 @@ public class TransactionRepositoryTests : IDisposable
         null,
         TransactionTypeEnum.Expense,
         money,
+        money.Amount,
         null,
         DateTime.UtcNow,
         user)
@@ -681,6 +699,7 @@ public class TransactionRepositoryTests : IDisposable
         null,
         TransactionTypeEnum.Expense,
         money,
+        money.Amount,
         transactionGroup,
         DateTime.UtcNow,
         user)
@@ -740,6 +759,7 @@ public class TransactionRepositoryTests : IDisposable
         null,
         TransactionTypeEnum.Expense,
         money,
+        money.Amount,
         transactionGroup,
         DateTime.UtcNow,
         user)

@@ -14,6 +14,25 @@ public interface IExchangeRateRepository : IRepository<ExchangeRate>
   Task<List<ExchangeRate>> GetExchangeRatesAsync(bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
+  /// Gets the actual exchange rates.
+  /// </summary>
+  /// <param name="cancellationToken"></param>
+  /// <returns>A list of actual exchange rates</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving actual exchange rates
+  Task<List<ExchangeRate>> GetActualExchangeRatesAsync(CancellationToken cancellationToken = default);
+
+  /// <summary>
+  /// Gets the exchange rate by date.
+  /// </summary>
+  /// <param name="validFrom"></param>
+  /// <param name="validTo"></param>
+  /// <param name="cancellationToken"></param>
+  /// <returns>A list of actual exchange rates</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving actual exchange rates
+  Task<List<ExchangeRate>> GetExchangeRatesByDateRangeAsync(DateTimeOffset date, CancellationToken cancellationToken = default);
+
+
+  /// <summary>
   /// Creates a batch of exchange rates.
   /// </summary>
   /// <param name="exchangeRates"></param>

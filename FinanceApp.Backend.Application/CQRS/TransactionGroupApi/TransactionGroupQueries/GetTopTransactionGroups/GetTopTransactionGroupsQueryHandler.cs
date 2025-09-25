@@ -1,7 +1,6 @@
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
-using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
@@ -13,22 +12,22 @@ public class GetTopTransactionGroupsQueryHandler : IQueryHandler<GetTopTransacti
 {
   private readonly ILogger<GetTopTransactionGroupsQueryHandler> _logger;
   private readonly ITransactionRepository _transactionRepository;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUserRepository _userRepository;
   private readonly IUserService _userService;
+  private readonly IExchangeRateService _exchangeRateService;
 
   public GetTopTransactionGroupsQueryHandler(
     ILogger<GetTopTransactionGroupsQueryHandler> logger,
     ITransactionRepository transactionRepository,
-    IExchangeRateRepository exchangeRateRepository,
     IUserRepository userRepository,
-    IUserService userService)
+    IUserService userService,
+    IExchangeRateService exchangeRateService)
   {
     _logger = logger;
     _transactionRepository = transactionRepository;
-    _exchangeRateRepository = exchangeRateRepository;
     _userRepository = userRepository;
     _userService = userService;
+    _exchangeRateService = exchangeRateService;
   }
 
   public async Task<Result<List<TopTransactionGroupDto>>> Handle(GetTopTransactionGroupsQuery request, CancellationToken cancellationToken)
@@ -56,45 +55,55 @@ public class GetTopTransactionGroupsQueryHandler : IQueryHandler<GetTopTransacti
       user = userFromRepo;
     }
 
-    var aggregatedData = await _transactionRepository.GetTransactionGroupAggregatesAsync(
-      userId: user.Id,
+    var allTransactions = await _transactionRepository.GetTransactionsByTopTransactionGroups(
       startDate: request.StartDate,
       endDate: request.EndDate,
-      topCount: request.Top,
-      noTracking: true,
-      cancellationToken: cancellationToken);
+      userId: user.Id,
+      cancellationToken: cancellationToken
+    );
 
-    if (aggregatedData.Count == 0)
+    foreach (var transaction in allTransactions)
     {
-      _logger.LogInformation("No transaction groups found for user {UserId} in the specified date range.", user.Id);
-      return Result.Success(new List<TopTransactionGroupDto>());
+      if (transaction.Value.Currency != user.BaseCurrency)
+      {
+        var valueInUserCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
+          transaction.Value.Amount,
+          transaction.TransactionDate,
+          transaction.Value.Currency.ToString(),
+          user.BaseCurrency.ToString(),
+          cancellationToken);
+
+        if (!valueInUserCurrencyResult.IsSuccess)
+        {
+          _logger.LogWarning("Failed to convert amount for transaction ID {TransactionId}: {Error}",
+          transaction.Id, valueInUserCurrencyResult.ApplicationError?.Message);
+          continue;
+        }
+        transaction.Value.Amount = valueInUserCurrencyResult.Data;
+        transaction.Value.Currency = user.BaseCurrency;
+      }
     }
 
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-
-    var groupedTransactions = aggregatedData
-      .GroupBy(a => a.TransactionGroup)
-      .Select(g => new
+    var topGroups = allTransactions
+      .GroupBy(t => t.TransactionGroup!)
+      .Select(g => new TopTransactionGroupDto
       {
-        TransactionGroup = g.Key,
-        TotalAmount = g.Sum(a => a.Currency == user.BaseCurrency
-          ? a.TotalAmount
-          : CurrencyConverter.ConvertToUserCurrency(a.TotalAmount, a.Currency, user.BaseCurrency, exchangeRates)),
-        TransactionCount = g.Sum(a => a.TransactionCount)
+        Id = g.Key.Id,
+        Name = g.Key.Name,
+        Description = g.Key.Description,
+        TransactionCount = g.Count(),
+        TotalAmount = new Money
+        {
+          Amount = g.Sum(t => t.Value.Amount),
+          Currency = user.BaseCurrency
+        },
       })
+      .OrderByDescending(x => x.TotalAmount.Amount)
+      .Take(request.Top)
       .ToList();
 
-    var result = groupedTransactions.Select(g => new TopTransactionGroupDto
-    {
-      Id = g.TransactionGroup.Id,
-      Name = g.TransactionGroup.Name,
-      Description = g.TransactionGroup.Description,
-      GroupIcon = g.TransactionGroup.GroupIcon,
-      TotalAmount = new Money { Amount = g.TotalAmount, Currency = user.BaseCurrency },
-      TransactionCount = g.TransactionCount
-    }).ToList();
+    _logger.LogInformation("Retrieved top {Top} transaction groups for user {UserId} from {StartDate} to {EndDate}.", request.Top, user.Id, request.StartDate, request.EndDate);
 
-    _logger.LogInformation("Retrieved top {Count} transaction groups for user {UserId} (optimized query)", result.Count, user.Id);
-    return Result.Success(result);
+    return Result.Success(topGroups);
   }
 }

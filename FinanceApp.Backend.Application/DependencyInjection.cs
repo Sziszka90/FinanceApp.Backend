@@ -54,6 +54,7 @@ public static class DependencyInjection
     services.AddSingleton<ISignalRService, SignalRService>();
     services.AddScoped<ITokenService, TokenService>();
     services.AddScoped<IUserService, UserService>();
+    services.AddScoped<IExchangeRateService, ExchangeRateService>();
     return services;
   }
 

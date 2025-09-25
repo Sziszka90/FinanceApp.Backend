@@ -27,5 +27,7 @@ public class TransactionConfiguration : BaseEntityTypeConfiguration<Transaction>
            .HasForeignKey(t => t.TransactionGroupId)
            .OnDelete(DeleteBehavior.SetNull);
 
+    builder.Property(t => t.ValueInBaseCurrency)
+    .HasColumnType("decimal(18,4)");
   }
 }

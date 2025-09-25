@@ -15,22 +15,22 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
   private readonly ILogger<GetAllTransactionQueryHandler> _logger;
   private readonly IMapper _mapper;
   private readonly ITransactionRepository _transactionRepository;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUserService _userService;
+  private readonly IExchangeRateService _exchangeRateService;
 
   public GetAllTransactionQueryHandler(
     ILogger<GetAllTransactionQueryHandler> logger,
     IMapper mapper,
     ITransactionRepository transactionRepository,
-    IExchangeRateRepository exchangeRateRepository,
-    IUserService userService
+    IUserService userService,
+    IExchangeRateService exchangeRateService
   )
   {
     _logger = logger;
     _mapper = mapper;
     _transactionRepository = transactionRepository;
-    _exchangeRateRepository = exchangeRateRepository;
     _userService = userService;
+    _exchangeRateService = exchangeRateService;
   }
 
   public async Task<Result<List<GetTransactionDto>>> Handle(GetAllTransactionQuery request, CancellationToken cancellationToken)
@@ -41,14 +41,6 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
     {
       _logger.LogError("Failed to retrieve active user: {Error}", user.ApplicationError?.Message);
       return Result.Failure<List<GetTransactionDto>>(user.ApplicationError!);
-    }
-
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-
-    if (exchangeRates is null || exchangeRates.Count == 0)
-    {
-      _logger.LogWarning("No exchange rates found.");
-      return Result.Failure<List<GetTransactionDto>>(ApplicationError.MissingExchangeRatesError());
     }
 
     List<Transaction> result;
@@ -66,9 +58,23 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
     {
       if (transaction.Value.Currency != user.Data!.BaseCurrency)
       {
-
-        transaction.Value.Amount = CurrencyConverter.ConvertToUserCurrency(transaction.Value.Amount, transaction.Value.Currency, user.Data!.BaseCurrency, exchangeRates);
         transaction.Value.Currency = user.Data!.BaseCurrency;
+
+        var valueInUserCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
+          transaction.Value.Amount,
+          transaction.TransactionDate,
+          transaction.Value.Currency.ToString(),
+          user.Data!.BaseCurrency.ToString(),
+          cancellationToken);
+
+        if (!valueInUserCurrencyResult.IsSuccess)
+        {
+          _logger.LogWarning("Failed to convert amount for transaction ID {TransactionId}: {Error}", transaction.Id, valueInUserCurrencyResult.ApplicationError?.Message);
+          continue;
+        }
+        
+        transaction.Value.Amount = valueInUserCurrencyResult.Data;
+        _logger.LogInformation("Converted transaction ID {TransactionId} to user's base currency {BaseCurrency}", transaction.Id, user.Data!.BaseCurrency);
       }
     }
 

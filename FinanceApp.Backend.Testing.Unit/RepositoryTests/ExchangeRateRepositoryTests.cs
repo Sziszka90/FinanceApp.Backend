@@ -5,6 +5,7 @@ using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.Context;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 
 namespace FinanceApp.Backend.Testing.Unit.RepositoryTests;
 
@@ -27,7 +28,15 @@ public class ExchangeRateRepositoryTests : IDisposable
     _filteredQueryProviderMock = new Mock<IFilteredQueryProvider>();
     _filteredQueryProviderMock.Setup(x => x.Query<ExchangeRate>()).Returns(_dbContext.Set<ExchangeRate>().AsQueryable());
 
-    _repository = new ExchangeRateRepository(_dbContext, _filteredQueryProviderMock.Object);
+    var sqlQueryBuilderMock = new Mock<ISqlQueryBuilder>();
+    var databaseCommandServiceMock = new Mock<IDatabaseCommandService>();
+
+    _repository = new ExchangeRateRepository(
+      _dbContext,
+      _filteredQueryProviderMock.Object,
+      sqlQueryBuilderMock.Object,
+      databaseCommandServiceMock.Object
+    );
   }
 
   public void Dispose()
@@ -54,11 +63,17 @@ public class ExchangeRateRepositoryTests : IDisposable
       {
         new ExchangeRate("USD", "EUR", 0.85m)
         {
-          Id = Guid.NewGuid()
+          Id = Guid.NewGuid(),
+          Actual = true,
+          ValidFrom = DateTimeOffset.UtcNow,
+          ValidTo = null
         },
         new ExchangeRate("USD", "GBP", 0.73m)
         {
-          Id = Guid.NewGuid()
+          Id = Guid.NewGuid(),
+          Actual = true,
+          ValidFrom = DateTimeOffset.UtcNow,
+          ValidTo = null
         }
       };
 
@@ -81,7 +96,10 @@ public class ExchangeRateRepositoryTests : IDisposable
       // arrange
       var exchangeRate = new ExchangeRate("USD", "EUR", 0.85m)
       {
-        Id = Guid.NewGuid()
+        Id = Guid.NewGuid(),
+        Actual = true,
+        ValidFrom = DateTimeOffset.UtcNow,
+        ValidTo = null
       };
 
       await _dbContext.Set<ExchangeRate>().AddAsync(exchangeRate);
@@ -135,7 +153,10 @@ public class ExchangeRateRepositoryTests : IDisposable
       var rateId = Guid.NewGuid();
       var exchangeRate = new ExchangeRate("USD", "EUR", 0.85m)
       {
-        Id = rateId
+        Id = rateId,
+        Actual = true,
+        ValidFrom = DateTimeOffset.UtcNow,
+        ValidTo = null
       };
 
       await _dbContext.Set<ExchangeRate>().AddAsync(exchangeRate);
@@ -156,7 +177,12 @@ public class ExchangeRateRepositoryTests : IDisposable
     public async Task CreateAsync_ShouldWorkCorrectly()
     {
       // arrange
-      var exchangeRate = new ExchangeRate("USD", "CAD", 1.25m);
+      var exchangeRate = new ExchangeRate("USD", "CAD", 1.25m)
+      {
+        Actual = true,
+        ValidFrom = DateTimeOffset.UtcNow,
+        ValidTo = null
+      };
 
       // act
       var result = await _repository.CreateAsync(exchangeRate);
@@ -180,7 +206,12 @@ public class ExchangeRateRepositoryTests : IDisposable
     public async Task DeleteAsync_ShouldWorkCorrectly()
     {
       // arrange
-      var exchangeRate = new ExchangeRate("USD", "JPY", 110.5m);
+      var exchangeRate = new ExchangeRate("USD", "JPY", 110.5m)
+      {
+        Actual = true,
+        ValidFrom = DateTimeOffset.UtcNow,
+        ValidTo = null
+      };
       await _dbContext.Set<ExchangeRate>().AddAsync(exchangeRate);
       await _dbContext.SaveChangesAsync();
 

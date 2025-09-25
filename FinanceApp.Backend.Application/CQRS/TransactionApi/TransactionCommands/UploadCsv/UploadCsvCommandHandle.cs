@@ -23,6 +23,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
   private readonly IUnitOfWork _unitOfWork;
   private readonly IUserService _userService;
   private readonly ILLMProcessorClient _llmProcessorClient;
+  private readonly IExchangeRateService _exchangeRateService;
 
   public UploadCsvCommandHandler(
     ILogger<UploadCsvCommandHandler> logger,
@@ -31,7 +32,8 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     ITransactionGroupRepository transactionGroupRepository,
     IUnitOfWork unitOfWork,
     IUserService userService,
-    ILLMProcessorClient llmProcessorClient)
+    ILLMProcessorClient llmProcessorClient,
+    IExchangeRateService exchangeRateService)
   {
     _logger = logger;
     _mapper = mapper;
@@ -40,6 +42,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     _unitOfWork = unitOfWork;
     _userService = userService;
     _llmProcessorClient = llmProcessorClient;
+    _exchangeRateService = exchangeRateService;
   }
 
   /// <inheritdoc />
@@ -53,7 +56,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
       return Result.Failure<List<GetTransactionDto>>(user.ApplicationError!);
     }
 
-    var transactions = await ImportTransactions(request.uploadCsvFileDto.File, user.Data!);
+    var transactions = await ImportTransactions(request.uploadCsvFileDto.File, user.Data!, cancellationToken);
 
     await _transactionRepository.BatchCreateTransactionsAsync(transactions, cancellationToken);
 
@@ -97,7 +100,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     return cleaned;
   }
 
-  private async Task<List<Transaction>> ImportTransactions(IFormFile file, User user)
+  private async Task<List<Transaction>> ImportTransactions(IFormFile file, User user, CancellationToken cancellationToken)
   {
     var transactions = new List<Transaction>();
 
@@ -121,6 +124,27 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
         var amount = decimal.TryParse(normalizedAmount, NumberStyles.Number | NumberStyles.AllowThousands,
           CultureInfo.InvariantCulture, out var parsedAmount) ? parsedAmount : 0;
 
+        var transactionDate = DateTimeOffset.TryParse(
+          CleanCsvField(columns[2]),
+          CultureInfo.InvariantCulture,
+          DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+          out var date) ? date : DateTimeOffset.UtcNow;
+
+        var currencyResult = Enum.TryParse<CurrencyEnum>(CleanCsvField(columns[4]), out var currency) ? currency : CurrencyEnum.EUR;
+
+        var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
+          Math.Abs(amount),
+          transactionDate,
+          currencyResult.ToString(),
+          CurrencyEnum.EUR.ToString(),
+          cancellationToken);
+
+        if (!valueInBaseCurrencyResult.IsSuccess)
+        {
+          _logger.LogError("Failed to convert amount: {Error}", valueInBaseCurrencyResult.ApplicationError?.Message);
+          continue;
+        }
+
         var transaction = new Transaction(
           NormalizeSpaces(CleanCsvField(columns[5]) != "" ? CleanCsvField(columns[5]) : "Unknown"),
           CleanCsvField(columns[9]),
@@ -128,14 +152,11 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
           new Money
           {
             Amount = Math.Abs(amount),
-            Currency = Enum.TryParse<CurrencyEnum>(CleanCsvField(columns[4]), out var currency) ? currency : CurrencyEnum.EUR
+            Currency = currency
           },
+          valueInBaseCurrencyResult.Data,
           null,
-          DateTimeOffset.TryParse(
-            CleanCsvField(columns[2]),
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
-            out var date) ? date : DateTimeOffset.UtcNow,
+          transactionDate,
           user!
         );
         transactions.Add(transaction);

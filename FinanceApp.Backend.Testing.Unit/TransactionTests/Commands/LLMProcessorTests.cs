@@ -45,9 +45,9 @@ public class LLMProcessorTests : TestBase
     var transactionGroup2 = new TransactionGroup("Transport", "Transport expenses", "", user);
 
     var transaction1 = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
-      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, transactionGroup1, DateTime.UtcNow, user);
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, 5.00m, transactionGroup1, DateTime.UtcNow, user);
     var transaction2 = new Transaction("Bus ticket", "Daily bus ticket", TransactionTypeEnum.Expense,
-      new Money { Amount = 3.50m, Currency = CurrencyEnum.USD }, transactionGroup2, DateTime.UtcNow, user);
+      new Money { Amount = 3.50m, Currency = CurrencyEnum.USD }, 3.50m, transactionGroup2, DateTime.UtcNow, user);
 
     var matchedTransactions = new Dictionary<string, string>
     {
@@ -193,7 +193,7 @@ public class LLMProcessorTests : TestBase
     user.GetType().GetProperty("Id")?.SetValue(user, userId);
 
     var transaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
-      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, null, DateTime.UtcNow, user);
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, 5.00m, null, DateTime.UtcNow, user);
 
     var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
     {
@@ -247,7 +247,7 @@ public class LLMProcessorTests : TestBase
 
     // Transaction in EUR that should be converted to USD
     var transaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
-      new Money { Amount = 4.25m, Currency = CurrencyEnum.EUR }, transactionGroup, DateTime.UtcNow, user);
+      new Money { Amount = 4.25m, Currency = CurrencyEnum.EUR }, 4.25m, transactionGroup, DateTime.UtcNow, user);
 
     var matchedTransactions = new List<Dictionary<string, string>>
     {
@@ -308,7 +308,7 @@ public class LLMProcessorTests : TestBase
 
     // Transaction already in USD
     var transaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
-      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user);
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, 5.00m, transactionGroup, DateTime.UtcNow, user);
 
     var matchedTransactions = new List<Dictionary<string, string>>
     {
@@ -368,13 +368,11 @@ public class LLMProcessorTests : TestBase
     var transportGroup = new TransactionGroup("Transport", "Transport expenses", "", user);
 
     var usdTransaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
-      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, foodGroup, DateTime.UtcNow, user);
-
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, 5.00m, foodGroup, DateTime.UtcNow, user);
     var eurTransaction = new Transaction("Lunch", "European lunch", TransactionTypeEnum.Expense,
-      new Money { Amount = 12.50m, Currency = CurrencyEnum.EUR }, foodGroup, DateTime.UtcNow, user);
-
+      new Money { Amount = 12.50m, Currency = CurrencyEnum.EUR }, 12.50m, foodGroup, DateTime.UtcNow, user);
     var gbpTransaction = new Transaction("Train ticket", "London train", TransactionTypeEnum.Expense,
-      new Money { Amount = 25.00m, Currency = CurrencyEnum.GBP }, transportGroup, DateTime.UtcNow, user);
+      new Money { Amount = 25.00m, Currency = CurrencyEnum.GBP }, 25.00m, transportGroup, DateTime.UtcNow, user);
 
     var matchedTransactions = new List<Dictionary<string, string>>
     {
@@ -443,10 +441,9 @@ public class LLMProcessorTests : TestBase
     var transactionGroup = new TransactionGroup("Food", "Food expenses", "", user);
 
     var matchedTransaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
-      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, transactionGroup, DateTime.UtcNow, user);
-
+      new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, 5.00m, transactionGroup, DateTime.UtcNow, user);
     var unmatchedTransaction = new Transaction("Misc Item", "Random item", TransactionTypeEnum.Expense,
-      new Money { Amount = 10.00m, Currency = CurrencyEnum.USD }, null, DateTime.UtcNow, user);
+      new Money { Amount = 10.00m, Currency = CurrencyEnum.USD }, 10.00m, null, DateTime.UtcNow, user);
 
     // Only match one transaction
     var matchedTransactions = new Dictionary<string, string>

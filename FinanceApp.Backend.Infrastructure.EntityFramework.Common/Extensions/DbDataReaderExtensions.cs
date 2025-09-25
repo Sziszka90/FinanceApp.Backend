@@ -18,4 +18,18 @@ public static class DbDataReaderExtensions
   {
     return reader.IsDBNull(ordinal) ? defaultValue : reader.GetFieldValue<T>(ordinal);
   }
+
+  public static DateTimeOffset GetDateTimeOffsetSafe(this DbDataReader reader, int ordinal)
+  {
+    var value = reader.GetValue(ordinal);
+    if (value is DateTimeOffset dto)
+    {
+      return dto;
+    }
+    if (value is DateTime dt)
+    {
+      return dt.Kind == DateTimeKind.Local ? new DateTimeOffset(dt) : new DateTimeOffset(dt, TimeSpan.Zero);
+    }
+    throw new InvalidCastException($"Column at ordinal {ordinal} is not a DateTimeOffset or DateTime.");
+  }
 }

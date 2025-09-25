@@ -12,13 +12,14 @@ public class McpApi : TestBase
   {
     // arrange
     await InitializeAsync();
+    await CreateMultipleTransactionAsync();
     var mcpRequest = new Dictionary<string, object>
     {
       { "tool_name", "GetTopTransactionGroups" },
       { "parameters", new Dictionary<string, object>
         {
-          { "start_date", "2023-01-01T00:00:00Z" },
-          { "end_date", "2023-01-31T23:59:59Z" },
+          { "start_date", "2025-06-01T00:00:00Z" },
+          { "end_date", DateTimeOffset.Now },
           { "top", 5 },
           { "user_id", CreatedUserId.ToString() },
           { "correlation_id", Guid.NewGuid().ToString() }

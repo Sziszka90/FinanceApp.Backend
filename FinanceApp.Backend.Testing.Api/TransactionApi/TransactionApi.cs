@@ -444,7 +444,7 @@ public class TransactionApi : TestBase
     // arrange
     await InitializeAsync();
     var csvContent = "Username,Account Number,Booking Date,Amount,Currency,Partner Name,Partner IBAN,Partner Account Number,Partner Bank Code,Booking Information,Transaction ID,Transaction Date and Time\n" +
-                    "testuser,Account1,2024-01-01,100.50,USD,Coffee Shop,,,,,TXN001,2024-01-01 10:00:00";
+                    "testuser,Account1,2024-01-01,100.00,USD,Coffee Shop,,,,,TXN001,2024-01-01 10:00:00";
 
     var formData = new MultipartFormDataContent();
     var fileContent = new StringContent(csvContent);

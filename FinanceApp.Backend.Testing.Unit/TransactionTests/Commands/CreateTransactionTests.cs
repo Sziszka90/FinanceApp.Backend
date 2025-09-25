@@ -3,7 +3,6 @@ using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
-
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -24,7 +23,7 @@ public class CreateTransactionTests : TestBase
         TransactionGroupRepositoryMock.Object,
         UnitOfWorkMock.Object,
         UserServiceMock.Object,
-        ExchangeRateRepositoryMock.Object
+        ExchangeRateServiceMock.Object
     );
   }
 
@@ -43,11 +42,20 @@ public class CreateTransactionTests : TestBase
         Amount = 100,
         Currency = CurrencyEnum.USD
       },
+      40.0m,
       new TransactionGroup("Test Group", "Description", "", user),
       DateTime.UtcNow,
       user
     );
 
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
+        
     UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>())).ReturnsAsync(user);
     TransactionRepositoryMock.Setup(x => x.CreateAsync(It.IsAny<Transaction>(), It.IsAny<CancellationToken>())).ReturnsAsync(transaction);
     var createDto = new CreateTransactionDto();

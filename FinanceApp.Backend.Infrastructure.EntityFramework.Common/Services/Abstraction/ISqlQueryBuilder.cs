@@ -3,9 +3,16 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abst
 public interface ISqlQueryBuilder
 {
   /// <summary>
-  /// Builds a SQL query for aggregating transaction groups.
+  /// Build the GetTransactionsByTopTransactionGroups SQL query.
   /// </summary>
   /// <param name="providerName"></param>
   /// <returns></returns>
-  string BuildTransactionGroupAggregateQuery(string providerName);
+  string BuildGetTransactionsByTopTransactionGroupsQuery(string providerName);
+
+  /// <summary>
+  /// Build the GetExchangeRatesByDateRange SQL query.
+  /// </summary>
+  /// <param name="providerName"></param>
+  /// <returns></returns>
+  string BuildGetExchangeRatesByDateRangeQuery(string providerName);
 }

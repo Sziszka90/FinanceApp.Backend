@@ -47,30 +47,19 @@ public class ExchangeRateBackgroundJob : BackgroundService
       var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
       var exchangeRateClient = scope.ServiceProvider.GetRequiredService<IExchangeRateClient>();
 
-      try
-      {
-        var existingRates = await exchangeRateRepository.GetExchangeRatesAsync(noTracking: false, cancellationToken);
-
-        if (existingRates.Count > 0)
-        {
-          exchangeRateRepository.DeleteAllAsync(existingRates, cancellationToken);
-          await unitOfWork.SaveChangesAsync(cancellationToken);
-        }
-
-        _logger.LogInformation("Exchange rates clean up completed.");
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "Critical failure: Unable to clean up existing exchange rates. This could lead to data inconsistency. Stopping application.");
-        throw;
-      }
-
       while (!cancellationToken.IsCancellationRequested)
       {
         try
         {
           await _retryPolicy.ExecuteAsync(async () =>
           {
+            var actualRates = await exchangeRateRepository.GetActualExchangeRatesAsync(cancellationToken);
+
+            foreach (var rate in actualRates)
+            {
+              rate.ExpireExchangeRate();
+            }
+
             var rates = await exchangeRateClient.GetExchangeRatesAsync();
 
             await exchangeRateRepository.BatchCreateExchangeRatesAsync(rates.Data!, cancellationToken);

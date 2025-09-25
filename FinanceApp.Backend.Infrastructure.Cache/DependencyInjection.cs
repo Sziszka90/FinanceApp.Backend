@@ -14,7 +14,8 @@ public static class DependencyInjection
       options.Configuration = configuration.GetSection("CacheSettings:ConnectionString").Value;
       options.InstanceName = configuration.GetSection("CacheSettings:InstanceName").Value;
     });
-    services.AddSingleton<ICacheManager, CacheManager>();
+    services.AddSingleton<ITokenCacheManager, TokenCacheManager>();
+    services.AddSingleton<IExchangeRateCacheManager, ExchangeRateCacheManager>();
     return services;
   }
 }

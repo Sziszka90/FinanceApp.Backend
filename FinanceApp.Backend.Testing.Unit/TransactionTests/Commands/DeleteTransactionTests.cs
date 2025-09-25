@@ -36,8 +36,9 @@ public class DeleteTransactionTests : TestBase
         Amount = 100,
         Currency = CurrencyEnum.USD
       },
+      100m,
       new TransactionGroup("Test Group", "Description", "", user),
-      DateTime.UtcNow,
+      DateTimeOffset.UtcNow,
       user
     );
 

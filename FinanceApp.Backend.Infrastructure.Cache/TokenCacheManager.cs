@@ -6,13 +6,13 @@ using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Infrastructure.Cache;
 
-public class CacheManager : ICacheManager
+public class TokenCacheManager : ITokenCacheManager
 {
 
-  private readonly ILogger<CacheManager> _logger;
+  private readonly ILogger<TokenCacheManager> _logger;
   private readonly IDistributedCache _cache;
 
-  public CacheManager(ILogger<CacheManager> logger, IDistributedCache cache)
+  public TokenCacheManager(ILogger<TokenCacheManager> logger, IDistributedCache cache)
   {
     _logger = logger;
     _cache = cache;

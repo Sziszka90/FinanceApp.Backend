@@ -30,6 +30,7 @@ public abstract class TestBase
   protected readonly Mock<IBcryptService> BcryptServiceMock = new Mock<IBcryptService>();
   protected readonly Mock<ITokenService> TokenServiceMock = new Mock<ITokenService>();
   protected readonly Mock<IUserService> UserServiceMock = new Mock<IUserService>();
+  protected readonly Mock<IExchangeRateService> ExchangeRateServiceMock = new Mock<IExchangeRateService>();
   protected readonly Mock<IHttpContextAccessor> HttpContextAccessorMock = new Mock<IHttpContextAccessor>();
   protected readonly Mock<ILogger<object>> LoggerMock = new Mock<ILogger<object>>();
   protected readonly Mock<IServiceProvider> ServiceProviderMock = new Mock<IServiceProvider>();
@@ -40,6 +41,7 @@ public abstract class TestBase
   protected readonly Mock<RabbitMQConsumerRunSignal> RabbitMQConsumerRunSignalMock = new Mock<RabbitMQConsumerRunSignal>();
   protected readonly Mock<IRabbitMqClient> RabbitMqClientMock = new Mock<IRabbitMqClient>();
   protected readonly Mock<HttpMessageHandler> HttpMessageHandlerMock = new Mock<HttpMessageHandler>();
+  protected readonly Mock<IExchangeRateCacheManager> ExchangeRateCacheManagerMock = new Mock<IExchangeRateCacheManager>();
   protected readonly IMapper Mapper;
 
   protected TestBase()
@@ -54,6 +56,7 @@ public abstract class TestBase
     BcryptServiceMock = new Mock<IBcryptService>();
     TokenServiceMock = new Mock<ITokenService>();
     HttpContextAccessorMock = new Mock<IHttpContextAccessor>();
+    ExchangeRateCacheManagerMock = new Mock<IExchangeRateCacheManager>();
 
     Mapper = new MapperConfiguration(cfg =>
     {
@@ -76,6 +79,7 @@ public abstract class TestBase
     SetupSmtpEmailSenderMock();
     SetupExchangeRateRepositoryMock();
     SetupUserServiceMock();
+    SetupExchangeRateCacheManagerMock();
   }
 
   protected virtual void SetupUserRepositoryMock()
@@ -141,8 +145,12 @@ public abstract class TestBase
       .Returns(Task.CompletedTask);
 
     TransactionRepositoryMock
-      .Setup(x => x.GetTransactionGroupAggregatesAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new List<TransactionGroupAggregate>());
+      .Setup(x => x.GetTransactionsByTopTransactionGroups(
+        It.IsAny<DateTimeOffset>(),
+        It.IsAny<DateTimeOffset>(),
+        It.IsAny<Guid>(),
+        It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<Transaction>());
   }
 
   protected virtual void SetupUnitOfWorkMock()
@@ -205,6 +213,20 @@ public abstract class TestBase
     var principal = new System.Security.Claims.ClaimsPrincipal(identity);
     var httpContext = new DefaultHttpContext { User = principal };
     HttpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
+  }
+
+  protected virtual void SetupExchangeRateCacheManagerMock()
+  {
+    ExchangeRateCacheManagerMock
+      .Setup(x => x.GetRateAsync(It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(1.0m));
+  }
+
+  protected virtual void SetupExchangeRateServiceMock()
+  {
+    ExchangeRateServiceMock
+      .Setup(x => x.ConvertAmountAsync(It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Result.Success(1.0m));
   }
 
   protected static Mock<ILogger<T>> CreateLoggerMock<T>()

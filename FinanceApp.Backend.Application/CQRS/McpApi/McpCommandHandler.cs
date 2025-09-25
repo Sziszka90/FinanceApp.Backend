@@ -4,8 +4,11 @@ using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.McpDtos;
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetTopTransactionGroups;
 using FinanceApp.Backend.Domain.Enums;
+using MediatR;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.IO;
 
 namespace FinanceApp.Backend.Application.McpApi.McpCommands;
 
@@ -15,17 +18,20 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
   private readonly ITransactionRepository _transactionRepository;
   private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUserRepository _userRepository;
+  private readonly IMediator _mediator;
 
   public McpCommandHandler(
     ILogger<McpCommandHandler> logger,
     ITransactionRepository transactionRepository,
     IExchangeRateRepository exchangeRateRepository,
-    IUserRepository userRepository)
+    IUserRepository userRepository,
+    IMediator mediator)
   {
     _logger = logger;
     _transactionRepository = transactionRepository;
     _exchangeRateRepository = exchangeRateRepository;
     _userRepository = userRepository;
+    _mediator = mediator;
   }
 
   /// <inheritdoc />
@@ -47,39 +53,21 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
     {
       case SupportedTools.GET_TOP_TRANSACTION_GROUPS:
         {
-          var transactionGroups = await _transactionRepository.GetTransactionGroupAggregatesAsync(
-            userId: userId,
-            startDate: startDate,
-            endDate: endDate,
-            topCount: top,
-            cancellationToken: cancellationToken);
+          var result = await _mediator.Send(
+            new GetTopTransactionGroupsQuery(startDate, endDate, top, userId.ToString()),
+            cancellationToken
+          );
 
-          _logger.LogInformation("MCP Command Handler: Successfully retrieved transaction groups for user {UserId}", userId);
-
-          var user = await _userRepository.GetByIdAsync(userId, cancellationToken: cancellationToken);
-
-          if (user == null)
+          if (!result.IsSuccess)
           {
-            _logger.LogWarning("MCP Command Handler: User not found for ID {UserId}", userId);
-            return Result.Failure<McpEnvelope>(ApplicationError.UserNotFoundError($"MCP Command Handler: User not found for ID '{userId}'"));
-          }
-
-          var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(cancellationToken: cancellationToken);
-
-          foreach (var transactionGroup in transactionGroups)
-          {
-            transactionGroup.TotalAmount = CurrencyConverter.ConvertToUserCurrency(
-              transactionGroup.TotalAmount,
-              CurrencyEnum.EUR,
-              user.BaseCurrency,
-              exchangeRates);
-            transactionGroup.Currency = user.BaseCurrency;
+            _logger.LogError("Failed to get top transaction groups: {Error}", result.ApplicationError?.Message);
+            return Result.Failure<McpEnvelope>(result.ApplicationError!);
           }
 
           return Result.Success(new McpEnvelope
           {
             ToolName = request.McpRequest.ToolName,
-            Payload = transactionGroups
+            Payload = result.Data!
           });
         }
 

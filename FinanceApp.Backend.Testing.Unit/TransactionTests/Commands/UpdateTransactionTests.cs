@@ -1,4 +1,5 @@
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
+using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UpdateTransaction;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
@@ -21,7 +22,7 @@ public class UpdateTransactionTests : TestBase
         TransactionRepositoryMock.Object,
         TransactionGroupRepositoryMock.Object,
         _loggerMock.Object,
-        ExchangeRateRepositoryMock.Object
+        ExchangeRateServiceMock.Object
     );
   }
 
@@ -42,11 +43,19 @@ public class UpdateTransactionTests : TestBase
         Amount = 100,
         Currency = CurrencyEnum.USD
       },
+      100m,
       transactionGroup,
-      DateTime.UtcNow,
+      DateTimeOffset.UtcNow,
       user
     );
 
+    ExchangeRateServiceMock.Setup(x => x.ConvertAmountAsync(
+      It.IsAny<decimal>(),
+      It.IsAny<DateTimeOffset>(),
+      It.IsAny<string>(),
+      It.IsAny<string>(),
+      It.IsAny<CancellationToken>()))
+        .ReturnsAsync(Result.Success(1.0m));
     TransactionRepositoryMock.Setup(x => x.GetByIdAsync(transaction.Id, false, It.IsAny<CancellationToken>())).ReturnsAsync(transaction);
     TransactionGroupRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), false, It.IsAny<CancellationToken>())).ReturnsAsync(transactionGroup);
     UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
