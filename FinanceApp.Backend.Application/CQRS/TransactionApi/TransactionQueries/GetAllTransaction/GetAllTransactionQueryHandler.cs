@@ -2,7 +2,6 @@ using AutoMapper;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
-using FinanceApp.Backend.Application.Converters;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
@@ -72,7 +71,7 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
           _logger.LogWarning("Failed to convert amount for transaction ID {TransactionId}: {Error}", transaction.Id, valueInUserCurrencyResult.ApplicationError?.Message);
           continue;
         }
-        
+
         transaction.Value.Amount = valueInUserCurrencyResult.Data;
         _logger.LogInformation("Converted transaction ID {TransactionId} to user's base currency {BaseCurrency}", transaction.Id, user.Data!.BaseCurrency);
       }

@@ -55,7 +55,7 @@ public class CreateTransactionTests : TestBase
       It.IsAny<string>(),
       It.IsAny<CancellationToken>()))
         .ReturnsAsync(Result.Success(1.0m));
-        
+
     UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(user.Email, false, It.IsAny<CancellationToken>())).ReturnsAsync(user);
     TransactionRepositoryMock.Setup(x => x.CreateAsync(It.IsAny<Transaction>(), It.IsAny<CancellationToken>())).ReturnsAsync(transaction);
     var createDto = new CreateTransactionDto();

@@ -1,11 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.Context;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
 
 namespace FinanceApp.Backend.Testing.Unit.RepositoryTests;
 
