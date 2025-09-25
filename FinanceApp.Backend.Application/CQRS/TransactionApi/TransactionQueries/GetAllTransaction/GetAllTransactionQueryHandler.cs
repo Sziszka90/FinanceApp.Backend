@@ -57,8 +57,6 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
     {
       if (transaction.Value.Currency != user.Data!.BaseCurrency)
       {
-        transaction.Value.Currency = user.Data!.BaseCurrency;
-
         var valueInUserCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
           transaction.Value.Amount,
           transaction.TransactionDate,
@@ -73,6 +71,7 @@ public class GetAllTransactionQueryHandler : IQueryHandler<GetAllTransactionQuer
         }
 
         transaction.Value.Amount = valueInUserCurrencyResult.Data;
+        transaction.Value.Currency = user.Data!.BaseCurrency;
         _logger.LogInformation("Converted transaction ID {TransactionId} to user's base currency {BaseCurrency}", transaction.Id, user.Data!.BaseCurrency);
       }
     }

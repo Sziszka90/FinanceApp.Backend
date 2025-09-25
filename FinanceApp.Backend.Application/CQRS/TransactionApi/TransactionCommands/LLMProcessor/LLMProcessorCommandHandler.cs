@@ -14,7 +14,6 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
   private readonly IUserRepository _userRepository;
   private readonly ITransactionRepository _transactionRepository;
   private readonly ITransactionGroupRepository _transactionGroupRepository;
-  private readonly IExchangeRateRepository _exchangeRateRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ISignalRService _signalRService;
 
@@ -23,7 +22,6 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
     IUserRepository userRepository,
     ITransactionRepository transactionRepository,
     ITransactionGroupRepository transactionGroupRepository,
-    IExchangeRateRepository exchangeRateRepository,
     IUnitOfWork unitOfWork,
     ISignalRService signalRService)
   {
@@ -31,7 +29,6 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
     _userRepository = userRepository;
     _transactionRepository = transactionRepository;
     _transactionGroupRepository = transactionGroupRepository;
-    _exchangeRateRepository = exchangeRateRepository;
     _unitOfWork = unitOfWork;
     _signalRService = signalRService;
   }
@@ -62,8 +59,6 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
       return Result.Failure<bool>(ApplicationError.DefaultError("Transaction group list is empty."));
     }
 
-    var exchangeRates = await _exchangeRateRepository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-
     foreach (var transaction in existingTransactions)
     {
       var matchedGroup = request.ResponseDto.Response.Transactions.TryGetValue(transaction.Name, out var groupName) ? groupName : null;
@@ -72,12 +67,6 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
       {
         var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == matchedGroup);
         transaction.TransactionGroup = group;
-      }
-
-      if (transaction.Value.Currency != user!.BaseCurrency)
-      {
-        transaction.Value.Amount = ConvertToUserCurrency(transaction.Value.Amount, transaction.Value.Currency, user.BaseCurrency, exchangeRates);
-        transaction.Value.Currency = user.BaseCurrency;
       }
     }
 
@@ -89,17 +78,5 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
 
     _logger.LogInformation("Processed matched transactions for user: {UserId}", user.Id);
     return Result.Success(true);
-  }
-
-  private decimal ConvertToUserCurrency(decimal amount, CurrencyEnum fromCurrency, CurrencyEnum toCurrency, List<Domain.Entities.ExchangeRate> rates)
-  {
-    if (fromCurrency == toCurrency)
-    {
-      return Math.Round(amount, 2);
-    }
-
-    var rate = rates.FirstOrDefault(r => r.BaseCurrency == fromCurrency.ToString() && r.TargetCurrency == toCurrency.ToString());
-
-    return Math.Round(amount * rate!.Rate, 2);
   }
 }
