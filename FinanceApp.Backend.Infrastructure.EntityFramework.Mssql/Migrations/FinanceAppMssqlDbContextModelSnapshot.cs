@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
+namespace FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Migrations
 {
     [DbContext(typeof(FinanceAppMssqlDbContext))]
     partial class FinanceAppMssqlDbContextModelSnapshot : ModelSnapshot
@@ -202,7 +202,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
+                                .HasColumnType("decimal(18,4)")
                                 .HasColumnName("Amount");
 
                             b1.Property<int>("Currency")

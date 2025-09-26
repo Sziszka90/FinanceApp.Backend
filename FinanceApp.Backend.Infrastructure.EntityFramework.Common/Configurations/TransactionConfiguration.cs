@@ -12,7 +12,7 @@ public class TransactionConfiguration : BaseEntityTypeConfiguration<Transaction>
     builder.ToTable(nameof(Transaction));
     builder.OwnsOne(e => e.Value, owned =>
       {
-        owned.Property(v => v.Amount).HasColumnName("Amount");
+        owned.Property(v => v.Amount).HasColumnName("Amount").HasColumnType("decimal(18,4)");
         owned.Property(v => v.Currency).HasColumnName("Currency");
       });
 

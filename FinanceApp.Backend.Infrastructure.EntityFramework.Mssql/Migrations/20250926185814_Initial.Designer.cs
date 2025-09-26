@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
+namespace FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Migrations
 {
     [DbContext(typeof(FinanceAppMssqlDbContext))]
-    [Migration("20250721075823_AddEmailConfirmationToken")]
-    partial class AddEmailConfirmationToken
+    [Migration("20250926185814_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,11 +25,14 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.ExchangeRate", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.ExchangeRate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Actual")
+                        .HasColumnType("bit");
 
                     b.Property<string>("BaseCurrency")
                         .IsRequired()
@@ -50,12 +53,18 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
 
+                    b.Property<DateTimeOffset>("ValidFrom")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("ValidTo")
+                        .HasColumnType("datetimeoffset");
+
                     b.HasKey("Id");
 
                     b.ToTable("ExchangeRate", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Transaction", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -86,6 +95,9 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("ValueInBaseCurrency")
+                        .HasColumnType("decimal(18,4)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TransactionGroupId");
@@ -95,7 +107,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     b.ToTable("Transaction", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.TransactionGroup", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.TransactionGroup", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -127,7 +139,7 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     b.ToTable("TransactionGroup", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.User", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -174,25 +186,26 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                     b.ToTable("User", (string)null);
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.Transaction", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.Transaction", b =>
                 {
-                    b.HasOne("FinanceApp.Domain.Entities.TransactionGroup", "TransactionGroup")
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.TransactionGroup", "TransactionGroup")
                         .WithMany()
-                        .HasForeignKey("TransactionGroupId");
+                        .HasForeignKey("TransactionGroupId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("FinanceApp.Domain.Entities.User", "User")
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("FinanceApp.Domain.Entities.Money", "Value", b1 =>
+                    b.OwnsOne("FinanceApp.Backend.Domain.Entities.Money", "Value", b1 =>
                         {
                             b1.Property<Guid>("TransactionId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
+                                .HasColumnType("decimal(18,4)")
                                 .HasColumnName("Amount");
 
                             b1.Property<int>("Currency")
@@ -215,9 +228,9 @@ namespace FinanceApp.Infrastructure.EntityFramework.Mssql.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FinanceApp.Domain.Entities.TransactionGroup", b =>
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.TransactionGroup", b =>
                 {
-                    b.HasOne("FinanceApp.Domain.Entities.User", "User")
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
