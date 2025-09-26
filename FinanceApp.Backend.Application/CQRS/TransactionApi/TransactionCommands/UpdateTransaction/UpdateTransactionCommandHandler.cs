@@ -14,16 +14,16 @@ public class UpdateTransactionCommandHandler : ICommandHandler<UpdateTransaction
 {
   private readonly IMapper _mapper;
   private readonly IUnitOfWork _unitOfWork;
-  private readonly IRepository<Transaction> _transactionRepository;
-  private readonly IRepository<TransactionGroup> _transactionGroupRepository;
+  private readonly ITransactionRepository _transactionRepository;
+  private readonly ITransactionGroupRepository _transactionGroupRepository;
   private readonly ILogger<UpdateTransactionCommandHandler> _logger;
   private readonly IExchangeRateService _exchangeRateService;
 
   public UpdateTransactionCommandHandler(
     IMapper mapper,
     IUnitOfWork unitOfWork,
-    IRepository<Transaction> transactionRepository,
-    IRepository<TransactionGroup> transactionGroupRepository,
+    ITransactionRepository transactionRepository,
+    ITransactionGroupRepository transactionGroupRepository,
     ILogger<UpdateTransactionCommandHandler> logger,
     IExchangeRateService exchangeRateService)
   {

@@ -56,8 +56,9 @@ public class UpdateTransactionTests : TestBase
       It.IsAny<string>(),
       It.IsAny<CancellationToken>()))
         .ReturnsAsync(Result.Success(1.0m));
-    TransactionRepositoryMock.Setup(x => x.GetByIdAsync(transaction.Id, false, It.IsAny<CancellationToken>())).ReturnsAsync(transaction);
-    TransactionGroupRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), false, It.IsAny<CancellationToken>())).ReturnsAsync(transactionGroup);
+    TransactionRepositoryMock
+        .Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(transaction);
     UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
     var updateDto = new UpdateTransactionDto();
     var command = new UpdateTransactionCommand(transaction.Id, updateDto, CancellationToken.None);

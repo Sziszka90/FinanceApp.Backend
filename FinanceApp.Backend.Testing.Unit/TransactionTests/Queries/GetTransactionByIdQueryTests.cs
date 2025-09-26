@@ -10,13 +10,13 @@ namespace FinanceApp.Backend.Testing.Unit.TransactionTests.Queries;
 public class GetTransactionByIdQueryTests : TestBase
 {
   private readonly Mock<ILogger<GetTransactionByIdQueryHandler>> _loggerMock;
-  private readonly Mock<IRepository<Transaction>> _transactionRepositoryMock;
+  private readonly Mock<ITransactionRepository> _transactionRepositoryMock;
   private readonly GetTransactionByIdQueryHandler _handler;
 
   public GetTransactionByIdQueryTests()
   {
     _loggerMock = CreateLoggerMock<GetTransactionByIdQueryHandler>();
-    _transactionRepositoryMock = new Mock<IRepository<Transaction>>();
+    _transactionRepositoryMock = new Mock<ITransactionRepository>();
     _handler = new GetTransactionByIdQueryHandler(
         _loggerMock.Object,
         Mapper,
