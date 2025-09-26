@@ -634,7 +634,7 @@ public class UploadCsvTests : TestBase
 
     // assert
     Assert.True(result.IsSuccess);
-    Assert.Equal(CurrencyEnum.UNKNOWN, result.Data![0].Value.Currency);
+    Assert.Equal(CurrencyEnum.XXX, result.Data![0].Value.Currency);
   }
 
   private IFormFile CreateMockFormFile(string content, string fileName, string contentType)
