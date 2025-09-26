@@ -65,4 +65,14 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <returns>List of transactions within the specified date range.</returns>
   /// <exception cref="DatabaseException">Thrown when there is an error retrieving the transactions.</exception>
   Task<List<Transaction>> GetTransactionsByTopTransactionGroups(DateTimeOffset startDate, DateTimeOffset endDate, Guid userId, CancellationToken cancellationToken = default);
+
+  /// <summary>
+  /// Get a transaction by its ID.
+  /// </summary>
+  /// <param name="id">The ID of the transaction.</param>
+  /// <param name="noTracking">If set to true, disables EF Core tracking mechanism.</param>
+  /// <param name="cancellationToken">Cancellation token.</param>
+  /// <returns>The transaction with the specified ID, or null if not found.</returns>
+  /// <exception cref="DatabaseException">Thrown when there is an error retrieving the transaction.</exception>
+  new Task<Transaction?> GetByIdAsync(Guid id, bool noTracking = false, CancellationToken cancellationToken = default);
 }

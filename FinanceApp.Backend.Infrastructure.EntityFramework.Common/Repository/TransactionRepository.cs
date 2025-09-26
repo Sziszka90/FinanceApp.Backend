@@ -16,19 +16,16 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
 {
   private readonly IFilteredQueryProvider _filteredQueryProvider;
   private readonly ISqlQueryBuilder _sqlQueryBuilder;
-  private readonly IDatabaseCommandService _databaseCommandService;
 
   /// <inheritdoc />
   public TransactionRepository(
     FinanceAppDbContext dbContext,
     IFilteredQueryProvider filteredQueryProvider,
-    ISqlQueryBuilder sqlQueryBuilder,
-    IDatabaseCommandService databaseCommandService
+    ISqlQueryBuilder sqlQueryBuilder
   ) : base(dbContext, filteredQueryProvider)
   {
     _filteredQueryProvider = filteredQueryProvider;
     _sqlQueryBuilder = sqlQueryBuilder;
-    _databaseCommandService = databaseCommandService;
   }
 
   public async Task<bool> TransactionGroupUsedAsync(Guid transactionGroupId, CancellationToken cancellationToken = default)
@@ -115,6 +112,7 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     try
     {
       IQueryable<Transaction> query = _filteredQueryProvider.Query<Transaction>()
+                            .Where(x => x.Id == id)
                             .Include(y => y.TransactionGroup);
 
       if (noTracking)

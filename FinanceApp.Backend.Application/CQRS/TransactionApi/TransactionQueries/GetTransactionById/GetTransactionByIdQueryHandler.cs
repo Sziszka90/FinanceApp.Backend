@@ -11,12 +11,12 @@ public class GetTransactionByIdQueryHandler : IQueryHandler<GetTransactionByIdQu
 {
   private readonly ILogger<GetTransactionByIdQueryHandler> _logger;
   private readonly IMapper _mapper;
-  private readonly IRepository<Domain.Entities.Transaction> _transactionRepository;
+  private readonly ITransactionRepository _transactionRepository;
 
   public GetTransactionByIdQueryHandler(
     ILogger<GetTransactionByIdQueryHandler> logger,
     IMapper mapper,
-    IRepository<Domain.Entities.Transaction> transactionRepository)
+    ITransactionRepository transactionRepository)
   {
     _logger = logger;
     _mapper = mapper;
