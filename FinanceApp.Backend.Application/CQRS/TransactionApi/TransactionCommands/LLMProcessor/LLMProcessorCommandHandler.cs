@@ -22,6 +22,7 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
     IUserRepository userRepository,
     ITransactionRepository transactionRepository,
     ITransactionGroupRepository transactionGroupRepository,
+    IExchangeRateRepository @object,
     IUnitOfWork unitOfWork,
     ISignalRService signalRService)
   {

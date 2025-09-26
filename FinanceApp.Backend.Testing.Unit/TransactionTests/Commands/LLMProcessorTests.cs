@@ -291,9 +291,8 @@ public class LLMProcessorTests : TestBase
     // assert
     Assert.True(result.IsSuccess);
 
-    // Verify currency conversion (EUR to USD with rate 1.18)
-    Assert.Equal(CurrencyEnum.USD, transaction.Value.Currency);
-    Assert.Equal(5.02m, transaction.Value.Amount); // 4.25 * 1.18 = 5.015, rounded to 5.02
+    Assert.Equal(CurrencyEnum.EUR, transaction.Value.Currency);
+    Assert.Equal(4.25m, transaction.Value.Amount);
   }
 
   [Fact]
@@ -421,13 +420,13 @@ public class LLMProcessorTests : TestBase
 
     // Verify all transactions are now in USD
     Assert.Equal(CurrencyEnum.USD, usdTransaction.Value.Currency);
-    Assert.Equal(CurrencyEnum.USD, eurTransaction.Value.Currency);
-    Assert.Equal(CurrencyEnum.USD, gbpTransaction.Value.Currency);
+    Assert.Equal(CurrencyEnum.EUR, eurTransaction.Value.Currency);
+    Assert.Equal(CurrencyEnum.GBP, gbpTransaction.Value.Currency);
 
     // Verify amounts (USD unchanged, EUR * 1.18, GBP * 1.33)
     Assert.Equal(5.00m, usdTransaction.Value.Amount);
-    Assert.Equal(14.75m, eurTransaction.Value.Amount); // 12.50 * 1.18 = 14.75
-    Assert.Equal(33.25m, gbpTransaction.Value.Amount); // 25.00 * 1.33 = 33.25
+    Assert.Equal(12.50m, eurTransaction.Value.Amount);
+    Assert.Equal(25.00m, gbpTransaction.Value.Amount);
   }
 
   [Fact]

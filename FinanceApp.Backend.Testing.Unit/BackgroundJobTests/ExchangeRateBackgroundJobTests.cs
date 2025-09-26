@@ -37,11 +37,17 @@ public class ExchangeRateBackgroundJobTests : TestBase
     UnitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
         .Returns(Task.CompletedTask);
 
+    ExchangeRateCacheManagerMock.Setup(c => c.CacheAllRatesAsync(It.IsAny<List<ExchangeRate>>(), It.IsAny<CancellationToken>()))
+        .Returns(Task.FromResult(Result.Success()));
+
     // act
+    ServiceProviderMock.Setup(sp => sp.GetService(typeof(IExchangeRateCacheManager))).Returns(ExchangeRateCacheManagerMock.Object);
+
     var job = new ExchangeRateBackgroundJob(
         _loggerMock.Object,
         ServiceProviderMock.Object,
-        ExchangeRateRunSignalMock.Object);
+        ExchangeRateRunSignalMock.Object,
+        ExchangeRateCacheManagerMock.Object);
 
     var cancellationTokenSource = new CancellationTokenSource();
     cancellationTokenSource.CancelAfter(100);

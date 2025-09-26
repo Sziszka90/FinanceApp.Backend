@@ -130,10 +130,10 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
           DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
           out var date) ? date : DateTimeOffset.UtcNow;
 
-        var currencyResult = Enum.TryParse<CurrencyEnum>(CleanCsvField(columns[4]), out var currency) ? currency : CurrencyEnum.EUR;
+        var currencyResult = Enum.TryParse<CurrencyEnum>(CleanCsvField(columns[4]), out var currency) ? currency : CurrencyEnum.UNKNOWN;
 
         decimal valueInBaseCurrency = Math.Abs(amount);
-        if (currencyResult != CurrencyEnum.EUR)
+        if (currencyResult != CurrencyEnum.EUR && currencyResult != CurrencyEnum.UNKNOWN)
         {
           var valueInBaseCurrencyResult = await _exchangeRateService.ConvertAmountAsync(
             Math.Abs(amount),
@@ -150,6 +150,11 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
           valueInBaseCurrency = valueInBaseCurrencyResult.Data;
         }
 
+        if (currencyResult == CurrencyEnum.UNKNOWN)
+        {
+          _logger.LogWarning("Unknown currency for transaction: {Line}", line);
+        }
+
         var transaction = new Transaction(
           NormalizeSpaces(CleanCsvField(columns[5]) != "" ? CleanCsvField(columns[5]) : "Unknown"),
           CleanCsvField(columns[9]),
@@ -157,7 +162,7 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
           new Money
           {
             Amount = Math.Abs(amount),
-            Currency = currency
+            Currency = currencyResult
           },
           valueInBaseCurrency,
           null,

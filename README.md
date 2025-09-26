@@ -9,7 +9,7 @@ This project is a full-stack personal finance application designed to help users
 ✅ **User Management** 
   - Login, registration, password reset with JWT integration and email confirmation
   - User profile where users can set their preferred currency
-  - JWT-based auth with token caching and invalidation
+  - JWT-based authentication with token caching and invalidation, using HTTP-only cookies for security reasons
   - Separated tokens for password reset, login and email confirmation
 
 ✅ **Transactions** 
@@ -24,6 +24,7 @@ This project is a full-stack personal finance application designed to help users
 
 ✅ **Currency Exchange** 
   - Recurring background job querying live exchange rates for multi-currency support. Stored in internal database
+  - Exchange rate cache ensures that all transactions use historically accurate exchange rates
 
 ✅ **Email Services** 
   - SMTP integration for notifications
@@ -67,7 +68,7 @@ For detailed upcoming features and development progress, please check our [GitHu
 - **AutoMapper** - Object-to-object mapping
 - **FluentValidation** - Input validation
 - **MediatR** - CQRS implementation
-- **JWT Bearer** - Authentication & authorization
+- **JWT & HTTP Only Cookies** - Authentication & authorization
 - **Swagger/OpenAPI** - API documentation
 - **SignalR** - Push notifications
 - **Entity Framework Core** - ORM with Code-First migrations
