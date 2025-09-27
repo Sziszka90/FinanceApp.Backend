@@ -1,7 +1,7 @@
 using Asp.Versioning;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.Login;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.Logout;
-using FinanceApp.Backend.Application.AuthApi.AuthCommands.Refresh;
+using FinanceApp.Backend.Application.AuthApi.AuthCommands.ResetToken;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.SetToken;
 using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
@@ -42,31 +42,6 @@ public class AuthController : ControllerBase
     return this.GetResult(loginResult);
   }
 
-  [HttpPost("refresh")]
-  [Produces("application/json")]
-  [Consumes("application/json")]
-  [ProducesResponseType(StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  public async Task<ActionResult> Refresh(CancellationToken cancellationToken)
-  {
-    var refreshToken = Request.Cookies["RefreshToken"];
-
-    if (string.IsNullOrEmpty(refreshToken))
-    {
-      return BadRequest("Refresh token not found.");
-    }
-
-    var result = await _mediator.Send(new RefreshCommand(refreshToken, cancellationToken));
-
-    if (result.IsSuccess)
-    {
-      var setTokenResult = await _mediator.Send(new SetTokenCommand(result.Data!, refreshToken, cancellationToken));
-      return this.GetResult(setTokenResult);
-    }
-    return this.GetResult(result);
-  }
-
   [HttpPost("logout")]
   [Produces("application/json")]
   [Consumes("application/json")]
@@ -75,7 +50,12 @@ public class AuthController : ControllerBase
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<ActionResult<LoginResponseDto>> Logout(CancellationToken cancellationToken)
   {
-    var result = await _mediator.Send(new LogoutCommand(cancellationToken));
+    var refreshToken = Request.Cookies["RefreshToken"];
+    var token = Request.Cookies["Token"];
+
+    var result = await _mediator.Send(new LogoutCommand(token, refreshToken, cancellationToken));
+
+    
     return this.GetResult(result);
   }
 }

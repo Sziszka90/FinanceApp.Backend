@@ -22,9 +22,15 @@ public class ValidateTokenCommandHandler : ICommandHandler<ValidateTokenCommand,
 
   public async Task<Result<ValidateTokenResponse>> Handle(ValidateTokenCommand request, CancellationToken cancellationToken)
   {
-    var isValid = await _tokenService.IsTokenValidAsync(request.validateTokenRequest.Token, request.validateTokenRequest.TokenType);
+    var isValidResult = await _tokenService.IsTokenValidAsync(request.validateTokenRequest.Token, request.validateTokenRequest.TokenType);
 
-    if (!isValid)
+    if (!isValidResult.IsSuccess)
+    {
+      _logger.LogError("Error occurred while validating token: {Error}", isValidResult.ApplicationError?.Message);
+      return Result.Failure<ValidateTokenResponse>(isValidResult.ApplicationError!);
+    }
+    
+    if (!isValidResult.Data)
     {
       _logger.LogWarning("Invalid token provided: {Token}", request.validateTokenRequest.Token);
       return Result.Success(new ValidateTokenResponse { IsValid = false });

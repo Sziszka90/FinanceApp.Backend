@@ -23,7 +23,7 @@ public class TokenServiceTests
     var result = await service.IsTokenValidAsync("invalid", TokenType.Login);
 
     // assert
-    Assert.False(result);
+    Assert.False(result.Data);
   }
 
   [Fact]
@@ -41,6 +41,6 @@ public class TokenServiceTests
     var result = await service.IsTokenValidAsync("valid", TokenType.Login);
 
     // assert
-    Assert.True(result);
+    Assert.True(result.Data);
   }
 }

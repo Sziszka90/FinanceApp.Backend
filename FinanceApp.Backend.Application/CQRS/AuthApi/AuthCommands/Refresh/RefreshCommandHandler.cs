@@ -10,16 +10,13 @@ namespace FinanceApp.Backend.Application.AuthApi.AuthCommands.Refresh;
 public class RefreshCommandHandler : ICommandHandler<RefreshCommand, Result<string>>
 {
   private readonly ILogger<RefreshCommandHandler> _logger;
-  private readonly IUserService _userService;
   private readonly ITokenService _tokenService;
 
   public RefreshCommandHandler(
     ILogger<RefreshCommandHandler> logger,
-    IUserService userService,
     ITokenService tokenService)
   {
     _logger = logger;
-    _userService = userService;
     _tokenService = tokenService;
   }
 

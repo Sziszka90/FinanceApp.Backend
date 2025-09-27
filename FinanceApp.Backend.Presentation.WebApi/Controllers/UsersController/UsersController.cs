@@ -99,6 +99,8 @@ public class UsersController : ControllerBase
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   public async Task<ActionResult<GetUserDto>> GetActiveUser(CancellationToken cancellationToken)
   {
+    var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+    var token2 = Request.Cookies["Token"];
     var result = await _mediator.Send(new GetActiveUserQuery(cancellationToken));
     return this.GetResult(result);
   }

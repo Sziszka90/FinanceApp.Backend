@@ -1,5 +1,6 @@
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.ValidateToken;
 using FinanceApp.Backend.Application.Dtos.TokenDtos;
+using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -21,7 +22,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
   {
     // arrange
     var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "valid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
-    TokenServiceMock.Setup(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset)).ReturnsAsync(true);
+    TokenServiceMock.Setup(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset)).ReturnsAsync(Result.Success(true));
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -38,7 +39,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
   {
     // arrange
     var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "invalid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
-    TokenServiceMock.Setup(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset)).ReturnsAsync(false);
+    TokenServiceMock.Setup(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset)).ReturnsAsync(Result.Success(false));
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);

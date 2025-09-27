@@ -86,19 +86,19 @@ public static class Mocks
 
     tokenServiceMock
       .Setup(x => x.IsTokenValidAsync("mock_login_token", TokenType.Login))
-      .ReturnsAsync(true);
+      .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
       .Setup(x => x.IsTokenValidAsync("mock_password_reset_token", TokenType.PasswordReset))
-      .ReturnsAsync(true);
+      .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
       .Setup(x => x.IsTokenValidAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
-      .ReturnsAsync(true);
+      .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
       .Setup(x => x.IsTokenValidAsync("invalid_token", It.IsAny<TokenType>()))
-      .ReturnsAsync(false);
+      .ReturnsAsync(Result.Success(false));
 
     tokenServiceMock
       .Setup(x => x.GetEmailFromToken(It.IsAny<string>()))
@@ -106,7 +106,7 @@ public static class Mocks
 
     tokenServiceMock
       .Setup(x => x.InvalidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
-      .Returns(Task.CompletedTask);
+      .ReturnsAsync(Result.Success());
 
     services.AddSingleton(tokenServiceMock.Object);
   }

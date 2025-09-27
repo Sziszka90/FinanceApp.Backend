@@ -13,9 +13,6 @@ public class ApplicationError
   public const string INVALID_EMAIL_FORMAT = "Invalid email format.";
   public const string FIELD_CANNOT_BE_EMPTY = "Field cannot be empty.";
 
-
-
-
   public const string DEFAULT_MESSAGE = "An exception occurred.";
   public const string DEFAULT_CODE = "EXCEPTION_OCCURRED";
 
@@ -108,6 +105,9 @@ public class ApplicationError
 
   public const string EMAIL_TEMPLATE_NOT_FOUND_MESSAGE = "Email template not found.";
   public const string EMAIL_TEMPLATE_NOT_FOUND_CODE = "EMAIL_TEMPLATE_NOT_FOUND";
+
+  public const string CACHECONNERR_MESSAGE = "Cache connection error";
+  public const string CACHECONNERR_CODE = "CACHE_CONNECTION_ERROR";
 
   /// <summary>
   /// Machine readable error code
@@ -483,5 +483,14 @@ public class ApplicationError
     {
       { "templateName", templateName }
     });
+  }
+
+  /// <summary>
+  /// Error when cache connection fails
+  /// </summary>
+  /// <returns>ApplicationError</returns>
+  public static ApplicationError CacheConnectionError()
+  {
+    return new ApplicationError(CACHECONNERR_MESSAGE, CACHECONNERR_CODE);
   }
 }

@@ -19,7 +19,7 @@ public interface ITokenService
   /// <param name="token">The token to check.</param>
   /// <param name="tokenType">The type of the token.</param>
   /// <returns>True if the token is valid, otherwise false.</returns>
-  Task<bool> IsTokenValidAsync(string token, TokenType tokenType);
+  Task<Result<bool>> IsTokenValidAsync(string token, TokenType tokenType);
 
   /// <summary>
   /// Checks if a refresh token is valid for the specified user email and token type.
@@ -56,12 +56,12 @@ public interface ITokenService
   /// <param name="token">The token to invalidate.</param>
   /// <param name="tokenType">The type of the token to invalidate.</param>
   /// <returns>A task that represents the asynchronous operation.</returns>
-  Task InvalidateTokenAsync(string token, TokenType tokenType);
+  Task<Result> InvalidateTokenAsync(string token, TokenType tokenType);
 
   /// <summary>
   /// Invalidates a refresh token by removing it from the cache.
   /// </summary>
   /// <param name="token">The token to invalidate.</param>
   /// <returns>A task that represents the asynchronous operation.</returns>
-  Task InvalidateRefreshTokenAsync(string token);
+  Task<Result> InvalidateRefreshTokenAsync(string token);
 }

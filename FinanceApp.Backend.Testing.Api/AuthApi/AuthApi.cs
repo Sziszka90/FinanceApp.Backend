@@ -37,14 +37,6 @@ public class AuthApi : TestBase
   }
 
   [Fact]
-  public async Task Refresh_WithoutCookie_ReturnsBadRequest()
-  {
-    await InitializeAsync();
-    var response = await Client.PostAsync(AUTH_ENDPOINT + "refresh", null);
-    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-  }
-
-  [Fact]
   public async Task Logout_ReturnsOk()
   {
     await InitializeAsync();

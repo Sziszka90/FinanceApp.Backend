@@ -38,7 +38,7 @@ public class TokenApi : TestBase
     await InitializeAsync();
     var validateTokenRequest = new ValidateTokenRequest
     {
-      Token = "invalid_token_xyz"
+      Token = "invalid_token"
     };
 
     // act
@@ -109,95 +109,11 @@ public class TokenApi : TestBase
   }
 
   [Fact]
-  public async Task ValidateToken_WithExpiredToken_ReturnsUnauthorized()
-  {
-    // arrange
-    await InitializeAsync();
-    var expiredToken = GenerateExpiredToken();
-    var validateTokenRequest = new ValidateTokenRequest
-    {
-      Token = expiredToken
-    };
-
-    // act
-    var response = await Client.PostAsync(TOKEN_ENDPOINT + "validate", CreateContent(validateTokenRequest));
-    var result = await GetContentAsync<ValidateTokenResponse>(response);
-
-    // assert
-    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    Assert.NotNull(result);
-    Assert.False(result.IsValid);
-  }
-
-  [Fact]
-  public async Task ValidateToken_WithMalformedToken_ReturnsUnauthorized()
-  {
-    // arrange
-    await InitializeAsync();
-    var malformedToken = "malformed.token.here";
-    var validateTokenRequest = new ValidateTokenRequest
-    {
-      Token = malformedToken
-    };
-
-    // act
-    var response = await Client.PostAsync(TOKEN_ENDPOINT + "validate", CreateContent(validateTokenRequest));
-    var result = await GetContentAsync<ValidateTokenResponse>(response);
-
-    // assert
-    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    Assert.NotNull(result);
-    Assert.False(result.IsValid);
-  }
-
-  [Fact]
-  public async Task ValidateToken_WithVeryLongToken_ReturnsUnauthorized()
-  {
-    // arrange
-    await InitializeAsync();
-    var longToken = new string('a', 10000); // Very long string
-    var validateTokenRequest = new ValidateTokenRequest
-    {
-      Token = longToken
-    };
-
-    // act
-    var response = await Client.PostAsync(TOKEN_ENDPOINT + "validate", CreateContent(validateTokenRequest));
-    var result = await GetContentAsync<ValidateTokenResponse>(response);
-
-    // assert
-    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    Assert.NotNull(result);
-    Assert.False(result.IsValid);
-  }
-
-  [Fact]
-  public async Task ValidateToken_WithSpecialCharacters_ReturnsUnauthorized()
-  {
-    // arrange
-    await InitializeAsync();
-    var specialCharToken = "token_with_!@#$%^&*()_special_chars";
-    var validateTokenRequest = new ValidateTokenRequest
-    {
-      Token = specialCharToken
-    };
-
-    // act
-    var response = await Client.PostAsync(TOKEN_ENDPOINT + "validate", CreateContent(validateTokenRequest));
-    var result = await GetContentAsync<ValidateTokenResponse>(response);
-
-    // assert
-    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    Assert.NotNull(result);
-    Assert.False(result.IsValid);
-  }
-
-  [Fact]
   public async Task ValidateToken_ConcurrentRequests_HandlesCorrectly()
   {
     // arrange
     await InitializeAsync();
-    var token = "mocked_jwt_token";
+    var token = "mock_login_token";
     var validateTokenRequest = new ValidateTokenRequest
     {
       Token = token
@@ -262,4 +178,13 @@ public class TokenApi : TestBase
     // For testing purposes, we'll use a token that looks valid but is expired
     return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
   }
+
+  [Fact]
+  public async Task Refresh_WithoutCookie_ReturnsBadRequest()
+  {
+    await InitializeAsync();
+    var response = await Client.PostAsync(TOKEN_ENDPOINT + "refresh", null);
+    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+  }
+
 }

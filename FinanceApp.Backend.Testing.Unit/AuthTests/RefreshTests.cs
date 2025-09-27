@@ -18,7 +18,6 @@ public class RefreshTests : TestBase
     _loggerMock = new Mock<ILogger<RefreshCommandHandler>>();
     _handler = new RefreshCommandHandler(
       _loggerMock.Object,
-      UserServiceMock.Object,
       TokenServiceMock.Object
     );
   }
