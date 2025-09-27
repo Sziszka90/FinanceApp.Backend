@@ -29,7 +29,7 @@ public class ValidateTokenCommandHandler : ICommandHandler<ValidateTokenCommand,
       _logger.LogError("Error occurred while validating token: {Error}", isValidResult.ApplicationError?.Message);
       return Result.Failure<ValidateTokenResponse>(isValidResult.ApplicationError!);
     }
-    
+
     if (!isValidResult.Data)
     {
       _logger.LogWarning("Invalid token provided: {Token}", request.validateTokenRequest.Token);

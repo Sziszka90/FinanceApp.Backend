@@ -55,7 +55,6 @@ public class AuthController : ControllerBase
 
     var result = await _mediator.Send(new LogoutCommand(token, refreshToken, cancellationToken));
 
-    
     return this.GetResult(result);
   }
 }

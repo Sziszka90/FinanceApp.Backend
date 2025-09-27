@@ -89,21 +89,22 @@ public class TokenService : ITokenService
         }
 
       case TokenType.EmailConfirmation:
-      try
-      { var isEmailConfirmationTokenValid = await _cacheManager.IsEmailConfirmationTokenValidAsync(token);
-        if (!isEmailConfirmationTokenValid)
+        try
         {
-          _logger.LogWarning("Invalid email confirmation token in cache: {Token}", token);
-          return Result.Success(false);
+          var isEmailConfirmationTokenValid = await _cacheManager.IsEmailConfirmationTokenValidAsync(token);
+          if (!isEmailConfirmationTokenValid)
+          {
+            _logger.LogWarning("Invalid email confirmation token in cache: {Token}", token);
+            return Result.Success(false);
+          }
+          _logger.LogInformation("Email confirmation token validated successfully: {Token}", token);
+          return Result.Success(true);
         }
-        _logger.LogInformation("Email confirmation token validated successfully: {Token}", token);
-        return Result.Success(true);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "Error while validating email confirmation token: {Token}", token);
-        return Result.Failure<bool>(ApplicationError.CacheConnectionError());
-      }
+        catch (Exception ex)
+        {
+          _logger.LogError(ex, "Error while validating email confirmation token: {Token}", token);
+          return Result.Failure<bool>(ApplicationError.CacheConnectionError());
+        }
       default:
         _logger.LogError("Unknown token type: {TokenType}", tokenType);
         return Result.Failure<bool>(ApplicationError.UnknownTokenTypeError(tokenType.ToString()));
@@ -238,7 +239,8 @@ public class TokenService : ITokenService
         }
 
       case TokenType.PasswordReset:
-        try {
+        try
+        {
           await _cacheManager.InvalidatePasswordResetTokenAsync(token);
           _logger.LogInformation("Password reset token invalidated: {Token}", token);
           return Result.Success();
@@ -250,7 +252,8 @@ public class TokenService : ITokenService
         }
 
       case TokenType.EmailConfirmation:
-        try {
+        try
+        {
           await _cacheManager.InvalidateEmailConfirmationTokenAsync(token);
           _logger.LogInformation("Email confirmation token invalidated: {Token}", token);
           return Result.Success();
@@ -322,7 +325,8 @@ public class TokenService : ITokenService
       }
       _logger.LogInformation("Refresh token validated: {Token}", token);
       return Result.Success(true);
-    } catch (Exception ex)
+    }
+    catch (Exception ex)
     {
       _logger.LogError(ex, "Error while validating refresh token: {Token}", token);
       return Result.Failure<bool>(ApplicationError.CacheConnectionError());
