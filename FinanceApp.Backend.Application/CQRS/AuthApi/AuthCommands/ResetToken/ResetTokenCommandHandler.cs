@@ -21,12 +21,15 @@ public class ResetTokenCommandHandler : ICommandHandler<ResetTokenCommand, Resul
   public Task<Result> Handle(ResetTokenCommand request, CancellationToken cancellationToken)
   {
     var context = _httpContextAccessor.HttpContext;
+
     context?.Response.Cookies.Append("Token", "", new CookieOptions
     {
       Expires = DateTimeOffset.UtcNow.AddDays(-1),
       HttpOnly = true,
       Secure = true,
-      SameSite = SameSiteMode.None
+      SameSite = SameSiteMode.None,
+      Path = "/",
+      MaxAge = TimeSpan.Zero
     });
 
     context?.Response.Cookies.Append("RefreshToken", "", new CookieOptions
@@ -34,7 +37,9 @@ public class ResetTokenCommandHandler : ICommandHandler<ResetTokenCommand, Resul
       Expires = DateTimeOffset.UtcNow.AddDays(-1),
       HttpOnly = true,
       Secure = true,
-      SameSite = SameSiteMode.None
+      SameSite = SameSiteMode.None,
+      Path = "/",
+      MaxAge = TimeSpan.Zero
     });
 
     _logger.LogInformation("ResetTokenCommandHandler: Tokens reset in cookies successfully.");

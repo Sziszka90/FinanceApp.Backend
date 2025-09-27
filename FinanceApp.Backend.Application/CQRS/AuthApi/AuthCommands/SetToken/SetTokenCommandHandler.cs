@@ -25,14 +25,18 @@ public class SetTokenCommandHandler : ICommandHandler<SetTokenCommand, Result>
     {
       HttpOnly = true,
       Secure = true,
-      SameSite = SameSiteMode.None
+      SameSite = SameSiteMode.None,
+      Path = "/",
+      Expires = DateTimeOffset.UtcNow.AddDays(7)
     });
 
     context?.Response.Cookies.Append("RefreshToken", request.RefreshToken, new CookieOptions
     {
       HttpOnly = true,
       Secure = true,
-      SameSite = SameSiteMode.None
+      SameSite = SameSiteMode.None,
+      Path = "/",
+      Expires = DateTimeOffset.UtcNow.AddDays(7)
     });
 
     _logger.LogInformation("SetTokenCommandHandler: Tokens set in cookies successfully.");
