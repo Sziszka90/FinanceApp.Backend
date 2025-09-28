@@ -47,7 +47,7 @@ public class TokenService : ITokenService
         _logger.LogError("Error while invalidating token: {Token}. Error: {Error}", token, result.ApplicationError?.Message);
         return Result.Failure<bool>(result.ApplicationError!);
       }
-      return Result.Failure<bool>(ApplicationError.InvalidTokenError());
+      return Result.Success(false);
     }
 
     switch (tokenType)
