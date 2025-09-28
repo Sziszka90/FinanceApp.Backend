@@ -27,7 +27,7 @@ public class SetTokenCommandHandler : ICommandHandler<SetTokenCommand, Result>
       Secure = true,
       SameSite = SameSiteMode.None,
       Path = "/",
-      Expires = DateTimeOffset.UtcNow.AddDays(7)
+      Expires = DateTimeOffset.UtcNow.AddMinutes(5)
     });
 
     context?.Response.Cookies.Append("RefreshToken", request.RefreshToken, new CookieOptions
