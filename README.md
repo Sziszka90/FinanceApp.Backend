@@ -84,12 +84,14 @@ For detailed upcoming features and development progress, please check our [GitHu
 ```http
 POST   /api/v1/auth/login                   # User login
 POST   /api/v1/auth/logout                  # User logout
+GET.   /api/v1/auth/check                   # Check if user authenticated
 ```
 
 ### **Token Endpoints**
 
 ```http
 POST   /api/v1/token/validate               # Validate token
+POST   /api/v1/token/refresh                # Refresh token endpoint
 ```
 
 ### **MCP Endpoints**
