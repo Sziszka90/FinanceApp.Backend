@@ -28,11 +28,11 @@ public class RefreshTests : TestBase
     // arrange
     var refreshToken = "valid-refresh-token";
     var user = new User(null, "testuser", "test@example.com", true, "hashed", CurrencyEnum.USD);
-    TokenServiceMock.Setup(x => x.IsRefreshTokenValidAsync(refreshToken))
+    TokenServiceMock.Setup(x => x.IsRefreshTokenValidAsync(refreshToken, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
     UserServiceMock.Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(user));
-    TokenServiceMock.Setup(x => x.GenerateTokenAsync(user.Email, TokenType.Login))
+    TokenServiceMock.Setup(x => x.GenerateTokenAsync(user.Email, TokenType.Login, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success("new-token"));
     var command = new RefreshCommand(refreshToken, CancellationToken.None);
 
@@ -42,9 +42,9 @@ public class RefreshTests : TestBase
     // assert
     Assert.True(result.IsSuccess);
     Assert.Equal("new-token", result.Data);
-    TokenServiceMock.Verify(x => x.IsRefreshTokenValidAsync(refreshToken), Times.Once);
+    TokenServiceMock.Verify(x => x.IsRefreshTokenValidAsync(refreshToken, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.GetEmailFromToken(refreshToken), Times.Once);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(user.Email, TokenType.Login), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(user.Email, TokenType.Login, It.IsAny<CancellationToken>()), Times.Once);
   }
 
   [Fact]
@@ -52,7 +52,7 @@ public class RefreshTests : TestBase
   {
     // arrange
     var refreshToken = "invalid-refresh-token";
-    TokenServiceMock.Setup(x => x.IsRefreshTokenValidAsync(refreshToken))
+    TokenServiceMock.Setup(x => x.IsRefreshTokenValidAsync(refreshToken, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(false));
     var command = new RefreshCommand(refreshToken, CancellationToken.None);
 
@@ -63,9 +63,9 @@ public class RefreshTests : TestBase
     Assert.False(result.IsSuccess);
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("INVALID_TOKEN", result.ApplicationError.Code);
-    TokenServiceMock.Verify(x => x.IsRefreshTokenValidAsync(refreshToken), Times.Once);
+    TokenServiceMock.Verify(x => x.IsRefreshTokenValidAsync(refreshToken, It.IsAny<CancellationToken>()), Times.Once);
     UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Never);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()), Times.Never);
   }
 
   [Fact]
@@ -73,7 +73,7 @@ public class RefreshTests : TestBase
   {
     // arrange
     var refreshToken = "valid-refresh-token";
-    TokenServiceMock.Setup(x => x.IsRefreshTokenValidAsync(refreshToken))
+    TokenServiceMock.Setup(x => x.IsRefreshTokenValidAsync(refreshToken, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
     TokenServiceMock.Setup(x => x.GetEmailFromToken(refreshToken))
       .Returns(() => null!);
@@ -86,8 +86,8 @@ public class RefreshTests : TestBase
     Assert.False(result.IsSuccess);
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
-    TokenServiceMock.Verify(x => x.IsRefreshTokenValidAsync(refreshToken), Times.Once);
+    TokenServiceMock.Verify(x => x.IsRefreshTokenValidAsync(refreshToken, It.IsAny<CancellationToken>()), Times.Once);
     TokenServiceMock.Verify(x => x.GetEmailFromToken(refreshToken), Times.Once);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()), Times.Never);
   }
 }

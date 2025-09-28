@@ -22,7 +22,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
   {
     // arrange
     var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "valid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
-    TokenServiceMock.Setup(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset)).ReturnsAsync(Result.Success(true));
+    TokenServiceMock.Setup(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset, It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(true));
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -31,7 +31,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
     Assert.True(result.Data.IsValid);
-    TokenServiceMock.Verify(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset), Times.Once);
+    TokenServiceMock.Verify(x => x.IsTokenValidAsync("valid_token", TokenType.PasswordReset, It.IsAny<CancellationToken>()), Times.Once);
   }
 
   [Fact]
@@ -39,7 +39,7 @@ public class ValidateTokenCommandHandlerTests : TestBase
   {
     // arrange
     var command = new ValidateTokenCommand(new ValidateTokenRequest() { Token = "invalid_token", TokenType = TokenType.PasswordReset }, CancellationToken.None);
-    TokenServiceMock.Setup(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset)).ReturnsAsync(Result.Success(false));
+    TokenServiceMock.Setup(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset, It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success(false));
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -48,6 +48,6 @@ public class ValidateTokenCommandHandlerTests : TestBase
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
     Assert.False(result.Data.IsValid);
-    TokenServiceMock.Verify(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset), Times.Once);
+    TokenServiceMock.Verify(x => x.IsTokenValidAsync("invalid_token", TokenType.PasswordReset, It.IsAny<CancellationToken>()), Times.Once);
   }
 }

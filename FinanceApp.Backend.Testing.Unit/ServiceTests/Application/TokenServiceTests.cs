@@ -34,11 +34,11 @@ public class TokenServiceTests
     var jwtServiceMock = new Mock<IJwtService>();
     var cacheManagerMock = new Mock<ITokenCacheManager>();
     jwtServiceMock.Setup(x => x.ValidateToken(It.IsAny<string>())).Returns(true);
-    cacheManagerMock.Setup(x => x.IsLoginTokenValidAsync(It.IsAny<string>())).ReturnsAsync(true);
+    cacheManagerMock.Setup(x => x.IsLoginTokenValidAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
     var service = new TokenService(loggerMock.Object, jwtServiceMock.Object, cacheManagerMock.Object);
 
     // act
-    var result = await service.IsTokenValidAsync("valid", TokenType.Login);
+    var result = await service.IsTokenValidAsync("valid", TokenType.Login, CancellationToken.None);
 
     // assert
     Assert.True(result.Data);

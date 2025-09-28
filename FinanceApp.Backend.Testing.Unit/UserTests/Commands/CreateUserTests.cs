@@ -60,7 +60,7 @@ public class CreateUserTests : TestBase
       It.Is<List<TransactionGroup>>(groups => groups.Count > 0), It.IsAny<CancellationToken>()), Times.Once);
 
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(2));
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(createUserDto.Email, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(createUserDto.Email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), "default_token"), Times.Once);
   }
 
@@ -144,7 +144,7 @@ public class CreateUserTests : TestBase
     var tokenError = ApplicationError.TokenGenerationError();
 
     TokenServiceMock
-      .Setup(x => x.GenerateTokenAsync(createUserDto.Email, TokenType.EmailConfirmation))
+      .Setup(x => x.GenerateTokenAsync(createUserDto.Email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Failure<string>(tokenError));
 
     // act
@@ -193,7 +193,7 @@ public class CreateUserTests : TestBase
     TransactionGroupRepositoryMock.Verify(x => x.BatchCreateTransactionGroupsAsync(
       It.IsAny<List<TransactionGroup>>(), It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(2));
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(createUserDto.Email, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(createUserDto.Email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), "default_token"), Times.Once);
   }
 

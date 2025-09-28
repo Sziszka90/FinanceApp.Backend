@@ -52,7 +52,7 @@ public class LoginTests : TestBase
     Assert.True(result.IsSuccess);
     Assert.NotNull(result.Data);
     Assert.Equal(token, result.Data.Token);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>()), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>(), It.IsAny<CancellationToken>()), Times.Once);
   }
 
   [Fact]
@@ -99,7 +99,7 @@ public class LoginTests : TestBase
 
     UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(user);
-    TokenServiceMock.Setup(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>())).ReturnsAsync(
+    TokenServiceMock.Setup(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>(), It.IsAny<CancellationToken>())).ReturnsAsync(
       Result.Failure<string>(ApplicationError.InvalidPasswordError())
     );
 
@@ -110,6 +110,6 @@ public class LoginTests : TestBase
     Assert.False(result.IsSuccess);
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("INVALID_PASSWORD", result.ApplicationError.Code);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>()), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(user.Email, It.IsAny<TokenType>(), It.IsAny<CancellationToken>()), Times.Once);
   }
 }

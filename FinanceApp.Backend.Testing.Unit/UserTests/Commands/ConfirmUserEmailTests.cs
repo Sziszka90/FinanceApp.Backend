@@ -47,7 +47,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.Null(user.EmailConfirmationTokenExpiration);
 
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
 
@@ -68,7 +68,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
 
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -96,7 +96,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.Equal("TOKEN_EXPIRED", result.ApplicationError.Code);
 
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -118,7 +118,7 @@ public class ConfirmUserEmailTests : TestBase
       .ReturnsAsync(existingUser);
 
     TokenServiceMock
-      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
+      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
       .Returns(Task.FromResult(Result.Failure<bool>(tokenError)));
 
     // act
@@ -130,7 +130,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.Equal("INVALID_TOKEN", result.ApplicationError.Code);
 
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -150,7 +150,7 @@ public class ConfirmUserEmailTests : TestBase
       .ReturnsAsync(existingUser);
 
     TokenServiceMock
-      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation))
+      .Setup(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
       .ThrowsAsync(new Exception("Token service error"));
 
     // act & assert
@@ -158,7 +158,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.Equal("Token service error", exception.Message);
 
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -186,7 +186,7 @@ public class ConfirmUserEmailTests : TestBase
     Assert.Equal("Database error", exception.Message);
 
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(token, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
 
@@ -260,7 +260,7 @@ public class ConfirmUserEmailTests : TestBase
 
     var tokenError = ApplicationError.InvalidTokenError();
     TokenServiceMock
-      .Setup(x => x.ValidateTokenAsync(invalidToken!, TokenType.EmailConfirmation))
+      .Setup(x => x.ValidateTokenAsync(invalidToken!, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
       .Returns(Task.FromResult(Result.Failure<bool>(tokenError)));
 
     // act
@@ -271,6 +271,6 @@ public class ConfirmUserEmailTests : TestBase
     Assert.NotNull(result.ApplicationError);
 
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.ValidateTokenAsync(invalidToken!, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.ValidateTokenAsync(invalidToken!, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
   }
 }

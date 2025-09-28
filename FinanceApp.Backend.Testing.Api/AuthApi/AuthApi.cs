@@ -43,4 +43,52 @@ public class AuthApi : TestBase
     var response = await Client.PostAsync(AUTH_ENDPOINT + "logout", null);
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
   }
+
+  [Fact]
+  public async Task Check_Authenticated_ReturnsTrue()
+  {
+    // arrange
+    await InitializeAsync();
+    var loginRequest = new LoginRequestDto
+    {
+      Email = "test_user90@example.com",
+      Password = "TestPassword90."
+    };
+
+    // act
+    var loginResult = await Client.PostAsync(AUTH_ENDPOINT + "login", CreateContent(loginRequest));
+    Assert.Equal(HttpStatusCode.OK, loginResult.StatusCode);
+
+    // Extract Token cookie from login response
+    var tokenCookie = loginResult.Headers.TryGetValues("Set-Cookie", out var cookies)
+      ? cookies.FirstOrDefault(c => c.StartsWith("Token="))
+      : null;
+
+    var checkRequest = new HttpRequestMessage(HttpMethod.Get, AUTH_ENDPOINT + "check");
+    if (tokenCookie != null)
+    {
+      checkRequest.Headers.Add("Cookie", tokenCookie);
+    }
+    var checkResponse = await Client.SendAsync(checkRequest);
+    var content = await checkResponse.Content.ReadAsStringAsync();
+
+    // assert
+    Assert.Equal(HttpStatusCode.OK, checkResponse.StatusCode);
+    Assert.Contains("true", content.ToLower());
+  }
+
+  [Fact]
+  public async Task Check_NotAuthenticated_ReturnsFalse()
+  {
+    // arrange
+    await InitializeAsync();
+
+    // act
+    var checkResponse = await Client.GetAsync(AUTH_ENDPOINT + "check");
+    var content = await checkResponse.Content.ReadAsStringAsync();
+
+    // assert
+    Assert.Equal(HttpStatusCode.OK, checkResponse.StatusCode);
+    Assert.Contains("false", content.ToLower());
+  }
 }

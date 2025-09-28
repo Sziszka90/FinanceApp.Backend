@@ -3,6 +3,7 @@ using FinanceApp.Backend.Application.AuthApi.AuthCommands.Login;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.Logout;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.ResetToken;
 using FinanceApp.Backend.Application.AuthApi.AuthCommands.SetToken;
+using FinanceApp.Backend.Application.AuthApi.AuthQueries.CheckQuery;
 using FinanceApp.Backend.Application.Dtos.AuthDtos;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
@@ -61,6 +62,19 @@ public class AuthController : ControllerBase
     }
 
     result = await _mediator.Send(new ResetTokenCommand(cancellationToken));
+
+    return this.GetResult(result);
+  }
+
+  [HttpGet("check")]
+  [Produces("application/json")]
+  [Consumes("application/json")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<ActionResult<LoginResponseDto>> Check(CancellationToken cancellationToken)
+  {
+    var result = await _mediator.Send(new CheckQuery(cancellationToken));
 
     return this.GetResult(result);
   }

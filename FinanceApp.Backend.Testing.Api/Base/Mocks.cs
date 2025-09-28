@@ -49,55 +49,55 @@ public static class Mocks
     var tokenServiceMock = new Mock<ITokenService>();
 
     tokenServiceMock
-      .Setup(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
+      .Setup(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(false));
 
     tokenServiceMock
-      .Setup(x => x.GenerateRefreshTokenAsync(It.IsAny<string>()))
+      .Setup(x => x.GenerateRefreshTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success("mock_refresh_token"));
 
     tokenServiceMock
-      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.Login))
+      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.Login, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success("mock_login_token"));
 
     tokenServiceMock
-      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.PasswordReset))
+      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.PasswordReset, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success("mock_password_reset_token"));
 
     tokenServiceMock
-      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.EmailConfirmation))
+      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success("mock_email_confirmation_token"));
 
     tokenServiceMock
-      .Setup(x => x.ValidateTokenAsync("mock_login_token", TokenType.Login))
+      .Setup(x => x.ValidateTokenAsync("mock_login_token", TokenType.Login, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-      .Setup(x => x.ValidateTokenAsync("mock_password_reset_token", TokenType.PasswordReset))
+      .Setup(x => x.ValidateTokenAsync("mock_password_reset_token", TokenType.PasswordReset, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-      .Setup(x => x.ValidateTokenAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
+      .Setup(x => x.ValidateTokenAsync("mock_email_confirmation_token", TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-      .Setup(x => x.ValidateTokenAsync("invalid-token", It.IsAny<TokenType>()))
+      .Setup(x => x.ValidateTokenAsync("invalid-token", It.IsAny<TokenType>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(false));
 
     tokenServiceMock
-      .Setup(x => x.IsTokenValidAsync("mock_login_token", TokenType.Login))
+      .Setup(x => x.IsTokenValidAsync("mock_login_token", TokenType.Login, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-      .Setup(x => x.IsTokenValidAsync("mock_password_reset_token", TokenType.PasswordReset))
+      .Setup(x => x.IsTokenValidAsync("mock_password_reset_token", TokenType.PasswordReset, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-      .Setup(x => x.IsTokenValidAsync("mock_email_confirmation_token", TokenType.EmailConfirmation))
+      .Setup(x => x.IsTokenValidAsync("mock_email_confirmation_token", TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
 
     tokenServiceMock
-      .Setup(x => x.IsTokenValidAsync("invalid_token", It.IsAny<TokenType>()))
+      .Setup(x => x.IsTokenValidAsync("invalid_token", It.IsAny<TokenType>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(false));
 
     tokenServiceMock
@@ -105,7 +105,7 @@ public static class Mocks
       .Returns("test_user90@example.com");
 
     tokenServiceMock
-      .Setup(x => x.InvalidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
+      .Setup(x => x.InvalidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success());
 
     services.AddSingleton(tokenServiceMock.Object);
@@ -127,7 +127,11 @@ public static class Mocks
     var llmProcessorClientMock = new Mock<ILLMProcessorClient>();
 
     llmProcessorClientMock
-      .Setup(x => x.MatchTransactionGroup(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+      .Setup(x => x.MatchTransactionGroup(
+        It.IsAny<string>(),
+        It.IsAny<List<string>>(),
+        It.IsAny<List<string>>(),
+        It.IsAny<string>()))
       .ReturnsAsync(Result.Success(true));
 
     services.AddSingleton(llmProcessorClientMock.Object);

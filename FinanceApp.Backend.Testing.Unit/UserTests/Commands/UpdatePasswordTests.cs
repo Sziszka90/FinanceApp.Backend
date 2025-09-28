@@ -47,7 +47,7 @@ public class UpdatePasswordTests : TestBase
       .ReturnsAsync(user);
 
     TokenServiceMock
-      .Setup(x => x.ValidateTokenAsync(token, It.IsAny<TokenType>()))
+      .Setup(x => x.ValidateTokenAsync(token, It.IsAny<TokenType>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
 
     TokenServiceMock

@@ -37,7 +37,7 @@ public class ResendConfirmationEmailTests : TestBase
     UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
                               .ReturnsAsync(user);
 
-    TokenServiceMock.Setup(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation))
+    TokenServiceMock.Setup(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(Result<string>.Success("confirmation_token")));
 
     // act
@@ -46,7 +46,7 @@ public class ResendConfirmationEmailTests : TestBase
     // assert
     Assert.True(result.IsSuccess);
     UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(user, "confirmation_token"), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
@@ -69,7 +69,7 @@ public class ResendConfirmationEmailTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("USER_NOT_FOUND", result.ApplicationError.Code);
     UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()), Times.Never);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -94,7 +94,7 @@ public class ResendConfirmationEmailTests : TestBase
     Assert.NotNull(result.Data);
     Assert.Equal("Email already confirmed.", result.Data.Message);
     UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()), Times.Never);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()), Times.Never);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -112,7 +112,7 @@ public class ResendConfirmationEmailTests : TestBase
                               .ReturnsAsync(user);
 
     var tokenError = ApplicationError.TokenGenerationError();
-    TokenServiceMock.Setup(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation))
+    TokenServiceMock.Setup(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(Result.Failure<string>(tokenError)));
 
     // act
@@ -123,7 +123,7 @@ public class ResendConfirmationEmailTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("TOKEN_GENERATION_ERROR", result.ApplicationError.Code);
     UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -140,7 +140,7 @@ public class ResendConfirmationEmailTests : TestBase
     UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
                               .ReturnsAsync(user);
 
-    TokenServiceMock.Setup(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation))
+    TokenServiceMock.Setup(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(Result<string>.Success("confirmation_token")));
 
     SmtpEmailSenderMock.Setup(x => x.SendEmailConfirmationAsync(user, "confirmation_token"))
@@ -154,7 +154,7 @@ public class ResendConfirmationEmailTests : TestBase
     Assert.NotNull(result.ApplicationError);
     Assert.Equal("EXT_CALL_ERROR", result.ApplicationError.Code);
     UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(user, "confirmation_token"), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
@@ -171,7 +171,7 @@ public class ResendConfirmationEmailTests : TestBase
     UserRepositoryMock.Setup(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()))
                               .ReturnsAsync(user);
 
-    TokenServiceMock.Setup(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation))
+    TokenServiceMock.Setup(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(Result<string>.Success("confirmation_token")));
 
     SmtpEmailSenderMock.Setup(x => x.SendEmailConfirmationAsync(user, "confirmation_token"))
@@ -184,7 +184,7 @@ public class ResendConfirmationEmailTests : TestBase
     var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
     Assert.Equal("Database error", exception.Message);
     UserRepositoryMock.Verify(x => x.GetUserByEmailAsync(email, false, It.IsAny<CancellationToken>()), Times.Once);
-    TokenServiceMock.Verify(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation), Times.Once);
+    TokenServiceMock.Verify(x => x.GenerateTokenAsync(email, TokenType.EmailConfirmation, It.IsAny<CancellationToken>()), Times.Once);
     SmtpEmailSenderMock.Verify(x => x.SendEmailConfirmationAsync(user, "confirmation_token"), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }

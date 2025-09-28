@@ -181,15 +181,15 @@ public abstract class TestBase
   protected virtual void SetupTokenServiceMock()
   {
     TokenServiceMock
-      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
+      .Setup(x => x.GenerateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success("default_token"));
 
     TokenServiceMock
-      .Setup(x => x.GenerateRefreshTokenAsync(It.IsAny<string>()))
+      .Setup(x => x.GenerateRefreshTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success("refresh_token"));
 
     TokenServiceMock
-      .Setup(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>()))
+      .Setup(x => x.ValidateTokenAsync(It.IsAny<string>(), It.IsAny<TokenType>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result.Success(true));
 
     TokenServiceMock
