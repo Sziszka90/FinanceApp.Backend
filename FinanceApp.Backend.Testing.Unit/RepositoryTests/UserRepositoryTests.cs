@@ -116,9 +116,7 @@ public class UserRepositoryTests : IDisposable
       _dbContext.Dispose();
 
       // act & assert
-      var exception = await Assert.ThrowsAsync<DatabaseException>(() => _repository.GetByUserNameAsync(userName));
-      Assert.Equal("GET_BY_USERNAME", exception.Operation);
-      Assert.Equal("User", exception.EntityName);
+      var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() => _repository.GetByUserNameAsync(userName));
     }
   }
 
@@ -193,9 +191,7 @@ public class UserRepositoryTests : IDisposable
       _dbContext.Dispose();
 
       // act & assert
-      var exception = await Assert.ThrowsAsync<DatabaseException>(() => _repository.GetUserByEmailAsync(email));
-      Assert.Equal("GET_BY_EMAIL", exception.Operation);
-      Assert.Equal("User", exception.EntityName);
+      var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() => _repository.GetUserByEmailAsync(email));
     }
   }
 

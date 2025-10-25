@@ -1,5 +1,4 @@
 using FinanceApp.Backend.Application.Abstraction.Repositories;
-using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
@@ -22,41 +21,27 @@ public class UserRepository : GenericRepository<User>, IUserRepository
 
   public async Task<User?> GetByUserNameAsync(string userName, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    try
-    {
-      var query = _filteredQueryProvider.Query<User>()
-                            .Where(user => user.UserName == userName);
+    var query = _filteredQueryProvider.Query<User>()
+                          .Where(user => user.UserName == userName);
 
-      if (noTracking)
-      {
-        query = query.AsNoTracking();
-      }
-
-      return await query.FirstOrDefaultAsync(cancellationToken);
-    }
-    catch (Exception ex)
+    if (noTracking)
     {
-      throw new DatabaseException("GET_BY_USERNAME", nameof(User), null, ex);
+      query = query.AsNoTracking();
     }
+
+    return await query.FirstOrDefaultAsync(cancellationToken);
   }
 
   public async Task<User?> GetUserByEmailAsync(string email, bool noTracking = false, CancellationToken cancellationToken = default)
   {
-    try
-    {
-      var query = _filteredQueryProvider.Query<User>()
-                            .Where(user => user.Email == email);
+    var query = _filteredQueryProvider.Query<User>()
+                          .Where(user => user.Email == email);
 
-      if (noTracking)
-      {
-        query = query.AsNoTracking();
-      }
-
-      return await query.FirstOrDefaultAsync(cancellationToken);
-    }
-    catch (Exception ex)
+    if (noTracking)
     {
-      throw new DatabaseException("GET_BY_EMAIL", nameof(User), null, ex);
+      query = query.AsNoTracking();
     }
+
+    return await query.FirstOrDefaultAsync(cancellationToken);
   }
 }

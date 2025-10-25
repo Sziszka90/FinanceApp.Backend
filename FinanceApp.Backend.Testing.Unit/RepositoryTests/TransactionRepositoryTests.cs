@@ -138,10 +138,7 @@ public class TransactionRepositoryTests : IDisposable
       _dbContext.Dispose();
 
       // act & assert
-      var exception = await Assert.ThrowsAsync<DatabaseException>(() => _repository.TransactionGroupUsedAsync(groupId));
-      Assert.Equal("TRANSACTION_GROUP_USED_CHECK", exception.Operation);
-      Assert.Equal("Transaction", exception.EntityName);
-      Assert.Equal(groupId.ToString(), exception.EntityId);
+      var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() => _repository.TransactionGroupUsedAsync(groupId));
     }
   }
 
@@ -354,9 +351,7 @@ public class TransactionRepositoryTests : IDisposable
       _dbContext.Dispose();
 
       // act & assert
-      var exception = await Assert.ThrowsAsync<DatabaseException>(() => _repository.GetAllByFilterAsync(filter));
-      Assert.Equal("GET_ALL_BY_FILTER", exception.Operation);
-      Assert.Equal("Transaction", exception.EntityName);
+      var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() => _repository.GetAllByFilterAsync(filter));
     }
   }
 
@@ -437,9 +432,7 @@ public class TransactionRepositoryTests : IDisposable
       _dbContext.Dispose();
 
       // act & assert
-      var exception = await Assert.ThrowsAsync<DatabaseException>(() => _repository.BatchCreateTransactionsAsync(transactions));
-      Assert.Equal("BATCH_CREATE", exception.Operation);
-      Assert.Equal("Transaction", exception.EntityName);
+      var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() => _repository.BatchCreateTransactionsAsync(transactions));
     }
   }
 
@@ -526,10 +519,7 @@ public class TransactionRepositoryTests : IDisposable
       _dbContext.Dispose();
 
       // act & assert
-      var exception = await Assert.ThrowsAsync<DatabaseException>(() => _repository.DeleteAllByUserIdAsync(userId));
-      Assert.Equal("DELETE_ALL_BY_USER_ID", exception.Operation);
-      Assert.Equal("Transaction", exception.EntityName);
-      Assert.Equal(userId.ToString(), exception.EntityId);
+      var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() => _repository.DeleteAllByUserIdAsync(userId));
     }
   }
 
@@ -667,10 +657,7 @@ public class TransactionRepositoryTests : IDisposable
       _dbContext.Dispose();
 
       // act & assert
-      var exception = await Assert.ThrowsAsync<DatabaseException>(() => _repository.GetAllByUserIdAsync(userId));
-      Assert.Equal("GET_ALL_BY_USER_ID", exception.Operation);
-      Assert.Equal("Transaction", exception.EntityName);
-      Assert.Equal(userId.ToString(), exception.EntityId);
+      var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() => _repository.GetAllByUserIdAsync(userId));
     }
   }
 

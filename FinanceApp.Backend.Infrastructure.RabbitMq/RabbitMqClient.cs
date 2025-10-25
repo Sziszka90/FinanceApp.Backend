@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Clients;
-using FinanceApp.Backend.Application.Dtos.McpDtos;
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
 using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;

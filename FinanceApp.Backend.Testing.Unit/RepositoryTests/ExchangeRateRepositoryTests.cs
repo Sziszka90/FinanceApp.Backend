@@ -38,8 +38,7 @@ public class ExchangeRateRepositoryTests : IDisposable
     _repository = new ExchangeRateRepository(
       _dbContext,
       _filteredQueryProviderMock.Object,
-      sqlQueryBuilderMock.Object,
-      databaseCommandServiceMock.Object
+      sqlQueryBuilderMock.Object
     );
   }
 
@@ -142,9 +141,7 @@ public class ExchangeRateRepositoryTests : IDisposable
       _dbContext.Dispose();
 
       // act & assert
-      var exception = await Assert.ThrowsAsync<DatabaseException>(() => _repository.GetExchangeRatesAsync());
-      Assert.Equal("GET_ALL", exception.Operation);
-      Assert.Equal("ExchangeRate", exception.EntityName);
+      var exception = await Assert.ThrowsAsync<ObjectDisposedException>(() => _repository.GetExchangeRatesAsync());
     }
   }
 

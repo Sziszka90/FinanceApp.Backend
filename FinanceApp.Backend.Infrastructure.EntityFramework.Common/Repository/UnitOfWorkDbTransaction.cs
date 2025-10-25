@@ -1,5 +1,4 @@
 using FinanceApp.Backend.Application.Abstraction.Repositories;
-using FinanceApp.Backend.Application.Exceptions;
 
 namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common.Repository;
 
@@ -18,27 +17,13 @@ public class UnitOfWorkDbTransaction : IUnitOfWorkDbTransaction
   /// <inheritdoc />
   public async Task CommitAsync(CancellationToken cancellationToken = default)
   {
-    try
-    {
-      await UnitOfWork.CommitTransactionAsync(cancellationToken);
-    }
-    catch (Exception ex)
-    {
-      throw new DatabaseException("TRANSACTION_COMMIT", "UnitOfWorkDbTransaction", null, ex);
-    }
+    await UnitOfWork.CommitTransactionAsync(cancellationToken);
   }
 
   /// <inheritdoc />
   public async Task RollbackAsync(CancellationToken cancellationToken = default)
   {
-    try
-    {
-      await UnitOfWork.RollbackTransactionAsync(cancellationToken);
-    }
-    catch (Exception ex)
-    {
-      throw new DatabaseException("TRANSACTION_ROLLBACK", "UnitOfWorkDbTransaction", null, ex);
-    }
+    await UnitOfWork.RollbackTransactionAsync(cancellationToken);
   }
 
   /// <inheritdoc />
@@ -87,7 +72,6 @@ public class UnitOfWorkDbTransaction : IUnitOfWorkDbTransaction
       }
       catch (Exception)
       {
-        // Log or handle other exceptions during disposal, but don't throw
         _disposed = true;
       }
     }
