@@ -149,6 +149,7 @@ public abstract class TestBase
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
         It.IsAny<Guid>(),
+        It.IsAny<int>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction>());
   }

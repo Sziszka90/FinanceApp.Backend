@@ -63,6 +63,7 @@ public class GetTopTransactionGroupsTests : TestBase
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
         It.IsAny<Guid>(),
+        It.IsAny<int>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactions);
 
@@ -77,6 +78,7 @@ public class GetTopTransactionGroupsTests : TestBase
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
         userId,
+        It.IsAny<int>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactions);
 
@@ -115,6 +117,7 @@ public class GetTopTransactionGroupsTests : TestBase
       It.IsAny<DateTimeOffset>(),
       It.IsAny<DateTimeOffset>(),
       It.IsAny<Guid>(),
+      It.IsAny<int>(),
       It.IsAny<CancellationToken>()), Times.Once);
     ExchangeRateServiceMock.Verify(x => x.ConvertAmountAsync(It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -149,6 +152,7 @@ public class GetTopTransactionGroupsTests : TestBase
       It.IsAny<DateTimeOffset>(),
       It.IsAny<DateTimeOffset>(),
       It.IsAny<Guid>(),
+      It.IsAny<int>(),
       It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -169,6 +173,7 @@ public class GetTopTransactionGroupsTests : TestBase
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
         userId,
+        It.IsAny<int>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction>());
 
@@ -230,6 +235,7 @@ public class GetTopTransactionGroupsTests : TestBase
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
         It.IsAny<Guid>(),
+        It.IsAny<int>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactionsMulti);
 
@@ -242,6 +248,7 @@ public class GetTopTransactionGroupsTests : TestBase
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
         userId,
+        It.IsAny<int>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactionsMulti);
 
@@ -320,6 +327,7 @@ public class GetTopTransactionGroupsTests : TestBase
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
         It.IsAny<Guid>(),
+        It.IsAny<int>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactionsTop);
 
@@ -347,6 +355,7 @@ public class GetTopTransactionGroupsTests : TestBase
       It.IsAny<DateTimeOffset>(),
       It.IsAny<DateTimeOffset>(),
       It.IsAny<Guid>(),
+      It.IsAny<int>(),
       It.IsAny<CancellationToken>()), Times.Once);
   }
 }
