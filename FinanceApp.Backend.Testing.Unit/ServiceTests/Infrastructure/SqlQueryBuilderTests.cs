@@ -22,14 +22,15 @@ public class SqlQueryBuilderTests
 
     // assert
     Assert.Contains("[Transaction]", result);
-    Assert.Contains("WHERE UserId = @userId", result);
-    Assert.Contains("TransactionGroupId IS NOT NULL", result);
-    Assert.Contains("TransactionDate >= @startDate", result);
-    Assert.Contains("TransactionDate <= @endDate", result);
-    Assert.DoesNotContain("GROUP BY", result);
-    Assert.DoesNotContain("ORDER BY", result);
+    Assert.Contains("[TransactionGroup]", result);
+    Assert.Contains("TOP (@top)", result);
+    Assert.Contains("INNER JOIN", result);
+    Assert.Contains("GROUP BY tg.Id", result);
+    Assert.Contains("ORDER BY SUM(t2.ValueInBaseCurrency) DESC", result);
+    Assert.Contains("WHERE t.UserId = @userId", result);
+    Assert.Contains("WHERE t2.UserId = @userId", result);
+    Assert.Contains("TransactionDate BETWEEN @startDate AND @endDate", result);
     Assert.DoesNotContain("LIMIT", result);
-    Assert.DoesNotContain("OFFSET", result);
   }
 
   [Fact]
@@ -43,14 +44,15 @@ public class SqlQueryBuilderTests
 
     // assert
     Assert.Contains("\"Transaction\"", result);
-    Assert.Contains("WHERE UserId = @userId", result);
-    Assert.Contains("TransactionGroupId IS NOT NULL", result);
-    Assert.Contains("TransactionDate >= @startDate", result);
-    Assert.Contains("TransactionDate <= @endDate", result);
-    Assert.DoesNotContain("GROUP BY", result);
-    Assert.DoesNotContain("ORDER BY", result);
-    Assert.DoesNotContain("LIMIT", result);
-    Assert.DoesNotContain("OFFSET", result);
+    Assert.Contains("\"TransactionGroup\"", result);
+    Assert.Contains("LIMIT @top", result);
+    Assert.Contains("INNER JOIN", result);
+    Assert.Contains("GROUP BY tg.Id", result);
+    Assert.Contains("ORDER BY SUM(t2.ValueInBaseCurrency) DESC", result);
+    Assert.Contains("WHERE t.UserId = @userId", result);
+    Assert.Contains("WHERE t2.UserId = @userId", result);
+    Assert.Contains("TransactionDate BETWEEN @startDate AND @endDate", result);
+    Assert.DoesNotContain("TOP", result);
   }
 
   [Fact]
@@ -63,11 +65,10 @@ public class SqlQueryBuilderTests
     var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
 
     // assert
-    Assert.Contains("[Transaction]", result);
-    Assert.Contains("WHERE UserId = @userId", result);
-    Assert.Contains("TransactionGroupId IS NOT NULL", result);
-    Assert.Contains("TransactionDate >= @startDate", result);
-    Assert.Contains("TransactionDate <= @endDate", result);
+    Assert.Contains("SELECT t.*", result);
+    Assert.Contains("SELECT TOP (@top) tg.Id", result);
+    Assert.Contains("FROM [Transaction] t", result);
+    Assert.Contains("INNER JOIN", result);
   }
 
   [Fact]
@@ -83,6 +84,7 @@ public class SqlQueryBuilderTests
     Assert.Contains("@userId", result);
     Assert.Contains("@startDate", result);
     Assert.Contains("@endDate", result);
+    Assert.Contains("@top", result);
   }
 
   [Theory]
