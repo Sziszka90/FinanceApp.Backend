@@ -1,6 +1,7 @@
 using EFCore.BulkExtensions;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
+using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
@@ -126,7 +127,12 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     return await query.ToListAsync(cancellationToken);
   }
 
-  public async Task<List<Transaction>> GetTransactionsByTopTransactionGroups(DateTimeOffset startDate, DateTimeOffset endDate, Guid userId, CancellationToken cancellationToken = default)
+  public async Task<List<Transaction>> GetTransactionsByTopTransactionGroups(
+    DateTimeOffset startDate,
+    DateTimeOffset endDate,
+    Guid userId,
+    int top,
+    CancellationToken cancellationToken = default)
   {
     var providerName = _dbContext.Database.ProviderName ?? throw new InvalidOperationException("Database provider name is null");
     var sql = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
@@ -139,7 +145,8 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
       {
         new SqlParameter("@userId", userId),
         new SqlParameter("@startDate", startDate),
-        new SqlParameter("@endDate", endDate)
+        new SqlParameter("@endDate", endDate),
+        new SqlParameter("@top", top)
       };
     }
     else if (providerName.Contains("Sqlite"))
@@ -148,7 +155,8 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
       {
         new SqliteParameter("@userId", userId),
         new SqliteParameter("@startDate", startDate),
-        new SqliteParameter("@endDate", endDate)
+        new SqliteParameter("@endDate", endDate),
+        new SqliteParameter("@top", top)
       };
     }
     else

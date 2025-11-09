@@ -1,4 +1,5 @@
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
+using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Domain.Entities;
 
 namespace FinanceApp.Backend.Application.Abstraction.Repositories;
@@ -61,10 +62,16 @@ public interface ITransactionRepository : IRepository<Transaction>
   /// <param name="startDate">Start date of the range.</param>
   /// <param name="endDate">End date of the range.</param>
   /// <param name="userId">The ID of the user whose transactions to retrieve.</param>
+  /// <param name="top">Top transaction groups</param>
   /// <param name="cancellationToken">Cancellation token.</param>
   /// <returns>List of transactions within the specified date range.</returns>
   /// <exception cref="DatabaseException">Thrown when there is an error retrieving the transactions.</exception>
-  Task<List<Transaction>> GetTransactionsByTopTransactionGroups(DateTimeOffset startDate, DateTimeOffset endDate, Guid userId, CancellationToken cancellationToken = default);
+  Task<List<Transaction>> GetTransactionsByTopTransactionGroups(
+    DateTimeOffset startDate,
+    DateTimeOffset endDate,
+    Guid userId,
+    int top,
+    CancellationToken cancellationToken = default);
 
   /// <summary>
   /// Get a transaction by its ID.

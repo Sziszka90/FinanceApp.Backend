@@ -9,14 +9,24 @@ public class SqlQueryBuilder : ISqlQueryBuilder
     var isSqlServer = providerName == "Microsoft.EntityFrameworkCore.SqlServer";
 
     var transactionTable = isSqlServer ? "[Transaction]" : "\"Transaction\"";
+    var transactionGroupTable = isSqlServer ? "[TransactionGroup]" : "\"TransactionGroup\"";
+    var topClause = isSqlServer ? "TOP (@top)" : "";
+    var limitClause = isSqlServer ? "" : "LIMIT @top";
 
-    return $@"
-      SELECT *
-      FROM {transactionTable}
-      WHERE UserId = @userId
-        AND TransactionGroupId IS NOT NULL
-        AND TransactionDate >= @startDate
-        AND TransactionDate <= @endDate";
+    return $@"SELECT t.*
+      FROM {transactionTable} t
+      INNER JOIN (
+          SELECT {topClause} tg.Id
+          FROM {transactionTable} t2
+          INNER JOIN {transactionGroupTable} tg ON t2.TransactionGroupId = tg.Id
+          WHERE t2.UserId = @userId
+            AND t2.TransactionDate BETWEEN @startDate AND @endDate
+          GROUP BY tg.Id
+          ORDER BY SUM(t2.ValueInBaseCurrency) DESC
+          {limitClause}
+      ) AS topGroups ON t.TransactionGroupId = topGroups.Id
+      WHERE t.UserId = @userId
+        AND t.TransactionDate BETWEEN @startDate AND @endDate";
   }
 
   public string BuildGetExchangeRatesByDateRangeQuery(string providerName)

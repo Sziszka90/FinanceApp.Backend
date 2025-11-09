@@ -55,14 +55,15 @@ public class GetTopTransactionGroupsQueryHandler : IQueryHandler<GetTopTransacti
       user = userFromRepo;
     }
 
-    var allTransactions = await _transactionRepository.GetTransactionsByTopTransactionGroups(
+    var allTopTransaction = await _transactionRepository.GetTransactionsByTopTransactionGroups(
       startDate: request.StartDate,
       endDate: request.EndDate,
       userId: user.Id,
+      top: request.Top,
       cancellationToken: cancellationToken
     );
 
-    foreach (var transaction in allTransactions)
+    foreach (var transaction in allTopTransaction)
     {
       if (transaction.Value.Currency != user.BaseCurrency)
       {
@@ -84,7 +85,7 @@ public class GetTopTransactionGroupsQueryHandler : IQueryHandler<GetTopTransacti
       }
     }
 
-    var topGroups = allTransactions
+    var topGroups = allTopTransaction
       .GroupBy(t => t.TransactionGroup!)
       .Select(g => new TopTransactionGroupDto
       {
@@ -99,7 +100,6 @@ public class GetTopTransactionGroupsQueryHandler : IQueryHandler<GetTopTransacti
         },
       })
       .OrderByDescending(x => x.TotalAmount.Amount)
-      .Take(request.Top)
       .ToList();
 
     _logger.LogInformation("Retrieved top {Top} transaction groups for user {UserId} from {StartDate} to {EndDate}.", request.Top, user.Id, request.StartDate, request.EndDate);
