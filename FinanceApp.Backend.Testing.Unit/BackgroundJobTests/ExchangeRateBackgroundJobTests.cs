@@ -50,9 +50,17 @@ public class ExchangeRateBackgroundJobTests : TestBase
         ExchangeRateCacheManagerMock.Object);
 
     var cancellationTokenSource = new CancellationTokenSource();
-    cancellationTokenSource.CancelAfter(100);
 
     await job.StartAsync(cancellationTokenSource.Token);
+
+    var completedTask = await Task.WhenAny(
+        Task.Delay(5000),
+        Task.Run(async () =>
+        {
+          await Task.Delay(500);
+          cancellationTokenSource.Cancel();
+        })
+    );
 
     // assert
     UnitOfWorkMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce());

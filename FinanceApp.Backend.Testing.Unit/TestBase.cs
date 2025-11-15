@@ -4,9 +4,7 @@ using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 using FinanceApp.Backend.Application.BackgroundJobs.RabbitMQ;
-using FinanceApp.Backend.Application.Dtos.TransactionDtos;
-using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
-using FinanceApp.Backend.Application.Dtos.UserDtos;
+using FinanceApp.Backend.Application.Mappings;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Entities;
@@ -58,16 +56,13 @@ public abstract class TestBase
     HttpContextAccessorMock = new Mock<IHttpContextAccessor>();
     ExchangeRateCacheManagerMock = new Mock<IExchangeRateCacheManager>();
 
-    Mapper = new MapperConfiguration(cfg =>
+    var mapperConfig = new MapperConfiguration(cfg =>
     {
-      cfg.CreateMap<User, GetUserDto>();
-      cfg.CreateMap<Transaction, GetTransactionDto>();
-      cfg.CreateMap<UpdateTransactionDto, Transaction>();
-      cfg.CreateMap<CreateTransactionDto, Transaction>();
-      cfg.CreateMap<TransactionGroup, GetTransactionGroupDto>();
-      cfg.CreateMap<CreateTransactionGroupDto, TransactionGroup>();
-      cfg.CreateMap<UpdateTransactionGroupDto, TransactionGroup>();
-    }).CreateMapper();
+      cfg.AddProfile<UserProfile>();
+      cfg.AddProfile<TransactionProfile>();
+      cfg.AddProfile<TransactionGroupProfile>();
+    });
+    Mapper = mapperConfig.CreateMapper();
 
     SetupBcryptServiceMock();
     SetupTokenServiceMock();

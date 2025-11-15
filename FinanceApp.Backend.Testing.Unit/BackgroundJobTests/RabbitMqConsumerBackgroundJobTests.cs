@@ -30,10 +30,18 @@ public class RabbitMqConsumerBackgroundJobTests : TestBase
         loggerMock.Object);
 
     var cancellationTokenSource = new CancellationTokenSource();
-    cancellationTokenSource.CancelAfter(100);
 
     // act
     await job.StartAsync(cancellationTokenSource.Token);
+
+    await Task.WhenAny(
+        Task.Delay(5000),
+        Task.Run(async () =>
+        {
+          await Task.Delay(500);
+          cancellationTokenSource.Cancel();
+        })
+    );
 
     // assert
     RabbitMqClientMock.Verify(c => c.SubscribeAllAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce());
@@ -52,7 +60,6 @@ public class RabbitMqConsumerBackgroundJobTests : TestBase
         .ThrowsAsync(new Exception("Test exception"));
 
     var cancellationTokenSource = new CancellationTokenSource();
-    cancellationTokenSource.CancelAfter(100);
 
     var loggerMock = new Mock<ILogger<RabbitMqConsumerServiceBackgroundJob>>();
     // act
@@ -64,6 +71,17 @@ public class RabbitMqConsumerBackgroundJobTests : TestBase
 
     // The new implementation doesn't throw exceptions anymore, it handles them gracefully
     await job.StartAsync(cancellationTokenSource.Token);
+
+    // Wait for the job to attempt execution (with timeout)
+    await Task.WhenAny(
+        Task.Delay(5000), // 5 second timeout
+        Task.Run(async () =>
+        {
+          // Give it time to execute at least once
+          await Task.Delay(500);
+          cancellationTokenSource.Cancel();
+        })
+    );
 
     // assert
     RabbitMqClientMock.Verify(c => c.SubscribeAllAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce());

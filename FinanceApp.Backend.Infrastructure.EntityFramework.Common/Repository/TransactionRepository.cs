@@ -1,7 +1,6 @@
 using EFCore.BulkExtensions;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
-using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Interfaces;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services.Abstraction;
