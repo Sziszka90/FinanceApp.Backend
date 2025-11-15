@@ -108,9 +108,9 @@ public class UploadCsvCommandHandler : ICommandHandler<UploadCsvCommand, Result<
     using (var reader = new StreamReader(stream))
     {
       string? headerLine = await reader.ReadLineAsync();
-      while (!reader.EndOfStream)
+      string? line;
+      while ((line = await reader.ReadLineAsync()) != null)
       {
-        var line = await reader.ReadLineAsync();
         if (string.IsNullOrWhiteSpace(line))
         {
           continue;
