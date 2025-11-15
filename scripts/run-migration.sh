@@ -27,6 +27,10 @@ esac
 
 echo "📦 Applying migrations for '$PROVIDER'..."
 
+# Restore NuGet packages first
+echo "🔄 Restoring NuGet packages..."
+dotnet restore
+
 if [ -z "$CONNECTION" ]; then
   dotnet ef database update \
     --project "$PROJECT" \
