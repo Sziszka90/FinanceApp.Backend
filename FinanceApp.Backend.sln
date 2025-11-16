@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceApp.Backend.Testing.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceApp.Backend.Testing.Api", "FinanceApp.Backend.Testing.Api\FinanceApp.Backend.Testing.Api.csproj", "{032E17A0-C910-4844-AFE5-21E792AC5BFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceApp.Backend.AppHost", "FinanceApp.Backend.AppHost\FinanceApp.Backend.AppHost.csproj", "{FF5245A5-312F-4E9B-89B9-4202EBEE7212}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -183,6 +185,18 @@ Global
 		{032E17A0-C910-4844-AFE5-21E792AC5BFF}.Release|x64.Build.0 = Release|Any CPU
 		{032E17A0-C910-4844-AFE5-21E792AC5BFF}.Release|x86.ActiveCfg = Release|Any CPU
 		{032E17A0-C910-4844-AFE5-21E792AC5BFF}.Release|x86.Build.0 = Release|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Debug|x64.Build.0 = Debug|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Debug|x86.Build.0 = Debug|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Release|x64.ActiveCfg = Release|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Release|x64.Build.0 = Release|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Release|x86.ActiveCfg = Release|Any CPU
+		{FF5245A5-312F-4E9B-89B9-4202EBEE7212}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

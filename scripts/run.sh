@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Path to your WebApi project folder or .csproj file (adjust if needed)
-PROJECT_PATH="./FinanceApp.Presentation.WebApi"
+# Path to Aspire AppHost project
+PROJECT_PATH="./FinanceApp.Backend.AppHost"
 
-echo "Running FinanceApp.Presentation.WebApi..."
+echo "Starting Aspire AppHost (Backend, Frontend, and LLM Processor)..."
 
 dotnet run --project "$PROJECT_PATH"
