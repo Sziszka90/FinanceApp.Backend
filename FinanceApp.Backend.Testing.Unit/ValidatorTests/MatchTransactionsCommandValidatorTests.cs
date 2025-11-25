@@ -1,42 +1,33 @@
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
 using FinanceApp.Backend.Application.Models;
-using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
+using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.MatchTransactionsCommands;
 using FluentValidation.TestHelper;
 
 namespace FinanceApp.Backend.Testing.Unit.ValidatorTests;
 
-public class LLMProcessorCommandValidatorTests : ValidatorTestBase
+public class MatchTransactionsCommandValidatorTests : ValidatorTestBase
 {
-  protected readonly LLMProcessorCommandValidator _validator;
+  protected readonly MatchTransactionsCommandValidator _validator;
 
-  public LLMProcessorCommandValidatorTests()
+  public MatchTransactionsCommandValidatorTests()
   {
-    _validator = new LLMProcessorCommandValidator();
+    _validator = new MatchTransactionsCommandValidator();
   }
 
-  public class ValidCommandTests : LLMProcessorCommandValidatorTests
+  public class ValidCommandTests : MatchTransactionsCommandValidatorTests
   {
     [Fact]
     public void ValidCommand_ShouldNotHaveValidationErrors()
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = "valid-correlation-id-123",
         UserId = "550e8400-e29b-41d4-a716-446655440000",
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>
-          {
-            { "Coffee", "Food" },
-            { "Lunch", "Food" },
-            { "Train ticket", "Transport" }
-          }
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -47,23 +38,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     public void ValidCommand_WithLongValues_ShouldNotHaveValidationErrors()
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = CreateStringOfLength(100),
         UserId = "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>
-          {
-            { "Coffee", "Food" },
-            { "Lunch", "Food" },
-            { "Train ticket", "Transport" }
-          }
-        },
         Success = false,
         Prompt = CreateStringOfLength(500)
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -71,24 +53,20 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     }
   }
 
-  public class CorrelationIdValidationTests : LLMProcessorCommandValidatorTests
+  public class CorrelationIdValidationTests : MatchTransactionsCommandValidatorTests
   {
     [Fact]
     public void CorrelationId_WhenEmpty_ShouldHaveValidationError()
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = string.Empty,
         UserId = "550e8400-e29b-41d4-a716-446655440000",
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>()
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -100,18 +78,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     public void CorrelationId_WhenNull_ShouldHaveValidationError()
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = null!,
         UserId = "550e8400-e29b-41d4-a716-446655440000",
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>()
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -123,18 +97,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     public void CorrelationId_WhenWhitespace_ShouldHaveValidationError()
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = "   ",
         UserId = "550e8400-e29b-41d4-a716-446655440000",
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>()
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -152,23 +122,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     public void CorrelationId_WhenValid_ShouldNotHaveValidationError(string correlationId)
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = correlationId,
         UserId = "550e8400-e29b-41d4-a716-446655440000",
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>
-          {
-            { "Coffee", "Food" },
-            { "Lunch", "Food" },
-            { "Train ticket", "Transport" }
-          }
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -180,23 +141,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     {
       // Arrange
       var longCorrelationId = CreateStringOfLength(500);
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = longCorrelationId,
         UserId = "550e8400-e29b-41d4-a716-446655440000",
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>
-          {
-            { "Coffee", "Food" },
-            { "Lunch", "Food" },
-            { "Train ticket", "Transport" }
-          }
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -204,24 +156,20 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     }
   }
 
-  public class UserIdValidationTests : LLMProcessorCommandValidatorTests
+  public class UserIdValidationTests : MatchTransactionsCommandValidatorTests
   {
     [Fact]
     public void UserId_WhenEmpty_ShouldHaveValidationError()
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = "valid-correlation-id",
         UserId = string.Empty,
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>()
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -233,18 +181,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     public void UserId_WhenNull_ShouldHaveValidationError()
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = "valid-correlation-id",
         UserId = null!,
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>()
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -256,18 +200,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     public void UserId_WhenWhitespace_ShouldHaveValidationError()
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = "valid-correlation-id",
         UserId = "   ",
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>()
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -284,21 +224,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     public void UserId_WhenValid_ShouldNotHaveValidationError(string userId)
     {
       // Arrange
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = "valid-correlation-id",
         UserId = userId,
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>
-          {
-            { "Coffee", "Food" }
-          }
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -310,21 +243,14 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
     {
       // Arrange
       var longUserId = CreateStringOfLength(100);
-      var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+      var responseDto = new RabbitMqPayload
       {
         CorrelationId = "valid-correlation-id",
         UserId = longUserId,
-        Response = new MatchTransactionResponseDto
-        {
-          Transactions = new Dictionary<string, string>
-          {
-            { "Coffee", "Food" }
-          }
-        },
         Success = true,
         Prompt = "Valid prompt"
       };
-      var command = new LLMProcessorCommand(responseDto);
+      var command = new MatchTransactionsCommand(responseDto);
 
       // Act & Assert
       var result = _validator.TestValidate(command);
@@ -333,76 +259,38 @@ public class LLMProcessorCommandValidatorTests : ValidatorTestBase
   }
 
   [Fact]
-  public void Response_WhenLargeJsonResponse_ShouldNotHaveValidationError()
-  {
-    // Arrange
-    var largeResponse = CreateStringOfLength(5000);
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
-    {
-      CorrelationId = "valid-correlation-id",
-      UserId = "550e8400-e29b-41d4-a716-446655440000",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-          {
-            { "LargeTransaction", largeResponse }
-          }
-      },
-      Success = true,
-      Prompt = "Valid prompt"
-    };
-    var command = new LLMProcessorCommand(responseDto);
-
-    // Act & Assert
-    var result = _validator.TestValidate(command);
-    result.ShouldNotHaveValidationErrorFor(x => x.ResponseDto.Response);
-  }
-
-  [Fact]
   public void Response_WhenComplexJsonData_ShouldNotHaveValidationError()
   {
     // Arrange
-    var complexJsonResponse = "[{\"transactionId\":\"123\",\"groupId\":\"456\",\"confidence\":0.95},{\"transactionId\":\"789\",\"groupId\":\"101\",\"confidence\":0.87}]";
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+    var responseDto = new RabbitMqPayload
     {
       CorrelationId = "valid-correlation-id",
       UserId = "550e8400-e29b-41d4-a716-446655440000",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-          {
-            { "ComplexTransaction", complexJsonResponse }
-          }
-      },
       Success = true,
       Prompt = "Valid prompt"
     };
-    var command = new LLMProcessorCommand(responseDto);
+    var command = new MatchTransactionsCommand(responseDto);
 
     // Act & Assert
     var result = _validator.TestValidate(command);
-    result.ShouldNotHaveValidationErrorFor(x => x.ResponseDto.Response);
+    result.ShouldNotHaveValidationErrorFor(x => x.ResponseDto);
   }
 }
 
-public class EdgeCaseTests : LLMProcessorCommandValidatorTests
+public class EdgeCaseTests : MatchTransactionsCommandValidatorTests
 {
   [Fact]
   public void Command_WhenAllFieldsInvalid_ShouldHaveMultipleValidationErrors()
   {
     // Arrange
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+    var responseDto = new RabbitMqPayload
     {
       CorrelationId = string.Empty,
       UserId = string.Empty,
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>()
-      },
       Success = true,
       Prompt = "Valid prompt"
     };
-    var command = new LLMProcessorCommand(responseDto);
+    var command = new MatchTransactionsCommand(responseDto);
 
     // Act & Assert
     var result = _validator.TestValidate(command);
@@ -416,15 +304,14 @@ public class EdgeCaseTests : LLMProcessorCommandValidatorTests
   public void Command_WhenAllFieldsNull_ShouldHaveMultipleValidationErrors()
   {
     // Arrange
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+    var responseDto = new RabbitMqPayload
     {
       CorrelationId = null!,
       UserId = null!,
-      Response = null!,
       Success = false,
       Prompt = null!
     };
-    var command = new LLMProcessorCommand(responseDto);
+    var command = new MatchTransactionsCommand(responseDto);
 
     // Act & Assert
     var result = _validator.TestValidate(command);
@@ -438,21 +325,14 @@ public class EdgeCaseTests : LLMProcessorCommandValidatorTests
   public void Command_WhenSuccessFalseButValidData_ShouldNotHaveValidationErrors()
   {
     // Arrange
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+    var responseDto = new RabbitMqPayload
     {
       CorrelationId = "valid-correlation-id",
       UserId = "550e8400-e29b-41d4-a716-446655440000",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-          {
-            { "ErrorTransaction", "Error occurred during processing" }
-          }
-      },
       Success = false,
       Prompt = "Valid prompt"
     };
-    var command = new LLMProcessorCommand(responseDto);
+    var command = new MatchTransactionsCommand(responseDto);
 
     // Act & Assert
     var result = _validator.TestValidate(command);
@@ -463,21 +343,14 @@ public class EdgeCaseTests : LLMProcessorCommandValidatorTests
   public void Command_WhenMinimalValidData_ShouldNotHaveValidationErrors()
   {
     // Arrange
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+    var responseDto = new RabbitMqPayload
     {
       CorrelationId = "a",
       UserId = "b",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-          {
-            { "Transaction1", "c" }
-          }
-      },
       Success = true,
       Prompt = "d"
     };
-    var command = new LLMProcessorCommand(responseDto);
+    var command = new MatchTransactionsCommand(responseDto);
 
     // Act & Assert
     var result = _validator.TestValidate(command);
@@ -488,21 +361,14 @@ public class EdgeCaseTests : LLMProcessorCommandValidatorTests
   public void Command_WhenSpecialCharactersInFields_ShouldNotHaveValidationErrors()
   {
     // Arrange
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+    var responseDto = new RabbitMqPayload
     {
       CorrelationId = "corr-id!@#$%^&*()",
       UserId = "user-id_123+{}[]",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-          {
-            { "special", "chars!@#$%^&*()" }
-          }
-      },
       Success = true,
       Prompt = "prompt with special chars!@#$%"
     };
-    var command = new LLMProcessorCommand(responseDto);
+    var command = new MatchTransactionsCommand(responseDto);
 
     // Act & Assert
     var result = _validator.TestValidate(command);
@@ -510,27 +376,20 @@ public class EdgeCaseTests : LLMProcessorCommandValidatorTests
   }
 }
 
-public class CancellationTokenTests : LLMProcessorCommandValidatorTests
+public class CancellationTokenTests : MatchTransactionsCommandValidatorTests
 {
   [Fact]
   public void Command_WithDifferentCancellationTokens_ShouldNotAffectValidation()
   {
     // Arrange
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+    var responseDto = new RabbitMqPayload
     {
       CorrelationId = "valid-correlation-id",
       UserId = "550e8400-e29b-41d4-a716-446655440000",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-          {
-            { "Transaction1", "Valid response" }
-          }
-      },
       Success = true,
       Prompt = "Valid prompt"
     };
-    var command = new LLMProcessorCommand(responseDto);
+    var command = new MatchTransactionsCommand(responseDto);
 
     // Act & Assert - Test with different cancellation token states
     var result1 = _validator.TestValidate(command);
@@ -543,24 +402,20 @@ public class CancellationTokenTests : LLMProcessorCommandValidatorTests
   }
 }
 
-public class PropertyPathTests : LLMProcessorCommandValidatorTests
+public class PropertyPathTests : MatchTransactionsCommandValidatorTests
 {
   [Fact]
   public void Validation_ShouldHaveCorrectPropertyPaths()
   {
     // Arrange
-    var responseDto = new RabbitMqPayload<MatchTransactionResponseDto>
+    var responseDto = new RabbitMqPayload
     {
       CorrelationId = "",
       UserId = "",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>()
-      },
       Success = true,
       Prompt = "Valid prompt"
     };
-    var command = new LLMProcessorCommand(responseDto);
+    var command = new MatchTransactionsCommand(responseDto);
 
     // Act
     var result = _validator.TestValidate(command);

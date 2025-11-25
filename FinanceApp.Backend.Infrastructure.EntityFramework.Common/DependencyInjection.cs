@@ -23,6 +23,7 @@ public static class DependencyInjection
     services.AddScoped(typeof(IRepository<Domain.Entities.User>), typeof(GenericRepository<Domain.Entities.User>));
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<IExchangeRateRepository, ExchangeRateRepository>();
+    services.AddScoped<IMatchTransactionRepository, MatchTransactionRepository>();
 
     return services;
   }

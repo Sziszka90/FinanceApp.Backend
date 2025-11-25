@@ -1,9 +1,8 @@
-using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
 using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Application.Models;
-using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
+using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.MatchTransactionsCommands;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
@@ -11,23 +10,23 @@ using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit.TransactionTests.Commands;
 
-public class LLMProcessorTests : TestBase
+public class MatchTransactionsTests : TestBase
 {
-  private readonly Mock<ILogger<LLMProcessorCommandHandler>> _loggerMock;
+  private readonly Mock<ILogger<MatchTransactionsCommandHandler>> _loggerMock;
   private readonly Mock<ISignalRService> _signalRServiceMock;
-  private readonly LLMProcessorCommandHandler _handler;
+  private readonly MatchTransactionsCommandHandler _handler;
 
-  public LLMProcessorTests()
+  public MatchTransactionsTests()
   {
-    _loggerMock = CreateLoggerMock<LLMProcessorCommandHandler>();
+    _loggerMock = CreateLoggerMock<MatchTransactionsCommandHandler>();
     _signalRServiceMock = new Mock<ISignalRService>();
 
-    _handler = new LLMProcessorCommandHandler(
+    _handler = new MatchTransactionsCommandHandler(
       _loggerMock.Object,
       UserRepositoryMock.Object,
       TransactionRepositoryMock.Object,
       TransactionGroupRepositoryMock.Object,
-      ExchangeRateRepositoryMock.Object,
+      MatchedTransactionRepositoryMock.Object,
       UnitOfWorkMock.Object,
       _signalRServiceMock.Object
     );
@@ -55,19 +54,15 @@ public class LLMProcessorTests : TestBase
       { "Bus ticket", "Transport" }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
+    var rabbitMqPayload = new RabbitMqPayload
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = matchedTransactions
-      }
     };
 
-    var command = new LLMProcessorCommand(rabbitMqPayload);
+    var command = new MatchTransactionsCommand(rabbitMqPayload);
 
     // Setup mocks
     UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
@@ -111,19 +106,15 @@ public class LLMProcessorTests : TestBase
   {
     // arrange
     var userId = Guid.NewGuid();
-    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
+    var rabbitMqPayload = new RabbitMqPayload
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>()
-      }
     };
 
-    var command = new LLMProcessorCommand(rabbitMqPayload);
+    var command = new MatchTransactionsCommand(rabbitMqPayload);
 
     UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync((User?)null);
@@ -151,19 +142,15 @@ public class LLMProcessorTests : TestBase
     var user = new User(null, "testuser", "test@example.com", true, "hash", CurrencyEnum.USD);
     user.GetType().GetProperty("Id")?.SetValue(user, userId);
 
-    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
+    var rabbitMqPayload = new RabbitMqPayload
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
       Prompt = "Match transactions to groups",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>()
-      }
     };
 
-    var command = new LLMProcessorCommand(rabbitMqPayload);
+    var command = new MatchTransactionsCommand(rabbitMqPayload);
 
     UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(user);
@@ -195,23 +182,15 @@ public class LLMProcessorTests : TestBase
     var transaction = new Transaction("Coffee", "Morning coffee", TransactionTypeEnum.Expense,
       new Money { Amount = 5.00m, Currency = CurrencyEnum.USD }, 5.00m, null, DateTime.UtcNow, user);
 
-    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
+    var rabbitMqPayload = new RabbitMqPayload
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
-      Prompt = "Match transactions to groups",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-        {
-          { "Coffee", "Food" },
-          { "Bus ticket", "Transport" }
-        }
-      }
+      Prompt = "Match transactions to groups"
     };
 
-    var command = new LLMProcessorCommand(rabbitMqPayload);
+    var command = new MatchTransactionsCommand(rabbitMqPayload);
 
     UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(user);
@@ -254,23 +233,15 @@ public class LLMProcessorTests : TestBase
       new() { { "Coffee", "Food" } }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
+    var rabbitMqPayload = new RabbitMqPayload
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
-      Prompt = "Match transactions to groups",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-        {
-          { "Coffee", "Food" },
-          { "Bus ticket", "Transport" }
-        }
-      }
+      Prompt = "Match transactions to groups"
     };
 
-    var command = new LLMProcessorCommand(rabbitMqPayload);
+    var command = new MatchTransactionsCommand(rabbitMqPayload);
 
     // Setup mocks
     UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
@@ -314,22 +285,15 @@ public class LLMProcessorTests : TestBase
       new() { { "Coffee", "Food" } }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
+    var rabbitMqPayload = new RabbitMqPayload
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
-      Prompt = "Match transactions to groups",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-        {
-          { "Coffee", "Food" }
-        }
-      }
+      Prompt = "Match transactions to groups"
     };
 
-    var command = new LLMProcessorCommand(rabbitMqPayload);
+    var command = new MatchTransactionsCommand(rabbitMqPayload);
 
     // Setup mocks
     UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
@@ -380,24 +344,15 @@ public class LLMProcessorTests : TestBase
       new() { { "Train ticket", "Transport" } }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
+    var rabbitMqPayload = new RabbitMqPayload
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
-      Prompt = "Match transactions to groups",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = new Dictionary<string, string>
-        {
-          { "Coffee", "Food" },
-          { "Lunch", "Food" },
-          { "Train ticket", "Transport" }
-        }
-      }
+      Prompt = "Match transactions to groups"
     };
 
-    var command = new LLMProcessorCommand(rabbitMqPayload);
+    var command = new MatchTransactionsCommand(rabbitMqPayload);
 
     // Setup mocks
     UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
@@ -450,19 +405,15 @@ public class LLMProcessorTests : TestBase
       { "Coffee", "Food" }
     };
 
-    var rabbitMqPayload = new RabbitMqPayload<MatchTransactionResponseDto>
+    var rabbitMqPayload = new RabbitMqPayload
     {
       CorrelationId = Guid.NewGuid().ToString(),
       Success = true,
       UserId = userId.ToString(),
-      Prompt = "Match transactions to groups",
-      Response = new MatchTransactionResponseDto
-      {
-        Transactions = matchedTransactions
-      }
+      Prompt = "Match transactions to groups"
     };
 
-    var command = new LLMProcessorCommand(rabbitMqPayload);
+    var command = new MatchTransactionsCommand(rabbitMqPayload);
 
     // Setup mocks
     UserRepositoryMock.Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))

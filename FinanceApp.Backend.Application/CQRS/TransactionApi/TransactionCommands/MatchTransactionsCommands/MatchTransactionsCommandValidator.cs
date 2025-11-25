@@ -1,11 +1,11 @@
 using FinanceApp.Backend.Application.Models;
 using FluentValidation;
 
-namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
+namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.MatchTransactionsCommands;
 
-public class LLMProcessorCommandValidator : AbstractValidator<LLMProcessorCommand>
+public class MatchTransactionsCommandValidator : AbstractValidator<MatchTransactionsCommand>
 {
-  public LLMProcessorCommandValidator()
+  public MatchTransactionsCommandValidator()
   {
     RuleFor(x => x.ResponseDto.CorrelationId)
       .NotEmpty()

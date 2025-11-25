@@ -4,6 +4,7 @@ using FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Migrations
 {
     [DbContext(typeof(FinanceAppMssqlDbContext))]
-    partial class FinanceAppMssqlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251123194527_AddTransactionMatch")]
+    partial class AddTransactionMatch
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,15 +73,6 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Migrations
                     b.Property<string>("TransactionGroup")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("Modified")
-                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Transaction", "TransactionGroup");
 

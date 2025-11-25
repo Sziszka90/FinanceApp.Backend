@@ -3,26 +3,26 @@ using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Application.Models;
-using FinanceApp.Backend.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
-namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
+namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.MatchTransactionsCommands;
 
-public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, Result<bool>>
+public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactionsCommand, Result<bool>>
 {
-  private readonly ILogger<LLMProcessorCommandHandler> _logger;
+  private readonly ILogger<MatchTransactionsCommandHandler> _logger;
   private readonly IUserRepository _userRepository;
   private readonly ITransactionRepository _transactionRepository;
   private readonly ITransactionGroupRepository _transactionGroupRepository;
+  private readonly IMatchTransactionRepository _matchTransactionRepository;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ISignalRService _signalRService;
 
-  public LLMProcessorCommandHandler(
-    ILogger<LLMProcessorCommandHandler> logger,
+  public MatchTransactionsCommandHandler(
+    ILogger<MatchTransactionsCommandHandler> logger,
     IUserRepository userRepository,
     ITransactionRepository transactionRepository,
     ITransactionGroupRepository transactionGroupRepository,
-    IExchangeRateRepository @object,
+    IMatchTransactionRepository matchTransactionRepository,
     IUnitOfWork unitOfWork,
     ISignalRService signalRService)
   {
@@ -30,12 +30,13 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
     _userRepository = userRepository;
     _transactionRepository = transactionRepository;
     _transactionGroupRepository = transactionGroupRepository;
+    _matchTransactionRepository = matchTransactionRepository;
     _unitOfWork = unitOfWork;
     _signalRService = signalRService;
   }
 
   /// <inheritdoc />
-  public async Task<Result<bool>> Handle(LLMProcessorCommand request, CancellationToken cancellationToken)
+  public async Task<Result<bool>> Handle(MatchTransactionsCommand request, CancellationToken cancellationToken)
   {
     var user = await _userRepository.GetByIdAsync(new Guid(request.ResponseDto.UserId), noTracking: false, cancellationToken: cancellationToken);
 
@@ -60,9 +61,11 @@ public class LLMProcessorCommandHandler : ICommandHandler<LLMProcessorCommand, R
       return Result.Failure<bool>(ApplicationError.DefaultError("Transaction group list is empty."));
     }
 
+    var matchedTransactions = await _matchTransactionRepository.GetAllAsync();
+
     foreach (var transaction in existingTransactions)
     {
-      var matchedGroup = request.ResponseDto.Response.Transactions.TryGetValue(transaction.Name, out var groupName) ? groupName : null;
+      var matchedGroup = matchedTransactions.FirstOrDefault(t => t.Transaction == transaction.Name)?.TransactionGroup;
 
       if (matchedGroup != null)
       {

@@ -3,6 +3,7 @@ using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
 using FinanceApp.Backend.Application.Exceptions;
+using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.MatchTransactionsCommands;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.UploadCsv;
 using FinanceApp.Backend.Domain.Options;
 using MediatR;
@@ -168,7 +169,7 @@ public class RabbitMqClient : IRabbitMqClient
       };
 
       var jsonString = Encoding.UTF8.GetString(body);
-      var message = Newtonsoft.Json.JsonConvert.DeserializeObject<RabbitMqPayload<MatchTransactionResponseDto>>(jsonString, settings) ?? throw new JsonException("Deserialized message is null");
+      var message = Newtonsoft.Json.JsonConvert.DeserializeObject<RabbitMqPayload>(jsonString, settings) ?? throw new JsonException("Deserialized message is null");
 
       using var scope = _serviceProvider.CreateScope();
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -176,7 +177,7 @@ public class RabbitMqClient : IRabbitMqClient
       switch (ea.RoutingKey)
       {
         case var rk when rk == _settings.RoutingKeys.Where(x => x.Key == "TransactionsMatched").First().Value.RoutingKeyName:
-          await mediator.Send(new LLMProcessorCommand(message));
+          await mediator.Send(new MatchTransactionsCommand(message));
           break;
 
         default:

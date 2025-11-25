@@ -10,6 +10,7 @@ public abstract class FinanceAppDbContext : DbContext
   public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
   public DbSet<ExchangeRate> ExchangeRate => Set<ExchangeRate>();
   public DbSet<User> User => Set<User>();
+  public DbSet<MatchTransaction> MatchTransaction => Set<MatchTransaction>();
 
   protected FinanceAppDbContext(
     DbContextOptions options) : base(options)

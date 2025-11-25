@@ -23,6 +23,7 @@ public abstract class TestBase
   protected readonly Mock<ITransactionGroupRepository> TransactionGroupRepositoryMock = new Mock<ITransactionGroupRepository>();
   protected readonly Mock<ITransactionRepository> TransactionRepositoryMock = new Mock<ITransactionRepository>();
   protected readonly Mock<IExchangeRateRepository> ExchangeRateRepositoryMock = new Mock<IExchangeRateRepository>();
+  protected readonly Mock<IMatchTransactionRepository> MatchedTransactionRepositoryMock = new Mock<IMatchTransactionRepository>();
   protected readonly Mock<IUnitOfWork> UnitOfWorkMock = new Mock<IUnitOfWork>();
   protected readonly Mock<ISmtpEmailSender> SmtpEmailSenderMock = new Mock<ISmtpEmailSender>();
   protected readonly Mock<IBcryptService> BcryptServiceMock = new Mock<IBcryptService>();
@@ -70,6 +71,7 @@ public abstract class TestBase
     SetupUserRepositoryMock();
     SetupTransactionGroupRepositoryMock();
     SetupTransactionRepositoryMock();
+    SetupMatchedTransactionRepository();
     SetupUnitOfWorkMock();
     SetupSmtpEmailSenderMock();
     SetupExchangeRateRepositoryMock();
@@ -147,6 +149,13 @@ public abstract class TestBase
         It.IsAny<int>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction>());
+  }
+
+  protected virtual void SetupMatchedTransactionRepository()
+  {
+    MatchedTransactionRepositoryMock
+      .Setup(x => x.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<MatchTransaction>());
   }
 
   protected virtual void SetupUnitOfWorkMock()
