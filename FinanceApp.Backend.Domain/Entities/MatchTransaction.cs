@@ -17,5 +17,5 @@ public class MatchTransaction : BaseEntity
   /// <summary>
   /// Correlation ID
   /// </summary>
-  public required string CorrelationId { get; set;}
+  public required string CorrelationId { get; set; }
 }
