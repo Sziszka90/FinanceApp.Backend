@@ -90,8 +90,8 @@ public abstract class TestBase
       .ReturnsAsync((User user, CancellationToken ct) => user);
 
     UserRepositoryMock
-      .Setup(x => x.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-      .Returns(Task.CompletedTask);
+      .Setup(x => x.Delete(It.IsAny<User>()))
+      .Callback<User>(u => { });
 
     UserRepositoryMock
       .Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))

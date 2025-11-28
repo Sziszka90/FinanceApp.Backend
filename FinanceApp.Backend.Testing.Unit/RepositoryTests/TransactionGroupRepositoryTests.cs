@@ -346,7 +346,7 @@ public class TransactionGroupRepositoryTests : IDisposable
       await _dbContext.SaveChangesAsync();
 
       // act
-      await _repository.DeleteAsync(transactionGroup);
+      _repository.Delete(transactionGroup);
       await _dbContext.SaveChangesAsync();
 
       // assert

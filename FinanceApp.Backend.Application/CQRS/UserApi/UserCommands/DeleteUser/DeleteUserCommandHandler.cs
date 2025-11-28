@@ -43,7 +43,7 @@ public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Resul
 
     await _transactionRepository.DeleteAllByUserIdAsync(user.Id, cancellationToken);
     await _transactionGroupRepository.DeleteAllByUserIdAsync(user.Id, cancellationToken);
-    await _userRepository.DeleteAsync(user, cancellationToken);
+    _userRepository.Delete(user);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

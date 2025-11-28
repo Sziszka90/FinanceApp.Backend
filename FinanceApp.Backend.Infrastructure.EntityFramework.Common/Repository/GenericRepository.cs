@@ -174,14 +174,13 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
   }
 
   /// <inheritdoc />
-  public virtual Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
+  public virtual void Delete(T entity)
   {
     _dbContext.Set<T>()
              .Remove(entity);
-    return Task.CompletedTask;
   }
 
-  public void DeleteAllAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+  public void DeleteAll(IEnumerable<T> entities)
   {
     _dbContext.Set<T>().RemoveRange(entities);
   }

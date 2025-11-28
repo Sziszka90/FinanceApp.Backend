@@ -44,7 +44,7 @@ public class DeleteUserTests : TestBase
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
     TransactionGroupRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
-    UserRepositoryMock.Verify(x => x.DeleteAsync(existingUser, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.Delete(existingUser), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
 
@@ -66,7 +66,7 @@ public class DeleteUserTests : TestBase
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     TransactionGroupRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
-    UserRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<Domain.Entities.User>(), It.IsAny<CancellationToken>()), Times.Never);
+    UserRepositoryMock.Verify(x => x.Delete(It.IsAny<Domain.Entities.User>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -93,7 +93,7 @@ public class DeleteUserTests : TestBase
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
     TransactionGroupRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
-    UserRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<Domain.Entities.User>(), It.IsAny<CancellationToken>()), Times.Never);
+    UserRepositoryMock.Verify(x => x.Delete(It.IsAny<Domain.Entities.User>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -120,7 +120,7 @@ public class DeleteUserTests : TestBase
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
     TransactionGroupRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
-    UserRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<Domain.Entities.User>(), It.IsAny<CancellationToken>()), Times.Never);
+    UserRepositoryMock.Verify(x => x.Delete(It.IsAny<Domain.Entities.User>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -137,8 +137,8 @@ public class DeleteUserTests : TestBase
       .ReturnsAsync(existingUser);
 
     UserRepositoryMock
-      .Setup(x => x.DeleteAsync(existingUser, It.IsAny<CancellationToken>()))
-      .ThrowsAsync(new Exception("Database error"));
+      .Setup(x => x.Delete(existingUser))
+      .Throws(new Exception("Database error"));
 
     // act & assert
     var exception = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
@@ -147,7 +147,7 @@ public class DeleteUserTests : TestBase
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
     TransactionGroupRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
-    UserRepositoryMock.Verify(x => x.DeleteAsync(existingUser, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.Delete(existingUser), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -174,7 +174,7 @@ public class DeleteUserTests : TestBase
     UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
     TransactionGroupRepositoryMock.Verify(x => x.DeleteAllByUserIdAsync(existingUser.Id, It.IsAny<CancellationToken>()), Times.Once);
-    UserRepositoryMock.Verify(x => x.DeleteAsync(existingUser, It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.Delete(existingUser), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
 
@@ -199,7 +199,7 @@ public class DeleteUserTests : TestBase
     // assert
     Assert.True(result.IsSuccess);
 
-    UserRepositoryMock.Verify(x => x.DeleteAsync(It.Is<Domain.Entities.User>(u => u.BaseCurrency == baseCurrency), It.IsAny<CancellationToken>()), Times.Once);
+    UserRepositoryMock.Verify(x => x.Delete(It.Is<Domain.Entities.User>(u => u.BaseCurrency == baseCurrency)), Times.Once);
   }
 
   [Fact]

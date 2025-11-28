@@ -36,7 +36,7 @@ public class DeleteTransactionGroupTests : TestBase
     // assert
     Assert.False(result.IsSuccess);
     TransactionRepositoryMock.Verify(x => x.TransactionGroupUsedAsync(groupId, It.IsAny<CancellationToken>()), Times.Once);
-    TransactionGroupRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<TransactionGroup>(), It.IsAny<CancellationToken>()), Times.Never);
+    TransactionGroupRepositoryMock.Verify(x => x.Delete(It.IsAny<TransactionGroup>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -55,7 +55,7 @@ public class DeleteTransactionGroupTests : TestBase
     // assert
     Assert.False(result.IsSuccess);
     TransactionGroupRepositoryMock.Verify(x => x.GetByIdAsync(groupId, true, It.IsAny<CancellationToken>()), Times.Once);
-    TransactionGroupRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<TransactionGroup>(), It.IsAny<CancellationToken>()), Times.Never);
+    TransactionGroupRepositoryMock.Verify(x => x.Delete(It.IsAny<TransactionGroup>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -68,7 +68,7 @@ public class DeleteTransactionGroupTests : TestBase
     var user = new User("TestUser", "test@example.com", "hash", CurrencyEnum.USD);
     var group = new TransactionGroup("TestGroup", "desc", null, user);
     TransactionGroupRepositoryMock.Setup(x => x.GetByIdAsync(groupId, true, It.IsAny<CancellationToken>())).ReturnsAsync(group);
-    TransactionGroupRepositoryMock.Setup(x => x.DeleteAsync(group, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+    TransactionGroupRepositoryMock.Setup(x => x.Delete(group));
     UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
     var command = new DeleteTransactionGroupCommand(groupId, CancellationToken.None);
 
@@ -77,7 +77,7 @@ public class DeleteTransactionGroupTests : TestBase
 
     // assert
     Assert.True(result.IsSuccess);
-    TransactionGroupRepositoryMock.Verify(x => x.DeleteAsync(group, It.IsAny<CancellationToken>()), Times.Once);
+    TransactionGroupRepositoryMock.Verify(x => x.Delete(group), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
 }

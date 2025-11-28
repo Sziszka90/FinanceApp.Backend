@@ -43,7 +43,7 @@ public class DeleteTransactionTests : TestBase
     );
 
     TransactionRepositoryMock.Setup(x => x.GetByIdAsync(transaction.Id, true, It.IsAny<CancellationToken>())).ReturnsAsync(transaction);
-    TransactionRepositoryMock.Setup(x => x.DeleteAsync(transaction, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+    TransactionRepositoryMock.Setup(x => x.Delete(transaction));
     UnitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
     var command = new DeleteTransactionCommand(transaction.Id, CancellationToken.None);
 
@@ -53,7 +53,7 @@ public class DeleteTransactionTests : TestBase
     // assert
     Assert.True(result.IsSuccess);
     TransactionRepositoryMock.Verify(x => x.GetByIdAsync(transaction.Id, true, It.IsAny<CancellationToken>()), Times.Once);
-    TransactionRepositoryMock.Verify(x => x.DeleteAsync(transaction, It.IsAny<CancellationToken>()), Times.Once);
+    TransactionRepositoryMock.Verify(x => x.Delete(transaction), Times.Once);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
   }
 
@@ -71,7 +71,7 @@ public class DeleteTransactionTests : TestBase
     // assert
     Assert.False(result.IsSuccess);
     TransactionRepositoryMock.Verify(x => x.GetByIdAsync(transactionId, true, It.IsAny<CancellationToken>()), Times.Once);
-    TransactionRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<Transaction>(), It.IsAny<CancellationToken>()), Times.Never);
+    TransactionRepositoryMock.Verify(x => x.Delete(It.IsAny<Transaction>()), Times.Never);
     UnitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 }

@@ -32,7 +32,7 @@ public class DeleteTransactionCommandHandler : ICommandHandler<DeleteTransaction
       return Result.Failure(ApplicationError.EntityNotFoundError(request.Id.ToString()));
     }
 
-    await _transactionRepository.DeleteAsync(transaction, cancellationToken);
+    _transactionRepository.Delete(transaction);
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
     _logger.LogInformation("Transaction deleted with ID:{Id}", request.Id);

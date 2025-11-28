@@ -77,6 +77,16 @@ public class MatchTransactionsTests : TestBase
     TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction> { transaction1, transaction2 });
 
+    MatchedTransactionRepositoryMock.Setup(x => x.GetAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<MatchTransaction>
+      {
+        new MatchTransaction { Transaction = "Coffee", TransactionGroup = "Food", CorrelationId = rabbitMqPayload.CorrelationId },
+        new MatchTransaction { Transaction = "Bus ticket", TransactionGroup = "Transport", CorrelationId = rabbitMqPayload.CorrelationId }
+      });
+
+    MatchedTransactionRepositoryMock.Setup(x => x.DeleteAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
+
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -256,6 +266,15 @@ public class MatchTransactionsTests : TestBase
     TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction> { transaction });
 
+    MatchedTransactionRepositoryMock.Setup(x => x.GetAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<MatchTransaction>
+      {
+        new MatchTransaction { Transaction = "Coffee", TransactionGroup = "Food", CorrelationId = rabbitMqPayload.CorrelationId }
+      });
+
+    MatchedTransactionRepositoryMock.Setup(x => x.DeleteAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
+
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -307,6 +326,15 @@ public class MatchTransactionsTests : TestBase
 
     TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction> { transaction });
+
+    MatchedTransactionRepositoryMock.Setup(x => x.GetAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<MatchTransaction>
+      {
+        new MatchTransaction { Transaction = "Coffee", TransactionGroup = "Food", CorrelationId = rabbitMqPayload.CorrelationId }
+      });
+
+    MatchedTransactionRepositoryMock.Setup(x => x.DeleteAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -366,6 +394,17 @@ public class MatchTransactionsTests : TestBase
 
     TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction> { usdTransaction, eurTransaction, gbpTransaction });
+
+    MatchedTransactionRepositoryMock.Setup(x => x.GetAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<MatchTransaction>
+      {
+        new MatchTransaction { Transaction = "Coffee", TransactionGroup = "Food", CorrelationId = rabbitMqPayload.CorrelationId },
+        new MatchTransaction { Transaction = "Lunch", TransactionGroup = "Food", CorrelationId = rabbitMqPayload.CorrelationId },
+        new MatchTransaction { Transaction = "Train ticket", TransactionGroup = "Transport", CorrelationId = rabbitMqPayload.CorrelationId }
+      });
+
+    MatchedTransactionRepositoryMock.Setup(x => x.DeleteAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -427,6 +466,15 @@ public class MatchTransactionsTests : TestBase
 
     TransactionRepositoryMock.Setup(x => x.GetAllAsync(true, It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction> { matchedTransaction, unmatchedTransaction });
+
+    MatchedTransactionRepositoryMock.Setup(x => x.GetAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<MatchTransaction>
+      {
+        new MatchTransaction { Transaction = "Coffee", TransactionGroup = "Food", CorrelationId = rabbitMqPayload.CorrelationId }
+      });
+
+    MatchedTransactionRepositoryMock.Setup(x => x.DeleteAllByCorrelationIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
 
     // act
     var result = await _handler.Handle(command, CancellationToken.None);

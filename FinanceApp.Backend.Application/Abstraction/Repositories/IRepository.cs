@@ -109,17 +109,15 @@ public interface IRepository<T> where T : BaseEntity
   /// Removes an entity from the repository.
   /// </summary>
   /// <param name="entity">The entity to delete</param>
-  /// <param name="cancellationToken">Cancellation token</param>
   /// <returns></returns>
   /// <exception cref="DatabaseException">Thrown when there is an error deleting the entity.</exception>
-  Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
+  void Delete(T entity);
 
   /// <summary>
   /// Removes all entities from the repository.
   /// </summary>
   /// <param name="entities">The entities to delete</param>
-  /// <param name="cancellationToken">Cancellation token</param>
   /// <returns></returns>
   /// <exception cref="DatabaseException">Thrown when there is an error deleting the entities.</exception>
-  void DeleteAllAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
+  void DeleteAll(IEnumerable<T> entities);
 }

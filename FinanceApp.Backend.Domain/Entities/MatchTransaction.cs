@@ -13,4 +13,9 @@ public class MatchTransaction : BaseEntity
   /// Matched transaction group
   /// </summary>
   public required string TransactionGroup { get; set; }
+
+  /// <summary>
+  /// Correlation ID
+  /// </summary>
+  public required string CorrelationId { get; set;}
 }

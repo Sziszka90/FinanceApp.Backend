@@ -44,7 +44,7 @@ public class DeleteTransactionGroupCommandHandler : ICommandHandler<DeleteTransa
       return Result.Failure(ApplicationError.EntityNotFoundError(request.Id.ToString()));
     }
 
-    await _transactionGroupRepository.DeleteAsync(transactionGroup, cancellationToken: cancellationToken);
+    _transactionGroupRepository.Delete(transactionGroup);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 

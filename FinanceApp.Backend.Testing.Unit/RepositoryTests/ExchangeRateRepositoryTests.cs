@@ -217,7 +217,7 @@ public class ExchangeRateRepositoryTests : IDisposable
       await _dbContext.SaveChangesAsync();
 
       // act
-      await _repository.DeleteAsync(exchangeRate);
+      _repository.Delete(exchangeRate);
       await _dbContext.SaveChangesAsync(); // Need to save changes to persist the deletion
 
       // assert

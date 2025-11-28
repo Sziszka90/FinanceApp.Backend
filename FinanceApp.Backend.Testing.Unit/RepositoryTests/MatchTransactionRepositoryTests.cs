@@ -53,10 +53,12 @@ public class MatchTransactionRepositoryTests : IDisposable
       // Arrange
       var transaction = "Grocery Store";
       var transactionGroup = "Food";
+      var correlationId = Guid.NewGuid().ToString();
       var matchTransaction = new MatchTransaction
       {
         Transaction = transaction,
-        TransactionGroup = transactionGroup
+        TransactionGroup = transactionGroup,
+        CorrelationId = correlationId
       };
 
       await _dbContext.Set<MatchTransaction>().AddAsync(matchTransaction);
@@ -95,15 +97,18 @@ public class MatchTransactionRepositoryTests : IDisposable
     {
       // Arrange
       var transaction = "Coffee Shop";
+      var correlationId = Guid.NewGuid().ToString();
       var matchTransaction1 = new MatchTransaction
       {
         Transaction = transaction,
-        TransactionGroup = "Food"
+        TransactionGroup = "Food",
+        CorrelationId = correlationId
       };
       var matchTransaction2 = new MatchTransaction
       {
         Transaction = transaction,
-        TransactionGroup = "Entertainment"
+        TransactionGroup = "Entertainment",
+        CorrelationId = correlationId
       };
 
       await _dbContext.Set<MatchTransaction>().AddRangeAsync(matchTransaction1, matchTransaction2);
@@ -143,10 +148,12 @@ public class MatchTransactionRepositoryTests : IDisposable
       // Arrange
       var transaction = "Restaurant";
       var transactionGroup = "Food";
+      var correlationId = Guid.NewGuid().ToString();
       var matchTransaction = new MatchTransaction
       {
         Transaction = transaction,
-        TransactionGroup = transactionGroup
+        TransactionGroup = transactionGroup,
+        CorrelationId = correlationId
       };
 
       await _dbContext.Set<MatchTransaction>().AddAsync(matchTransaction);
@@ -184,10 +191,12 @@ public class MatchTransactionRepositoryTests : IDisposable
       // Arrange
       var transaction = "Gas Station";
       var transactionGroup = "Transport";
+      var correlationId = Guid.NewGuid().ToString();
       var matchTransaction = new MatchTransaction
       {
         Transaction = transaction,
-        TransactionGroup = transactionGroup
+        TransactionGroup = transactionGroup,
+        CorrelationId = correlationId
       };
 
       // Act
@@ -212,17 +221,19 @@ public class MatchTransactionRepositoryTests : IDisposable
       // Arrange
       var transaction = "Pharmacy";
       var transactionGroup = "Health";
+      var correlationId = Guid.NewGuid().ToString();
       var matchTransaction = new MatchTransaction
       {
         Transaction = transaction,
-        TransactionGroup = transactionGroup
+        TransactionGroup = transactionGroup,
+        CorrelationId = correlationId
       };
 
       await _dbContext.Set<MatchTransaction>().AddAsync(matchTransaction);
       await _dbContext.SaveChangesAsync();
 
       // Act
-      await _repository.DeleteAsync(matchTransaction);
+      _repository.Delete(matchTransaction);
       await _dbContext.SaveChangesAsync();
 
       // Assert
@@ -241,17 +252,20 @@ public class MatchTransactionRepositoryTests : IDisposable
       var matchTransaction1 = new MatchTransaction
       {
         Transaction = "Store A",
-        TransactionGroup = "Shopping"
+        TransactionGroup = "Shopping",
+        CorrelationId = Guid.NewGuid().ToString()
       };
       var matchTransaction2 = new MatchTransaction
       {
         Transaction = "Store B",
-        TransactionGroup = "Shopping"
+        TransactionGroup = "Shopping",
+        CorrelationId = Guid.NewGuid().ToString()
       };
       var matchTransaction3 = new MatchTransaction
       {
         Transaction = "Store C",
-        TransactionGroup = "Food"
+        TransactionGroup = "Food",
+        CorrelationId = Guid.NewGuid().ToString()
       };
 
       await _dbContext.Set<MatchTransaction>().AddRangeAsync(matchTransaction1, matchTransaction2, matchTransaction3);
@@ -274,6 +288,187 @@ public class MatchTransactionRepositoryTests : IDisposable
       // Assert
       Assert.NotNull(result);
       Assert.Empty(result);
+    }
+  }
+
+  public class GetAllByCorrelationIdAsyncTests : MatchTransactionRepositoryTests
+  {
+    [Fact]
+    public async Task GetAllByCorrelationIdAsync_WithMatchingCorrelationId_ShouldReturnMatches()
+    {
+      // Arrange
+      var correlationId = Guid.NewGuid().ToString();
+      var otherCorrelationId = Guid.NewGuid().ToString();
+      var matchTransaction1 = new MatchTransaction
+      {
+        Transaction = "Store A",
+        TransactionGroup = "Shopping",
+        CorrelationId = correlationId
+      };
+      var matchTransaction2 = new MatchTransaction
+      {
+        Transaction = "Store B",
+        TransactionGroup = "Food",
+        CorrelationId = correlationId
+      };
+      var matchTransaction3 = new MatchTransaction
+      {
+        Transaction = "Store C",
+        TransactionGroup = "Transport",
+        CorrelationId = otherCorrelationId
+      };
+
+      await _dbContext.Set<MatchTransaction>().AddRangeAsync(matchTransaction1, matchTransaction2, matchTransaction3);
+      await _dbContext.SaveChangesAsync();
+
+      // Act
+      var result = await _repository.GetAllByCorrelationIdAsync(correlationId);
+
+      // Assert
+      Assert.NotNull(result);
+      Assert.Equal(2, result.Count);
+      Assert.All(result, m => Assert.Equal(correlationId, m.CorrelationId));
+    }
+
+    [Fact]
+    public async Task GetAllByCorrelationIdAsync_WithNonExistingCorrelationId_ShouldReturnEmptyList()
+    {
+      // Arrange
+      var correlationId = Guid.NewGuid().ToString();
+      var matchTransaction = new MatchTransaction
+      {
+        Transaction = "Store A",
+        TransactionGroup = "Shopping",
+        CorrelationId = Guid.NewGuid().ToString()
+      };
+
+      await _dbContext.Set<MatchTransaction>().AddAsync(matchTransaction);
+      await _dbContext.SaveChangesAsync();
+
+      // Act
+      var result = await _repository.GetAllByCorrelationIdAsync(correlationId);
+
+      // Assert
+      Assert.NotNull(result);
+      Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetAllByCorrelationIdAsync_WithEmptyDatabase_ShouldReturnEmptyList()
+    {
+      // Arrange
+      var correlationId = Guid.NewGuid().ToString();
+
+      // Act
+      var result = await _repository.GetAllByCorrelationIdAsync(correlationId);
+
+      // Assert
+      Assert.NotNull(result);
+      Assert.Empty(result);
+    }
+  }
+
+  public class DeleteAllByCorrelationIdAsyncTests : MatchTransactionRepositoryTests
+  {
+    [Fact]
+    public async Task DeleteAllByCorrelationIdAsync_WithMatchingCorrelationId_ShouldDeleteAllMatches()
+    {
+      // Arrange
+      var correlationId = Guid.NewGuid().ToString();
+      var otherCorrelationId = Guid.NewGuid().ToString();
+      var matchTransaction1 = new MatchTransaction
+      {
+        Transaction = "Store A",
+        TransactionGroup = "Shopping",
+        CorrelationId = correlationId
+      };
+      var matchTransaction2 = new MatchTransaction
+      {
+        Transaction = "Store B",
+        TransactionGroup = "Food",
+        CorrelationId = correlationId
+      };
+      var matchTransaction3 = new MatchTransaction
+      {
+        Transaction = "Store C",
+        TransactionGroup = "Transport",
+        CorrelationId = otherCorrelationId
+      };
+
+      await _dbContext.Set<MatchTransaction>().AddRangeAsync(matchTransaction1, matchTransaction2, matchTransaction3);
+      await _dbContext.SaveChangesAsync();
+
+      // Act
+      await _repository.DeleteAllByCorrelationIdAsync(correlationId);
+      await _dbContext.SaveChangesAsync();
+
+      // Assert
+      var remainingMatches = await _dbContext.Set<MatchTransaction>().ToListAsync();
+      Assert.Single(remainingMatches);
+      Assert.Equal(otherCorrelationId, remainingMatches[0].CorrelationId);
+      Assert.Equal("Store C", remainingMatches[0].Transaction);
+    }
+
+    [Fact]
+    public async Task DeleteAllByCorrelationIdAsync_WithNonExistingCorrelationId_ShouldNotDeleteAnything()
+    {
+      // Arrange
+      var correlationId = Guid.NewGuid().ToString();
+      var matchTransaction = new MatchTransaction
+      {
+        Transaction = "Store A",
+        TransactionGroup = "Shopping",
+        CorrelationId = Guid.NewGuid().ToString()
+      };
+
+      await _dbContext.Set<MatchTransaction>().AddAsync(matchTransaction);
+      await _dbContext.SaveChangesAsync();
+
+      // Act
+      await _repository.DeleteAllByCorrelationIdAsync(correlationId);
+
+      // Assert
+      var remainingMatches = await _dbContext.Set<MatchTransaction>().ToListAsync();
+      Assert.Single(remainingMatches);
+    }
+
+    [Fact]
+    public async Task DeleteAllByCorrelationIdAsync_WithEmptyDatabase_ShouldNotThrowException()
+    {
+      // Arrange
+      var correlationId = Guid.NewGuid().ToString();
+
+      // Act & Assert
+      await _repository.DeleteAllByCorrelationIdAsync(correlationId);
+
+      var remainingMatches = await _dbContext.Set<MatchTransaction>().ToListAsync();
+      Assert.Empty(remainingMatches);
+    }
+
+    [Fact]
+    public async Task DeleteAllByCorrelationIdAsync_ShouldSaveChangesToDatabase()
+    {
+      // Arrange
+      var correlationId = Guid.NewGuid().ToString();
+      var matchTransaction = new MatchTransaction
+      {
+        Transaction = "Store A",
+        TransactionGroup = "Shopping",
+        CorrelationId = correlationId
+      };
+
+      await _dbContext.Set<MatchTransaction>().AddAsync(matchTransaction);
+      await _dbContext.SaveChangesAsync();
+
+      // Act
+      await _repository.DeleteAllByCorrelationIdAsync(correlationId);
+      await _dbContext.SaveChangesAsync();
+
+      // Assert - Verify changes are persisted by creating a new context
+      var verifyMatches = await _dbContext.Set<MatchTransaction>()
+        .Where(m => m.CorrelationId == correlationId)
+        .ToListAsync();
+      Assert.Empty(verifyMatches);
     }
   }
 }

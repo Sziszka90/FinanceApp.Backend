@@ -61,7 +61,7 @@ public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactions
       return Result.Failure<bool>(ApplicationError.DefaultError("Transaction group list is empty."));
     }
 
-    var matchedTransactions = await _matchTransactionRepository.GetAllAsync();
+    var matchedTransactions = await _matchTransactionRepository.GetAllByCorrelationIdAsync(request.ResponseDto.CorrelationId);
 
     foreach (var transaction in existingTransactions)
     {
@@ -73,6 +73,8 @@ public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactions
         transaction.TransactionGroup = group;
       }
     }
+
+    await _matchTransactionRepository.DeleteAllByCorrelationIdAsync(request.ResponseDto.CorrelationId);
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
 
