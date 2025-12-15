@@ -107,7 +107,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}
       - name: Build and Push .NET image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
@@ -118,61 +118,3 @@ jobs:
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           docker build -t ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER} -f Gateway.Dockerfile .
           docker push ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER}
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [build-and-push]
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Upgrade Azure Container Apps extension
-        run: |
-          az extension add --name containerapp --upgrade --yes
-      - name: Install dotnet-ef tool
-        run: |
-          dotnet tool install --global dotnet-ef
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-      - name: Run EF Core Migrations (custom script)
-        run: |
-          chmod +x ./scripts/run-migration.sh
-          ./scripts/run-migration.sh mssql "${{ secrets.DB_CONNECTION_STRING }}"
-      - name: Update Azure Container App (Backend)
-        run: |
-          set -x
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          az containerapp update \
-            --name finance-app-backend \
-            --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER} \
-            --set-env-vars \
-              ConnectionStrings__MsSql='${{ secrets.DB_CONNECTION_STRING }}' \
-              AuthenticationSettings__SecretKey='${{ secrets.SECRET_KEY }}' \
-              AuthenticationSettings__Audience='${{ vars.AUDIENCE }}' \
-              AuthenticationSettings__Issuer='${{ vars.ISSUER }}' \
-              SmtpSettings__SmtpHost='${{ vars.SMTP_HOST }}' \
-              SmtpSettings__SmtpPort='${{ vars.SMTP_PORT }}' \
-              SmtpSettings__SmtpUser='${{ secrets.SMTP_USER }}' \
-              SmtpSettings__SmtpPass='${{ secrets.SMTP_PASSWORD }}' \
-              SmtpSettings__FromEmail='${{ secrets.SMTP_FROM_EMAIL }}' \
-              ExchangeRateSettings__ApiUrl='${{ vars.EXCHANGE_RATE_API_URL }}' \
-              ExchangeRateSettings__ApiEndpoint='${{ vars.EXCHANGE_RATE_API_ENDPOINT }}' \
-              ExchangeRateSettings__AppId='${{ secrets.EXCHANGE_RATE_APP_ID }}' \
-              RabbitMqSettings__HostName='${{ vars.RABBITMQ_HOST }}' \
-              RabbitMqSettings__Port='${{ vars.RABBITMQ_PORT }}' \
-              RabbitMqSettings__UserName='${{ secrets.RABBITMQ_USER }}' \
-              RabbitMqSettings__Password='${{ secrets.RABBITMQ_PASS }}' \
-              LLMProcessorSettings__Token='${{ secrets.LLM_PROCESSOR_TOKEN }}' \
-              LLMProcessorSettings__ApiUrl='${{ vars.LLM_PROCESSOR_API_URL }}' \
-              CacheSettings__ConnectionString='${{ secrets.CACHE_CONNECTION_STRING }}' \
-      - name: Update Azure Container App (Gateway)
-        run: |
-          set -x
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          az containerapp update \
-            --name finance-app-gateway \
-            --resource-group projects \
-            --image ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER}
