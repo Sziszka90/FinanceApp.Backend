@@ -12,6 +12,10 @@ on:
         description: "Target environment"
         required: true
         default: "production"
+      image_tag:
+        description: "Docker image tag"
+        required: false
+        default: "latest"
 
 jobs:
   code-quality:
@@ -102,6 +106,15 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+      - name: Set image tag
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "tag=${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+          echo "Using image tag: $(grep 'tag=' $GITHUB_OUTPUT | cut -d'=' -f2)"
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -111,10 +124,14 @@ jobs:
       - name: Build and Push .NET image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER} -f Backend.Dockerfile .
-          docker push ghcr.io/$OWNER/finance-app-backend:${GITHUB_RUN_NUMBER}
+          TAG="${{ steps.vars.outputs.tag }}"
+          docker build -t ghcr.io/$OWNER/finance-app-backend:$TAG -f Backend.Dockerfile .
+          docker push ghcr.io/$OWNER/finance-app-backend:$TAG
+          echo "Pushed image: ghcr.io/$OWNER/finance-app-backend:$TAG"
       - name: Build and Push Gateway image
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER} -f Gateway.Dockerfile .
-          docker push ghcr.io/$OWNER/finance-app-gateway:${GITHUB_RUN_NUMBER}
+          TAG="${{ steps.vars.outputs.tag }}"
+          docker build -t ghcr.io/$OWNER/finance-app-gateway:$TAG -f Gateway.Dockerfile .
+          docker push ghcr.io/$OWNER/finance-app-gateway:$TAG
+          echo "Pushed image: ghcr.io/$OWNER/finance-app-gateway:$TAG"
