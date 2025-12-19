@@ -145,3 +145,11 @@ jobs:
           docker build -t ghcr.io/$OWNER/finance-app-gateway:$TAG -f Gateway.Dockerfile .
           docker push ghcr.io/$OWNER/finance-app-gateway:$TAG
           echo "Pushed image: ghcr.io/$OWNER/finance-app-gateway:$TAG"
+
+      - name: Trigger Infrastructure Deployment
+        run: |
+          gh workflow run deploy.yml \
+            -R Sziszka90/FinanceApp.Infrastructure.Azure \
+            --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GHCR_PAT }}
