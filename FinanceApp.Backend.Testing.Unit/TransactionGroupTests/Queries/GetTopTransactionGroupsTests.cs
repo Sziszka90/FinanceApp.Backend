@@ -58,14 +58,6 @@ public class GetTopTransactionGroupsTests : TestBase
     )
     { Id = Guid.NewGuid() };
     var transactions = new List<Transaction> { transaction1, transaction2 };
-    TransactionRepositoryMock
-      .Setup(x => x.GetTransactionsByTopTransactionGroups(
-        It.IsAny<DateTimeOffset>(),
-        It.IsAny<DateTimeOffset>(),
-        It.IsAny<Guid>(),
-        It.IsAny<int>(),
-        It.IsAny<CancellationToken>()))
-      .ReturnsAsync(transactions);
 
     var exchangeRates = new List<ExchangeRate>();
 
@@ -73,12 +65,14 @@ public class GetTopTransactionGroupsTests : TestBase
       .Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(userResult);
 
+    UserRepositoryMock.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(user);
+
     TransactionRepositoryMock
       .Setup(x => x.GetTransactionsByTopTransactionGroups(
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
-        userId,
-        It.IsAny<int>(),
+        It.IsAny<Guid>(),
+        It.IsAny<int?>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactions);
 
@@ -89,7 +83,7 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      10,
+      null,
       null
     );
 
@@ -117,7 +111,7 @@ public class GetTopTransactionGroupsTests : TestBase
       It.IsAny<DateTimeOffset>(),
       It.IsAny<DateTimeOffset>(),
       It.IsAny<Guid>(),
-      It.IsAny<int>(),
+      It.IsAny<int?>(),
       It.IsAny<CancellationToken>()), Times.Once);
     ExchangeRateServiceMock.Verify(x => x.ConvertAmountAsync(It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -136,7 +130,7 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      10,
+      null,
       null
     );
 
@@ -152,7 +146,7 @@ public class GetTopTransactionGroupsTests : TestBase
       It.IsAny<DateTimeOffset>(),
       It.IsAny<DateTimeOffset>(),
       It.IsAny<Guid>(),
-      It.IsAny<int>(),
+      It.IsAny<int?>(),
       It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -161,26 +155,30 @@ public class GetTopTransactionGroupsTests : TestBase
   {
     // arrange
     var userId = Guid.NewGuid();
-    var user = new User("TestUser", "test@example.com", "hashedPassword", CurrencyEnum.USD);
+    var user = new User("TestUser", "test@example.com", "hashedPassword", CurrencyEnum.USD) { Id = userId };
     var userResult = Result.Success(user);
 
     UserServiceMock
       .Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(userResult);
 
+    UserRepositoryMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
     TransactionRepositoryMock
       .Setup(x => x.GetTransactionsByTopTransactionGroups(
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
-        userId,
-        It.IsAny<int>(),
+        It.IsAny<Guid>(),
+        It.IsAny<int?>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(new List<Transaction>());
 
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      10,
+      user.Id.ToString(),
       null
     );
 
@@ -192,8 +190,8 @@ public class GetTopTransactionGroupsTests : TestBase
     Assert.NotNull(result.Data);
     Assert.Empty(result.Data);
 
-    // Verify user service was called but exchange rates were not (optimization)
-    UserServiceMock.Verify(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()), Times.Once);
+    // Verify user repository was called but exchange rates were not (optimization)
+    UserRepositoryMock.Verify(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()), Times.Once);
     ExchangeRateRepositoryMock.Verify(x => x.GetExchangeRatesAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Never);
   }
 
@@ -202,7 +200,7 @@ public class GetTopTransactionGroupsTests : TestBase
   {
     // arrange
     var userId = Guid.NewGuid();
-    var user = new User("TestUser", "test@example.com", "hashedPassword", CurrencyEnum.USD);
+    var user = new User("TestUser", "test@example.com", "hashedPassword", CurrencyEnum.USD) { Id = userId };
     var userResult = Result.Success(user);
 
     var transactionGroup = new TransactionGroup("Shopping", "Shopping expenses", "🛒", user);
@@ -230,25 +228,21 @@ public class GetTopTransactionGroupsTests : TestBase
     )
     { Id = Guid.NewGuid() };
     var transactionsMulti = new List<Transaction> { transactionUSD, transactionEUR };
-    TransactionRepositoryMock
-      .Setup(x => x.GetTransactionsByTopTransactionGroups(
-        It.IsAny<DateTimeOffset>(),
-        It.IsAny<DateTimeOffset>(),
-        It.IsAny<Guid>(),
-        It.IsAny<int>(),
-        It.IsAny<CancellationToken>()))
-      .ReturnsAsync(transactionsMulti);
 
     UserServiceMock
       .Setup(x => x.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(userResult);
 
+    UserRepositoryMock
+      .Setup(x => x.GetByIdAsync(userId, false, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(user);
+
     TransactionRepositoryMock
       .Setup(x => x.GetTransactionsByTopTransactionGroups(
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
-        userId,
-        It.IsAny<int>(),
+        It.IsAny<Guid>(),
+        It.IsAny<int?>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactionsMulti);
 
@@ -259,7 +253,7 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      10,
+      user.Id.ToString(),
       null
     );
 
@@ -327,7 +321,7 @@ public class GetTopTransactionGroupsTests : TestBase
         It.IsAny<DateTimeOffset>(),
         It.IsAny<DateTimeOffset>(),
         It.IsAny<Guid>(),
-        It.IsAny<int>(),
+        It.IsAny<int?>(),
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(transactionsTop);
 
@@ -338,8 +332,8 @@ public class GetTopTransactionGroupsTests : TestBase
     var query = new GetTopTransactionGroupsQuery(
       DateTimeOffset.Now.AddDays(-30),
       DateTimeOffset.Now,
-      topLimit,
-      null
+      null,
+      topLimit
     );
 
     // act
@@ -355,7 +349,7 @@ public class GetTopTransactionGroupsTests : TestBase
       It.IsAny<DateTimeOffset>(),
       It.IsAny<DateTimeOffset>(),
       It.IsAny<Guid>(),
-      It.IsAny<int>(),
+      It.IsAny<int?>(),
       It.IsAny<CancellationToken>()), Times.Once);
   }
 }
