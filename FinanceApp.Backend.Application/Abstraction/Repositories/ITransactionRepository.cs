@@ -1,5 +1,4 @@
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
-using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Domain.Entities;
 
 namespace FinanceApp.Backend.Application.Abstraction.Repositories;
@@ -70,7 +69,7 @@ public interface ITransactionRepository : IRepository<Transaction>
     DateTimeOffset startDate,
     DateTimeOffset endDate,
     Guid userId,
-    int top,
+    int? top,
     CancellationToken cancellationToken = default);
 
   /// <summary>

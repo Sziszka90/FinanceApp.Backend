@@ -6,8 +6,9 @@ public interface ISqlQueryBuilder
   /// Build the GetTransactionsByTopTransactionGroups SQL query.
   /// </summary>
   /// <param name="providerName"></param>
+  /// <param name="top"></param>
   /// <returns></returns>
-  string BuildGetTransactionsByTopTransactionGroupsQuery(string providerName);
+  string BuildGetTransactionsByTopTransactionGroupsQuery(string providerName, int? top);
 
   /// <summary>
   /// Build the GetExchangeRatesByDateRange SQL query.

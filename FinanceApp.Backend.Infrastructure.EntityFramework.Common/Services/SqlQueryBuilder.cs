@@ -4,14 +4,15 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Common.Services;
 
 public class SqlQueryBuilder : ISqlQueryBuilder
 {
-  public string BuildGetTransactionsByTopTransactionGroupsQuery(string providerName)
+  public string BuildGetTransactionsByTopTransactionGroupsQuery(string providerName, int? top)
   {
     var isSqlServer = providerName == "Microsoft.EntityFrameworkCore.SqlServer";
 
     var transactionTable = isSqlServer ? "[Transaction]" : "\"Transaction\"";
     var transactionGroupTable = isSqlServer ? "[TransactionGroup]" : "\"TransactionGroup\"";
-    var topClause = isSqlServer ? "TOP (@top)" : "";
-    var limitClause = isSqlServer ? "" : "LIMIT @top";
+    var topClause = top.HasValue && isSqlServer ? "TOP (@top)" : "";
+    var limitClause = top.HasValue && !isSqlServer ? "LIMIT @top" : "";
+    var orderByClause = top.HasValue ? "ORDER BY SUM(t2.ValueInBaseCurrency) DESC" : "";
 
     return $@"SELECT t.*
       FROM {transactionTable} t
@@ -22,7 +23,7 @@ public class SqlQueryBuilder : ISqlQueryBuilder
           WHERE t2.UserId = @userId
             AND t2.TransactionDate BETWEEN @startDate AND @endDate
           GROUP BY tg.Id
-          ORDER BY SUM(t2.ValueInBaseCurrency) DESC
+          {orderByClause}
           {limitClause}
       ) AS topGroups ON t.TransactionGroupId = topGroups.Id
       WHERE t.UserId = @userId

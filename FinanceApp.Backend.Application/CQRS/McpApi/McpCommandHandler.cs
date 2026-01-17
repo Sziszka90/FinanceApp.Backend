@@ -54,7 +54,7 @@ public class McpCommandHandler : ICommandHandler<McpCommand, Result<McpEnvelope>
       case SupportedTools.GET_TOP_TRANSACTION_GROUPS:
         {
           var result = await _mediator.Send(
-            new GetTopTransactionGroupsQuery(startDate, endDate, top, userId.ToString()),
+            new GetTopTransactionGroupsQuery(startDate, endDate, userId.ToString(), top),
             cancellationToken
           );
 

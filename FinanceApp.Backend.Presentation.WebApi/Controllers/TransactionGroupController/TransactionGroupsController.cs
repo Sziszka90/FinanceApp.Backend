@@ -95,11 +95,11 @@ public class TransactionGroupsController : ControllerBase
   public async Task<ActionResult<List<TopTransactionGroupDto>>> GetTopTransactionGroups(
     [FromQuery] DateTimeOffset startDate,
     [FromQuery] DateTimeOffset endDate,
-    [FromQuery] int top = 10,
     [FromQuery] string? userId = null,
+    [FromQuery] int? top = null,
     CancellationToken cancellationToken = default)
   {
-    var result = await _mediator.Send(new GetTopTransactionGroupsQuery(startDate, endDate, top, userId), cancellationToken);
+    var result = await _mediator.Send(new GetTopTransactionGroupsQuery(startDate, endDate, userId, top), cancellationToken);
     return this.GetResult(result);
   }
 }

@@ -130,33 +130,45 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     DateTimeOffset startDate,
     DateTimeOffset endDate,
     Guid userId,
-    int top,
+    int? top,
     CancellationToken cancellationToken = default)
   {
     var providerName = _dbContext.Database.ProviderName ?? throw new InvalidOperationException("Database provider name is null");
-    var sql = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
+    var sql = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName, top);
 
     object[] parameters;
 
     if (providerName.Contains("SqlServer"))
     {
-      parameters = new[]
+      var paramList = new List<SqlParameter>
       {
         new SqlParameter("@userId", userId),
         new SqlParameter("@startDate", startDate),
-        new SqlParameter("@endDate", endDate),
-        new SqlParameter("@top", top)
+        new SqlParameter("@endDate", endDate)
       };
+
+      if (top.HasValue)
+      {
+        paramList.Add(new SqlParameter("@top", top.Value));
+      }
+
+      parameters = paramList.ToArray();
     }
     else if (providerName.Contains("Sqlite"))
     {
-      parameters = new[]
+      var paramList = new List<SqliteParameter>
       {
         new SqliteParameter("@userId", userId),
         new SqliteParameter("@startDate", startDate),
-        new SqliteParameter("@endDate", endDate),
-        new SqliteParameter("@top", top)
+        new SqliteParameter("@endDate", endDate)
       };
+
+      if (top.HasValue)
+      {
+        paramList.Add(new SqliteParameter("@top", top.Value));
+      }
+
+      parameters = paramList.ToArray();
     }
     else
     {

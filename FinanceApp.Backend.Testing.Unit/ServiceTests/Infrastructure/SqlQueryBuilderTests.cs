@@ -18,7 +18,7 @@ public class SqlQueryBuilderTests
     var providerName = "Microsoft.EntityFrameworkCore.SqlServer";
 
     // act
-    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
+    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName, 10);
 
     // assert
     Assert.Contains("[Transaction]", result);
@@ -40,7 +40,7 @@ public class SqlQueryBuilderTests
     var providerName = "Microsoft.EntityFrameworkCore.Sqlite";
 
     // act
-    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
+    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName, 10);
 
     // assert
     Assert.Contains("\"Transaction\"", result);
@@ -62,7 +62,7 @@ public class SqlQueryBuilderTests
     var providerName = "Microsoft.EntityFrameworkCore.SqlServer";
 
     // act
-    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
+    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName, 10);
 
     // assert
     Assert.Contains("SELECT t.*", result);
@@ -78,7 +78,7 @@ public class SqlQueryBuilderTests
     var providerName = "Microsoft.EntityFrameworkCore.SqlServer";
 
     // act
-    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
+    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName, 10);
 
     // assert
     Assert.Contains("@userId", result);
@@ -93,7 +93,7 @@ public class SqlQueryBuilderTests
   public void BuildTransactionGroupAggregateQuery_ShouldReturnNonEmptyString(string providerName)
   {
     // act
-    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName);
+    var result = _sqlQueryBuilder.BuildGetTransactionsByTopTransactionGroupsQuery(providerName, 10);
 
     // assert
     Assert.NotNull(result);
