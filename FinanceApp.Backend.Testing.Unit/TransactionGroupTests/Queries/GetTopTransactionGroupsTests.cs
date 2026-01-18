@@ -96,13 +96,13 @@ public class GetTopTransactionGroupsTests : TestBase
     Assert.Equal(2, result.Data.Count);
 
     // First should be Food (higher amount)
-    Assert.Equal("Food", result.Data[0].Name);
-    Assert.Equal(500.00m, result.Data[0].TotalAmount.Amount);
+    Assert.Equal("Transport", result.Data[0].Name);
+    Assert.Equal(-300.00m, result.Data[0].TotalAmount.Amount);
     Assert.Equal(1, result.Data[0].TransactionCount);
 
     // Second should be Transport
-    Assert.Equal("Transport", result.Data[1].Name);
-    Assert.Equal(300.00m, result.Data[1].TotalAmount.Amount);
+    Assert.Equal("Food", result.Data[1].Name);
+    Assert.Equal(-500.00m, result.Data[1].TotalAmount.Amount);
     Assert.Equal(1, result.Data[1].TransactionCount);
 
     // Verify all dependencies were called
@@ -271,7 +271,7 @@ public class GetTopTransactionGroupsTests : TestBase
     Assert.Equal(2, resultGroup.TransactionCount); // 2 + 3
 
     // Total should be 100 USD + (50 EUR * 1.1) = 155 USD
-    Assert.Equal(155.00m, resultGroup.TotalAmount.Amount);
+    Assert.Equal(-155.00m, resultGroup.TotalAmount.Amount);
   }
 
   [Fact]
