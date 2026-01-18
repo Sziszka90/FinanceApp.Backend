@@ -130,7 +130,9 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
       new Domain.Entities.TransactionGroup("Clothing", "Clothing and accessories", Icons.ICON_CLOTHING, user),
       new Domain.Entities.TransactionGroup("Phone & Internet", "Phone, internet, and communication", Icons.ICON_PHONE_INTERNET, user),
       new Domain.Entities.TransactionGroup("Taxes", "Tax payments and refunds", Icons.ICON_TAXES, user),
-      new Domain.Entities.TransactionGroup("Miscellaneous", "Other uncategorized expenses", Icons.ICON_MISCELLANEOUS, user)
+      new Domain.Entities.TransactionGroup("Miscellaneous", "Other uncategorized expenses", Icons.ICON_MISCELLANEOUS, user),
+      new Domain.Entities.TransactionGroup("Sold Items", "Sold personal items", Icons.ICON_SALARY, user),
+      new Domain.Entities.TransactionGroup("Interests", "Interests after savings or investments", Icons.ICON_SALARY, user)
     };
 
     return groups;
