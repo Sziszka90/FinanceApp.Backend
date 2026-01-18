@@ -95,7 +95,9 @@ public class GetTopTransactionGroupsQueryHandler : IQueryHandler<GetTopTransacti
         TransactionCount = g.Count(),
         TotalAmount = new Money
         {
-          Amount = g.Sum(t => t.Value.Amount),
+          Amount = g.Sum(t => t.TransactionType == TransactionTypeEnum.Income
+            ? t.Value.Amount
+            : -t.Value.Amount),
           Currency = user.BaseCurrency
         },
       })
