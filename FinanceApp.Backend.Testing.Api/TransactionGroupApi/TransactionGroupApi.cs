@@ -51,7 +51,7 @@ public class TransactionGroupApi : TestBase
     var response = await GetContentAsync<List<GetTransactionGroupDto>>(await Client.GetAsync(TRANSACTION_GROUPS));
 
     // assert
-    Assert.Equal(transactionGroup!.Id, response![17].Id);
+    Assert.Equal(transactionGroup!.Id, response![19].Id);
   }
 
   [Fact]
