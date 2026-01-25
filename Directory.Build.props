@@ -8,6 +8,9 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Default</AnalysisMode>
 
+    <!-- Suppress known vulnerability warnings -->
+    <NoWarn>$(NoWarn);NU1902</NoWarn>
+
     <!-- Language version -->
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
