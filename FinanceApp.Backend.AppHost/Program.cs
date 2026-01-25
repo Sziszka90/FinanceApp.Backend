@@ -1,8 +1,9 @@
-using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject("finance-app-backend", "../FinanceApp.Backend.Presentation.WebApi/FinanceApp.Backend.Presentation.WebApi.csproj");
+var backend = builder.AddProject(
+        "finance-app-backend",
+        "../FinanceApp.Backend.Presentation.WebApi/FinanceApp.Backend.Presentation.WebApi.csproj");
 
 builder.AddExecutable(
     name: "finance-app-llmprocessor",

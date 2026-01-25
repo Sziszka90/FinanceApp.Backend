@@ -15,7 +15,6 @@ builder.Configuration.AddJsonFile("appsettings.json")
 
 // Add services to the container.
 builder.SetupApi(builder.Configuration);
-builder.AddOpenTelemetryConfiguration();
 builder.AddSwagger();
 
 builder.Services.AddApplication(builder.Configuration);
@@ -39,6 +38,9 @@ builder.Services.AddLogging(config =>
                                                       });
                               config.AddDebug();
                             });
+
+// Add OpenTelemetry AFTER logging is configured
+builder.AddOpenTelemetryConfiguration();
 
 
 var app = builder.Build();

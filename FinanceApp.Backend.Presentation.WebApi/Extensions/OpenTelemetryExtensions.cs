@@ -1,6 +1,10 @@
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using OpenTelemetry.Exporter;
+using FinanceApp.Backend.Domain.Options;
+using OpenTelemetry.Logs;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Extensions;
 
@@ -8,24 +12,31 @@ public static class OpenTelemetryExtensions
 {
   public static WebApplicationBuilder AddOpenTelemetryConfiguration(this WebApplicationBuilder builder)
   {
-    var openTelemetryConfig = builder.Configuration.GetSection("OpenTelemetry");
-    var serviceName = openTelemetryConfig["ServiceName"] ?? "FinanceApp.Backend";
-    var serviceVersion = openTelemetryConfig["ServiceVersion"] ?? "1.0.0";
-    var enableConsoleExporter = openTelemetryConfig.GetValue<bool>("EnableConsoleExporter");
-    var enableOtlpExporter = openTelemetryConfig.GetValue<bool>("EnableOtlpExporter");
-    var otlpEndpoint = openTelemetryConfig["OtlpEndpoint"] ?? "http://localhost:4317";
-    var enableTracing = openTelemetryConfig.GetValue<bool>("EnableTracing", true);
-    var enableMetrics = openTelemetryConfig.GetValue<bool>("EnableMetrics", true);
+    var configSection = builder.Configuration.GetSection("OpenTelemetrySettings");
+    builder.Services.Configure<OpenTelemetrySettings>(configSection);
+    var openTelemetrySettings = new OpenTelemetrySettings();
+    configSection.Bind(openTelemetrySettings);
+
+    var serviceName = openTelemetrySettings.ServiceName;
+    var serviceVersion = openTelemetrySettings.ServiceVersion;
+    var enableConsoleExporter = openTelemetrySettings.EnableConsoleExporter;
+    var enableOtlpExporter = openTelemetrySettings.EnableOtlpExporter;
+    var otlpEndpoint = openTelemetrySettings.OtlpEndpoint;
+
+    var enableTracing = openTelemetrySettings.EnableTracing;
+    var enableMetrics = openTelemetrySettings.EnableMetrics;
+    var enableLogging = openTelemetrySettings.EnableLogging;
 
     var resourceBuilder = ResourceBuilder.CreateDefault()
         .AddService(serviceName: serviceName, serviceVersion: serviceVersion)
         .AddTelemetrySdk()
         .AddEnvironmentVariableDetector();
 
+    var otelBuilder = builder.Services.AddOpenTelemetry();
+
     if (enableTracing)
     {
-      builder.Services.AddOpenTelemetry()
-          .WithTracing(tracing =>
+      otelBuilder.WithTracing(tracing =>
           {
             tracing
                 .SetResourceBuilder(resourceBuilder)
@@ -74,15 +85,19 @@ public static class OpenTelemetryExtensions
               tracing.AddOtlpExporter(options =>
               {
                 options.Endpoint = new Uri(otlpEndpoint);
+                options.Protocol = openTelemetrySettings.OtlpProtocol?.Equals("HttpProtobuf", StringComparison.OrdinalIgnoreCase) == true
+                    ? OtlpExportProtocol.HttpProtobuf
+                    : OtlpExportProtocol.Grpc;
               });
+
+              Console.WriteLine($"[OpenTelemetry] OTLP Trace Exporter configured: {otlpEndpoint}");
             }
           });
     }
 
     if (enableMetrics)
     {
-      builder.Services.AddOpenTelemetry()
-          .WithMetrics(metrics =>
+      otelBuilder.WithMetrics(metrics =>
           {
             metrics
                 .SetResourceBuilder(resourceBuilder)
@@ -101,9 +116,43 @@ public static class OpenTelemetryExtensions
               metrics.AddOtlpExporter(options =>
               {
                 options.Endpoint = new Uri(otlpEndpoint);
+                options.Protocol = openTelemetrySettings.OtlpProtocol?.Equals("HttpProtobuf", StringComparison.OrdinalIgnoreCase) == true
+                    ? OtlpExportProtocol.HttpProtobuf
+                    : OtlpExportProtocol.Grpc;
+
+                options.ExportProcessorType = ExportProcessorType.Simple;
               });
             }
           });
+    }
+
+    if (enableLogging)
+    {
+      builder.Logging.AddOpenTelemetry(logging =>
+      {
+        logging.SetResourceBuilder(resourceBuilder);
+        logging.IncludeFormattedMessage = true;
+        logging.IncludeScopes = true;
+        logging.ParseStateValues = true;
+
+        if (enableOtlpExporter)
+        {
+          logging.AddOtlpExporter(options =>
+          {
+            options.Endpoint = new Uri(otlpEndpoint);
+            options.Protocol = openTelemetrySettings.OtlpProtocol?.Equals("HttpProtobuf", StringComparison.OrdinalIgnoreCase) == true
+                ? OtlpExportProtocol.HttpProtobuf
+                : OtlpExportProtocol.Grpc;
+          });
+
+          Console.WriteLine($"[OpenTelemetry] OTLP Log Exporter configured: {otlpEndpoint}");
+        }
+
+        if (enableConsoleExporter)
+        {
+          logging.AddConsoleExporter();
+        }
+      });
     }
 
     return builder;
