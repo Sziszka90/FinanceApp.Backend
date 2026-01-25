@@ -1,10 +1,10 @@
+using FinanceApp.Backend.Domain.Options;
 using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using OpenTelemetry.Exporter;
-using FinanceApp.Backend.Domain.Options;
-using OpenTelemetry.Logs;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Extensions;
 
