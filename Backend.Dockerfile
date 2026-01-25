@@ -23,8 +23,7 @@ WORKDIR "/src/FinanceApp.Backend.Presentation.WebApi"
 RUN dotnet build "FinanceApp.Backend.Presentation.WebApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-WORKDIR "/src/FinanceApp.Backend.Presentation.WebApi"
-RUN dotnet publish "FinanceApp.Backend.Presentation.WebApi.csproj" -c Release -o /app/publish --no-restore /p:UseAppHost=false /p:IsTransformWebConfigDisabled=true
+RUN dotnet publish "FinanceApp.Backend.Presentation.WebApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
