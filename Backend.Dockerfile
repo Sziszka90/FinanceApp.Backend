@@ -8,10 +8,12 @@ EXPOSE 8080
 # Use the official .NET SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
+COPY ["Directory.Build.props", "./"]
 COPY ["FinanceApp.Backend.Presentation.WebApi/FinanceApp.Backend.Presentation.WebApi.csproj", "FinanceApp.Backend.Presentation.WebApi/"]
 COPY ["FinanceApp.Backend.Application/FinanceApp.Backend.Application.csproj", "FinanceApp.Backend.Application/"]
 COPY ["FinanceApp.Backend.Domain/FinanceApp.Backend.Domain.csproj", "FinanceApp.Backend.Domain/"]
 COPY ["FinanceApp.Backend.Infrastructure/FinanceApp.Backend.Infrastructure.csproj", "FinanceApp.Backend.Infrastructure/"]
+COPY ["FinanceApp.Backend.Infrastructure.RabbitMq/FinanceApp.Backend.Infrastructure.RabbitMq.csproj", "FinanceApp.Backend.Infrastructure.RabbitMq/"]
 COPY ["FinanceApp.Backend.Infrastructure.EntityFramework/FinanceApp.Backend.Infrastructure.EntityFramework.csproj", "FinanceApp.Backend.Infrastructure.EntityFramework/"]
 COPY ["FinanceApp.Backend.Infrastructure.EntityFramework.Common/FinanceApp.Backend.Infrastructure.EntityFramework.Common.csproj", "FinanceApp.Backend.Infrastructure.EntityFramework.Common/"]
 COPY ["FinanceApp.Backend.Infrastructure.EntityFramework.Mssql/FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.csproj", "FinanceApp.Backend.Infrastructure.EntityFramework.Mssql/"]
