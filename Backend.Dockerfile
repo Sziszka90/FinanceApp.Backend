@@ -17,13 +17,17 @@ COPY ["FinanceApp.Backend.Infrastructure.RabbitMq/FinanceApp.Backend.Infrastruct
 COPY ["FinanceApp.Backend.Infrastructure.EntityFramework/FinanceApp.Backend.Infrastructure.EntityFramework.csproj", "FinanceApp.Backend.Infrastructure.EntityFramework/"]
 COPY ["FinanceApp.Backend.Infrastructure.EntityFramework.Common/FinanceApp.Backend.Infrastructure.EntityFramework.Common.csproj", "FinanceApp.Backend.Infrastructure.EntityFramework.Common/"]
 COPY ["FinanceApp.Backend.Infrastructure.EntityFramework.Mssql/FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.csproj", "FinanceApp.Backend.Infrastructure.EntityFramework.Mssql/"]
+COPY ["FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite/FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.csproj", "FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite/"]
+COPY ["FinanceApp.Backend.Infrastructure.Cache/FinanceApp.Backend.Infrastructure.Cache.csproj", "FinanceApp.Backend.Infrastructure.Cache/"]
 RUN dotnet restore "FinanceApp.Backend.Presentation.WebApi/FinanceApp.Backend.Presentation.WebApi.csproj"
 COPY . .
 WORKDIR "/src/FinanceApp.Backend.Presentation.WebApi"
 RUN dotnet build "FinanceApp.Backend.Presentation.WebApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "FinanceApp.Backend.Presentation.WebApi.csproj" -c Release -o /app/publish
+WORKDIR "/src/FinanceApp.Backend.Presentation.WebApi"
+RUN mkdir -p /app/publish
+RUN dotnet publish "FinanceApp.Backend.Presentation.WebApi.csproj" -c Release -o /app/publish --no-restore
 
 FROM base AS final
 WORKDIR /app
