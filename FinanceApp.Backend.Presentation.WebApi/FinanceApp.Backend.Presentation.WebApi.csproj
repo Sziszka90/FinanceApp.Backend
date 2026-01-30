@@ -7,6 +7,7 @@
     <UserSecretsId>5d8d9498-400d-4477-bd8e-b0b7ed72bb7a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,5 +42,4 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="FinanceApp.Backend.Testing" />
 	</ItemGroup>
-
 </Project>
