@@ -6,28 +6,34 @@ This project is a full-stack personal finance application designed to help users
 
 ## 🎯 Current Features
 
-✅ **User Management** 
-  - Login, registration, password reset with JWT integration and email confirmation
-  - User profile where users can set their preferred currency
-  - JWT-based authentication with token caching and invalidation, using HTTP-only cookies for security reasons
-  - Separated tokens for password reset, login and email confirmation
+✅ **User Management**
 
-✅ **Transactions** 
-  - Create, read, update, delete transactions with input validation
-  - Import transactions from CSV files with automatic, asynchronous transaction group matching powered by AI, RabbitMQ and SignalR
+- Login, registration, password reset with JWT integration and email confirmation
+- User profile where users can set their preferred currency
+- JWT-based authentication with token caching and invalidation, using HTTP-only cookies for security reasons
+- Separated tokens for password reset, login and email confirmation
 
-✅ **Transaction Groups** 
-  - Create, read, update, delete transaction groups with input validation
+✅ **Transactions**
 
-✅ **MCP endpoint** 
-  - Standardized MCP endpoint to call backend tools to provide data to user via LLMProcessor Service
+- Create, read, update, delete transactions with input validation
+- Import transactions from CSV files with automatic, asynchronous transaction group matching powered by AI, RabbitMQ and SignalR
 
-✅ **Currency Exchange** 
-  - Recurring background job querying live exchange rates for multi-currency support. Stored in internal database
-  - Exchange rate cache ensures that all transactions use historically accurate exchange rates
+✅ **Transaction Groups**
 
-✅ **Email Services** 
-  - SMTP integration for notifications
+- Create, read, update, delete transaction groups with input validation
+
+✅ **MCP endpoint**
+
+- Standardized MCP endpoint to call backend tools to provide data to user via LLMProcessor Service
+
+✅ **Currency Exchange**
+
+- Recurring background job querying live exchange rates for multi-currency support. Stored in internal database
+- Exchange rate cache ensures that all transactions use historically accurate exchange rates
+
+✅ **Email Services**
+
+- SMTP integration for notifications
 
 ## 🔮 Upcoming Features
 
@@ -162,6 +168,37 @@ The application is deployed as **containerized microservices** on **Azure Contai
 3. **Bundle** → Creates production build
 4. **Deploy** → Updates hosting platform with new version
 5. **Verify** → Automated health checks ensure successful deployment
+
+### **Azure Key Vault**
+
+The Web API loads secrets from Azure Key Vault when `KeyVaultSettings__VaultUri` is configured. Azure-hosted deployments should use a managed identity with the **Key Vault Secrets User** role. Local development can authenticate through the Azure CLI with `az login`.
+
+The following Key Vault secret names are mapped into the existing application configuration:
+
+| Key Vault secret                   | Application configuration          |
+| ---------------------------------- | ---------------------------------- |
+| `cache-connection-string`          | `CacheSettings:ConnectionString`   |
+| `exchange-rate-api-app-id`         | `ExchangeRateSettings:AppId`       |
+| `finance-app-db-connection-string` | `ConnectionStrings:MsSql`          |
+| `llm-processor-api-token`          | `LLMProcessorSettings:Token`       |
+| `openai-api-key`                   | `OpenAISettings:ApiKey`            |
+| `rabbitmq-password`                | `RabbitMqSettings:Password`        |
+| `redis-password`                   | `RedisSettings:Password`           |
+| `registry-password`                | `ContainerRegistry:Password`       |
+| `smtp-password`                    | `SmtpSettings:SmtpPass`            |
+| `auth-secret-key`                  | `AuthenticationSettings:SecretKey` |
+
+Set the vault URI through the deployment environment, for example `KeyVaultSettings__VaultUri=https://<vault-name>.vault.azure.net/`. Do not put secret values in tracked configuration files, source control, or container images. Existing values that were exposed must be revoked and replaced in their respective providers.
+
+Configuration is split into four tracked files: `appsettings.json` for shared application settings, `appsettings.Database.json` for database and cache settings, `appsettings.Messaging.json` for RabbitMQ settings, and `appsettings.Testing.json` for test-only overrides.
+
+For local-only development, use these ignored files:
+
+- `FinanceApp.Backend.Presentation.WebApi/appsettings.Local.json` for application secrets and local service URLs
+- `FinanceApp.Backend.Presentation.WebApi/appsettings.Database.Local.json` for database and cache credentials
+- `FinanceApp.Backend.Presentation.WebApi/appsettings.Messaging.Local.json` for local RabbitMQ overrides and credentials
+
+The local overlays are loaded only outside the `Testing` environment. The shared Key Vault URI can remain in `appsettings.json`; the local overlay sets an empty URI so local development uses its local values without contacting Azure Key Vault. Keep all local files uncommitted and rotate any credentials that have already been exposed.
 
 ## 📊 Monitoring & Logging
 

@@ -125,7 +125,19 @@ public static class ApiExtensions
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
         .AddJsonFile("appsettings.Messaging.json", optional: true, reloadOnChange: true)
         .AddJsonFile("appsettings.Database.json", optional: true, reloadOnChange: true)
-        .AddEnvironmentVariables();
+      .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+    if (builder.Environment.IsDevelopment())
+    {
+      builder.Configuration
+        .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
+        .AddJsonFile("appsettings.Database.Local.json", optional: true, reloadOnChange: true)
+        .AddJsonFile("appsettings.Messaging.Local.json", optional: true, reloadOnChange: true);
+    }
+
+    builder.Configuration
+      .AddEnvironmentVariables()
+      .AddFinanceAppKeyVault();
 
     var authenticationSection = builder.Configuration.GetSection("AuthenticationSettings");
     var exchangeRateSection = builder.Configuration.GetSection("ExchangeRateSettings");

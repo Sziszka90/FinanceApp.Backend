@@ -5,6 +5,8 @@
 .fake
 TestResults/
 .DS_Store
+**/appsettings.Local.json
+**/appsettings.*.Local.json
 # Coverage reports
 coverage/
 coverage-report/

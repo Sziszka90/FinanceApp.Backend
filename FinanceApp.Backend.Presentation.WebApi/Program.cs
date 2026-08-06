@@ -8,11 +8,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Default configuration
-builder.Configuration.AddJsonFile("appsettings.json")
-       .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true)
-       .AddEnvironmentVariables();
-
 // Add services to the container.
 builder.SetupApi(builder.Configuration);
 builder.AddSwagger();
