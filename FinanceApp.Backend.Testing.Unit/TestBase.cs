@@ -12,6 +12,7 @@ using FinanceApp.Backend.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit;
@@ -62,7 +63,7 @@ public abstract class TestBase
       cfg.AddProfile<UserProfile>();
       cfg.AddProfile<TransactionProfile>();
       cfg.AddProfile<TransactionGroupProfile>();
-    });
+    }, NullLoggerFactory.Instance);
     Mapper = mapperConfig.CreateMapper();
 
     SetupBcryptServiceMock();
