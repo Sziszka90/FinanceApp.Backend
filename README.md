@@ -184,7 +184,6 @@ The following Key Vault secret names are mapped into the existing application co
 | `openai-api-key`                   | `OpenAISettings:ApiKey`            |
 | `rabbitmq-password`                | `RabbitMqSettings:Password`        |
 | `redis-password`                   | `RedisSettings:Password`           |
-| `registry-password`                | `ContainerRegistry:Password`       |
 | `smtp-password`                    | `SmtpSettings:SmtpPass`            |
 | `auth-secret-key`                  | `AuthenticationSettings:SecretKey` |
 

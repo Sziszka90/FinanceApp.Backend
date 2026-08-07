@@ -44,7 +44,6 @@ internal sealed class FinanceAppKeyVaultSecretManager : KeyVaultSecretManager
       ["openai-api-key"] = "OpenAISettings:ApiKey",
       ["rabbitmq-password"] = "RabbitMqSettings:Password",
       ["redis-password"] = "RedisSettings:Password",
-      ["registry-password"] = "ContainerRegistry:Password",
       ["smtp-password"] = "SmtpSettings:SmtpPass",
       ["auth-secret-key"] = "AuthenticationSettings:SecretKey"
     };
