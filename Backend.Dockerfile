@@ -28,8 +28,9 @@ FROM build AS publish
 WORKDIR "/src/FinanceApp.Backend.Presentation.WebApi"
 RUN mkdir -p /app/publish
 RUN dotnet publish "FinanceApp.Backend.Presentation.WebApi.csproj" -c Release -o /app/publish --no-restore
+RUN test -f /app/publish/FinanceApp.Backend.Presentation.WebApi.dll
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "FinanceApp.Backend.Presentation.WebApi.dll"]
+ENTRYPOINT ["dotnet", "/app/FinanceApp.Backend.Presentation.WebApi.dll"]
