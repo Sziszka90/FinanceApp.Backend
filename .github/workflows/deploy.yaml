@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Run code quality checks
         run: ./scripts/lint.sh
 
@@ -35,7 +35,7 @@ jobs:
     needs: [code-quality]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -94,7 +94,7 @@ jobs:
           fi
         shell: bash
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: combined-coverage-reports
           path: |
