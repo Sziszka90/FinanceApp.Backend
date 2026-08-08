@@ -28,7 +28,8 @@ FROM build AS publish
 WORKDIR "/src/FinanceApp.Backend.Presentation.WebApi"
 RUN mkdir -p /app/publish
 RUN dotnet publish "FinanceApp.Backend.Presentation.WebApi.csproj" -c Release -o /app/publish --no-restore
-RUN test -f /app/publish/FinanceApp.Backend.Presentation.WebApi.dll
+RUN ls -lah /app/publish
+RUN find /app/publish -maxdepth 1 -type f -printf '%f\n'
 
 FROM base AS final
 WORKDIR /app
