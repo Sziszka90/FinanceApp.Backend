@@ -1,0 +1,111 @@
+using FinanceApp.Backend.Domain.Common;
+using FinanceApp.Backend.Domain.Interfaces;
+
+namespace FinanceApp.Backend.Domain.Entities;
+
+public class Transaction : BaseEntity, IUserOwned
+{
+  /// <summary>
+  /// Name of the transaction
+  /// </summary>
+  public string Name { get; set; }
+
+  /// <summary>
+  /// Description of the transaction
+  /// </summary>
+  public string? Description { get; set; }
+
+  /// <summary>
+  /// Transaction type
+  /// </summary>
+  public TransactionTypeEnum? TransactionType { get; set; }
+
+  /// <summary>
+  /// Value of the transaction
+  /// </summary>
+  public Money Value { get; set; }
+
+  /// <summary>
+  /// Value of the transaction in EUR, the application's reporting currency.
+  /// </summary>
+  public decimal ValueInBaseCurrency { get; set; }
+
+  /// <summary>The saved weekly EUR conversion rate used for this transaction, when applicable.</summary>
+  public decimal? AppliedExchangeRate { get; private set; }
+
+  /// <summary>When that saved rate snapshot became available to the application.</summary>
+  public DateTimeOffset? AppliedRateValidFrom { get; private set; }
+
+  /// <summary>
+  /// Transaction group
+  /// </summary>
+  public TransactionGroup? TransactionGroup { get; set; }
+
+  /// <summary>
+  /// Id of the transaction group
+  /// </summary>
+  public Guid? TransactionGroupId { get; set; }
+
+  /// <summary>
+  /// User which owns the entity
+  /// </summary>
+  public User User { get; set; }
+
+  /// <summary>
+  /// Id of the user which owns the entity
+  /// </summary>
+  public Guid UserId { get; set; }
+
+  /// <summary>
+  /// Date when Transaction occurred (stored in UTC)
+  /// </summary>
+  public DateTimeOffset TransactionDate { get; set; }
+
+  public Transaction(
+    string name,
+    string? description,
+    TransactionTypeEnum transactionType,
+    Money value,
+    decimal valueInBaseCurrency,
+    TransactionGroup? transactionGroup,
+    DateTimeOffset transactionDate,
+    User user)
+  {
+    Name = name;
+    Description = description;
+    TransactionType = transactionType;
+    Value = value;
+    ValueInBaseCurrency = valueInBaseCurrency;
+    TransactionGroup = transactionGroup;
+    TransactionDate = transactionDate;
+    User = user;
+    UserId = user.Id;
+  }
+
+#pragma warning disable CS8618
+  protected Transaction() { }
+
+  public void SetAppliedRate(decimal? rate, DateTimeOffset? validFrom)
+  {
+    AppliedExchangeRate = rate;
+    AppliedRateValidFrom = validFrom;
+  }
+
+  public void Update(
+    string name,
+    string? description,
+    Money value,
+    decimal valueInBaseCurrency,
+    TransactionTypeEnum transactionType,
+    DateTimeOffset transactionDate,
+    TransactionGroup? transactionGroup)
+  {
+    Name = name;
+    Description = description;
+    Value = value;
+    ValueInBaseCurrency = valueInBaseCurrency;
+    TransactionGroup = transactionGroup;
+    TransactionType = transactionType;
+    TransactionDate = transactionDate;
+  }
+}

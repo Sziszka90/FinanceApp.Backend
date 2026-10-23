@@ -1,0 +1,28 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- Enable nullable reference types -->
+    <Nullable>enable</Nullable>
+
+    <!-- Enable code analysis -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>Default</AnalysisMode>
+
+    <!-- Suppress known vulnerability warnings -->
+    <NoWarn>$(NoWarn);NU1902</NoWarn>
+
+    <!-- Language version -->
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <!-- Treat warnings as errors in Release mode -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Just the essential analyzer -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,155 @@
+name: Build and Deploy to Azure Container Apps
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "production"
+      backend_tag:
+        description: "Backend Docker image tag"
+        required: false
+        default: "latest"
+      gateway_tag:
+        description: "Gateway Docker image tag"
+        required: false
+        default: "latest"
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+      - name: Run code quality checks
+        run: ./scripts/lint.sh
+
+  test-and-coverage:
+    runs-on: ubuntu-latest
+    needs: [code-quality]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Install reportgenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Run unit tests with coverage
+        run: |
+          dotnet test ./FinanceApp.Backend.Testing.Unit/FinanceApp.Backend.Testing.Unit.csproj \
+            --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            /p:CoverletOutput=./TestResults/unit-coverage/ \
+            /p:CoverletOutputFormat=cobertura \
+            '/p:Include="[FinanceApp.Backend.Application]*,[FinanceApp.Backend.Domain]*"' \
+            '/p:ExcludeByAssembly="FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite,FinanceApp.Backend.Infrastructure.EntityFramework.Common,FinanceApp.Backend.Infrastructure.EntityFramework.Mssql,FinanceApp.Backend.Infrastructure.RabbitMq,FinanceApp.Backend.Infrastructure.Cache,FinanceApp.Backend.Infrastructure,FinanceApp.Backend.Presentation.WebApi,FinanceApp.Backend.Testing.Unit,FinanceApp.Backend.Testing.Api"'
+      - name: Run API tests with coverage
+        run: |
+          dotnet test ./FinanceApp.Backend.Testing.Api/FinanceApp.Backend.Testing.Api.csproj \
+            --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            /p:CoverletOutput=./TestResults/api-coverage/ \
+            /p:CoverletOutputFormat=cobertura \
+            '/p:Include="[FinanceApp.Backend.Application]*,[FinanceApp.Backend.Domain]*"' \
+            '/p:ExcludeByAssembly="FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite,FinanceApp.Backend.Infrastructure.EntityFramework.Common,FinanceApp.Backend.Infrastructure.EntityFramework.Mssql,FinanceApp.Backend.Infrastructure.RabbitMq,FinanceApp.Backend.Infrastructure.Cache,FinanceApp.Backend.Infrastructure,FinanceApp.Backend.Presentation.WebApi,FinanceApp.Backend.Testing.Unit,FinanceApp.Backend.Testing.Api"'
+      - name: Generate combined coverage report
+        run: |
+          unit_xmlfile=$(find FinanceApp.Backend.Testing.Unit/TestResults/ -name '*.xml' | head -n 1)
+          api_xmlfile=$(find FinanceApp.Backend.Testing.Api/TestResults/ -name '*.xml' | head -n 1)
+          echo "Using unit test coverage XML: $unit_xmlfile"
+          echo "Using API test coverage XML: $api_xmlfile"
+          reportgenerator \
+            -reports:"$unit_xmlfile;$api_xmlfile" \
+            -targetdir:"coverage-report" \
+            -reporttypes:"Html;TextSummary;Cobertura" \
+            -assemblyfilters:"+FinanceApp.Backend.Application;+FinanceApp.Backend.Domain;-FinanceApp.Backend.Infrastructure*;-FinanceApp.Backend.Testing*" \
+            -classfilters:"-*Migrations*" \
+            -title:"Combined Unit & API Test Coverage Report"
+          echo "=== Combined Coverage Summary (Unit + API Tests) ==="
+          cat coverage-report/Summary.txt
+        shell: bash
+      - name: Check coverage threshold
+        run: |
+          method_coverage=$(grep "Method coverage:" coverage-report/Summary.txt | grep -o '[0-9.]*%' | head -1 | tr -d '%')
+          echo "Method Coverage (Application + Domain): ${method_coverage}%"
+          threshold=80
+          coverage_int=${method_coverage%.*}
+          if [ "$coverage_int" -lt "$threshold" ]; then
+            echo "❌ Combined coverage $coverage_int% is below threshold $threshold%"
+            exit 1
+          else
+            echo "✅ Combined coverage $coverage_int% meets threshold $threshold%"
+          fi
+        shell: bash
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: combined-coverage-reports
+          path: |
+            FinanceApp.Backend.Testing.Unit/TestResults/**/*.xml
+            FinanceApp.Backend.Testing.Api/TestResults/**/*.xml
+            coverage-report/**/*
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [test-and-coverage]
+    outputs:
+      backend_tag: ${{ steps.vars.outputs.backend_tag }}
+      gateway_tag: ${{ steps.vars.outputs.gateway_tag }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set image tags
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BACKEND_TAG="${{ github.event.inputs.backend_tag }}"
+            GATEWAY_TAG="${{ github.event.inputs.gateway_tag }}"
+          else
+            BACKEND_TAG="latest"
+            GATEWAY_TAG="latest"
+          fi
+          echo "backend_tag=${BACKEND_TAG:-latest}" >> $GITHUB_OUTPUT
+          echo "gateway_tag=${GATEWAY_TAG:-latest}" >> $GITHUB_OUTPUT
+          echo "Using backend tag: ${BACKEND_TAG:-latest}"
+          echo "Using gateway tag: ${GATEWAY_TAG:-latest}"
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+      - name: Build and Push .NET image
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          TAG="${{ steps.vars.outputs.backend_tag }}"
+          docker build -t ghcr.io/$OWNER/finance-app-backend:$TAG -f Backend.Dockerfile .
+          docker push ghcr.io/$OWNER/finance-app-backend:$TAG
+          echo "Pushed image: ghcr.io/$OWNER/finance-app-backend:$TAG"
+      - name: Build and Push Gateway image
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          TAG="${{ steps.vars.outputs.gateway_tag }}"
+          docker build -t ghcr.io/$OWNER/finance-app-gateway:$TAG -f Gateway.Dockerfile .
+          docker push ghcr.io/$OWNER/finance-app-gateway:$TAG
+          echo "Pushed image: ghcr.io/$OWNER/finance-app-gateway:$TAG"
+
+      - name: Trigger Infrastructure Deployment
+        run: |
+          gh workflow run deploy.yml \
+            -R Sziszka90/FinanceApp.Infrastructure.Azure \
+            --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GHCR_PAT }}

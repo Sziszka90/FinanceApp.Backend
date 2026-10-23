@@ -1,0 +1,39 @@
+using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstractions.CQRS;
+using FinanceApp.Backend.Application.Dtos.UserDtos;
+using FinanceApp.Backend.Application.Mappings;
+using FinanceApp.Backend.Application.Models;
+using Microsoft.Extensions.Logging;
+
+namespace FinanceApp.Backend.Application.UserApi.UserQueries.GetUserById;
+
+public class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, Result<GetUserDto>>
+{
+  private readonly ILogger<GetUserByIdQueryHandler> _logger;
+  private readonly IApplicationMapper _mapper;
+  private readonly IRepository<Domain.Entities.User> _userRepository;
+
+  public GetUserByIdQueryHandler(
+    ILogger<GetUserByIdQueryHandler> logger,
+    IApplicationMapper mapper,
+    IRepository<Domain.Entities.User> userRepository)
+  {
+    _logger = logger;
+    _mapper = mapper;
+    _userRepository = userRepository;
+  }
+
+  public async Task<Result<GetUserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+  {
+    var user = await _userRepository.GetByIdAsync(request.Id, noTracking: true, cancellationToken: cancellationToken);
+
+    if (user == null)
+    {
+      _logger.LogWarning("User with ID:{Id} not found", request.Id);
+      return Result.Failure<GetUserDto>(ApplicationError.UserNotFoundError(userId: request.Id.ToString()));
+    }
+
+    _logger.LogInformation("Retrieved user with ID:{Id}", request.Id);
+    return Result.Success(_mapper.ToGetUserDto(user));
+  }
+}
