@@ -155,6 +155,8 @@ public class PdfImportHandlerTests : TestBase
     var correlationId = Guid.NewGuid();
     _pdfImports.Setup(repository => repository.GetByIdAsync(correlationId, true, It.IsAny<CancellationToken>()))
       .ReturnsAsync(new PdfImportRecord(correlationId, _user.Id));
+    UserRepositoryMock.Setup(repository => repository.GetByIdAsync(_user.Id, true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(_user);
     var handler = CreateCompleteHandler();
 
     var result = await handler.Handle(new CompletePdfImportCommand(new PdfImportResultDto
