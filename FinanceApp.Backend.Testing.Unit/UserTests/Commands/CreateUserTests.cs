@@ -17,6 +17,10 @@ public class CreateUserTests : TestBase
   {
     _loggerMock = CreateLoggerMock<CreateUserCommandHandler>();
 
+    TransactionGroupRepositoryMock
+      .Setup(repository => repository.GetAllByUserIdAsync(It.IsAny<Guid>(), true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new List<TransactionGroup>());
+
     _handler = new CreateUserCommandHandler(
       _loggerMock.Object,
       Mapper,
@@ -223,5 +227,26 @@ public class CreateUserTests : TestBase
     Assert.Equal(baseCurrency, result.Data.BaseCurrency);
 
     UserRepositoryMock.Verify(x => x.CreateAsync(It.Is<User>(u => u.BaseCurrency == baseCurrency), It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
+  public async Task CreateUserHandler_ExistingTransactionGroups_DoesNotCreateDefaultsAgain()
+  {
+    TransactionGroupRepositoryMock
+      .Setup(repository => repository.GetAllByUserIdAsync(It.IsAny<Guid>(), true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync([new TransactionGroup("Custom", "User category", null,
+        new User("testuser", "test@example.com", "hash", CurrencyEnum.EUR))]);
+
+    var result = await _handler.Handle(new CreateUserCommand(new CreateUserDto
+    {
+      UserName = "testuser",
+      Email = "test@example.com",
+      Password = "TestPassword123!",
+      BaseCurrency = CurrencyEnum.EUR
+    }, CancellationToken.None), CancellationToken.None);
+
+    Assert.True(result.IsSuccess);
+    TransactionGroupRepositoryMock.Verify(repository => repository.BatchCreateTransactionGroupsAsync(
+      It.IsAny<List<TransactionGroup>>(), It.IsAny<CancellationToken>()), Times.Never);
   }
 }
