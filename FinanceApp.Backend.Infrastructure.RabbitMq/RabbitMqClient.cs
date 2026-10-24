@@ -129,6 +129,7 @@ public class RabbitMqClient : IRabbitMqClient
         pdfConsumer.ReceivedAsync += async (_, ea) => await HandlePdfResultAsync(ea);
         await _channel.BasicConsumeAsync(queue: _settings.PdfResultQueue, autoAck: false, consumer: pdfConsumer,
           cancellationToken: cancellationToken);
+        _logger.LogInformation("Successfully setup PDF result consumer for queue {QueueName}", _settings.PdfResultQueue);
 
         var pdfDeadLetterConsumer = new AsyncEventingBasicConsumer(_channel);
         pdfDeadLetterConsumer.ReceivedAsync += async (_, ea) => await HandlePdfDeadLetterAsync(ea);
@@ -177,18 +178,31 @@ public class RabbitMqClient : IRabbitMqClient
 
   private async Task HandlePdfResultAsync(BasicDeliverEventArgs ea)
   {
+    string? correlationId = null;
     try
     {
       var result = JsonSerializer.Deserialize<PdfImportResultDto>(ea.Body.Span)
         ?? throw new JsonException("PDF result was empty.");
+      correlationId = result.CorrelationId;
+      _logger.LogInformation("Received PDF import result for correlation {CorrelationId}", correlationId);
       using var scope = _serviceProvider.CreateScope();
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-      await mediator.Send(new CompletePdfImportCommand(result));
+      var completion = await mediator.Send(new CompletePdfImportCommand(result));
+      if (completion.IsSuccess)
+      {
+        _logger.LogInformation("Completed PDF import result for correlation {CorrelationId}", correlationId);
+      }
+      else
+      {
+        _logger.LogWarning("PDF import result was rejected for correlation {CorrelationId}: {Reason}",
+          correlationId, completion.ApplicationError?.Message);
+      }
       await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Failed to process PDF import result");
+      _logger.LogError(ex, "Failed to process PDF import result for correlation {CorrelationId} from {RoutingKey}",
+        correlationId, ea.RoutingKey);
       await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
     }
   }

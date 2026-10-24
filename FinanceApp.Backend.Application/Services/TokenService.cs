@@ -39,12 +39,12 @@ public class TokenService : ITokenService
   {
     if (!_jwtService.ValidateToken(token))
     {
-      _logger.LogWarning("Invalid token provided: {Token}", token);
+      _logger.LogWarning("Invalid token provided.");
       var result = await InvalidateTokenAsync(token, tokenType, cancellationToken);
 
       if (!result.IsSuccess)
       {
-        _logger.LogError("Error while invalidating token: {Token}. Error: {Error}", token, result.ApplicationError?.Message);
+        _logger.LogError("Error while invalidating token. Error: {Error}", result.ApplicationError?.Message);
         return Result.Failure<bool>(result.ApplicationError!);
       }
       return Result.Success(false);
@@ -58,15 +58,15 @@ public class TokenService : ITokenService
           var isLoginTokenValid = await _cacheManager.IsLoginTokenValidAsync(token, cancellationToken);
           if (!isLoginTokenValid)
           {
-            _logger.LogWarning("Invalid login token in cache: {Token}", token);
+            _logger.LogWarning("Invalid login token in cache.");
             return Result.Success(false);
           }
-          _logger.LogInformation("Login token validated successfully: {Token}", token);
+          _logger.LogInformation("Login token validated successfully.");
           return Result.Success(true);
         }
         catch (Exception ex)
         {
-          _logger.LogError(ex, "Error while validating login token: {Token}", token);
+          _logger.LogError(ex, "Error while validating login token.");
           return Result.Failure<bool>(ApplicationError.CacheConnectionError());
         }
 
@@ -76,15 +76,15 @@ public class TokenService : ITokenService
           var isPasswordResetTokenValid = await _cacheManager.IsPasswordResetTokenValidAsync(token, cancellationToken);
           if (!isPasswordResetTokenValid)
           {
-            _logger.LogWarning("Invalid password reset token in cache: {Token}", token);
+            _logger.LogWarning("Invalid password reset token in cache.");
             return Result.Success(false);
           }
-          _logger.LogInformation("Password reset token validated successfully: {Token}", token);
+          _logger.LogInformation("Password reset token validated successfully.");
           return Result.Success(true);
         }
         catch (Exception ex)
         {
-          _logger.LogError(ex, "Error while validating password reset token: {Token}", token);
+          _logger.LogError(ex, "Error while validating password reset token.");
           return Result.Failure<bool>(ApplicationError.CacheConnectionError());
         }
 
@@ -94,15 +94,15 @@ public class TokenService : ITokenService
           var isEmailConfirmationTokenValid = await _cacheManager.IsEmailConfirmationTokenValidAsync(token, cancellationToken);
           if (!isEmailConfirmationTokenValid)
           {
-            _logger.LogWarning("Invalid email confirmation token in cache: {Token}", token);
+            _logger.LogWarning("Invalid email confirmation token in cache.");
             return Result.Success(false);
           }
-          _logger.LogInformation("Email confirmation token validated successfully: {Token}", token);
+          _logger.LogInformation("Email confirmation token validated successfully.");
           return Result.Success(true);
         }
         catch (Exception ex)
         {
-          _logger.LogError(ex, "Error while validating email confirmation token: {Token}", token);
+          _logger.LogError(ex, "Error while validating email confirmation token.");
           return Result.Failure<bool>(ApplicationError.CacheConnectionError());
         }
       default:
@@ -154,7 +154,7 @@ public class TokenService : ITokenService
         }
       });
 
-      _logger.LogInformation("{TokenType} token generated and saved: {Token}", tokenType, token);
+      _logger.LogInformation("{TokenType} token generated and saved.", tokenType);
       return Result.Success(token);
     }
     catch (ArgumentException ex)
@@ -173,7 +173,7 @@ public class TokenService : ITokenService
   {
     if (!_jwtService.ValidateToken(token))
     {
-      _logger.LogWarning("Invalid token provided: {Token}", token);
+      _logger.LogWarning("Invalid token provided.");
       await InvalidateTokenAsync(token, tokenType, cancellationToken);
       return Result.Failure<bool>(ApplicationError.InvalidTokenError());
     }
@@ -183,31 +183,31 @@ public class TokenService : ITokenService
       case TokenType.Login:
         if (!await _cacheManager.IsLoginTokenValidAsync(token, cancellationToken))
         {
-          _logger.LogWarning("Invalid login token in cache: {Token}", token);
+          _logger.LogWarning("Invalid login token in cache.");
           return Result.Failure<bool>(ApplicationError.InvalidTokenError(tokenType.ToString()));
         }
         await InvalidateTokenAsync(token, tokenType, cancellationToken);
-        _logger.LogInformation("Login token validated and invalidated: {Token}", token);
+        _logger.LogInformation("Login token validated and invalidated.");
         return Result.Success(true);
 
       case TokenType.PasswordReset:
         if (!await _cacheManager.IsPasswordResetTokenValidAsync(token, cancellationToken))
         {
-          _logger.LogWarning("Invalid password reset token in cache: {Token}", token);
+          _logger.LogWarning("Invalid password reset token in cache.");
           return Result.Failure<bool>(ApplicationError.InvalidTokenError(tokenType.ToString()));
         }
         await InvalidateTokenAsync(token, tokenType, cancellationToken);
-        _logger.LogInformation("Password reset token validated and invalidated: {Token}", token);
+        _logger.LogInformation("Password reset token validated and invalidated.");
         return Result.Success(true);
 
       case TokenType.EmailConfirmation:
         if (!await _cacheManager.IsEmailConfirmationTokenValidAsync(token, cancellationToken))
         {
-          _logger.LogWarning("Invalid email confirmation token in cache: {Token}", token);
+          _logger.LogWarning("Invalid email confirmation token in cache.");
           return Result.Failure<bool>(ApplicationError.InvalidTokenError(tokenType.ToString()));
         }
         await InvalidateTokenAsync(token, tokenType, cancellationToken);
-        _logger.LogInformation("Email confirmation token validated and invalidated: {Token}", token);
+        _logger.LogInformation("Email confirmation token validated and invalidated.");
         return Result.Success(true);
 
       default:
@@ -229,12 +229,12 @@ public class TokenService : ITokenService
         try
         {
           await _cacheManager.InvalidateLoginTokenAsync(token, cancellationToken);
-          _logger.LogInformation("Login token invalidated: {Token}", token);
+          _logger.LogInformation("Login token invalidated.");
           return Result.Success();
         }
         catch (Exception ex)
         {
-          _logger.LogError(ex, "Error while invalidating login token: {Token}", token);
+          _logger.LogError(ex, "Error while invalidating login token.");
           return Result.Failure(ApplicationError.CacheConnectionError());
         }
 
@@ -242,12 +242,12 @@ public class TokenService : ITokenService
         try
         {
           await _cacheManager.InvalidatePasswordResetTokenAsync(token, cancellationToken);
-          _logger.LogInformation("Password reset token invalidated: {Token}", token);
+          _logger.LogInformation("Password reset token invalidated.");
           return Result.Success();
         }
         catch (Exception ex)
         {
-          _logger.LogError(ex, "Error while invalidating password reset token: {Token}", token);
+          _logger.LogError(ex, "Error while invalidating password reset token.");
           return Result.Failure(ApplicationError.CacheConnectionError());
         }
 
@@ -255,12 +255,12 @@ public class TokenService : ITokenService
         try
         {
           await _cacheManager.InvalidateEmailConfirmationTokenAsync(token, cancellationToken);
-          _logger.LogInformation("Email confirmation token invalidated: {Token}", token);
+          _logger.LogInformation("Email confirmation token invalidated.");
           return Result.Success();
         }
         catch (Exception ex)
         {
-          _logger.LogError(ex, "Error while invalidating email confirmation token: {Token}", token);
+          _logger.LogError(ex, "Error while invalidating email confirmation token.");
           return Result.Failure(ApplicationError.CacheConnectionError());
         }
 
@@ -287,7 +287,7 @@ public class TokenService : ITokenService
 
       });
 
-      _logger.LogInformation("Refresh token generated and saved: {Token}", token);
+      _logger.LogInformation("Refresh token generated and saved.");
       return Result.Success(token);
     }
     catch (Exception ex)
@@ -301,14 +301,14 @@ public class TokenService : ITokenService
   {
     if (!_jwtService.ValidateToken(token))
     {
-      _logger.LogWarning("Invalid token provided: {Token}", token);
+      _logger.LogWarning("Invalid token provided.");
       try
       {
         await _cacheManager.InvalidateLoginTokenAsync(token, cancellationToken);
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, "Error while invalidating login token: {Token}", token);
+        _logger.LogError(ex, "Error while invalidating login token.");
         return Result.Failure<bool>(ApplicationError.CacheConnectionError());
       }
       return Result.Failure<bool>(ApplicationError.InvalidTokenError("RefreshToken"));
@@ -320,15 +320,15 @@ public class TokenService : ITokenService
 
       if (!isRefreshTokenValid)
       {
-        _logger.LogWarning("Invalid refresh token in cache: {Token}", token);
+        _logger.LogWarning("Invalid refresh token in cache.");
         return Result.Failure<bool>(ApplicationError.InvalidTokenError("RefreshToken"));
       }
-      _logger.LogInformation("Refresh token validated: {Token}", token);
+      _logger.LogInformation("Refresh token validated.");
       return Result.Success(true);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error while validating refresh token: {Token}", token);
+      _logger.LogError(ex, "Error while validating refresh token.");
       return Result.Failure<bool>(ApplicationError.CacheConnectionError());
     }
 
@@ -339,12 +339,12 @@ public class TokenService : ITokenService
     try
     {
       await _cacheManager.InvalidateRefreshTokenAsync(token, cancellationToken);
-      _logger.LogInformation("Refresh token invalidated: {Token}", token);
+      _logger.LogInformation("Refresh token invalidated.");
       return Result.Success();
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error while invalidating refresh token: {Token}", token);
+      _logger.LogError(ex, "Error while invalidating refresh token.");
       return Result.Failure(ApplicationError.CacheConnectionError());
     }
   }

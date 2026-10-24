@@ -32,11 +32,11 @@ public class ValidateTokenCommandHandler : ICommandHandler<ValidateTokenCommand,
 
     if (!isValidResult.Data)
     {
-      _logger.LogWarning("Invalid token provided: {Token}", request.validateTokenRequest.Token);
+      _logger.LogWarning("Invalid token provided.");
       return Result.Success(new ValidateTokenResponse { IsValid = false });
     }
 
-    _logger.LogInformation("Token validated successfully: {Token}", request.validateTokenRequest.Token);
+    _logger.LogInformation("Token validated successfully.");
     return Result.Success(new ValidateTokenResponse { IsValid = true });
   }
 }

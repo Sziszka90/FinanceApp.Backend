@@ -26,7 +26,7 @@ public class RefreshCommandHandler : ICommandHandler<RefreshCommand, Result<stri
 
     if (!isValid.Data)
     {
-      _logger.LogWarning("Invalid token provided: {Token}", request.RefreshToken);
+      _logger.LogWarning("Invalid refresh token provided.");
       return Result.Failure<string>(ApplicationError.InvalidTokenError("RefreshToken"));
     }
 
@@ -39,7 +39,7 @@ public class RefreshCommandHandler : ICommandHandler<RefreshCommand, Result<stri
 
     var token = await _tokenService.GenerateTokenAsync(email, TokenType.Login);
 
-    _logger.LogInformation("Token validated successfully: {Token}", request.RefreshToken);
+    _logger.LogInformation("Refresh token validated successfully.");
 
     return Result.Success(token.Data!);
   }
