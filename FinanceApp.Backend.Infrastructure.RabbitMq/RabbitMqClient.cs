@@ -21,9 +21,9 @@ namespace FinanceApp.Backend.Infrastructure.RabbitMq;
 
 public class RabbitMqClient : IRabbitMqClient
 {
-  private const string PdfRetryCountHeader = "x-financeapp-pdf-result-retries";
-  private const int MaxPdfResultRetries = 3;
-  private const int PdfResultRetryDelayMilliseconds = 10000;
+  private const string PDF_RETRY_COUNT_HEADER = "x-financeapp-pdf-result-retries";
+  private const int MAX_PDF_RESULT_RETRIES = 3;
+  private const int PDF_RESULT_RETRY_DELAY_MILLISECONDS = 10000;
   private readonly ILogger<IRabbitMqClient> _logger;
   private readonly IServiceProvider _serviceProvider;
   private readonly RabbitMqSettings _settings;
@@ -119,7 +119,7 @@ public class RabbitMqClient : IRabbitMqClient
         await _channel.QueueDeclareAsync(_pdfResultRetryQueue, durable: true, exclusive: false, autoDelete: false,
           arguments: new Dictionary<string, object?>
           {
-            ["x-message-ttl"] = PdfResultRetryDelayMilliseconds,
+            ["x-message-ttl"] = PDF_RESULT_RETRY_DELAY_MILLISECONDS,
             ["x-dead-letter-exchange"] = string.Empty,
             ["x-dead-letter-routing-key"] = _settings.PdfResultQueue
           });
@@ -249,14 +249,14 @@ public class RabbitMqClient : IRabbitMqClient
       _logger.LogError(ex, "Failed to process PDF import result for correlation {CorrelationId} from {RoutingKey}",
         correlationId, ea.RoutingKey);
       var retryCount = GetPdfRetryCount(ea.BasicProperties.Headers);
-      if (retryCount < MaxPdfResultRetries)
+      if (retryCount < MAX_PDF_RESULT_RETRIES)
       {
         try
         {
           await PublishPdfResultRetryAsync(ea, retryCount + 1);
           await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
           _logger.LogWarning("Scheduled PDF result retry {Retry}/{MaxRetries} for correlation {CorrelationId}",
-            retryCount + 1, MaxPdfResultRetries, correlationId);
+            retryCount + 1, MAX_PDF_RESULT_RETRIES, correlationId);
           return;
         }
         catch (Exception retryError) when (retryError is not OperationCanceledException)
@@ -303,10 +303,10 @@ public class RabbitMqClient : IRabbitMqClient
     var properties = new BasicProperties
     {
       Persistent = true,
-      Expiration = PdfResultRetryDelayMilliseconds.ToString(System.Globalization.CultureInfo.InvariantCulture),
+      Expiration = PDF_RESULT_RETRY_DELAY_MILLISECONDS.ToString(System.Globalization.CultureInfo.InvariantCulture),
       Headers = new Dictionary<string, object?>
       {
-        [PdfRetryCountHeader] = retryCount
+        [PDF_RETRY_COUNT_HEADER] = retryCount
       }
     };
 
@@ -316,7 +316,7 @@ public class RabbitMqClient : IRabbitMqClient
 
   private static int GetPdfRetryCount(IDictionary<string, object?>? headers)
   {
-    if (headers is null || !headers.TryGetValue(PdfRetryCountHeader, out var value) || value is null)
+    if (headers is null || !headers.TryGetValue(PDF_RETRY_COUNT_HEADER, out var value) || value is null)
     {
       return 0;
     }
