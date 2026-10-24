@@ -62,6 +62,7 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
       return Result.Failure<bool>(ApplicationError.LLMProcessorRequestError(result.Error ?? "PDF extraction failed."));
     }
 
+    var transactionsSaved = false;
     try
     {
       ValidateStatement(result.Data);
@@ -103,21 +104,31 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
 
       await _transactions.BatchCreateTransactionsAsync(imported, cancellationToken);
       await _unitOfWork.SaveChangesAsync(cancellationToken);
+      transactionsSaved = true;
       await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(), HubConstants.TRANSACTIONS_IMPORTED_NOTIFICATION,
         result.CorrelationId);
 
-      var groups = await _groups.GetAllByUserIdAsync(userId, noTracking: true, cancellationToken: cancellationToken);
-      if (groups.Count > 0)
+      try
       {
-        var job = new MatchTransactionJobDto
+        var groups = await _groups.GetAllByUserIdAsync(userId, noTracking: true, cancellationToken: cancellationToken);
+        if (groups.Count > 0)
         {
-          TransactionNames = imported.Select(t => t.Name).Distinct().ToList(),
-          TransactionGroupNames = groups.Select(g => g.Name).ToList(),
-          UserId = result.UserId,
-          CorrelationId = result.CorrelationId
-        };
-        await _rabbitMq.PublishToQueueAsync(_settings.RequestQueue, JsonSerializer.Serialize(job), cancellationToken);
+          var job = new MatchTransactionJobDto
+          {
+            TransactionNames = imported.Select(t => t.Name).Distinct().ToList(),
+            TransactionGroupNames = groups.Select(g => g.Name).ToList(),
+            UserId = result.UserId,
+            CorrelationId = result.CorrelationId
+          };
+          await _rabbitMq.PublishToQueueAsync(_settings.RequestQueue, JsonSerializer.Serialize(job), cancellationToken);
+        }
       }
+      catch (Exception error) when (error is not OperationCanceledException)
+      {
+        _logger.LogError(error, "Transactions were imported, but category matching could not be queued for {CorrelationId}",
+          result.CorrelationId);
+      }
+
       return Result.Success(true);
     }
     catch (InvalidDataException error)
@@ -126,6 +137,33 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
       await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(), HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION,
         JsonSerializer.Serialize(new { correlationId = result.CorrelationId, reason = error.Message }));
       return Result.Failure<bool>(ApplicationError.ParsingError());
+    }
+    catch (Exception error) when (error is not OperationCanceledException)
+    {
+      _logger.LogError(error, "Unexpected error while processing PDF import {CorrelationId}", result.CorrelationId);
+      try
+      {
+        var notification = transactionsSaved
+          ? HubConstants.TRANSACTIONS_IMPORTED_NOTIFICATION
+          : HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION;
+        var message = transactionsSaved
+          ? result.CorrelationId
+          : JsonSerializer.Serialize(new
+          {
+            correlationId = result.CorrelationId,
+            reason = "The PDF could not be imported because an unexpected server error occurred."
+          });
+        await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(), notification, message);
+      }
+      catch (Exception notificationError) when (notificationError is not OperationCanceledException)
+      {
+        _logger.LogError(notificationError, "Could not notify the client about PDF import {CorrelationId}",
+          result.CorrelationId);
+      }
+
+      return transactionsSaved
+        ? Result.Success(true)
+        : Result.Failure<bool>(ApplicationError.ParsingError());
     }
   }
 

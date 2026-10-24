@@ -110,7 +110,7 @@ jobs:
       gateway_tag: ${{ steps.vars.outputs.gateway_tag }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set image tags
         id: vars
         run: |

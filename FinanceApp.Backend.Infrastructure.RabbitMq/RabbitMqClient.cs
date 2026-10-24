@@ -1,8 +1,11 @@
 using System.Text;
 using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
 using FinanceApp.Backend.Application.Exceptions;
+using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.ImportPdf;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.MatchTransactionsCommands;
 using FinanceApp.Backend.Domain.Options;
@@ -127,6 +130,11 @@ public class RabbitMqClient : IRabbitMqClient
         await _channel.BasicConsumeAsync(queue: _settings.PdfResultQueue, autoAck: false, consumer: pdfConsumer,
           cancellationToken: cancellationToken);
 
+        var pdfDeadLetterConsumer = new AsyncEventingBasicConsumer(_channel);
+        pdfDeadLetterConsumer.ReceivedAsync += async (_, ea) => await HandlePdfDeadLetterAsync(ea);
+        await _channel.BasicConsumeAsync(queue: _settings.PdfDeadLetterQueue, autoAck: false,
+          consumer: pdfDeadLetterConsumer, cancellationToken: cancellationToken);
+
         _logger.LogInformation("Successfully setup consumer for result queue {QueueName}", _settings.ResultQueue);
       });
     }
@@ -182,6 +190,42 @@ public class RabbitMqClient : IRabbitMqClient
     {
       _logger.LogError(ex, "Failed to process PDF import result");
       await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
+    }
+  }
+
+  private async Task HandlePdfDeadLetterAsync(BasicDeliverEventArgs ea)
+  {
+    try
+    {
+      var job = JsonSerializer.Deserialize<PdfImportJobDto>(ea.Body.Span)
+        ?? throw new JsonException("Dead-lettered PDF job was empty.");
+      if (!Guid.TryParse(job.UserId, out var userId) || !Guid.TryParse(job.CorrelationId, out _))
+      {
+        throw new JsonException("Dead-lettered PDF job has invalid identifiers.");
+      }
+
+      using var scope = _serviceProvider.CreateScope();
+      var users = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+      var user = await users.GetByIdAsync(userId, noTracking: true);
+      if (user is not null)
+      {
+        var signalR = scope.ServiceProvider.GetRequiredService<ISignalRService>();
+        var failure = JsonSerializer.Serialize(new
+        {
+          correlationId = job.CorrelationId,
+          reason = "The PDF processor rejected this import. Check the PDF and try uploading it again."
+        });
+        await signalR.SendToClientGroupMethodAsync(user.Email.ToString(),
+          HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION, failure);
+      }
+    }
+    catch (Exception ex) when (ex is not OperationCanceledException)
+    {
+      _logger.LogError(ex, "Failed to notify the user about dead-lettered PDF import");
+    }
+    finally
+    {
+      await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
     }
   }
 
