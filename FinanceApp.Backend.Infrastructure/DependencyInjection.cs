@@ -1,3 +1,4 @@
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Infrastructure.Cache;
 using FinanceApp.Backend.Infrastructure.EntityFramework;
 using FinanceApp.Backend.Infrastructure.EntityFramework.Common;
@@ -22,6 +23,8 @@ public static class DependencyInjection
   public static IServiceCollection AddInfrastructureTesting(this IServiceCollection services)
   {
     services.AddEntityFrameworkCorePersistence();
+    services.AddDistributedMemoryCache();
+    services.AddSingleton<IPdfImportStatusStore, PdfImportStatusStore>();
 
     return services;
   }
