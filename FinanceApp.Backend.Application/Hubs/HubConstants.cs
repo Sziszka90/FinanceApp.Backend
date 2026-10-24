@@ -6,5 +6,6 @@ public static class HubConstants
   public const string TRANSACTIONS_MATCHED_NOTIFICATION = "TransactionsMatchedNotification";
   public const string REFRESH_TRANSACTIONS = "RefreshTransactions";
   public const string TRANSACTIONS_IMPORTED_NOTIFICATION = "TransactionsImportedNotification";
+  public const string TRANSACTIONS_IMPORT_PROCESSING_NOTIFICATION = "TransactionsImportProcessingNotification";
   public const string TRANSACTIONS_IMPORT_FAILED_NOTIFICATION = "TransactionsImportFailedNotification";
 }

@@ -10,6 +10,8 @@ public class PdfImportResultDto
   public required string UserId { get; set; }
   [JsonPropertyName("success")]
   public bool Success { get; set; }
+  [JsonPropertyName("status")]
+  public string? Status { get; set; }
   [JsonPropertyName("error")]
   public string? Error { get; set; }
   [JsonPropertyName("data")]

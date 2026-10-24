@@ -186,6 +186,26 @@ public class RabbitMqClient : IRabbitMqClient
       correlationId = result.CorrelationId;
       _logger.LogInformation("Received PDF import result for correlation {CorrelationId}", correlationId);
       using var scope = _serviceProvider.CreateScope();
+      if (string.Equals(result.Status, "processing", StringComparison.OrdinalIgnoreCase))
+      {
+        if (!Guid.TryParse(result.UserId, out var processingUserId) || !Guid.TryParse(result.CorrelationId, out _))
+        {
+          throw new JsonException("PDF processing status has invalid identifiers.");
+        }
+
+        var users = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var user = await users.GetByIdAsync(processingUserId, noTracking: true);
+        if (user is not null)
+        {
+          var signalR = scope.ServiceProvider.GetRequiredService<ISignalRService>();
+          await signalR.SendToClientGroupMethodAsync(user.Email.ToString(),
+            HubConstants.TRANSACTIONS_IMPORT_PROCESSING_NOTIFICATION, result.CorrelationId);
+        }
+
+        await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
+        return;
+      }
+
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
       var completion = await mediator.Send(new CompletePdfImportCommand(result));
       if (completion.IsSuccess)
