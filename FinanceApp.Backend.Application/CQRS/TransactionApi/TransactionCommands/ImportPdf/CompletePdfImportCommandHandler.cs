@@ -19,6 +19,7 @@ namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.Impo
 public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImportCommand, Result<bool>>
 {
   private readonly IUserRepository _users;
+  private readonly IRepository<PdfImportRecord> _pdfImports;
   private readonly ITransactionRepository _transactions;
   private readonly ITransactionGroupRepository _groups;
   private readonly IExchangeRateService _exchangeRates;
@@ -29,12 +30,14 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
   private readonly RabbitMqSettings _settings;
   private readonly ILogger<CompletePdfImportCommandHandler> _logger;
 
-  public CompletePdfImportCommandHandler(IUserRepository users, ITransactionRepository transactions,
+  public CompletePdfImportCommandHandler(IUserRepository users, IRepository<PdfImportRecord> pdfImports,
+    ITransactionRepository transactions,
     ITransactionGroupRepository groups, IExchangeRateService exchangeRates, IUnitOfWork unitOfWork,
     IRabbitMqClient rabbitMq, ISignalRService signalR, IOptions<RabbitMqSettings> settings,
     IPdfImportStatusStore importStatuses, ILogger<CompletePdfImportCommandHandler> logger)
   {
     _users = users;
+    _pdfImports = pdfImports;
     _transactions = transactions;
     _groups = groups;
     _exchangeRates = exchangeRates;
@@ -52,6 +55,34 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
     if (!Guid.TryParse(result.UserId, out var userId) || !Guid.TryParse(result.CorrelationId, out _))
     {
       throw new InvalidDataException("PDF result has invalid identifiers.");
+    }
+
+    var correlationId = Guid.Parse(result.CorrelationId);
+    var priorImport = await _pdfImports.GetByIdAsync(correlationId, noTracking: true, cancellationToken);
+    if (priorImport is not null)
+    {
+      if (priorImport.UserId != userId)
+      {
+        throw new InvalidDataException("PDF result correlation ID belongs to a different user.");
+      }
+
+      _logger.LogInformation("Ignoring duplicate PDF result for completed import {CorrelationId}", correlationId);
+      var duplicateOwner = await _users.GetByIdAsync(userId, noTracking: true, cancellationToken: cancellationToken)
+        ?? throw new InvalidDataException("PDF result references an unknown user.");
+      await _importStatuses.SetAsync(duplicateOwner.Email.ToString(), correlationId, "completed",
+        cancellationToken: cancellationToken);
+      try
+      {
+        await _signalR.SendToClientGroupMethodAsync(duplicateOwner.Email.ToString(),
+          HubConstants.TRANSACTIONS_IMPORTED_NOTIFICATION, result.CorrelationId);
+      }
+      catch (Exception notificationError) when (notificationError is not OperationCanceledException)
+      {
+        _logger.LogError(notificationError, "Could not notify the client about duplicate PDF result {CorrelationId}",
+          correlationId);
+      }
+
+      return Result.Success(true);
     }
 
     var user = await _users.GetByIdAsync(userId, noTracking: false, cancellationToken: cancellationToken)
@@ -106,6 +137,7 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
         imported.Add(transaction);
       }
 
+      await _pdfImports.CreateAsync(new PdfImportRecord(correlationId, userId), cancellationToken);
       await _transactions.BatchCreateTransactionsAsync(imported, cancellationToken);
       await _unitOfWork.SaveChangesAsync(cancellationToken);
       transactionsSaved = true;
@@ -153,24 +185,19 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
     }
     catch (Exception error) when (error is not OperationCanceledException)
     {
-      _logger.LogError(error, "Unexpected error while processing PDF import {CorrelationId}", result.CorrelationId);
-      await _importStatuses.SetAsync(user.Email.ToString(), Guid.Parse(result.CorrelationId),
-        transactionsSaved ? "completed" : "failed",
-        transactionsSaved ? null : "The PDF could not be imported because an unexpected server error occurred.",
-        cancellationToken);
+      if (!transactionsSaved)
+      {
+        _logger.LogError(error, "Transient error while processing PDF import {CorrelationId}; the result will be retried",
+          result.CorrelationId);
+        throw;
+      }
+
+      _logger.LogError(error, "PDF import {CorrelationId} was saved but follow-up work failed", result.CorrelationId);
+      await _importStatuses.SetAsync(user.Email.ToString(), correlationId, "completed", cancellationToken: cancellationToken);
       try
       {
-        var notification = transactionsSaved
-          ? HubConstants.TRANSACTIONS_IMPORTED_NOTIFICATION
-          : HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION;
-        var message = transactionsSaved
-          ? result.CorrelationId
-          : JsonSerializer.Serialize(new
-          {
-            correlationId = result.CorrelationId,
-            reason = "The PDF could not be imported because an unexpected server error occurred."
-          });
-        await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(), notification, message);
+        await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(),
+          HubConstants.TRANSACTIONS_IMPORTED_NOTIFICATION, result.CorrelationId);
       }
       catch (Exception notificationError) when (notificationError is not OperationCanceledException)
       {
@@ -178,9 +205,7 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
           result.CorrelationId);
       }
 
-      return transactionsSaved
-        ? Result.Success(true)
-        : Result.Failure<bool>(ApplicationError.ParsingError());
+      return Result.Success(true);
     }
   }
 

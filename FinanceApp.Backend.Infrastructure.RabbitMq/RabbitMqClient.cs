@@ -21,10 +21,14 @@ namespace FinanceApp.Backend.Infrastructure.RabbitMq;
 
 public class RabbitMqClient : IRabbitMqClient
 {
+  private const string PdfRetryCountHeader = "x-financeapp-pdf-result-retries";
+  private const int MaxPdfResultRetries = 3;
+  private const int PdfResultRetryDelayMilliseconds = 10000;
   private readonly ILogger<IRabbitMqClient> _logger;
   private readonly IServiceProvider _serviceProvider;
   private readonly RabbitMqSettings _settings;
   private readonly IRabbitMqConnectionManager _connectionManager;
+  private readonly string _pdfResultRetryQueue;
   private readonly IAsyncPolicy _declarationRetryPolicy;
   private IChannel _channel => _connectionManager.Channel ?? throw new InvalidOperationException("Channel not initialized");
 
@@ -38,6 +42,7 @@ public class RabbitMqClient : IRabbitMqClient
     _serviceProvider = serviceProvider;
     _settings = options.Value;
     _connectionManager = connectionManager;
+    _pdfResultRetryQueue = $"{_settings.PdfResultQueue}.retry";
     _connectionManager.Reconnected += ResubscribeAfterReconnectAsync;
 
     _declarationRetryPolicy = Policy
@@ -111,6 +116,13 @@ public class RabbitMqClient : IRabbitMqClient
             ["x-dead-letter-routing-key"] = _settings.PdfDeadLetterQueue
           });
         await _channel.QueueDeclareAsync(_settings.PdfResultQueue, durable: true, exclusive: false, autoDelete: false);
+        await _channel.QueueDeclareAsync(_pdfResultRetryQueue, durable: true, exclusive: false, autoDelete: false,
+          arguments: new Dictionary<string, object?>
+          {
+            ["x-message-ttl"] = PdfResultRetryDelayMilliseconds,
+            ["x-dead-letter-exchange"] = string.Empty,
+            ["x-dead-letter-routing-key"] = _settings.PdfResultQueue
+          });
         await _channel.QueueDeclareAsync(_settings.PdfDeadLetterQueue, durable: true, exclusive: false, autoDelete: false);
 
         _logger.LogDebug("Successfully declared request, result, and dead-letter queues");
@@ -236,6 +248,27 @@ public class RabbitMqClient : IRabbitMqClient
     {
       _logger.LogError(ex, "Failed to process PDF import result for correlation {CorrelationId} from {RoutingKey}",
         correlationId, ea.RoutingKey);
+      var retryCount = GetPdfRetryCount(ea.BasicProperties.Headers);
+      if (retryCount < MaxPdfResultRetries)
+      {
+        try
+        {
+          await PublishPdfResultRetryAsync(ea, retryCount + 1);
+          await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
+          _logger.LogWarning("Scheduled PDF result retry {Retry}/{MaxRetries} for correlation {CorrelationId}",
+            retryCount + 1, MaxPdfResultRetries, correlationId);
+          return;
+        }
+        catch (Exception retryError) when (retryError is not OperationCanceledException)
+        {
+          _logger.LogError(retryError,
+            "Could not schedule retry for PDF import result {CorrelationId}; returning it to the result queue",
+            correlationId);
+          await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: true);
+          return;
+        }
+      }
+
       if (Guid.TryParse(userId, out var failedUserId) && Guid.TryParse(correlationId, out var failedCorrelationId))
       {
         try
@@ -245,7 +278,7 @@ public class RabbitMqClient : IRabbitMqClient
           var user = await users.GetByIdAsync(failedUserId, noTracking: true);
           if (user is not null)
           {
-            var reason = "The backend could not complete this PDF import. You can retry it from the transactions page.";
+            var reason = "The backend could not complete this PDF import after several attempts. You can retry it from the transactions page.";
             var statuses = failureScope.ServiceProvider.GetRequiredService<IPdfImportStatusStore>();
             await statuses.SetAsync(user.Email.ToString(), failedCorrelationId, "failed", reason);
             var signalR = failureScope.ServiceProvider.GetRequiredService<ISignalRService>();
@@ -261,7 +294,50 @@ public class RabbitMqClient : IRabbitMqClient
         }
       }
 
-      await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
+      await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
+    }
+  }
+
+  private async Task PublishPdfResultRetryAsync(BasicDeliverEventArgs ea, int retryCount)
+  {
+    var properties = new BasicProperties
+    {
+      Persistent = true,
+      Expiration = PdfResultRetryDelayMilliseconds.ToString(System.Globalization.CultureInfo.InvariantCulture),
+      Headers = new Dictionary<string, object?>
+      {
+        [PdfRetryCountHeader] = retryCount
+      }
+    };
+
+    await _channel.BasicPublishAsync(string.Empty, _pdfResultRetryQueue, mandatory: true, properties, ea.Body,
+      CancellationToken.None);
+  }
+
+  private static int GetPdfRetryCount(IDictionary<string, object?>? headers)
+  {
+    if (headers is null || !headers.TryGetValue(PdfRetryCountHeader, out var value) || value is null)
+    {
+      return 0;
+    }
+
+    try
+    {
+      return value is byte[] bytes
+        ? int.Parse(Encoding.UTF8.GetString(bytes), System.Globalization.CultureInfo.InvariantCulture)
+        : Convert.ToInt32(value, System.Globalization.CultureInfo.InvariantCulture);
+    }
+    catch (FormatException)
+    {
+      return 0;
+    }
+    catch (InvalidCastException)
+    {
+      return 0;
+    }
+    catch (OverflowException)
+    {
+      return 0;
     }
   }
 

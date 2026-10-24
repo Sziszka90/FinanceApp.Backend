@@ -7,6 +7,7 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 public abstract class FinanceAppDbContext : DbContext
 {
   public DbSet<Transaction> Transaction => Set<Transaction>();
+  public DbSet<PdfImportRecord> PdfImportRecord => Set<PdfImportRecord>();
   public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
   public DbSet<ExchangeRate> ExchangeRate => Set<ExchangeRate>();
   public DbSet<User> User => Set<User>();

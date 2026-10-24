@@ -22,6 +22,7 @@ public class PdfImportHandlerTests : TestBase
 {
   private readonly User _user = new(null, "test-user", "test@example.com", true, "hash", CurrencyEnum.EUR);
   private readonly Mock<IRepository<BankStatementPrompt>> _prompts = new();
+  private readonly Mock<IRepository<PdfImportRecord>> _pdfImports = new();
   private readonly Mock<ISignalRService> _signalR = new();
   private readonly Mock<IPdfImportStatusStore> _importStatuses = new();
   private readonly RabbitMqSettings _settings = new()
@@ -32,6 +33,10 @@ public class PdfImportHandlerTests : TestBase
 
   public PdfImportHandlerTests()
   {
+    _pdfImports.Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync((PdfImportRecord?)null);
+    _pdfImports.Setup(repository => repository.CreateAsync(It.IsAny<PdfImportRecord>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync((PdfImportRecord record, CancellationToken _) => record);
     UserServiceMock.Setup(service => service.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result<User>.Success(_user));
     _importStatuses.Setup(store => store.SetAsync(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<string>(),
@@ -135,10 +140,39 @@ public class PdfImportHandlerTests : TestBase
     Assert.Equal(TransactionTypeEnum.Income, saved[1].TransactionType);
     Assert.Equal(30m, saved[0].Value.Amount);
     UnitOfWorkMock.Verify(unitOfWork => unitOfWork.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    _pdfImports.Verify(repository => repository.CreateAsync(
+      It.Is<PdfImportRecord>(record => record.Id == Guid.Parse(correlationId) && record.UserId == _user.Id),
+      It.IsAny<CancellationToken>()), Times.Once);
     _signalR.Verify(service => service.SendToClientGroupMethodAsync(_user.Email,
       HubConstants.TRANSACTIONS_IMPORTED_NOTIFICATION, correlationId), Times.Once);
     RabbitMqClientMock.Verify(client => client.PublishToQueueAsync(_settings.RequestQueue,
       It.Is<string>(message => message.Contains("Groceries") && message.Contains("Food")), It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
+  public async Task CompletePdfImport_DuplicateResultDoesNotCreateTransactionsAgain()
+  {
+    var correlationId = Guid.NewGuid();
+    _pdfImports.Setup(repository => repository.GetByIdAsync(correlationId, true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new PdfImportRecord(correlationId, _user.Id));
+    var handler = CreateCompleteHandler();
+
+    var result = await handler.Handle(new CompletePdfImportCommand(new PdfImportResultDto
+    {
+      CorrelationId = correlationId.ToString(),
+      UserId = _user.Id.ToString(),
+      Success = true,
+      Data = new PdfStatementDto
+      {
+        StatementCurrency = "EUR",
+        Transactions = [new PdfTransactionDto { Description = "A", Date = "2026-10-01", SignedAmount = "-1.00", Currency = "EUR", PageNumber = 1 }]
+      }
+    }), CancellationToken.None);
+
+    Assert.True(result.IsSuccess);
+    TransactionRepositoryMock.Verify(repository => repository.BatchCreateTransactionsAsync(
+      It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()), Times.Never);
+    UnitOfWorkMock.Verify(unitOfWork => unitOfWork.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
   }
 
   [Fact]
@@ -211,6 +245,7 @@ public class PdfImportHandlerTests : TestBase
 
   private CompletePdfImportCommandHandler CreateCompleteHandler() => new(
     UserRepositoryMock.Object,
+    _pdfImports.Object,
     TransactionRepositoryMock.Object,
     TransactionGroupRepositoryMock.Object,
     ExchangeRateServiceMock.Object,
