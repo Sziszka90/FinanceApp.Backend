@@ -58,11 +58,8 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
       await _retryPolicy.ExecuteAsync(async () =>
       {
         _connection = await _factory.CreateConnectionAsync(cancellationToken);
-        _channel = await _connection.CreateChannelAsync(new CreateChannelOptions
-        {
-          PublisherConfirmationsEnabled = true,
-          PublisherConfirmationTrackingEnabled = true
-        }, cancellationToken);
+        _channel = await _connection.CreateChannelAsync(
+          new CreateChannelOptions(true, true, null, null), cancellationToken);
         _connection.ConnectionShutdownAsync += OnConnectionShutdown;
 
         _logger.LogInformation("Successfully initialized RabbitMQ connection to {HostName}:{Port}",
