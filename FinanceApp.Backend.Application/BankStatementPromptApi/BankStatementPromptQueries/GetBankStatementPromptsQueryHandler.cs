@@ -21,7 +21,10 @@ public class GetBankStatementPromptsQueryHandler : IQueryHandler<GetBankStatemen
   public async Task<Result<List<BankStatementPromptDto>>> Handle(GetBankStatementPromptsQuery request, CancellationToken cancellationToken)
   {
     var user = await _users.GetActiveUserAsync(cancellationToken);
-    if (!user.IsSuccess) return Result.Failure<List<BankStatementPromptDto>>(user.ApplicationError!);
+    if (!user.IsSuccess)
+    {
+      return Result.Failure<List<BankStatementPromptDto>>(user.ApplicationError!);
+    }
 
     var prompts = await _prompts.GetAllAsync(prompt => prompt.UserId == user.Data!.Id,
       noTracking: true, cancellationToken: cancellationToken);

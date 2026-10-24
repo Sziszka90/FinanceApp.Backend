@@ -12,8 +12,10 @@ public static class ExchangeRateServiceExtensions
     CancellationToken cancellationToken = default)
   {
     if (service is ExchangeRateService exchangeRateService)
+    {
       return await exchangeRateService.ConvertWithRateAsync(
         amount, transactionDate, fromCurrency, toCurrency, cancellationToken);
+    }
 
     var converted = await service.ConvertAmountAsync(amount, transactionDate, fromCurrency, toCurrency, cancellationToken);
     return converted.IsSuccess

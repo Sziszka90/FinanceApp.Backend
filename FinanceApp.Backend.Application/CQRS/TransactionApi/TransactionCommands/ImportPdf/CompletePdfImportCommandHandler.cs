@@ -48,7 +48,9 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
   {
     var result = request.Result;
     if (!Guid.TryParse(result.UserId, out var userId) || !Guid.TryParse(result.CorrelationId, out _))
+    {
       throw new InvalidDataException("PDF result has invalid identifiers.");
+    }
 
     var user = await _users.GetByIdAsync(userId, noTracking: false, cancellationToken: cancellationToken)
       ?? throw new InvalidDataException("PDF result references an unknown user.");
@@ -79,13 +81,19 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
           var converted = await _exchangeRates.ConvertWithRateAsync(absolute, postedAt, currency.ToString(),
             CurrencyEnum.EUR.ToString(), cancellationToken);
           if (!converted.IsSuccess)
+          {
             throw new InvalidDataException($"Exchange rate unavailable for {currency} on {date}.");
+          }
+
           conversion = converted.Data;
           baseAmount = conversion!.Amount;
         }
         var details = item.Details?.Trim() ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(item.Reference) && !details.Contains(item.Reference, StringComparison.OrdinalIgnoreCase))
+        {
           details = string.IsNullOrWhiteSpace(details) ? item.Reference : $"{details}; reference: {item.Reference}";
+        }
+
         var transaction = new Transaction(item.Description!.Trim(), details,
           amount < 0 ? TransactionTypeEnum.Expense : TransactionTypeEnum.Income,
           new Money { Amount = absolute, Currency = currency }, baseAmount, null, postedAt, user);
@@ -124,12 +132,20 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
   private static void ValidateStatement(PdfStatementDto statement)
   {
     if (statement.Transactions.Count == 0)
+    {
       throw new InvalidDataException("No posted transactions were found in the PDF.");
+    }
+
     if (statement.Transactions.Count > 500)
+    {
       throw new InvalidDataException("The statement contains more than 500 transactions.");
+    }
+
     if (!Enum.TryParse<CurrencyEnum>(statement.StatementCurrency, false, out var statementCurrency) ||
         statementCurrency == CurrencyEnum.XXX)
+    {
       throw new InvalidDataException("The statement currency is missing or unsupported.");
+    }
 
     decimal debits = 0, credits = 0;
     foreach (var item in statement.Transactions)
@@ -142,15 +158,26 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
           CultureInfo.InvariantCulture, out var amount) || amount == 0 || amount == decimal.MinValue ||
           Math.Abs(amount) > 99999999999999.9999m || decimal.Round(amount, 4) != amount ||
           item.PageNumber is null or < 1)
+      {
         throw new InvalidDataException("The PDF contains an incomplete or unsupported transaction.");
-      if (amount < 0) debits += Math.Abs(amount);
-      else credits += amount;
+      }
+
+      if (amount < 0)
+      {
+        debits += Math.Abs(amount);
+      }
+      else
+      {
+        credits += amount;
+      }
     }
 
     if (statement.TotalDebits is { } expectedDebits && expectedDebits != debits ||
         statement.TotalCredits is { } expectedCredits && expectedCredits != credits ||
         statement.OpeningBalance is { } opening && statement.ClosingBalance is { } closing &&
         opening + credits - debits != closing)
+    {
       throw new InvalidDataException("The extracted amounts do not reconcile with the statement totals.");
+    }
   }
 }

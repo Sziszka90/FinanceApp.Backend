@@ -76,7 +76,10 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
       {
         var rates = System.Text.Json.JsonSerializer.Deserialize<List<ExchangeRate>>(ratesBytes);
         var cached = SelectRate(rates, transactionDate, fromCurrency, toCurrency);
-        if (cached is not null) return Result.Success(cached);
+        if (cached is not null)
+        {
+          return Result.Success(cached);
+        }
       }
     }
     catch (Exception ex) when (ex is not OperationCanceledException)
@@ -89,7 +92,9 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
     var allRates = await repository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
     var saved = SelectRate(allRates, transactionDate, fromCurrency, toCurrency);
     if (saved is null)
+    {
       return Result.Failure<ExchangeRate>(ApplicationError.MissingExchangeRatesError());
+    }
 
     try
     {

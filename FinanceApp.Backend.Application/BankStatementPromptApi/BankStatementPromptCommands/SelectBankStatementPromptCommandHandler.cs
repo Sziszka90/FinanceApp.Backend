@@ -22,14 +22,21 @@ public class SelectBankStatementPromptCommandHandler : ICommandHandler<SelectBan
   public async Task<Result<bool>> Handle(SelectBankStatementPromptCommand request, CancellationToken cancellationToken)
   {
     var user = await _users.GetActiveUserAsync(cancellationToken);
-    if (!user.IsSuccess) return Result.Failure<bool>(user.ApplicationError!);
+    if (!user.IsSuccess)
+    {
+      return Result.Failure<bool>(user.ApplicationError!);
+    }
 
     var prompts = await _prompts.GetAllAsync(prompt => prompt.UserId == user.Data!.Id, cancellationToken: cancellationToken);
     if (request.PromptId.HasValue && prompts.All(prompt => prompt.Id != request.PromptId.Value))
+    {
       return Result.Failure<bool>(ApplicationError.EntityNotFoundError(request.PromptId.Value.ToString(), nameof(BankStatementPrompt)));
+    }
 
     foreach (var prompt in prompts)
+    {
       prompt.IsSelected = prompt.Id == request.PromptId;
+    }
 
     await _unitOfWork.SaveChangesAsync(cancellationToken);
     return Result.Success(true);

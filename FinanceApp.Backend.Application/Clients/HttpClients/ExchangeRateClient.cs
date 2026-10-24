@@ -29,7 +29,9 @@ public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchange
     if (!string.Equals(response.Base, nameof(CurrencyEnum.USD), StringComparison.OrdinalIgnoreCase) ||
         response.Timestamp <= 0 || supportedCurrencies.Any(currency =>
           !response.Rates.TryGetValue(currency, out var rate) || rate <= 0))
+    {
       throw new InvalidDataException("Exchange rate provider returned an incomplete or invalid USD rate set.");
+    }
 
     var allRates = CalculateAllRatesFromUsdBase(response.Rates);
 

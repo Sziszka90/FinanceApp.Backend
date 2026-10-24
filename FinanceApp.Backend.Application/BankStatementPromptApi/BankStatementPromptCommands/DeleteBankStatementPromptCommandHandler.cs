@@ -22,12 +22,17 @@ public class DeleteBankStatementPromptCommandHandler : ICommandHandler<DeleteBan
   public async Task<Result<bool>> Handle(DeleteBankStatementPromptCommand request, CancellationToken cancellationToken)
   {
     var user = await _users.GetActiveUserAsync(cancellationToken);
-    if (!user.IsSuccess) return Result.Failure<bool>(user.ApplicationError!);
+    if (!user.IsSuccess)
+    {
+      return Result.Failure<bool>(user.ApplicationError!);
+    }
 
     var prompt = await _prompts.GetSingleOrDefaultAsync(item => item.Id == request.Id && item.UserId == user.Data!.Id,
       cancellationToken: cancellationToken);
     if (prompt is null)
+    {
       return Result.Failure<bool>(ApplicationError.EntityNotFoundError(request.Id.ToString(), nameof(BankStatementPrompt)));
+    }
 
     _prompts.Delete(prompt);
     await _unitOfWork.SaveChangesAsync(cancellationToken);

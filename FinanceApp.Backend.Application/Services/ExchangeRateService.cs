@@ -36,7 +36,9 @@ public class ExchangeRateService : IExchangeRateService
     var entry = await _exchangeRateCacheManager.GetRateEntryAsync(
       transactionDate, fromCurrency, toCurrency, cancellationToken);
     if (!entry.IsSuccess)
+    {
       return Result.Failure<ConvertedAmount>(entry.ApplicationError!);
+    }
 
     var rate = entry.Data!;
     return Result.Success(new ConvertedAmount(Math.Round(amount * rate.Rate, 2), rate.Rate, rate.ValidFrom));

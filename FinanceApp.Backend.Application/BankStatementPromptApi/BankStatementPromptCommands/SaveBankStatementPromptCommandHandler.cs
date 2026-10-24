@@ -23,7 +23,10 @@ public class SaveBankStatementPromptCommandHandler : ICommandHandler<SaveBankSta
   public async Task<Result<BankStatementPromptDto>> Handle(SaveBankStatementPromptCommand request, CancellationToken cancellationToken)
   {
     var user = await _users.GetActiveUserAsync(cancellationToken);
-    if (!user.IsSuccess) return Result.Failure<BankStatementPromptDto>(user.ApplicationError!);
+    if (!user.IsSuccess)
+    {
+      return Result.Failure<BankStatementPromptDto>(user.ApplicationError!);
+    }
 
     BankStatementPrompt prompt;
     if (request.Id is Guid id)
@@ -31,7 +34,10 @@ public class SaveBankStatementPromptCommandHandler : ICommandHandler<SaveBankSta
       var existingPrompt = await _prompts.GetSingleOrDefaultAsync(item => item.Id == id && item.UserId == user.Data!.Id,
         cancellationToken: cancellationToken);
       if (existingPrompt is null)
+      {
         return Result.Failure<BankStatementPromptDto>(ApplicationError.EntityNotFoundError(id.ToString(), nameof(BankStatementPrompt)));
+      }
+
       existingPrompt.Update(request.Prompt.Name.Trim(), request.Prompt.Instructions.Trim());
       prompt = existingPrompt;
     }

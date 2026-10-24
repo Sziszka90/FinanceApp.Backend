@@ -5,12 +5,12 @@ namespace FinanceApp.Backend.Application.Validators;
 
 public class UploadPdfFileDtoValidator : AbstractValidator<UploadPdfFileDto>
 {
-  public const long MaximumFileSize = 10 * 1024 * 1024;
+  public const long MAXIMUM_FILE_SIZE = 10 * 1024 * 1024;
 
   public UploadPdfFileDtoValidator()
   {
     RuleFor(x => x.File).NotNull();
-    RuleFor(x => x.File).Must(file => file is { Length: > 0 and <= MaximumFileSize })
+    RuleFor(x => x.File).Must(file => file is { Length: > 0 and <= MAXIMUM_FILE_SIZE })
       .WithMessage("PDF must be between 1 byte and 10 MB.");
     RuleFor(x => x.File).Must(file => file is not null &&
         string.Equals(Path.GetExtension(file.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))

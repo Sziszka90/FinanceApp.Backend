@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text;
-using FluentValidation.Results;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
@@ -9,14 +8,15 @@ using FinanceApp.Backend.Application.Mappings;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetTransactionCursorPage;
 
 public class GetTransactionCursorPageQueryHandler : IQueryHandler<GetTransactionCursorPageQuery, Result<TransactionCursorPageDto>>
 {
-  private const int DefaultPageSize = 50;
-  private const int MaximumPageSize = 100;
+  private const int DEFAULT_PAGE_SIZE = 50;
+  private const int MAXIMUM_PAGE_SIZE = 100;
   private readonly ILogger<GetTransactionCursorPageQueryHandler> _logger;
   private readonly IApplicationMapper _mapper;
   private readonly ITransactionRepository _transactionRepository;
@@ -39,10 +39,10 @@ public class GetTransactionCursorPageQueryHandler : IQueryHandler<GetTransaction
 
   public async Task<Result<TransactionCursorPageDto>> Handle(GetTransactionCursorPageQuery request, CancellationToken cancellationToken)
   {
-    var pageSize = request.PageSize == 0 ? DefaultPageSize : request.PageSize;
-    if (pageSize < 1 || pageSize > MaximumPageSize)
+    var pageSize = request.PageSize == 0 ? DEFAULT_PAGE_SIZE : request.PageSize;
+    if (pageSize < 1 || pageSize > MAXIMUM_PAGE_SIZE)
     {
-      return InvalidRequest(nameof(request.PageSize), $"Page size must be between 1 and {MaximumPageSize}.");
+      return InvalidRequest(nameof(request.PageSize), $"Page size must be between 1 and {MAXIMUM_PAGE_SIZE}.");
     }
 
     DateTimeOffset? cursorDate = null;

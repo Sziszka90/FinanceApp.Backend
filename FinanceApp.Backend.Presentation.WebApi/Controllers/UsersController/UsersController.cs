@@ -9,12 +9,12 @@ using FinanceApp.Backend.Application.UserApi.UserCommands.UpdatePassword;
 using FinanceApp.Backend.Application.UserApi.UserCommands.UpdateUser;
 using FinanceApp.Backend.Application.UserApi.UserQueries.GetActiveUser;
 using FinanceApp.Backend.Application.UserApi.UserQueries.GetUserById;
+using FinanceApp.Backend.Domain.Options;
 using FinanceApp.Backend.Presentation.WebApi.Controllers.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using FinanceApp.Backend.Domain.Options;
 
 namespace FinanceApp.Backend.Presentation.WebApi.Controllers.UsersController;
 

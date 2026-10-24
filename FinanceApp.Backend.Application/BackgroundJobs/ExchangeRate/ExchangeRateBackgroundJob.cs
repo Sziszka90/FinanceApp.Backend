@@ -55,7 +55,9 @@ public class ExchangeRateBackgroundJob : BackgroundService
       {
         var wait = nextRefreshAt - DateTimeOffset.UtcNow;
         if (wait > TimeSpan.Zero)
+        {
           await Task.Delay(wait, cancellationToken);
+        }
 
         try
         {
@@ -67,7 +69,10 @@ public class ExchangeRateBackgroundJob : BackgroundService
           // Fetch and validate first so a provider failure never expires the saved active rates.
           var rates = await exchangeRateClient.GetExchangeRatesAsync();
           if (!rates.IsSuccess || rates.Data is null || rates.Data.Count == 0)
+          {
             throw new InvalidDataException($"Exchange rate provider returned no usable rates: {rates.ApplicationError?.Message}");
+          }
+
           var actualRates = await exchangeRateRepository.GetActualExchangeRatesAsync(cancellationToken);
 
           foreach (var rate in actualRates)
