@@ -12,14 +12,6 @@ on:
         description: "Target environment"
         required: true
         default: "production"
-      backend_tag:
-        description: "Backend Docker image tag"
-        required: false
-        default: "latest"
-      gateway_tag:
-        description: "Gateway Docker image tag"
-        required: false
-        default: "latest"
 
 jobs:
   code-quality:
@@ -114,17 +106,12 @@ jobs:
       - name: Set image tags
         id: vars
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BACKEND_TAG="${{ github.event.inputs.backend_tag }}"
-            GATEWAY_TAG="${{ github.event.inputs.gateway_tag }}"
-          else
-            BACKEND_TAG="latest"
-            GATEWAY_TAG="latest"
-          fi
-          echo "backend_tag=${BACKEND_TAG:-latest}" >> $GITHUB_OUTPUT
-          echo "gateway_tag=${GATEWAY_TAG:-latest}" >> $GITHUB_OUTPUT
-          echo "Using backend tag: ${BACKEND_TAG:-latest}"
-          echo "Using gateway tag: ${GATEWAY_TAG:-latest}"
+          BACKEND_TAG="${{ github.sha }}"
+          GATEWAY_TAG="${{ github.sha }}"
+          echo "backend_tag=$BACKEND_TAG" >> $GITHUB_OUTPUT
+          echo "gateway_tag=$GATEWAY_TAG" >> $GITHUB_OUTPUT
+          echo "Using backend tag: $BACKEND_TAG"
+          echo "Using gateway tag: $GATEWAY_TAG"
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
         with:
@@ -147,9 +134,13 @@ jobs:
           echo "Pushed image: ghcr.io/$OWNER/finance-app-gateway:$TAG"
 
       - name: Trigger Infrastructure Deployment
+        env:
+          GH_TOKEN: ${{ secrets.GHCR_PAT }}
+          BACKEND_TAG: ${{ steps.vars.outputs.backend_tag }}
+          GATEWAY_TAG: ${{ steps.vars.outputs.gateway_tag }}
         run: |
           gh workflow run deploy.yml \
             -R Sziszka90/FinanceApp.Infrastructure.Azure \
-            --ref main
-        env:
-          GH_TOKEN: ${{ secrets.GHCR_PAT }}
+            --ref main \
+            -f backendImageTag="$BACKEND_TAG" \
+            -f gatewayImageTag="$GATEWAY_TAG"

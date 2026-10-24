@@ -114,7 +114,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     var mailMessage = new MailMessage
     {
       From = new MailAddress(_smtpSettings.FromEmail),
-      Subject = "Email Reset Password",
+      Subject = "Finance App - Reset Password",
       Body = body,
       IsBodyHtml = true,
     };
