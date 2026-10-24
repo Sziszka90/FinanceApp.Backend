@@ -38,6 +38,7 @@ public class RabbitMqClient : IRabbitMqClient
     _serviceProvider = serviceProvider;
     _settings = options.Value;
     _connectionManager = connectionManager;
+    _connectionManager.Reconnected += ResubscribeAfterReconnectAsync;
 
     _declarationRetryPolicy = Policy
       .Handle<Exception>()
@@ -50,6 +51,14 @@ public class RabbitMqClient : IRabbitMqClient
             "Failed RabbitMQ declaration operation on attempt {Attempt}/3. Retrying in {Delay} seconds...",
             retryCount, timespan.TotalSeconds);
         });
+  }
+
+  private async Task ResubscribeAfterReconnectAsync(CancellationToken cancellationToken)
+  {
+    _logger.LogInformation("Restoring RabbitMQ queues and consumers after reconnect");
+    await DeclareQueuesAsync(cancellationToken);
+    await SetupConsumersAsync(cancellationToken);
+    _logger.LogInformation("RabbitMQ queues and consumers restored after reconnect");
   }
 
   public async Task SubscribeAllAsync(CancellationToken cancellationToken = default)

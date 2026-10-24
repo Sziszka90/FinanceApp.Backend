@@ -4,6 +4,8 @@ namespace FinanceApp.Backend.Application.Abstraction.Clients;
 
 public interface IRabbitMqConnectionManager
 {
+  event Func<CancellationToken, Task>? Reconnected;
+
   /// <summary>
   /// Initializes the RabbitMQ connection and channel.
   /// </summary>

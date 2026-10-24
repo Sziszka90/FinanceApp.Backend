@@ -11,6 +11,8 @@ namespace FinanceApp.Backend.Infrastructure.RabbitMq;
 
 public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDisposable
 {
+  public event Func<CancellationToken, Task>? Reconnected;
+
   private readonly ILogger<RabbitMqConnectionManager> _logger;
   private readonly RabbitMqSettings _settings;
   private readonly ConnectionFactory _factory;
@@ -108,6 +110,10 @@ public class RabbitMqConnectionManager : IRabbitMqConnectionManager, IAsyncDispo
     {
       await Task.Delay(TimeSpan.FromSeconds(2));
       await InitializeAsync(cancellationToken);
+      if (Reconnected is not null)
+      {
+        await Reconnected(cancellationToken);
+      }
       _logger.LogInformation("Successfully reconnected to RabbitMQ");
     }
     catch (RabbitMqException)
