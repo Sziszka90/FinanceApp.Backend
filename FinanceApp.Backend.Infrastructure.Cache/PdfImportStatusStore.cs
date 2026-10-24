@@ -8,7 +8,7 @@ namespace FinanceApp.Backend.Infrastructure.Cache;
 
 public class PdfImportStatusStore : IPdfImportStatusStore
 {
-  private static readonly TimeSpan StatusRetention = TimeSpan.FromDays(7);
+  private static readonly TimeSpan _statusRetention = TimeSpan.FromDays(7);
   private readonly IDistributedCache _cache;
   private readonly ILogger<PdfImportStatusStore> _logger;
 
@@ -33,7 +33,7 @@ public class PdfImportStatusStore : IPdfImportStatusStore
       var value = new PdfImportStatusDto(correlationId.ToString(), status, error, DateTimeOffset.UtcNow);
       await _cache.SetStringAsync(key, JsonSerializer.Serialize(value), new DistributedCacheEntryOptions
       {
-        AbsoluteExpirationRelativeToNow = StatusRetention
+        AbsoluteExpirationRelativeToNow = _statusRetention
       }, cancellationToken);
     }
     catch (Exception exception) when (exception is not OperationCanceledException)
