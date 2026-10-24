@@ -1,10 +1,12 @@
 using FinanceApp.Backend.Application;
 using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Infrastructure;
+using FinanceApp.Backend.Infrastructure.EntityFramework.Context;
 using FinanceApp.Backend.Presentation.WebApi.Extensions;
 using FinanceApp.Backend.Presentation.WebApi.HealthChecks;
 using FinanceApp.Backend.Presentation.WebApi.Middlewares;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +41,17 @@ builder.AddOpenTelemetryConfiguration();
 
 
 var app = builder.Build();
+
+if (!app.Environment.IsTesting())
+{
+  await using var scope = app.Services.CreateAsyncScope();
+  var dbContext = scope.ServiceProvider.GetRequiredService<FinanceAppDbContext>();
+  var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+  logger.LogInformation("Applying pending database migrations");
+  await dbContext.Database.MigrateAsync();
+  logger.LogInformation("Database migrations are up to date");
+}
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
