@@ -60,7 +60,7 @@ public class SmtpEmailSender : ISmtpEmailSender
     var mailMessage = new MailMessage
     {
       From = new MailAddress(_smtpSettings.FromEmail),
-      Subject = "Email Confirmation",
+      Subject = "Finance App - Email Confirmation",
       Body = body,
       IsBodyHtml = true,
     };
