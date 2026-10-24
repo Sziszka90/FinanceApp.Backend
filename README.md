@@ -172,7 +172,7 @@ The application is deployed as **containerized microservices** on **Azure Contai
 
 ### **Azure Key Vault**
 
-The Web API loads secrets from Azure Key Vault when `KeyVaultSettings__VaultUri` is configured. Azure-hosted deployments should use a managed identity with the **Key Vault Secrets User** role. Local development can authenticate through the Azure CLI with `az login`.
+The Web API loads secrets from Azure Key Vault using the vault URI in `appsettings.json` and a managed identity with the **Key Vault Secrets User** role. Local development can authenticate through the Azure CLI with `az login`.
 
 The following Key Vault secret names are mapped into the existing application configuration:
 
@@ -187,9 +187,9 @@ The following Key Vault secret names are mapped into the existing application co
 | `smtp-password`                    | `SmtpSettings:SmtpPass`            |
 | `auth-secret-key`                  | `AuthenticationSettings:SecretKey` |
 
-Set the vault URI through the deployment environment, for example `KeyVaultSettings__VaultUri=https://<vault-name>.vault.azure.net/`. Do not put secret values in tracked configuration files, source control, or container images. Existing values that were exposed must be revoked and replaced in their respective providers.
+The production vault URI is configured in `appsettings.json`; the Backend reads secrets directly from Key Vault using its managed identity. Do not put secret values in tracked configuration files, source control, or container images. Existing values that were exposed must be revoked and replaced in their respective providers.
 
-Configuration is split into tracked files: `appsettings.json` for shared and production defaults, `appsettings.Development.json` for local frontend/API URLs, `appsettings.Database.json` for database and cache settings, `appsettings.Messaging.json` for RabbitMQ settings, and `appsettings.Testing.json` for test-only overrides. The confirmation and password-reset emails, plus confirmation redirects, use `ApplicationUrls:ApiBaseUrl` and `ApplicationUrls:FrontendBaseUrl`. Set `ApplicationUrls__ApiBaseUrl` and `ApplicationUrls__FrontendBaseUrl` in the deployment environment to override the production defaults.
+Configuration is split into tracked files: `appsettings.json` for shared and production defaults, `appsettings.Development.json` for local frontend/API URLs, `appsettings.Database.json` for database and cache settings, `appsettings.Messaging.json` for RabbitMQ settings, and `appsettings.Testing.json` for test-only overrides. The confirmation and password-reset emails, plus confirmation redirects, use `ApplicationUrls:ApiBaseUrl` and `ApplicationUrls:FrontendBaseUrl`. Production values live in the tracked appsettings files; Bicep supplies only the user-assigned managed identity client ID needed to access Key Vault.
 
 For local-only development, use these ignored files:
 
