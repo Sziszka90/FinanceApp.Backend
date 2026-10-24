@@ -14,6 +14,17 @@ namespace FinanceApp.Backend.Testing.Unit.ClientTests;
 
 public class ExchangeRateClientTests : TestBase
 {
+  private static Dictionary<string, decimal> CreateValidUsdRates(decimal eur = 0.85m, decimal gbp = 0.73m, decimal huf = 350m)
+  {
+    return new Dictionary<string, decimal>
+    {
+      { "USD", 1m },
+      { "EUR", eur },
+      { "GBP", gbp },
+      { "HUF", huf }
+    };
+  }
+
   private readonly Mock<ILogger<IExchangeRateClient>> _exchangeRateLoggerMock = new Mock<ILogger<IExchangeRateClient>>();
   private ExchangeRateClient _exchangeRateClient;
   private readonly Mock<IOptions<ExchangeRateSettings>> _exchangeRateOptionsMock = new Mock<IOptions<ExchangeRateSettings>>();
@@ -46,13 +57,7 @@ public class ExchangeRateClientTests : TestBase
       var responseDto = new ExchangeRateResponseDto
       {
         Base = "USD",
-        Rates = new Dictionary<string, decimal>
-                {
-                    { "EUR", 0.85m },
-                    { "GBP", 0.73m },
-                    { "JPY", 110.25m },
-                    { "USD", 1.0m }
-                },
+        Rates = CreateValidUsdRates(),
         Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
         Disclaimer = "Test disclaimer",
         License = "Test license"
@@ -97,7 +102,7 @@ public class ExchangeRateClientTests : TestBase
     }
 
     [Fact]
-    public async Task GetExchangeRatesAsync_WithEmptyRates_ShouldReturnSuccessResultWithZeroRates()
+    public async Task GetExchangeRatesAsync_WithEmptyRates_ShouldThrowInvalidDataException()
     {
       // arrange
       var responseDto = new ExchangeRateResponseDto
@@ -121,15 +126,8 @@ public class ExchangeRateClientTests : TestBase
           Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
         });
 
-      // act
-      var result = await _exchangeRateClient.GetExchangeRatesAsync();
-
-      // assert
-      Assert.True(result.IsSuccess);
-      Assert.NotNull(result.Data);
-
-      // All rates should be 0 when no rates are provided
-      Assert.All(result.Data, rate => Assert.Equal(0m, rate.Rate));
+      // act & assert
+      await Assert.ThrowsAsync<InvalidDataException>(() => _exchangeRateClient.GetExchangeRatesAsync());
     }
 
     [Fact]
@@ -179,7 +177,8 @@ public class ExchangeRateClientTests : TestBase
       var responseDto = new ExchangeRateResponseDto
       {
         Base = "USD",
-        Rates = new Dictionary<string, decimal> { { "EUR", 0.85m } }
+        Rates = CreateValidUsdRates(),
+        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
       };
 
       var jsonResponse = JsonSerializer.Serialize(responseDto);
@@ -217,15 +216,17 @@ public class ExchangeRateClientTests : TestBase
       // arrange
       var usdRates = new Dictionary<string, decimal>
       {
+          { "USD", 1m },
           { "EUR", 0.85m },
           { "GBP", 0.73m },
-          { "USD", 1.0m }
+          { "HUF", 350m }
       };
 
       var responseDto = new ExchangeRateResponseDto
       {
         Base = "USD",
-        Rates = usdRates
+        Rates = usdRates,
+        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
       };
 
       var jsonResponse = JsonSerializer.Serialize(responseDto);
@@ -267,19 +268,22 @@ public class ExchangeRateClientTests : TestBase
     }
 
     [Fact]
-    public async Task CalculateAllRatesFromUsdBase_WithZeroRate_ShouldReturnZeroRate()
+    public async Task GetExchangeRatesAsync_WithZeroRate_ShouldThrowInvalidDataException()
     {
       // arrange
       var usdRates = new Dictionary<string, decimal>
       {
+          { "USD", 1m },
           { "EUR", 0m },
-          { "USD", 1.0m }
+          { "GBP", 0.73m },
+          { "HUF", 350m }
       };
 
       var responseDto = new ExchangeRateResponseDto
       {
         Base = "USD",
-        Rates = usdRates
+        Rates = usdRates,
+        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
       };
 
       var jsonResponse = JsonSerializer.Serialize(responseDto);
@@ -294,32 +298,27 @@ public class ExchangeRateClientTests : TestBase
         Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
       });
 
-      // act
-      var result = await _exchangeRateClient.GetExchangeRatesAsync();
-
-      // assert
-      Assert.True(result.IsSuccess);
-      var rates = result.Data!;
-
-      var eurToUsd = rates.FirstOrDefault(r => r.BaseCurrency == "EUR" && r.TargetCurrency == "USD");
-      Assert.NotNull(eurToUsd);
-      Assert.Equal(0m, eurToUsd.Rate); // Should be 0 when division by zero would occur
+      // act & assert
+      await Assert.ThrowsAsync<InvalidDataException>(() => _exchangeRateClient.GetExchangeRatesAsync());
     }
 
     [Fact]
-    public async Task CalculateAllRatesFromUsdBase_WithMissingCurrency_ShouldReturnZeroRate()
+    public async Task GetExchangeRatesAsync_WithMissingCurrency_ShouldThrowInvalidDataException()
     {
       // arrange
       var usdRates = new Dictionary<string, decimal>
       {
-          { "EUR", 0.85m }
-          // GBP is missing
+          { "USD", 1m },
+          { "EUR", 0.85m },
+          { "GBP", 0.73m }
+          // HUF is missing
       };
 
       var responseDto = new ExchangeRateResponseDto
       {
         Base = "USD",
-        Rates = usdRates
+        Rates = usdRates,
+        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
       };
 
       var jsonResponse = JsonSerializer.Serialize(responseDto);
@@ -334,21 +333,8 @@ public class ExchangeRateClientTests : TestBase
           Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
         });
 
-      // act
-      var result = await _exchangeRateClient.GetExchangeRatesAsync();
-
-      // assert
-      Assert.True(result.IsSuccess);
-      var rates = result.Data!;
-
-      // GBP rates should be 0 when not available
-      var usdToGbp = rates.FirstOrDefault(r => r.BaseCurrency == "USD" && r.TargetCurrency == "GBP");
-      Assert.NotNull(usdToGbp);
-      Assert.Equal(0m, usdToGbp.Rate);
-
-      var gbpToEur = rates.FirstOrDefault(r => r.BaseCurrency == "GBP" && r.TargetCurrency == "EUR");
-      Assert.NotNull(gbpToEur);
-      Assert.Equal(0m, gbpToEur.Rate);
+      // act & assert
+      await Assert.ThrowsAsync<InvalidDataException>(() => _exchangeRateClient.GetExchangeRatesAsync());
     }
   }
 }

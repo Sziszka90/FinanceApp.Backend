@@ -28,11 +28,16 @@ public class ExchangeRateBackgroundJobTests : TestBase
     ServiceProviderMock.Setup(sp => sp.GetService(typeof(IUnitOfWork))).Returns(UnitOfWorkMock.Object);
     ServiceProviderMock.Setup(sp => sp.GetService(typeof(IExchangeRateClient))).Returns(ExchangeRateClientMock.Object);
 
+    ExchangeRateRepositoryMock.Setup(r => r.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+        .ReturnsAsync(new List<ExchangeRate>());
     ExchangeRateRepositoryMock.Setup(r => r.GetActualExchangeRatesAsync(It.IsAny<CancellationToken>()))
         .ReturnsAsync(new List<ExchangeRate>());
 
     ExchangeRateClientMock.Setup(c => c.GetExchangeRatesAsync())
-        .ReturnsAsync(Result<List<ExchangeRate>>.Success(new List<ExchangeRate>()));
+        .ReturnsAsync(Result<List<ExchangeRate>>.Success(new List<ExchangeRate>
+        {
+          new ExchangeRate("USD", "EUR", 0.85m)
+        }));
 
     UnitOfWorkMock.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
         .Returns(Task.CompletedTask);
