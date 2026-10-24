@@ -179,11 +179,13 @@ public class RabbitMqClient : IRabbitMqClient
   private async Task HandlePdfResultAsync(BasicDeliverEventArgs ea)
   {
     string? correlationId = null;
+    string? userId = null;
     try
     {
       var result = JsonSerializer.Deserialize<PdfImportResultDto>(ea.Body.Span)
         ?? throw new JsonException("PDF result was empty.");
       correlationId = result.CorrelationId;
+      userId = result.UserId;
       _logger.LogInformation("Received PDF import result for correlation {CorrelationId}", correlationId);
       using var scope = _serviceProvider.CreateScope();
       if (string.Equals(result.Status, "processing", StringComparison.OrdinalIgnoreCase))
@@ -197,6 +199,8 @@ public class RabbitMqClient : IRabbitMqClient
         var user = await users.GetByIdAsync(processingUserId, noTracking: true);
         if (user is not null)
         {
+          var importStatuses = scope.ServiceProvider.GetRequiredService<IPdfImportStatusStore>();
+          await importStatuses.SetAsync(user.Email.ToString(), Guid.Parse(result.CorrelationId), "processing");
           var signalR = scope.ServiceProvider.GetRequiredService<ISignalRService>();
           await signalR.SendToClientGroupMethodAsync(user.Email.ToString(),
             HubConstants.TRANSACTIONS_IMPORT_PROCESSING_NOTIFICATION, result.CorrelationId);
@@ -223,6 +227,31 @@ public class RabbitMqClient : IRabbitMqClient
     {
       _logger.LogError(ex, "Failed to process PDF import result for correlation {CorrelationId} from {RoutingKey}",
         correlationId, ea.RoutingKey);
+      if (Guid.TryParse(userId, out var failedUserId) && Guid.TryParse(correlationId, out var failedCorrelationId))
+      {
+        try
+        {
+          using var failureScope = _serviceProvider.CreateScope();
+          var users = failureScope.ServiceProvider.GetRequiredService<IUserRepository>();
+          var user = await users.GetByIdAsync(failedUserId, noTracking: true);
+          if (user is not null)
+          {
+            var reason = "The backend could not complete this PDF import. You can retry it from the transactions page.";
+            var statuses = failureScope.ServiceProvider.GetRequiredService<IPdfImportStatusStore>();
+            await statuses.SetAsync(user.Email.ToString(), failedCorrelationId, "failed", reason);
+            var signalR = failureScope.ServiceProvider.GetRequiredService<ISignalRService>();
+            await signalR.SendToClientGroupMethodAsync(user.Email.ToString(),
+              HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION,
+              JsonSerializer.Serialize(new { correlationId, reason }));
+          }
+        }
+        catch (Exception notificationError) when (notificationError is not OperationCanceledException)
+        {
+          _logger.LogError(notificationError, "Could not persist or notify failure for PDF import {CorrelationId}",
+            correlationId);
+        }
+      }
+
       await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
     }
   }
@@ -243,11 +272,14 @@ public class RabbitMqClient : IRabbitMqClient
       var user = await users.GetByIdAsync(userId, noTracking: true);
       if (user is not null)
       {
+        var reason = "The PDF processor rejected this import. Check the PDF and try uploading it again.";
+        var statuses = scope.ServiceProvider.GetRequiredService<IPdfImportStatusStore>();
+        await statuses.SetAsync(user.Email.ToString(), Guid.Parse(job.CorrelationId), "failed", reason);
         var signalR = scope.ServiceProvider.GetRequiredService<ISignalRService>();
         var failure = JsonSerializer.Serialize(new
         {
           correlationId = job.CorrelationId,
-          reason = "The PDF processor rejected this import. Check the PDF and try uploading it again."
+          reason
         });
         await signalR.SendToClientGroupMethodAsync(user.Email.ToString(),
           HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION, failure);

@@ -23,6 +23,7 @@ public class PdfImportHandlerTests : TestBase
   private readonly User _user = new(null, "test-user", "test@example.com", true, "hash", CurrencyEnum.EUR);
   private readonly Mock<IRepository<BankStatementPrompt>> _prompts = new();
   private readonly Mock<ISignalRService> _signalR = new();
+  private readonly Mock<IPdfImportStatusStore> _importStatuses = new();
   private readonly RabbitMqSettings _settings = new()
   {
     PdfRequestQueue = "pdf-requests",
@@ -33,6 +34,9 @@ public class PdfImportHandlerTests : TestBase
   {
     UserServiceMock.Setup(service => service.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result<User>.Success(_user));
+    _importStatuses.Setup(store => store.SetAsync(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<string>(),
+        It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
   }
 
   [Fact]
@@ -48,7 +52,7 @@ public class PdfImportHandlerTests : TestBase
     _prompts.Setup(repository => repository.GetFirstOrDefaultAsync(
         It.IsAny<System.Linq.Expressions.Expression<Func<BankStatementPrompt, bool>>>(), true, It.IsAny<CancellationToken>()))
       .ReturnsAsync(selectedPrompt);
-    var handler = new ImportPdfCommandHandler(UserServiceMock.Object, RabbitMqClientMock.Object, _prompts.Object,
+    var handler = new ImportPdfCommandHandler(UserServiceMock.Object, _importStatuses.Object, RabbitMqClientMock.Object, _prompts.Object,
       Options.Create(_settings));
     var correlationId = Guid.NewGuid().ToString();
     string? publishedQueue = null;
@@ -62,6 +66,8 @@ public class PdfImportHandlerTests : TestBase
     Assert.True(result.IsSuccess);
     Assert.Equal(correlationId, result.Data);
     Assert.Equal(_settings.PdfRequestQueue, publishedQueue);
+    _importStatuses.Verify(store => store.SetAsync(_user.Email, Guid.Parse(correlationId), "queued", null,
+      It.IsAny<CancellationToken>()), Times.Once);
     var job = JsonSerializer.Deserialize<PdfImportJobDto>(publishedMessage!)!;
     Assert.Equal(_user.Id.ToString(), job.UserId);
     Assert.Equal("statement.pdf", job.Filename);
@@ -74,7 +80,7 @@ public class PdfImportHandlerTests : TestBase
   [Fact]
   public async Task ImportPdf_InvalidPdfHeaderReturnsFailureWithoutPublishing()
   {
-    var handler = new ImportPdfCommandHandler(UserServiceMock.Object, RabbitMqClientMock.Object, _prompts.Object,
+    var handler = new ImportPdfCommandHandler(UserServiceMock.Object, _importStatuses.Object, RabbitMqClientMock.Object, _prompts.Object,
       Options.Create(_settings));
 
     var result = await handler.Handle(new ImportPdfCommand(CreateUpload("statement.pdf", "not a pdf", Guid.NewGuid().ToString())),
@@ -159,7 +165,9 @@ public class PdfImportHandlerTests : TestBase
     Assert.Equal("Parsing error.", result.ApplicationError!.Message);
     _signalR.Verify(service => service.SendToClientGroupMethodAsync(_user.Email,
       HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION,
-      It.Is<string>(message => message.Contains(correlationId) && message.Contains("incomplete"))), Times.Once);
+      It.Is<string>(message => message.Contains(correlationId) && message.Contains("Transaction 1"))), Times.Once);
+    _importStatuses.Verify(store => store.SetAsync(_user.Email, Guid.Parse(correlationId), "failed",
+      It.Is<string?>(message => message != null && message.Contains("Transaction 1")), It.IsAny<CancellationToken>()), Times.Once);
     TransactionRepositoryMock.Verify(repository => repository.BatchCreateTransactionsAsync(
       It.IsAny<List<Transaction>>(), It.IsAny<CancellationToken>()), Times.Never);
   }
@@ -184,6 +192,8 @@ public class PdfImportHandlerTests : TestBase
     _signalR.Verify(service => service.SendToClientGroupMethodAsync(_user.Email,
       HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION,
       It.Is<string>(message => message.Contains("Model rejected document"))), Times.Once);
+    _importStatuses.Verify(store => store.SetAsync(_user.Email, Guid.Parse(correlationId), "failed",
+      "Model rejected document", It.IsAny<CancellationToken>()), Times.Once);
   }
 
   [Fact]
@@ -208,6 +218,7 @@ public class PdfImportHandlerTests : TestBase
     RabbitMqClientMock.Object,
     _signalR.Object,
     Options.Create(_settings),
+    _importStatuses.Object,
     CreateLoggerMock<CompletePdfImportCommandHandler>().Object);
 
   private void RabbitMQClientMockSetup()

@@ -25,13 +25,14 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
   private readonly IUnitOfWork _unitOfWork;
   private readonly IRabbitMqClient _rabbitMq;
   private readonly ISignalRService _signalR;
+  private readonly IPdfImportStatusStore _importStatuses;
   private readonly RabbitMqSettings _settings;
   private readonly ILogger<CompletePdfImportCommandHandler> _logger;
 
   public CompletePdfImportCommandHandler(IUserRepository users, ITransactionRepository transactions,
     ITransactionGroupRepository groups, IExchangeRateService exchangeRates, IUnitOfWork unitOfWork,
     IRabbitMqClient rabbitMq, ISignalRService signalR, IOptions<RabbitMqSettings> settings,
-    ILogger<CompletePdfImportCommandHandler> logger)
+    IPdfImportStatusStore importStatuses, ILogger<CompletePdfImportCommandHandler> logger)
   {
     _users = users;
     _transactions = transactions;
@@ -40,6 +41,7 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
     _unitOfWork = unitOfWork;
     _rabbitMq = rabbitMq;
     _signalR = signalR;
+    _importStatuses = importStatuses;
     _settings = settings.Value;
     _logger = logger;
   }
@@ -57,6 +59,8 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
     if (!result.Success || result.Data is null)
     {
       _logger.LogWarning("PDF extraction failed for correlation {CorrelationId}: {Error}", result.CorrelationId, result.Error);
+      await _importStatuses.SetAsync(user.Email.ToString(), Guid.Parse(result.CorrelationId), "failed",
+        result.Error ?? "PDF extraction failed.", cancellationToken);
       await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(), HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION,
         JsonSerializer.Serialize(new { correlationId = result.CorrelationId, reason = result.Error ?? "PDF extraction failed." }));
       return Result.Failure<bool>(ApplicationError.LLMProcessorRequestError(result.Error ?? "PDF extraction failed."));
@@ -105,6 +109,8 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
       await _transactions.BatchCreateTransactionsAsync(imported, cancellationToken);
       await _unitOfWork.SaveChangesAsync(cancellationToken);
       transactionsSaved = true;
+      await _importStatuses.SetAsync(user.Email.ToString(), Guid.Parse(result.CorrelationId), "completed",
+        cancellationToken: cancellationToken);
       await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(), HubConstants.TRANSACTIONS_IMPORTED_NOTIFICATION,
         result.CorrelationId);
 
@@ -139,6 +145,8 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
     catch (InvalidDataException error)
     {
       _logger.LogWarning("PDF import rejected for correlation {CorrelationId}: {Reason}", result.CorrelationId, error.Message);
+      await _importStatuses.SetAsync(user.Email.ToString(), Guid.Parse(result.CorrelationId), "failed", error.Message,
+        cancellationToken);
       await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(), HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION,
         JsonSerializer.Serialize(new { correlationId = result.CorrelationId, reason = error.Message }));
       return Result.Failure<bool>(ApplicationError.ParsingError());
@@ -146,6 +154,10 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
     catch (Exception error) when (error is not OperationCanceledException)
     {
       _logger.LogError(error, "Unexpected error while processing PDF import {CorrelationId}", result.CorrelationId);
+      await _importStatuses.SetAsync(user.Email.ToString(), Guid.Parse(result.CorrelationId),
+        transactionsSaved ? "completed" : "failed",
+        transactionsSaved ? null : "The PDF could not be imported because an unexpected server error occurred.",
+        cancellationToken);
       try
       {
         var notification = transactionsSaved
@@ -191,18 +203,36 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
     }
 
     decimal debits = 0, credits = 0;
-    foreach (var item in statement.Transactions)
+    for (var index = 0; index < statement.Transactions.Count; index++)
     {
-      if (string.IsNullOrWhiteSpace(item.Description) || item.Description.Length > 500 ||
-          string.IsNullOrWhiteSpace(item.Date) || !DateOnly.TryParseExact(item.Date, "yyyy-MM-dd",
-            CultureInfo.InvariantCulture, DateTimeStyles.None, out _) ||
-          !Enum.TryParse<CurrencyEnum>(item.Currency, false, out var currency) || currency != statementCurrency ||
-          !decimal.TryParse(item.SignedAmount, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
-          CultureInfo.InvariantCulture, out var amount) || amount == 0 || amount == decimal.MinValue ||
-          Math.Abs(amount) > 99999999999999.9999m || decimal.Round(amount, 4) != amount ||
-          item.PageNumber is null or < 1)
+      var item = statement.Transactions[index];
+      var transactionNumber = index + 1;
+      if (string.IsNullOrWhiteSpace(item.Description) || item.Description.Length > 500)
       {
-        throw new InvalidDataException("The PDF contains an incomplete or unsupported transaction.");
+        throw new InvalidDataException($"Transaction {transactionNumber} has a missing or invalid description.");
+      }
+
+      if (string.IsNullOrWhiteSpace(item.Date) || !DateOnly.TryParseExact(item.Date, "yyyy-MM-dd",
+            CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+      {
+        throw new InvalidDataException($"Transaction {transactionNumber} has an invalid date.");
+      }
+
+      if (!Enum.TryParse<CurrencyEnum>(item.Currency, false, out var currency) || currency != statementCurrency)
+      {
+        throw new InvalidDataException($"Transaction {transactionNumber} has a missing or unsupported currency.");
+      }
+
+      if (!decimal.TryParse(item.SignedAmount, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+            CultureInfo.InvariantCulture, out var amount) || amount == 0 || amount == decimal.MinValue ||
+          Math.Abs(amount) > 99999999999999.9999m || decimal.Round(amount, 4) != amount)
+      {
+        throw new InvalidDataException($"Transaction {transactionNumber} has an invalid amount.");
+      }
+
+      if (item.PageNumber is null or < 1)
+      {
+        throw new InvalidDataException($"Transaction {transactionNumber} has an invalid page number.");
       }
 
       if (amount < 0)

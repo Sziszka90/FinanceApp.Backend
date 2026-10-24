@@ -14,14 +14,16 @@ namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.Impo
 public class ImportPdfCommandHandler : ICommandHandler<ImportPdfCommand, Result<string>>
 {
   private readonly IUserService _userService;
+  private readonly IPdfImportStatusStore _importStatuses;
   private readonly IRabbitMqClient _rabbitMq;
   private readonly IRepository<BankStatementPrompt> _prompts;
   private readonly RabbitMqSettings _settings;
 
-  public ImportPdfCommandHandler(IUserService userService, IRabbitMqClient rabbitMq,
+  public ImportPdfCommandHandler(IUserService userService, IPdfImportStatusStore importStatuses, IRabbitMqClient rabbitMq,
     IRepository<BankStatementPrompt> prompts, IOptions<RabbitMqSettings> settings)
   {
     _userService = userService;
+    _importStatuses = importStatuses;
     _rabbitMq = rabbitMq;
     _prompts = prompts;
     _settings = settings.Value;
@@ -58,7 +60,19 @@ public class ImportPdfCommandHandler : ICommandHandler<ImportPdfCommand, Result<
       PromptName = selectedPrompt?.Name,
       Prompt = selectedPrompt?.Instructions
     };
-    await _rabbitMq.PublishToQueueAsync(_settings.PdfRequestQueue, JsonSerializer.Serialize(job), cancellationToken);
+    var correlationId = Guid.Parse(job.CorrelationId);
+    await _importStatuses.SetAsync(user.Data!.Email.ToString(), correlationId, "queued", cancellationToken: cancellationToken);
+    try
+    {
+      await _rabbitMq.PublishToQueueAsync(_settings.PdfRequestQueue, JsonSerializer.Serialize(job), cancellationToken);
+    }
+    catch (Exception error) when (error is not OperationCanceledException)
+    {
+      await _importStatuses.SetAsync(user.Data!.Email.ToString(), correlationId, "failed",
+        "The PDF could not be added to the processing queue.", cancellationToken);
+      throw;
+    }
+
     return Result.Success(job.CorrelationId);
   }
 }

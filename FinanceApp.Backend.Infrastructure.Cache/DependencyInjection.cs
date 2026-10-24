@@ -1,5 +1,6 @@
 
 using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,7 @@ public static class DependencyInjection
     });
     services.AddSingleton<ITokenCacheManager, TokenCacheManager>();
     services.AddSingleton<IExchangeRateCacheManager, ExchangeRateCacheManager>();
+    services.AddSingleton<IPdfImportStatusStore, PdfImportStatusStore>();
     return services;
   }
 }

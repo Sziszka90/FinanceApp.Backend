@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Asp.Versioning;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.DeleteTransaction;
@@ -23,10 +25,12 @@ namespace FinanceApp.Backend.Presentation.WebApi.Controllers.TransactionsControl
 public class TransactionsController : ControllerBase
 {
   private readonly IMediator _mediator;
+  private readonly IPdfImportStatusStore _importStatuses;
 
-  public TransactionsController(IMediator mediator)
+  public TransactionsController(IMediator mediator, IPdfImportStatusStore importStatuses)
   {
     _mediator = mediator;
+    _importStatuses = importStatuses;
   }
 
   [HttpGet("summary")]
@@ -127,5 +131,21 @@ public class TransactionsController : ControllerBase
   {
     var result = await _mediator.Send(new ImportPdfCommand(uploadPdfFileDto), cancellationToken);
     return this.GetResult(result, StatusCodes.Status202Accepted);
+  }
+
+  [HttpGet("import/{correlationId:guid}/status")]
+  [ProducesResponseType(typeof(PdfImportStatusDto), StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  public async Task<ActionResult<PdfImportStatusDto>> GetPdfImportStatus(
+    [FromRoute] Guid correlationId, CancellationToken cancellationToken)
+  {
+    var ownerEmail = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (string.IsNullOrWhiteSpace(ownerEmail))
+    {
+      return Unauthorized();
+    }
+
+    var status = await _importStatuses.GetAsync(ownerEmail, correlationId, cancellationToken);
+    return status is null ? NotFound() : Ok(status);
   }
 }
