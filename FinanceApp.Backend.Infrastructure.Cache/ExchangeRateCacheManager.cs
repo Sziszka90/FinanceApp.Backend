@@ -75,7 +75,7 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
       if (_cacheReady && await _cache.GetAsync(cacheKey, cancellationToken) is byte[] ratesBytes)
       {
         var rates = System.Text.Json.JsonSerializer.Deserialize<List<ExchangeRate>>(ratesBytes);
-        var cached = SelectRate(rates, transactionDate, fromCurrency, toCurrency);
+        var cached = SelectExactRate(rates, transactionDate, fromCurrency, toCurrency);
         if (cached is not null)
         {
           return Result.Success(cached);
@@ -90,10 +90,49 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
     using var scope = _scopeFactory.CreateScope();
     var repository = scope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
     var allRates = await repository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-    var saved = SelectRate(allRates, transactionDate, fromCurrency, toCurrency);
+    var saved = SelectExactRate(allRates, transactionDate, fromCurrency, toCurrency);
     if (saved is null)
     {
-      return Result.Failure<ExchangeRate>(ApplicationError.MissingExchangeRatesError());
+      try
+      {
+        var client = scope.ServiceProvider.GetRequiredService<IExchangeRateClient>();
+        var historical = await client.GetExchangeRatesAsync(DateOnly.FromDateTime(transactionDate.UtcDateTime));
+        if (!historical.IsSuccess || historical.Data is null || historical.Data.Count == 0)
+        {
+          return Result.Failure<ExchangeRate>(ApplicationError.MissingExchangeRatesError());
+        }
+
+        var effectiveDate = DateOnly.FromDateTime(transactionDate.UtcDateTime);
+        var fetchedRate = historical.Data
+          .Where(rate => rate.BaseCurrency == fromCurrency && rate.TargetCurrency == toCurrency && rate.Rate > 0 &&
+                         DateOnly.FromDateTime(rate.ValidFrom.UtcDateTime) <= effectiveDate)
+          .OrderByDescending(rate => rate.ValidFrom)
+          .FirstOrDefault();
+        if (fetchedRate is null)
+        {
+          return Result.Failure<ExchangeRate>(ApplicationError.MissingExchangeRatesError());
+        }
+
+        var newSnapshots = historical.Data
+          .Where(rate => !allRates.Any(existing => existing.BaseCurrency == rate.BaseCurrency &&
+                                                  existing.TargetCurrency == rate.TargetCurrency &&
+                                                  existing.ValidFrom == rate.ValidFrom))
+          .ToList();
+        if (newSnapshots.Count > 0)
+        {
+          var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+          await repository.BatchCreateExchangeRatesAsync(newSnapshots, cancellationToken);
+          await unitOfWork.SaveChangesAsync(cancellationToken);
+          allRates.AddRange(newSnapshots);
+        }
+
+        saved = fetchedRate;
+      }
+      catch (Exception ex) when (ex is not OperationCanceledException)
+      {
+        _logger.LogWarning(ex, "Could not retrieve and save a missing historical exchange rate for {Date}", transactionDate);
+        return Result.Failure<ExchangeRate>(ApplicationError.MissingExchangeRatesError());
+      }
     }
 
     try
@@ -107,14 +146,13 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
     return Result.Success(saved);
   }
 
-  private static ExchangeRate? SelectRate(IEnumerable<ExchangeRate>? rates, DateTimeOffset transactionDate,
+  private static ExchangeRate? SelectExactRate(IEnumerable<ExchangeRate>? rates, DateTimeOffset transactionDate,
     string fromCurrency, string toCurrency)
   {
     var postingDay = DateOnly.FromDateTime(transactionDate.Date);
     return rates?
       .Where(rate => rate.BaseCurrency == fromCurrency && rate.TargetCurrency == toCurrency && rate.Rate > 0 &&
-                     DateOnly.FromDateTime(rate.ValidFrom.UtcDateTime) <= postingDay)
-      .OrderByDescending(rate => rate.ValidFrom)
+                     DateOnly.FromDateTime(rate.ValidFrom.UtcDateTime) == postingDay)
       .FirstOrDefault();
   }
 }

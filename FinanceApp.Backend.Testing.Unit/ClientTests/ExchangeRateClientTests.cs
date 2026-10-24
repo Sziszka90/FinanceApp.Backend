@@ -1,8 +1,6 @@
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using FinanceApp.Backend.Application.Abstraction.Clients;
-using FinanceApp.Backend.Application.Dtos.ExchangeRateDtos;
 using FinanceApp.Backend.Application.Exceptions;
 using FinanceApp.Backend.Domain.Options;
 using Microsoft.Extensions.Logging;
@@ -14,327 +12,98 @@ namespace FinanceApp.Backend.Testing.Unit.ClientTests;
 
 public class ExchangeRateClientTests : TestBase
 {
-  private static Dictionary<string, decimal> CreateValidUsdRates(decimal eur = 0.85m, decimal gbp = 0.73m, decimal huf = 350m)
-  {
-    return new Dictionary<string, decimal>
-    {
-      { "USD", 1m },
-      { "EUR", eur },
-      { "GBP", gbp },
-      { "HUF", huf }
-    };
-  }
-
-  private readonly Mock<ILogger<IExchangeRateClient>> _exchangeRateLoggerMock = new Mock<ILogger<IExchangeRateClient>>();
-  private ExchangeRateClient _exchangeRateClient;
-  private readonly Mock<IOptions<ExchangeRateSettings>> _exchangeRateOptionsMock = new Mock<IOptions<ExchangeRateSettings>>();
-
+  private readonly Mock<ILogger<IExchangeRateClient>> _logger = new();
+  private readonly ExchangeRateClient _client;
+  private const string LATEST_ENDPOINT = "https://api.frankfurter.dev/v2/rates?base=USD";
+  private const string HISTORICAL_ENDPOINT = "https://api.frankfurter.dev/v2/rates?base=USD&date={date}";
 
   public ExchangeRateClientTests()
   {
-    var exchangeRateSettings = new ExchangeRateSettings
+    var settings = Options.Create(new ExchangeRateSettings
     {
-      ApiEndpoint = "https://api.exchangerate.com/v1/latest?app_id=",
-      AppId = "test-app-id"
-    };
-
-    _exchangeRateOptionsMock.Setup(x => x.Value).Returns(exchangeRateSettings);
-
-    var httpClient = new HttpClient(HttpMessageHandlerMock.Object);
-
-    _exchangeRateClient = new ExchangeRateClient(
-        _exchangeRateLoggerMock.Object,
-        httpClient,
-        _exchangeRateOptionsMock.Object);
+      ApiEndpoint = LATEST_ENDPOINT,
+      HistoricalEndpoint = HISTORICAL_ENDPOINT
+    });
+    _client = new ExchangeRateClient(_logger.Object, new HttpClient(HttpMessageHandlerMock.Object), settings);
   }
 
-  public class GetExchangeRatesAsyncTests : ExchangeRateClientTests
+  [Fact]
+  public async Task GetExchangeRatesAsync_WithFrankfurterResponse_CalculatesCrossRatesAndUsesProviderDate()
   {
-    [Fact]
-    public async Task GetExchangeRatesAsync_WithValidResponse_ShouldReturnSuccessResult()
-    {
-      // arrange
-      var responseDto = new ExchangeRateResponseDto
-      {
-        Base = "USD",
-        Rates = CreateValidUsdRates(),
-        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-        Disclaimer = "Test disclaimer",
-        License = "Test license"
-      };
+    HttpMessageHandlerMock.Protected()
+      .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+      .ReturnsAsync(JsonResponse("""
+        [
+          { "date": "2026-10-23", "base": "USD", "quote": "EUR", "rate": 0.85 },
+          { "date": "2026-10-23", "base": "USD", "quote": "GBP", "rate": 0.73 },
+          { "date": "2026-10-23", "base": "USD", "quote": "HUF", "rate": 350 }
+        ]
+        """));
 
-      var jsonResponse = JsonSerializer.Serialize(responseDto);
+    var result = await _client.GetExchangeRatesAsync();
 
-      HttpMessageHandlerMock.Protected()
-        .Setup<Task<HttpResponseMessage>>("SendAsync",
-            ItExpr.Is<HttpRequestMessage>(req =>
-                req.Method == HttpMethod.Get &&
-                req.RequestUri!.ToString().Contains(_exchangeRateOptionsMock.Object.Value.ApiEndpoint) &&
-                req.RequestUri!.ToString().Contains(_exchangeRateOptionsMock.Object.Value.AppId)),
-            ItExpr.IsAny<CancellationToken>())
-        .ReturnsAsync(new HttpResponseMessage
-        {
-          StatusCode = HttpStatusCode.OK,
-          Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-        });
-
-      // act
-      var result = await _exchangeRateClient.GetExchangeRatesAsync();
-
-      // assert
-      Assert.True(result.IsSuccess);
-      Assert.NotNull(result.Data);
-      Assert.NotEmpty(result.Data);
-
-      // Verify that cross-currency rates are calculated
-      var usdToEur = result.Data.FirstOrDefault(r => r.BaseCurrency == "USD" && r.TargetCurrency == "EUR");
-      Assert.NotNull(usdToEur);
-      Assert.Equal(0.85m, usdToEur.Rate);
-
-      var eurToUsd = result.Data.FirstOrDefault(r => r.BaseCurrency == "EUR" && r.TargetCurrency == "USD");
-      Assert.NotNull(eurToUsd);
-      Assert.Equal(1 / 0.85m, eurToUsd.Rate, precision: 5);
-
-      // Verify cross-currency calculation (EUR to GBP)
-      var eurToGbp = result.Data.FirstOrDefault(r => r.BaseCurrency == "EUR" && r.TargetCurrency == "GBP");
-      Assert.NotNull(eurToGbp);
-      Assert.Equal(0.73m / 0.85m, eurToGbp.Rate, precision: 5);
-    }
-
-    [Fact]
-    public async Task GetExchangeRatesAsync_WithEmptyRates_ShouldThrowInvalidDataException()
-    {
-      // arrange
-      var responseDto = new ExchangeRateResponseDto
-      {
-        Base = "USD",
-        Rates = new Dictionary<string, decimal>(),
-        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-        Disclaimer = "Test disclaimer",
-        License = "Test license"
-      };
-
-      var jsonResponse = JsonSerializer.Serialize(responseDto);
-
-      HttpMessageHandlerMock.Protected()
-        .Setup<Task<HttpResponseMessage>>("SendAsync",
-            ItExpr.IsAny<HttpRequestMessage>(),
-            ItExpr.IsAny<CancellationToken>())
-        .ReturnsAsync(new HttpResponseMessage
-        {
-          StatusCode = HttpStatusCode.OK,
-          Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-        });
-
-      // act & assert
-      await Assert.ThrowsAsync<InvalidDataException>(() => _exchangeRateClient.GetExchangeRatesAsync());
-    }
-
-    [Fact]
-    public async Task GetExchangeRatesAsync_WithHttpClientException_ShouldThrowException()
-    {
-      // arrange
-      HttpMessageHandlerMock.Protected()
-        .Setup<Task<HttpResponseMessage>>("SendAsync",
-            ItExpr.IsAny<HttpRequestMessage>(),
-            ItExpr.IsAny<CancellationToken>())
-        .ReturnsAsync(new HttpResponseMessage
-        {
-          StatusCode = HttpStatusCode.InternalServerError
-        });
-
-      // act & assert
-      var exception = await Assert.ThrowsAsync<HttpClientException>(
-        () => _exchangeRateClient.GetExchangeRatesAsync());
-
-      Assert.Equal("GET", exception.Operation);
-    }
-
-    [Fact]
-    public async Task GetExchangeRatesAsync_WithNetworkException_ShouldThrowHttpClientException()
-    {
-      // arrange
-      HttpMessageHandlerMock.Protected()
-          .Setup<Task<HttpResponseMessage>>("SendAsync",
-              ItExpr.IsAny<HttpRequestMessage>(),
-              ItExpr.IsAny<CancellationToken>())
-          .ThrowsAsync(new HttpRequestException("Network timeout"));
-
-      // act
-      var exception = await Assert.ThrowsAsync<HttpClientException>(
-          () => _exchangeRateClient.GetExchangeRatesAsync());
-
-      // assert
-      Assert.Equal("GET", exception.Operation);
-      Assert.Contains("An error occurred while making the request", exception.Message);
-      Assert.IsType<HttpRequestException>(exception.InnerException);
-    }
-
-    [Fact]
-    public async Task GetExchangeRatesAsync_ShouldUseCorrectEndpoint()
-    {
-      // arrange
-      var responseDto = new ExchangeRateResponseDto
-      {
-        Base = "USD",
-        Rates = CreateValidUsdRates(),
-        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-      };
-
-      var jsonResponse = JsonSerializer.Serialize(responseDto);
-      string? capturedUri = null;
-
-      HttpMessageHandlerMock.Protected()
-        .Setup<Task<HttpResponseMessage>>("SendAsync",
-            ItExpr.IsAny<HttpRequestMessage>(),
-            ItExpr.IsAny<CancellationToken>())
-        .Callback<HttpRequestMessage, CancellationToken>((request, _) =>
-        {
-          capturedUri = request.RequestUri?.ToString();
-        })
-        .ReturnsAsync(new HttpResponseMessage
-        {
-          StatusCode = HttpStatusCode.OK,
-          Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-        });
-
-      // act
-      await _exchangeRateClient.GetExchangeRatesAsync();
-
-      // assert
-      Assert.NotNull(capturedUri);
-      Assert.Contains(_exchangeRateOptionsMock.Object.Value.ApiEndpoint, capturedUri);
-      Assert.Contains(_exchangeRateOptionsMock.Object.Value.AppId, capturedUri);
-    }
+    Assert.True(result.IsSuccess);
+    var rates = result.Data!;
+    Assert.Equal(0.85m, rates.Single(rate => rate.BaseCurrency == "USD" && rate.TargetCurrency == "EUR").Rate);
+    Assert.Equal(1m / 0.85m, rates.Single(rate => rate.BaseCurrency == "EUR" && rate.TargetCurrency == "USD").Rate, 5);
+    Assert.Equal(0.73m / 0.85m, rates.Single(rate => rate.BaseCurrency == "EUR" && rate.TargetCurrency == "GBP").Rate, 5);
+    Assert.All(rates, rate => Assert.Equal(new DateTimeOffset(2026, 10, 23, 0, 0, 0, TimeSpan.Zero), rate.ValidFrom));
+    Assert.All(rates, rate => Assert.True(rate.Actual));
   }
 
-  public class CalculateAllRatesFromUsdBaseTests : ExchangeRateClientTests
+  [Fact]
+  public async Task GetExchangeRatesAsync_ForHistoricalDate_UsesFrankfurterDateQueryAndMarksRatesHistorical()
   {
-    [Fact]
-    public async Task CalculateAllRatesFromUsdBase_WithValidUsdRates_ShouldCalculateAllPairs()
-    {
-      // arrange
-      var usdRates = new Dictionary<string, decimal>
-      {
-          { "USD", 1m },
-          { "EUR", 0.85m },
-          { "GBP", 0.73m },
-          { "HUF", 350m }
-      };
+    string? requestedUri = null;
+    HttpMessageHandlerMock.Protected()
+      .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+      .Callback<HttpRequestMessage, CancellationToken>((request, _) => requestedUri = request.RequestUri?.ToString())
+      .ReturnsAsync(JsonResponse("""
+        [
+          { "date": "2026-10-22", "base": "USD", "quote": "EUR", "rate": 0.84 },
+          { "date": "2026-10-22", "base": "USD", "quote": "GBP", "rate": 0.72 },
+          { "date": "2026-10-22", "base": "USD", "quote": "HUF", "rate": 349 }
+        ]
+        """));
 
-      var responseDto = new ExchangeRateResponseDto
-      {
-        Base = "USD",
-        Rates = usdRates,
-        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-      };
+    var result = await _client.GetExchangeRatesAsync(new DateOnly(2026, 10, 23));
 
-      var jsonResponse = JsonSerializer.Serialize(responseDto);
-
-      HttpMessageHandlerMock.Protected()
-        .Setup<Task<HttpResponseMessage>>("SendAsync",
-            ItExpr.IsAny<HttpRequestMessage>(),
-            ItExpr.IsAny<CancellationToken>())
-        .ReturnsAsync(new HttpResponseMessage
-        {
-          StatusCode = HttpStatusCode.OK,
-          Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-        });
-
-      // act
-      var result = await _exchangeRateClient.GetExchangeRatesAsync();
-
-      // assert
-      Assert.True(result.IsSuccess);
-      var rates = result.Data!;
-
-      // Test USD as base currency
-      var usdToEur = rates.FirstOrDefault(r => r.BaseCurrency == "USD" && r.TargetCurrency == "EUR");
-      Assert.NotNull(usdToEur);
-      Assert.Equal(0.85m, usdToEur.Rate);
-
-      // Test non-USD as base currency
-      var eurToUsd = rates.FirstOrDefault(r => r.BaseCurrency == "EUR" && r.TargetCurrency == "USD");
-      Assert.NotNull(eurToUsd);
-      Assert.Equal(1 / 0.85m, eurToUsd.Rate, precision: 5);
-
-      // Test cross-currency calculation
-      var eurToGbp = rates.FirstOrDefault(r => r.BaseCurrency == "EUR" && r.TargetCurrency == "GBP");
-      Assert.NotNull(eurToGbp);
-      Assert.Equal(0.73m / 0.85m, eurToGbp.Rate, precision: 5);
-
-      // Verify no same currency pairs
-      Assert.DoesNotContain(rates, r => r.BaseCurrency == r.TargetCurrency);
-    }
-
-    [Fact]
-    public async Task GetExchangeRatesAsync_WithZeroRate_ShouldThrowInvalidDataException()
-    {
-      // arrange
-      var usdRates = new Dictionary<string, decimal>
-      {
-          { "USD", 1m },
-          { "EUR", 0m },
-          { "GBP", 0.73m },
-          { "HUF", 350m }
-      };
-
-      var responseDto = new ExchangeRateResponseDto
-      {
-        Base = "USD",
-        Rates = usdRates,
-        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-      };
-
-      var jsonResponse = JsonSerializer.Serialize(responseDto);
-
-      HttpMessageHandlerMock.Protected()
-      .Setup<Task<HttpResponseMessage>>("SendAsync",
-          ItExpr.IsAny<HttpRequestMessage>(),
-          ItExpr.IsAny<CancellationToken>())
-      .ReturnsAsync(new HttpResponseMessage
-      {
-        StatusCode = HttpStatusCode.OK,
-        Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-      });
-
-      // act & assert
-      await Assert.ThrowsAsync<InvalidDataException>(() => _exchangeRateClient.GetExchangeRatesAsync());
-    }
-
-    [Fact]
-    public async Task GetExchangeRatesAsync_WithMissingCurrency_ShouldThrowInvalidDataException()
-    {
-      // arrange
-      var usdRates = new Dictionary<string, decimal>
-      {
-          { "USD", 1m },
-          { "EUR", 0.85m },
-          { "GBP", 0.73m }
-          // HUF is missing
-      };
-
-      var responseDto = new ExchangeRateResponseDto
-      {
-        Base = "USD",
-        Rates = usdRates,
-        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-      };
-
-      var jsonResponse = JsonSerializer.Serialize(responseDto);
-
-      HttpMessageHandlerMock.Protected()
-        .Setup<Task<HttpResponseMessage>>("SendAsync",
-            ItExpr.IsAny<HttpRequestMessage>(),
-            ItExpr.IsAny<CancellationToken>())
-        .ReturnsAsync(new HttpResponseMessage
-        {
-          StatusCode = HttpStatusCode.OK,
-          Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-        });
-
-      // act & assert
-      await Assert.ThrowsAsync<InvalidDataException>(() => _exchangeRateClient.GetExchangeRatesAsync());
-    }
+    Assert.True(result.IsSuccess);
+    Assert.Contains("/v2/rates?base=USD&date=2026-10-23", requestedUri);
+    Assert.All(result.Data!, rate => Assert.False(rate.Actual));
+    Assert.All(result.Data!, rate => Assert.Equal(new DateTimeOffset(2026, 10, 22, 0, 0, 0, TimeSpan.Zero), rate.ValidFrom));
   }
+
+  [Fact]
+  public async Task GetExchangeRatesAsync_WhenFrankfurterOmitsSupportedCurrency_ThrowsInvalidDataException()
+  {
+    HttpMessageHandlerMock.Protected()
+      .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+      .ReturnsAsync(JsonResponse("""
+        [
+          { "date": "2026-10-23", "base": "USD", "quote": "EUR", "rate": 0.85 },
+          { "date": "2026-10-23", "base": "USD", "quote": "GBP", "rate": 0.73 }
+        ]
+        """));
+
+    await Assert.ThrowsAsync<InvalidDataException>(() => _client.GetExchangeRatesAsync());
+  }
+
+  [Fact]
+  public async Task GetExchangeRatesAsync_WhenRequestFails_ThrowsHttpClientException()
+  {
+    HttpMessageHandlerMock.Protected()
+      .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+      .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+    var exception = await Assert.ThrowsAsync<HttpClientException>(() => _client.GetExchangeRatesAsync());
+
+    Assert.Equal("GET", exception.Operation);
+  }
+
+  private static HttpResponseMessage JsonResponse(string json) => new()
+  {
+    StatusCode = HttpStatusCode.OK,
+    Content = new StringContent(json, Encoding.UTF8, "application/json")
+  };
 }

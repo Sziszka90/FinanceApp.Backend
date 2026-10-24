@@ -10,4 +10,7 @@ public interface IExchangeRateClient
   /// </summary>
   /// <returns>The exchange rates</returns>
   Task<Result<List<ExchangeRate>>> GetExchangeRatesAsync();
+
+  /// <summary>Gets rates for the requested date, or the provider's most recent published date before it.</summary>
+  Task<Result<List<ExchangeRate>>> GetExchangeRatesAsync(DateOnly date);
 }

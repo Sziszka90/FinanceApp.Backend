@@ -15,8 +15,8 @@ public interface IExchangeRateCacheManager
 
   /// <summary>
   /// Retrieves the exchange rate for the specified currency pair and transaction date.
-  /// If the rates are not found in the cache, it attempts to refresh the cache from
-  /// the repository.
+  /// Exact saved dates are used; if the date is not saved, it fetches the provider's
+  /// applicable historical rate and persists that snapshot.
   /// </summary>
   /// <param name="transactionDate">The date of the transaction for which the rate is needed.</param>
   /// <param name="fromCurrency">The base currency code (e.g., "USD").</param>

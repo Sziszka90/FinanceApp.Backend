@@ -28,8 +28,8 @@ This project is a full-stack personal finance application designed to help users
 
 ✅ **Currency Exchange**
 
-- A background job saves reference exchange rates at most once per seven days for multi-currency support, including across restarts; Redis caches the saved snapshots
-- Transactions use the latest saved snapshot on or before their posting day. Dates before the first snapshot require a rate; the app does not buy historical data or substitute today's rate
+- Frankfurter supplies current rates, which the background job saves at most once per seven days; Redis caches the saved snapshots
+- Transactions use a saved rate for their posting date. If the date has no published rate (for example, a weekend) or no snapshot is saved, the backend fetches the applicable historical rate from Frankfurter and saves it; it never substitutes today's rate
 - New transactions retain the EUR conversion rate and snapshot date used. Apply the `SaveAppliedExchangeRate` database migration for the selected database provider before running this version against an existing database
 
 ✅ **Email Services**
@@ -179,7 +179,6 @@ The following Key Vault secret names are mapped into the existing application co
 | Key Vault secret                   | Application configuration          |
 | ---------------------------------- | ---------------------------------- |
 | `cache-connection-string`          | `CacheSettings:ConnectionString`   |
-| `exchange-rate-api-app-id`         | `ExchangeRateSettings:AppId`       |
 | `finance-app-db-connection-string` | `ConnectionStrings:MsSql`          |
 | `llm-processor-api-token`          | `LLMProcessorSettings:Token`       |
 | `openai-api-key`                   | `OpenAISettings:ApiKey`            |

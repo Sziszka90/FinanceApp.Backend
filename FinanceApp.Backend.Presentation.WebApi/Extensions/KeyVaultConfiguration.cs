@@ -38,7 +38,6 @@ internal sealed class FinanceAppKeyVaultSecretManager : KeyVaultSecretManager
     new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
       ["cache-connection-string"] = "CacheSettings:ConnectionString",
-      ["exchange-rate-api-app-id"] = "ExchangeRateSettings:AppId",
       ["finance-app-db-connection-string"] = "ConnectionStrings:MsSql",
       ["llm-processor-api-token"] = "LLMProcessorSettings:Token",
       ["openai-api-key"] = "OpenAISettings:ApiKey",

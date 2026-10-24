@@ -5,7 +5,9 @@
 
 set -e
 
-SOLUTION_PATH="FinanceApp.Backend.sln"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+SOLUTION_PATH="$REPO_ROOT/FinanceApp.Backend.sln"
 
 echo "🔍 Running code analysis for FinanceApp Backend..."
 
