@@ -122,6 +122,11 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
           };
           await _rabbitMq.PublishToQueueAsync(_settings.RequestQueue, JsonSerializer.Serialize(job), cancellationToken);
         }
+        else
+        {
+          _logger.LogWarning("Skipping category matching for PDF import {CorrelationId}: user {UserId} has no transaction groups",
+            result.CorrelationId, userId);
+        }
       }
       catch (Exception error) when (error is not OperationCanceledException)
       {

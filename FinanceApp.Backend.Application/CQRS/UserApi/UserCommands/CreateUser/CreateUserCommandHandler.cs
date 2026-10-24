@@ -8,7 +8,6 @@ using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.QueryCriteria;
 using FinanceApp.Backend.Application.Services;
 using FinanceApp.Backend.Domain.Enums;
-using FinanceApp.Backend.Domain.Icons;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.UserApi.UserCommands.CreateUser;
@@ -89,13 +88,15 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
 
     _logger.LogInformation("User created with ID:{Id}", user.Id);
 
-    var defaultGroups = CreateDefaultTransactionGroups(user);
-
-    await _transactionGroupRepository.BatchCreateTransactionGroupsAsync(defaultGroups, cancellationToken);
-
-    await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-    _logger.LogInformation("Default transaction groups created for user with ID:{Id}", user.Id);
+    var existingGroups = await _transactionGroupRepository.GetAllByUserIdAsync(user.Id, noTracking: true,
+      cancellationToken: cancellationToken);
+    if (existingGroups.Count == 0)
+    {
+      var defaultGroups = DefaultTransactionGroups.CreateFor(user);
+      await _transactionGroupRepository.BatchCreateTransactionGroupsAsync(defaultGroups, cancellationToken);
+      await _unitOfWork.SaveChangesAsync(cancellationToken);
+      _logger.LogInformation("Default transaction groups created for user with ID:{Id}", user.Id);
+    }
 
     var emailConfirmationResult = await _smtpEmailSender.SendEmailConfirmationAsync(user, confirmationToken.Data!);
 
@@ -110,31 +111,4 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     return Result.Success(_mapper.ToGetUserDto(user));
   }
 
-  private List<Domain.Entities.TransactionGroup> CreateDefaultTransactionGroups(Domain.Entities.User user)
-  {
-    var groups = new List<Domain.Entities.TransactionGroup>
-    {
-      new Domain.Entities.TransactionGroup("Groceries", "Payment for groceries", Icons.ICON_GROCERIES, user),
-      new Domain.Entities.TransactionGroup("Entertainment", "Expense for entertainment", Icons.ICON_ENTERTAINMENT, user),
-      new Domain.Entities.TransactionGroup("Car", "Car cost and fuel", Icons.ICON_CAR, user),
-      new Domain.Entities.TransactionGroup("Transport", "Transport costs like ticket or pass", Icons.ICON_TRANSPORT, user),
-      new Domain.Entities.TransactionGroup("Health", "Medical and health-related expenses", Icons.ICON_HEALTH, user),
-      new Domain.Entities.TransactionGroup("Utilities", "Utility bills and services", Icons.ICON_UTILITIES, user),
-      new Domain.Entities.TransactionGroup("Education", "Education and learning expenses", Icons.ICON_EDUCATION, user),
-      new Domain.Entities.TransactionGroup("Travel", "Travel and vacation expenses", Icons.ICON_TRAVEL, user),
-      new Domain.Entities.TransactionGroup("Dining", "Restaurant and dining out", Icons.ICON_DINING, user),
-      new Domain.Entities.TransactionGroup("Gifts", "Gifts and donations", Icons.ICON_GIFTS, user),
-      new Domain.Entities.TransactionGroup("Salary", "Income from salary or wages", Icons.ICON_SALARY, user),
-      new Domain.Entities.TransactionGroup("Home", "Home maintenance and rent", Icons.ICON_HOME, user),
-      new Domain.Entities.TransactionGroup("Personal Care", "Personal care and hygiene", Icons.ICON_PERSONAL_CARE, user),
-      new Domain.Entities.TransactionGroup("Clothing", "Clothing and accessories", Icons.ICON_CLOTHING, user),
-      new Domain.Entities.TransactionGroup("Phone & Internet", "Phone, internet, and communication", Icons.ICON_PHONE_INTERNET, user),
-      new Domain.Entities.TransactionGroup("Taxes", "Tax payments and refunds", Icons.ICON_TAXES, user),
-      new Domain.Entities.TransactionGroup("Miscellaneous", "Other uncategorized expenses", Icons.ICON_MISCELLANEOUS, user),
-      new Domain.Entities.TransactionGroup("Sold Items", "Sold personal items", Icons.ICON_SALARY, user),
-      new Domain.Entities.TransactionGroup("Interests", "Interests after savings or investments", Icons.ICON_SALARY, user)
-    };
-
-    return groups;
-  }
 }
