@@ -40,6 +40,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
     try
     {
       await WarmCacheAndSignalStartupAsync(cancellationToken);
+      await InitializeRefreshScheduleAsync(cancellationToken);
 
       while (!cancellationToken.IsCancellationRequested)
       {
@@ -148,6 +149,92 @@ public class ExchangeRateBackgroundJob : BackgroundService
     return savedRates.Count == 0
       ? DateTimeOffset.UtcNow
       : savedRates.Max(rate => rate.ValidFrom).Add(_refreshInterval);
+  }
+
+  private async Task InitializeRefreshScheduleAsync(CancellationToken cancellationToken)
+  {
+    while (!cancellationToken.IsCancellationRequested)
+    {
+      using (var checkScope = _serviceProvider.CreateScope())
+      {
+        var stateRepository = checkScope.ServiceProvider.GetRequiredService<IRepository<ExchangeRateRefreshState>>();
+        var state = await stateRepository.GetByIdAsync(ExchangeRateRefreshState.SingletonId, noTracking: true,
+          cancellationToken: cancellationToken)
+          ?? throw new InvalidOperationException("Exchange-rate refresh state is missing. Apply database migrations before starting the service.");
+        var exchangeRateRepository = checkScope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
+        var savedRates = await exchangeRateRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
+
+        if (state.Created != ExchangeRateRefreshState.MigrationSeedTimestamp
+          && state.NextAttemptAt.HasValue
+          && (state.LastSuccessfulRefreshAt.HasValue || savedRates.Count == 0))
+        {
+          return;
+        }
+      }
+
+      IExchangeRateRefreshLease? lease;
+      try
+      {
+        lease = await _refreshLock.TryAcquireAsync(_lockLeaseDuration, cancellationToken);
+      }
+      catch (Exception ex) when (ex is not OperationCanceledException)
+      {
+        _logger.LogError(ex, "Could not acquire the exchange-rate refresh lease while initializing its schedule; retrying in {RetryDelay}", _lockRetryDelay);
+        await Task.Delay(_lockRetryDelay, cancellationToken);
+        continue;
+      }
+
+      if (lease is null)
+      {
+        await Task.Delay(_lockRetryDelay, cancellationToken);
+        continue;
+      }
+
+      await using (lease)
+      {
+        lease.ThrowIfLost();
+        using var scope = _serviceProvider.CreateScope();
+        var stateRepository = scope.ServiceProvider.GetRequiredService<IRepository<ExchangeRateRefreshState>>();
+        var state = await stateRepository.GetByIdAsync(ExchangeRateRefreshState.SingletonId, noTracking: false,
+          cancellationToken: cancellationToken)
+          ?? throw new InvalidOperationException("Exchange-rate refresh state is missing. Apply database migrations before starting the service.");
+        var exchangeRateRepository = scope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
+        var savedRates = await exchangeRateRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
+        var saveChanges = false;
+        var lastSuccessfulRefreshAt = state.LastSuccessfulRefreshAt;
+
+        if (state.Created == ExchangeRateRefreshState.MigrationSeedTimestamp)
+        {
+          state.Created = DateTimeOffset.UtcNow;
+          saveChanges = true;
+        }
+
+        if (!state.LastSuccessfulRefreshAt.HasValue && savedRates.Count > 0)
+        {
+          state.LastSuccessfulRefreshAt = savedRates.Max(rate => rate.Created);
+          saveChanges = true;
+        }
+
+        if (!state.NextAttemptAt.HasValue)
+        {
+          var scheduleAnchor = lastSuccessfulRefreshAt
+            ?? (savedRates.Count > 0 ? savedRates.Max(rate => rate.ValidFrom) : null);
+          state.NextAttemptAt = scheduleAnchor.HasValue
+            ? scheduleAnchor.Value.Add(_refreshInterval)
+            : DateTimeOffset.UtcNow;
+          saveChanges = true;
+        }
+
+        if (saveChanges)
+        {
+          lease.ThrowIfLost();
+          var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+          await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+      }
+
+      return;
+    }
   }
 
   private async Task RefreshIfDueAsync(IExchangeRateRefreshLease lease, CancellationToken cancellationToken)

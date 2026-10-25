@@ -15,8 +15,8 @@ public class ExchangeRateRefreshStateConfiguration : IEntityTypeConfiguration<Ex
     builder.HasData(new ExchangeRateRefreshState
     {
       Id = ExchangeRateRefreshState.SingletonId,
-      Created = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
-      Modified = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
+      Created = ExchangeRateRefreshState.MigrationSeedTimestamp,
+      Modified = ExchangeRateRefreshState.MigrationSeedTimestamp,
       LastSuccessfulRefreshAt = null,
       NextAttemptAt = null
     });

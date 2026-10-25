@@ -6,6 +6,7 @@ namespace FinanceApp.Backend.Domain.Entities;
 public class ExchangeRateRefreshState : BaseEntity
 {
   public static readonly Guid SingletonId = Guid.Parse("5d98edb9-7504-4d41-a2d8-e9e3be6261e3");
+  public static readonly DateTimeOffset MigrationSeedTimestamp = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
   public DateTimeOffset? LastSuccessfulRefreshAt { get; set; }
 
