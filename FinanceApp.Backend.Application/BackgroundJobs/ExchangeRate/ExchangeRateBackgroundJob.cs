@@ -11,7 +11,6 @@ namespace FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 public class ExchangeRateBackgroundJob : BackgroundService
 {
   private static readonly TimeSpan _refreshInterval = TimeSpan.FromDays(7);
-  private static readonly TimeSpan _failureRetryInterval = TimeSpan.FromDays(1);
   private static readonly TimeSpan _lockLeaseDuration = TimeSpan.FromMinutes(2);
   private static readonly TimeSpan _lockRetryDelay = TimeSpan.FromSeconds(30);
 
@@ -87,7 +86,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
           }
           catch (Exception ex) when (ex is not OperationCanceledException)
           {
-            _logger.LogError(ex, "Failed to sync exchange rates; retrying tomorrow with saved snapshots.");
+            _logger.LogError(ex, "Failed to sync exchange rates; retrying in {RetryDelay}.", _lockRetryDelay);
             await ScheduleRetryAsync(lease, cancellationToken);
           }
         }
@@ -311,7 +310,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
       var state = await stateRepository.GetByIdAsync(ExchangeRateRefreshState.SingletonId, noTracking: false,
         cancellationToken: cancellationToken)
         ?? throw new InvalidOperationException("Exchange-rate refresh state is missing. Apply database migrations before starting the service.");
-      state.NextAttemptAt = DateTimeOffset.UtcNow.Add(_failureRetryInterval);
+      state.NextAttemptAt = DateTimeOffset.UtcNow.Add(_lockRetryDelay);
       await unitOfWork.SaveChangesAsync(cancellationToken);
     }
     catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)

@@ -50,7 +50,7 @@ public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchange
       .Replace("{startDate}", startDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal)
       .Replace("{date}", date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
     var response = await GetAsync<List<FrankfurterRateDto>>(endpoint);
-    return Result.Success(ParseRateRows(response, historical: true, allowIncompleteDates: true));
+    return Result.Success(ParseRateRows(response, historical: true));
   }
 
   private async Task<Result<List<ExchangeRate>>> GetRatesAsync(string endpoint, bool historical)
@@ -59,8 +59,7 @@ public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchange
     return Result.Success(ParseRateRows(response, historical));
   }
 
-  private List<ExchangeRate> ParseRateRows(List<FrankfurterRateDto> response, bool historical,
-    bool allowIncompleteDates = false)
+  private List<ExchangeRate> ParseRateRows(List<FrankfurterRateDto> response, bool historical)
   {
     if (response.Count == 0)
     {
@@ -69,45 +68,34 @@ public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchange
 
     var supportedCurrencies = Enum.GetNames<CurrencyEnum>()
       .Where(currency => currency != nameof(CurrencyEnum.XXX) && currency != nameof(CurrencyEnum.USD))
-      .ToArray();
-    var allRates = new List<ExchangeRate>();
-    foreach (var dateGroup in response.GroupBy(row => row.Date, StringComparer.Ordinal))
+      .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    var usdRates = new Dictionary<string, (decimal Rate, DateOnly Date)>(StringComparer.OrdinalIgnoreCase);
+    foreach (var row in response)
     {
-      if (!DateOnly.TryParseExact(dateGroup.Key, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+      if (!DateOnly.TryParseExact(row.Date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
             System.Globalization.DateTimeStyles.None, out var rateDate) ||
-          dateGroup.Any(row => !string.Equals(row.Base, nameof(CurrencyEnum.USD), StringComparison.OrdinalIgnoreCase)))
+          !string.Equals(row.Base, nameof(CurrencyEnum.USD), StringComparison.OrdinalIgnoreCase) || row.Rate <= 0)
       {
         throw new InvalidDataException("Frankfurter returned an invalid USD rate set.");
       }
 
-      var usdRates = dateGroup.ToDictionary(row => row.Quote, row => row.Rate, StringComparer.OrdinalIgnoreCase);
-      usdRates[nameof(CurrencyEnum.USD)] = 1m;
-      var hasAllSupportedCurrencies = supportedCurrencies.All(currency =>
-        usdRates.TryGetValue(currency, out var rate) && rate > 0);
-      if (!hasAllSupportedCurrencies)
+      if (supportedCurrencies.Contains(row.Quote) &&
+          (!usdRates.TryGetValue(row.Quote, out var existingRate) || rateDate > existingRate.Date))
       {
-        if (allowIncompleteDates)
-        {
-          continue;
-        }
-
-        throw new InvalidDataException("Frankfurter returned an incomplete or invalid USD rate set.");
+        usdRates[row.Quote] = (row.Rate, rateDate);
       }
-
-      var validFrom = new DateTimeOffset(rateDate.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
-      allRates.AddRange(CalculateAllRatesFromUsdBase(usdRates, validFrom, actual: !historical));
     }
 
-    if (allRates.Count == 0)
+    if (supportedCurrencies.Any(currency => !usdRates.ContainsKey(currency)))
     {
-      throw new InvalidDataException("Frankfurter returned no complete historical USD rate set.");
+      throw new InvalidDataException("Frankfurter returned an incomplete or invalid USD rate set.");
     }
 
-    return allRates;
+    return CalculateAllRatesFromUsdBase(usdRates, actual: !historical);
   }
 
-  private List<ExchangeRate> CalculateAllRatesFromUsdBase(Dictionary<string, decimal> usdRates,
-    DateTimeOffset validFrom, bool actual)
+  private List<ExchangeRate> CalculateAllRatesFromUsdBase(
+    Dictionary<string, (decimal Rate, DateOnly Date)> usdRates, bool actual)
   {
     var currencies = Enum.GetNames<CurrencyEnum>().Where(currency => currency != nameof(CurrencyEnum.XXX)).ToArray();
     var pairs = new List<ExchangeRate>();
@@ -120,25 +108,31 @@ public class ExchangeRateClient : HttpClientBase<IExchangeRateClient>, IExchange
           continue;
         }
 
-        decimal rate = 0;
+        decimal rate;
+        DateOnly validFrom;
         if (baseCurrency == CurrencyEnum.USD.ToString())
         {
-          rate = usdRates.TryGetValue(targetCurrency, out var r) ? r : 0;
+          var targetRate = usdRates[targetCurrency];
+          rate = targetRate.Rate;
+          validFrom = targetRate.Date;
         }
         else if (targetCurrency == CurrencyEnum.USD.ToString())
         {
-          rate = usdRates.TryGetValue(baseCurrency, out var r) && r != 0 ? 1 / r : 0;
+          var baseRate = usdRates[baseCurrency];
+          rate = 1 / baseRate.Rate;
+          validFrom = baseRate.Date;
         }
         else
         {
-          if (usdRates.TryGetValue(baseCurrency, out var baseToUsd) && baseToUsd != 0 && usdRates.TryGetValue(targetCurrency, out var usdToTarget))
-          {
-            rate = usdToTarget / baseToUsd;
-          }
+          var baseRate = usdRates[baseCurrency];
+          var targetRate = usdRates[targetCurrency];
+          rate = targetRate.Rate / baseRate.Rate;
+          validFrom = baseRate.Date < targetRate.Date ? baseRate.Date : targetRate.Date;
         }
+
         pairs.Add(new ExchangeRate(baseCurrency, targetCurrency, rate)
         {
-          ValidFrom = validFrom,
+          ValidFrom = new DateTimeOffset(validFrom.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero),
           Actual = actual
         });
       }
