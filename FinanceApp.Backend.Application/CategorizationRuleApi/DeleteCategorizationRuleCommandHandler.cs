@@ -22,11 +22,17 @@ public class DeleteCategorizationRuleCommandHandler : ICommandHandler<DeleteCate
   public async Task<Result<bool>> Handle(DeleteCategorizationRuleCommand request, CancellationToken cancellationToken)
   {
     var user = await _users.GetActiveUserAsync(cancellationToken);
-    if (!user.IsSuccess) return Result.Failure<bool>(user.ApplicationError!);
+    if (!user.IsSuccess)
+    {
+      return Result.Failure<bool>(user.ApplicationError!);
+    }
 
     var rule = await _rules.GetSingleOrDefaultAsync(item => item.Id == request.Id && item.UserId == user.Data!.Id,
       cancellationToken: cancellationToken);
-    if (rule is null) return Result.Failure<bool>(ApplicationError.EntityNotFoundError(request.Id.ToString(), nameof(CategorizationRule)));
+    if (rule is null)
+    {
+      return Result.Failure<bool>(ApplicationError.EntityNotFoundError(request.Id.ToString(), nameof(CategorizationRule)));
+    }
 
     _rules.Delete(rule);
     await _unitOfWork.SaveChangesAsync(cancellationToken);

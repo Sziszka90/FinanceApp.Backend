@@ -23,6 +23,7 @@ public class PdfImportHandlerTests : TestBase
   private readonly User _user = new(null, "test-user", "test@example.com", true, "hash", CurrencyEnum.EUR);
   private readonly Mock<IRepository<BankStatementPrompt>> _prompts = new();
   private readonly Mock<IRepository<PdfImportRecord>> _pdfImports = new();
+  private readonly Mock<IRepository<CategorizationRule>> _categorizationRules = new();
   private readonly Mock<ISignalRService> _signalR = new();
   private readonly Mock<IPdfImportStatusStore> _importStatuses = new();
   private readonly RabbitMqSettings _settings = new()
@@ -37,6 +38,9 @@ public class PdfImportHandlerTests : TestBase
       .ReturnsAsync((PdfImportRecord?)null);
     _pdfImports.Setup(repository => repository.CreateAsync(It.IsAny<PdfImportRecord>(), It.IsAny<CancellationToken>()))
       .ReturnsAsync((PdfImportRecord record, CancellationToken _) => record);
+    _categorizationRules.Setup(repository => repository.GetAllAsync(
+        It.IsAny<System.Linq.Expressions.Expression<Func<CategorizationRule, bool>>>(), true, It.IsAny<CancellationToken>()))
+      .ReturnsAsync([]);
     UserServiceMock.Setup(service => service.GetActiveUserAsync(It.IsAny<CancellationToken>()))
       .ReturnsAsync(Result<User>.Success(_user));
     _importStatuses.Setup(store => store.SetAsync(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<string>(),
@@ -248,6 +252,7 @@ public class PdfImportHandlerTests : TestBase
   private CompletePdfImportCommandHandler CreateCompleteHandler() => new(
     UserRepositoryMock.Object,
     _pdfImports.Object,
+    _categorizationRules.Object,
     TransactionRepositoryMock.Object,
     TransactionGroupRepositoryMock.Object,
     ExchangeRateServiceMock.Object,

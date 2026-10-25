@@ -31,22 +31,31 @@ public class SaveCategorizationRuleCommandHandler : ICommandHandler<SaveCategori
   public async Task<Result<CategorizationRuleDto>> Handle(SaveCategorizationRuleCommand request, CancellationToken cancellationToken)
   {
     var user = await _users.GetActiveUserAsync(cancellationToken);
-    if (!user.IsSuccess) return Result.Failure<CategorizationRuleDto>(user.ApplicationError!);
+    if (!user.IsSuccess)
+    {
+      return Result.Failure<CategorizationRuleDto>(user.ApplicationError!);
+    }
 
     var merchantText = request.Rule.MerchantText.Trim();
     if (merchantText.Length < 2 || merchantText.Length > 200 || request.Rule.TransactionGroupId == Guid.Empty)
+    {
       return Result.Failure<CategorizationRuleDto>(ApplicationError.DefaultError("Enter a match text and select a category."));
+    }
 
     var group = (await _groups.GetAllByUserIdAsync(user.Data!.Id, noTracking: true, cancellationToken))
       .FirstOrDefault(item => item.Id == request.Rule.TransactionGroupId);
     if (group is null)
+    {
       return Result.Failure<CategorizationRuleDto>(ApplicationError.DefaultError("The selected category does not exist."));
+    }
 
     var userRules = await _rules.GetAllAsync(rule => rule.UserId == user.Data.Id, cancellationToken: cancellationToken);
     var duplicate = userRules
       .Any(rule => rule.Id != request.Id && string.Equals(rule.MerchantText, merchantText, StringComparison.OrdinalIgnoreCase));
     if (duplicate)
+    {
       return Result.Failure<CategorizationRuleDto>(ApplicationError.DefaultError("A rule for this match text already exists."));
+    }
 
     CategorizationRule rule;
     if (request.Id is Guid id)
@@ -54,7 +63,9 @@ public class SaveCategorizationRuleCommandHandler : ICommandHandler<SaveCategori
       var existing = await _rules.GetSingleOrDefaultAsync(item => item.Id == id && item.UserId == user.Data.Id,
         cancellationToken: cancellationToken);
       if (existing is null)
+      {
         return Result.Failure<CategorizationRuleDto>(ApplicationError.EntityNotFoundError(id.ToString(), nameof(CategorizationRule)));
+      }
       rule = existing;
       rule.Update(merchantText, group.Id);
     }
