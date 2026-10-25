@@ -22,20 +22,6 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.CategorizationRule", b =>
-                {
-                    b.Property<Guid>("Id").ValueGeneratedOnAdd().HasColumnType("uniqueidentifier");
-                    b.Property<DateTimeOffset>("Created").HasColumnType("datetimeoffset");
-                    b.Property<string>("MerchantText").IsRequired().HasMaxLength(200).HasColumnType("nvarchar(200)");
-                    b.Property<DateTimeOffset>("Modified").HasColumnType("datetimeoffset");
-                    b.Property<Guid>("TransactionGroupId").HasColumnType("uniqueidentifier");
-                    b.Property<Guid>("UserId").HasColumnType("uniqueidentifier");
-                    b.HasKey("Id");
-                    b.HasIndex("TransactionGroupId");
-                    b.HasIndex("UserId");
-                    b.ToTable("CategorizationRule", (string)null);
-                });
-
             modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.BankStatementPrompt", b =>
                 {
                     b.Property<Guid>("Id")
@@ -73,12 +59,34 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Migrations
 
             modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.CategorizationRule", b =>
                 {
-                    b.HasOne("FinanceApp.Backend.Domain.Entities.TransactionGroup", "TransactionGroup")
-                        .WithMany().HasForeignKey("TransactionGroupId").OnDelete(DeleteBehavior.Cascade).IsRequired();
-                    b.HasOne("FinanceApp.Backend.Domain.Entities.User", "User")
-                        .WithMany().HasForeignKey("UserId").OnDelete(DeleteBehavior.Restrict).IsRequired();
-                    b.Navigation("TransactionGroup");
-                    b.Navigation("User");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("MerchantText")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset>("Modified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("TransactionGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionGroupId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CategorizationRule", (string)null);
                 });
 
             modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.ExchangeRate", b =>
@@ -118,6 +126,37 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ExchangeRate", (string)null);
+                });
+
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.ExchangeRateRefreshState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("LastSuccessfulRefreshAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("Modified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("NextAttemptAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExchangeRateRefreshState", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("5d98edb9-7504-4d41-a2d8-e9e3be6261e3"),
+                            Created = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Modified = new DateTimeOffset(new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        });
                 });
 
             modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.PdfImportRecord", b =>
@@ -277,6 +316,25 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Mssql.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.CategorizationRule", b =>
+                {
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.TransactionGroup", "TransactionGroup")
+                        .WithMany()
+                        .HasForeignKey("TransactionGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("TransactionGroup");
 
                     b.Navigation("User");
                 });

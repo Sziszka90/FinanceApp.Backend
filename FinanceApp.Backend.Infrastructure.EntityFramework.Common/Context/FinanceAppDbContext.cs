@@ -10,6 +10,7 @@ public abstract class FinanceAppDbContext : DbContext
   public DbSet<PdfImportRecord> PdfImportRecord => Set<PdfImportRecord>();
   public DbSet<TransactionGroup> TransactionGroup => Set<TransactionGroup>();
   public DbSet<ExchangeRate> ExchangeRate => Set<ExchangeRate>();
+  public DbSet<ExchangeRateRefreshState> ExchangeRateRefreshState => Set<ExchangeRateRefreshState>();
   public DbSet<User> User => Set<User>();
   public DbSet<BankStatementPrompt> BankStatementPrompt => Set<BankStatementPrompt>();
   public DbSet<CategorizationRule> CategorizationRule => Set<CategorizationRule>();

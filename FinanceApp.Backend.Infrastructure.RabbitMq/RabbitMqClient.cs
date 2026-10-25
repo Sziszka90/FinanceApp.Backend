@@ -22,7 +22,10 @@ namespace FinanceApp.Backend.Infrastructure.RabbitMq;
 public class RabbitMqClient : IRabbitMqClient
 {
   private const string PDF_RETRY_COUNT_HEADER = "x-financeapp-pdf-result-retries";
+  private const string MATCH_RESULT_RETRY_COUNT_HEADER = "x-financeapp-match-result-retries";
   private const int MAX_PDF_RESULT_RETRIES = 3;
+  private const int MAX_MATCH_RESULT_RETRIES = 3;
+  private const int MATCH_RESULT_RETRY_DELAY_MILLISECONDS = 10000;
   private const int PDF_RESULT_RETRY_DELAY_MILLISECONDS = 10000;
   private const int PDF_REQUEST_RETRY_DELAY_MILLISECONDS = 10000;
   private readonly ILogger<IRabbitMqClient> _logger;
@@ -31,6 +34,8 @@ public class RabbitMqClient : IRabbitMqClient
   private readonly IRabbitMqConnectionManager _connectionManager;
   private readonly string _pdfResultRetryQueue;
   private readonly string _pdfRequestRetryQueue;
+  private readonly string _matchResultRetryQueue;
+  private readonly string _matchResultDeadLetterQueue;
   private readonly IAsyncPolicy _declarationRetryPolicy;
   private IChannel _channel => _connectionManager.Channel ?? throw new InvalidOperationException("Channel not initialized");
 
@@ -46,6 +51,8 @@ public class RabbitMqClient : IRabbitMqClient
     _connectionManager = connectionManager;
     _pdfResultRetryQueue = $"{_settings.PdfResultQueue}.retry";
     _pdfRequestRetryQueue = $"{_settings.PdfRequestQueue}.retry";
+    _matchResultRetryQueue = $"{_settings.ResultQueue}.retry";
+    _matchResultDeadLetterQueue = $"{_settings.ResultQueue}.dead";
     _connectionManager.Reconnected += ResubscribeAfterReconnectAsync;
 
     _declarationRetryPolicy = Policy
@@ -111,6 +118,14 @@ public class RabbitMqClient : IRabbitMqClient
         };
         await _channel.QueueDeclareAsync(_settings.RequestQueue, durable: true, exclusive: false, autoDelete: false, arguments: requestQueueArguments);
         await _channel.QueueDeclareAsync(_settings.ResultQueue, durable: true, exclusive: false, autoDelete: false);
+        await _channel.QueueDeclareAsync(_matchResultRetryQueue, durable: true, exclusive: false, autoDelete: false,
+          arguments: new Dictionary<string, object?>
+          {
+            ["x-message-ttl"] = MATCH_RESULT_RETRY_DELAY_MILLISECONDS,
+            ["x-dead-letter-exchange"] = string.Empty,
+            ["x-dead-letter-routing-key"] = _settings.ResultQueue
+          });
+        await _channel.QueueDeclareAsync(_matchResultDeadLetterQueue, durable: true, exclusive: false, autoDelete: false);
         await _channel.QueueDeclareAsync(_settings.DeadLetterQueue, durable: true, exclusive: false, autoDelete: false);
         await _channel.QueueDeclareAsync(_settings.PdfRequestQueue, durable: true, exclusive: false, autoDelete: false,
           arguments: new Dictionary<string, object?>
@@ -179,8 +194,7 @@ public class RabbitMqClient : IRabbitMqClient
 
   private async Task HandleMessageAsync(BasicDeliverEventArgs ea)
   {
-    var body = ea.Body.ToArray();
-
+    RabbitMqPayload message;
     try
     {
       var settings = new Newtonsoft.Json.JsonSerializerSettings
@@ -191,19 +205,137 @@ public class RabbitMqClient : IRabbitMqClient
         }
       };
 
-      var jsonString = Encoding.UTF8.GetString(body);
-      var message = Newtonsoft.Json.JsonConvert.DeserializeObject<RabbitMqPayload>(jsonString, settings) ?? throw new JsonException("Deserialized message is null");
+      var jsonString = Encoding.UTF8.GetString(ea.Body.ToArray());
+      message = Newtonsoft.Json.JsonConvert.DeserializeObject<RabbitMqPayload>(jsonString, settings)
+        ?? throw new JsonException("Deserialized message is null");
+    }
+    catch (Newtonsoft.Json.JsonException ex)
+    {
+      await DeadLetterMatchResultAsync(ea, "Invalid transaction matching result payload", ex);
+      return;
+    }
+    catch (JsonException ex)
+    {
+      await DeadLetterMatchResultAsync(ea, "Invalid transaction matching result payload", ex);
+      return;
+    }
 
+    try
+    {
       using var scope = _serviceProvider.CreateScope();
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-
-      await mediator.Send(new MatchTransactionsCommand(message));
-      await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
+      var result = await mediator.Send(new MatchTransactionsCommand(message));
+      if (!result.IsSuccess)
+      {
+        var reason = result.ApplicationError?.Message ?? "Transaction matching result was rejected";
+        await DeadLetterMatchResultAsync(ea, reason, new InvalidOperationException(reason));
+        return;
+      }
     }
-    catch (Exception ex)
+    catch (Exception ex) when (ex is not OperationCanceledException)
     {
-      _logger.LogError(ex, "Failed to process message from {RoutingKey}", ea.RoutingKey);
-      await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false);
+      var retryCount = GetMatchResultRetryCount(ea.BasicProperties.Headers);
+      if (retryCount < MAX_MATCH_RESULT_RETRIES)
+      {
+        try
+        {
+          await PublishMatchResultRetryAsync(ea, retryCount + 1);
+          await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
+          _logger.LogWarning(ex,
+            "Scheduled transaction matching result retry {Retry}/{MaxRetries} from {RoutingKey}",
+            retryCount + 1, MAX_MATCH_RESULT_RETRIES, ea.RoutingKey);
+        }
+        catch (Exception retryError) when (retryError is not OperationCanceledException)
+        {
+          _logger.LogError(retryError,
+            "Could not schedule transaction matching result retry; requeueing original delivery");
+          await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: true);
+        }
+
+        return;
+      }
+
+      await DeadLetterMatchResultAsync(ea,
+        $"Transaction matching result failed after {MAX_MATCH_RESULT_RETRIES} retries", ex);
+      return;
+    }
+
+    await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
+  }
+
+  private async Task DeadLetterMatchResultAsync(BasicDeliverEventArgs ea, string reason, Exception exception)
+  {
+    try
+    {
+      await PublishMatchResultDeadLetterAsync(ea, reason);
+      await _channel.BasicAckAsync(ea.DeliveryTag, multiple: false);
+      _logger.LogError(exception, "Moved transaction matching result from {RoutingKey} to {DeadLetterQueue}: {Reason}",
+        ea.RoutingKey, _matchResultDeadLetterQueue, reason);
+    }
+    catch (Exception deadLetterError) when (deadLetterError is not OperationCanceledException)
+    {
+      _logger.LogError(deadLetterError,
+        "Could not move transaction matching result from {RoutingKey} to its dead-letter queue; requeueing original delivery",
+        ea.RoutingKey);
+      await _channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: true);
+    }
+  }
+
+  private async Task PublishMatchResultRetryAsync(BasicDeliverEventArgs ea, int retryCount)
+  {
+    var headers = CopyMessageHeaders(ea.BasicProperties.Headers);
+    headers[MATCH_RESULT_RETRY_COUNT_HEADER] = retryCount;
+    var properties = new BasicProperties
+    {
+      Persistent = true,
+      Headers = headers
+    };
+
+    await _channel.BasicPublishAsync(string.Empty, _matchResultRetryQueue, mandatory: true, properties, ea.Body,
+      CancellationToken.None);
+  }
+
+  private async Task PublishMatchResultDeadLetterAsync(BasicDeliverEventArgs ea, string reason)
+  {
+    var headers = CopyMessageHeaders(ea.BasicProperties.Headers);
+    headers["x-financeapp-dead-letter-reason"] = reason;
+    var properties = new BasicProperties
+    {
+      Persistent = true,
+      Headers = headers
+    };
+
+    await _channel.BasicPublishAsync(string.Empty, _matchResultDeadLetterQueue, mandatory: true, properties, ea.Body,
+      CancellationToken.None);
+  }
+
+  private static Dictionary<string, object?> CopyMessageHeaders(IDictionary<string, object?>? headers) =>
+    headers is null ? new Dictionary<string, object?>() : new Dictionary<string, object?>(headers);
+
+  private static int GetMatchResultRetryCount(IDictionary<string, object?>? headers)
+  {
+    if (headers is null || !headers.TryGetValue(MATCH_RESULT_RETRY_COUNT_HEADER, out var value) || value is null)
+    {
+      return 0;
+    }
+
+    try
+    {
+      return value is byte[] bytes
+        ? int.Parse(Encoding.UTF8.GetString(bytes), System.Globalization.CultureInfo.InvariantCulture)
+        : Convert.ToInt32(value, System.Globalization.CultureInfo.InvariantCulture);
+    }
+    catch (FormatException)
+    {
+      return 0;
+    }
+    catch (InvalidCastException)
+    {
+      return 0;
+    }
+    catch (OverflowException)
+    {
+      return 0;
     }
   }
 

@@ -139,9 +139,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GHCR_PAT }}
           BACKEND_TAG: ${{ steps.vars.outputs.backend_tag }}
           GATEWAY_TAG: ${{ steps.vars.outputs.gateway_tag }}
+          BACKEND_REF: ${{ github.sha }}
         run: |
           gh workflow run deploy.yml \
             -R Sziszka90/FinanceApp.Infrastructure.Azure \
             --ref main \
             -f backendImageTag="$BACKEND_TAG" \
-            -f gatewayImageTag="$GATEWAY_TAG"
+            -f gatewayImageTag="$GATEWAY_TAG" \
+            -f backendRef="$BACKEND_REF"

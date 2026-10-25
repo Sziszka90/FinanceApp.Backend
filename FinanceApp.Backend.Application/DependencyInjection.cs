@@ -13,6 +13,7 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 
 namespace FinanceApp.Backend.Application;
 
@@ -28,7 +29,7 @@ public static class DependencyInjection
     services.AddHttpClient();
     services.AddServices();
     services.AddHostedServices();
-    services.AddHubs();
+    services.AddHubs(configuration);
     return services;
   }
 
@@ -95,13 +96,23 @@ public static class DependencyInjection
     return services;
   }
 
-  private static IServiceCollection AddHubs(this IServiceCollection services)
+  private static IServiceCollection AddHubs(this IServiceCollection services, IConfiguration configuration)
   {
-    services.AddSignalR(options =>
+    var signalR = services.AddSignalR(options =>
     {
       options.EnableDetailedErrors = true;
       options.MaximumReceiveMessageSize = 32 * 1024;
     });
+
+    var redisConnectionString = configuration.GetSection("CacheSettings:ConnectionString").Value;
+    if (!string.IsNullOrWhiteSpace(redisConnectionString))
+    {
+      signalR.AddStackExchangeRedis(redisConnectionString, options =>
+      {
+        options.Configuration.ChannelPrefix = RedisChannel.Literal("FinanceApp:SignalR");
+      });
+    }
+
     return services;
   }
 }

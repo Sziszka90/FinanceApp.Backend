@@ -176,6 +176,8 @@ Unit and integration tests, coverage reports, and lint checks run in the CI/CD p
 
 The application is deployed as **containerized microservices** on **Azure Container Apps** using GitHub Actions.
 
+Database migrations must be applied once before deploying a backend revision that requires them. API replicas no longer apply migrations during startup. From an environment with database access, run `./scripts/run-migration.sh mssql "$FINANCEAPP_DB_CONNECTION_STRING"` once, then deploy the backend replicas. Do not run the migration command independently in each replica.
+
 **Deployment Flow:**
 
 1. **Push to main** → Triggers GitHub Actions workflow

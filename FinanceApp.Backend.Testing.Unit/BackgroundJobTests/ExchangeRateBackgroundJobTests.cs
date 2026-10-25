@@ -1,5 +1,6 @@
 using FinanceApp.Backend.Application.Abstraction.Clients;
 using FinanceApp.Backend.Application.Abstraction.Repositories;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Domain.Entities;
@@ -27,6 +28,16 @@ public class ExchangeRateBackgroundJobTests : TestBase
     ServiceProviderMock.Setup(sp => sp.GetService(typeof(IExchangeRateRepository))).Returns(ExchangeRateRepositoryMock.Object);
     ServiceProviderMock.Setup(sp => sp.GetService(typeof(IUnitOfWork))).Returns(UnitOfWorkMock.Object);
     ServiceProviderMock.Setup(sp => sp.GetService(typeof(IExchangeRateClient))).Returns(ExchangeRateClientMock.Object);
+    var refreshState = new ExchangeRateRefreshState();
+    var refreshStateRepository = new Mock<IRepository<ExchangeRateRefreshState>>();
+    refreshStateRepository
+      .Setup(repository => repository.GetByIdAsync(
+        ExchangeRateRefreshState.SingletonId,
+        It.IsAny<bool>(),
+        It.IsAny<CancellationToken>()))
+      .ReturnsAsync(refreshState);
+    ServiceProviderMock.Setup(sp => sp.GetService(typeof(IRepository<ExchangeRateRefreshState>)))
+      .Returns(refreshStateRepository.Object);
 
     ExchangeRateRepositoryMock.Setup(r => r.GetAllAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
         .ReturnsAsync(new List<ExchangeRate>());
@@ -48,11 +59,19 @@ public class ExchangeRateBackgroundJobTests : TestBase
     // act
     ServiceProviderMock.Setup(sp => sp.GetService(typeof(IExchangeRateCacheManager))).Returns(ExchangeRateCacheManagerMock.Object);
 
+    var lease = new Mock<IExchangeRateRefreshLease>();
+    lease.SetupGet(item => item.LostToken).Returns(CancellationToken.None);
+    var refreshLock = new Mock<IExchangeRateRefreshLock>();
+    refreshLock
+      .Setup(item => item.TryAcquireAsync(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(lease.Object);
+
     var job = new ExchangeRateBackgroundJob(
         _loggerMock.Object,
         ServiceProviderMock.Object,
         ExchangeRateRunSignalMock.Object,
-        ExchangeRateCacheManagerMock.Object);
+        ExchangeRateCacheManagerMock.Object,
+        refreshLock.Object);
 
     var cancellationTokenSource = new CancellationTokenSource();
 
