@@ -25,7 +25,8 @@ public class PdfImportStatusStore : IPdfImportStatusStore
     try
     {
       var current = await GetCoreAsync(key, cancellationToken);
-      if (current is not null && IsTerminal(current.Status))
+      var isRetryTransition = current?.Status == "failed" && status == "queued";
+      if (current is not null && IsTerminal(current.Status) && !isRetryTransition)
       {
         return;
       }

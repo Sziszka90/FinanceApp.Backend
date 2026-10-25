@@ -113,7 +113,10 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
           return Result.Failure<ExchangeRate>(ApplicationError.MissingExchangeRatesError());
         }
 
-        var newSnapshots = historical.Data
+        var selectedDateRates = historical.Data
+          .Where(rate => rate.ValidFrom == fetchedRate.ValidFrom)
+          .ToList();
+        var newSnapshots = selectedDateRates
           .Where(rate => !allRates.Any(existing => existing.BaseCurrency == rate.BaseCurrency &&
                                                   existing.TargetCurrency == rate.TargetCurrency &&
                                                   existing.ValidFrom == rate.ValidFrom))

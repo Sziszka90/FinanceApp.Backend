@@ -1,4 +1,5 @@
 using FinanceApp.Backend.Application.Abstraction.Services;
+using FinanceApp.Backend.Application.Abstraction.Repositories;
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
 using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Application.Models;
@@ -26,6 +27,7 @@ public class MatchTransactionsTests : TestBase
       UserRepositoryMock.Object,
       TransactionRepositoryMock.Object,
       TransactionGroupRepositoryMock.Object,
+      new Mock<IRepository<CategorizationRule>>().Object,
       UnitOfWorkMock.Object,
       _signalRServiceMock.Object
     );

@@ -17,6 +17,20 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.CategorizationRule", b =>
+                {
+                    b.Property<Guid>("Id").ValueGeneratedOnAdd().HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("Created").HasColumnType("TEXT");
+                    b.Property<string>("MerchantText").IsRequired().HasMaxLength(200).HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("Modified").HasColumnType("TEXT");
+                    b.Property<Guid>("TransactionGroupId").HasColumnType("TEXT");
+                    b.Property<Guid>("UserId").HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("TransactionGroupId");
+                    b.HasIndex("UserId");
+                    b.ToTable("CategorizationRule", (string)null);
+                });
+
             modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.BankStatementPrompt", b =>
                 {
                     b.Property<Guid>("Id")
@@ -50,6 +64,16 @@ namespace FinanceApp.Backend.Infrastructure.EntityFramework.Sqlite.Migrations
                     b.HasIndex("UserId", "IsSelected");
 
                     b.ToTable("BankStatementPrompt", (string)null);
+                });
+
+            modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.CategorizationRule", b =>
+                {
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.TransactionGroup", "TransactionGroup")
+                        .WithMany().HasForeignKey("TransactionGroupId").OnDelete(DeleteBehavior.Cascade).IsRequired();
+                    b.HasOne("FinanceApp.Backend.Domain.Entities.User", "User")
+                        .WithMany().HasForeignKey("UserId").OnDelete(DeleteBehavior.Restrict).IsRequired();
+                    b.Navigation("TransactionGroup");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FinanceApp.Backend.Domain.Entities.ExchangeRate", b =>

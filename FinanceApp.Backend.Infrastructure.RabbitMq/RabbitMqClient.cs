@@ -24,11 +24,13 @@ public class RabbitMqClient : IRabbitMqClient
   private const string PDF_RETRY_COUNT_HEADER = "x-financeapp-pdf-result-retries";
   private const int MAX_PDF_RESULT_RETRIES = 3;
   private const int PDF_RESULT_RETRY_DELAY_MILLISECONDS = 10000;
+  private const int PDF_REQUEST_RETRY_DELAY_MILLISECONDS = 10000;
   private readonly ILogger<IRabbitMqClient> _logger;
   private readonly IServiceProvider _serviceProvider;
   private readonly RabbitMqSettings _settings;
   private readonly IRabbitMqConnectionManager _connectionManager;
   private readonly string _pdfResultRetryQueue;
+  private readonly string _pdfRequestRetryQueue;
   private readonly IAsyncPolicy _declarationRetryPolicy;
   private IChannel _channel => _connectionManager.Channel ?? throw new InvalidOperationException("Channel not initialized");
 
@@ -43,6 +45,7 @@ public class RabbitMqClient : IRabbitMqClient
     _settings = options.Value;
     _connectionManager = connectionManager;
     _pdfResultRetryQueue = $"{_settings.PdfResultQueue}.retry";
+    _pdfRequestRetryQueue = $"{_settings.PdfRequestQueue}.retry";
     _connectionManager.Reconnected += ResubscribeAfterReconnectAsync;
 
     _declarationRetryPolicy = Policy
@@ -114,6 +117,13 @@ public class RabbitMqClient : IRabbitMqClient
           {
             ["x-dead-letter-exchange"] = string.Empty,
             ["x-dead-letter-routing-key"] = _settings.PdfDeadLetterQueue
+          });
+        await _channel.QueueDeclareAsync(_pdfRequestRetryQueue, durable: true, exclusive: false, autoDelete: false,
+          arguments: new Dictionary<string, object?>
+          {
+            ["x-message-ttl"] = PDF_REQUEST_RETRY_DELAY_MILLISECONDS,
+            ["x-dead-letter-exchange"] = string.Empty,
+            ["x-dead-letter-routing-key"] = _settings.PdfRequestQueue
           });
         await _channel.QueueDeclareAsync(_settings.PdfResultQueue, durable: true, exclusive: false, autoDelete: false);
         await _channel.QueueDeclareAsync(_pdfResultRetryQueue, durable: true, exclusive: false, autoDelete: false,
@@ -278,7 +288,7 @@ public class RabbitMqClient : IRabbitMqClient
           var user = await users.GetByIdAsync(failedUserId, noTracking: true);
           if (user is not null)
           {
-            var reason = "The backend could not complete this PDF import after several attempts. You can retry it from the transactions page.";
+            var reason = "PDF import failed after 3 automatic retries.";
             var statuses = failureScope.ServiceProvider.GetRequiredService<IPdfImportStatusStore>();
             await statuses.SetAsync(user.Email.ToString(), failedCorrelationId, "failed", reason);
             var signalR = failureScope.ServiceProvider.GetRequiredService<ISignalRService>();
@@ -357,7 +367,7 @@ public class RabbitMqClient : IRabbitMqClient
       var user = await users.GetByIdAsync(userId, noTracking: true);
       if (user is not null)
       {
-        var reason = "The PDF processor rejected this import. Check the PDF and try uploading it again.";
+        var reason = "PDF import failed after 3 automatic retries.";
         var statuses = scope.ServiceProvider.GetRequiredService<IPdfImportStatusStore>();
         await statuses.SetAsync(user.Email.ToString(), Guid.Parse(job.CorrelationId), "failed", reason);
         var signalR = scope.ServiceProvider.GetRequiredService<ISignalRService>();

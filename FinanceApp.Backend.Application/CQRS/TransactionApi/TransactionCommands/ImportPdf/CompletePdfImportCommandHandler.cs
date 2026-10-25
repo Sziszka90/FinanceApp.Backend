@@ -20,6 +20,7 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
 {
   private readonly IUserRepository _users;
   private readonly IRepository<PdfImportRecord> _pdfImports;
+  private readonly IRepository<CategorizationRule> _categorizationRules;
   private readonly ITransactionRepository _transactions;
   private readonly ITransactionGroupRepository _groups;
   private readonly IExchangeRateService _exchangeRates;
@@ -31,6 +32,7 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
   private readonly ILogger<CompletePdfImportCommandHandler> _logger;
 
   public CompletePdfImportCommandHandler(IUserRepository users, IRepository<PdfImportRecord> pdfImports,
+    IRepository<CategorizationRule> categorizationRules,
     ITransactionRepository transactions,
     ITransactionGroupRepository groups, IExchangeRateService exchangeRates, IUnitOfWork unitOfWork,
     IRabbitMqClient rabbitMq, ISignalRService signalR, IOptions<RabbitMqSettings> settings,
@@ -38,6 +40,7 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
   {
     _users = users;
     _pdfImports = pdfImports;
+    _categorizationRules = categorizationRules;
     _transactions = transactions;
     _groups = groups;
     _exchangeRates = exchangeRates;
@@ -155,6 +158,15 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
           {
             TransactionNames = imported.Select(t => t.Name).Distinct().ToList(),
             TransactionGroupNames = groups.Select(g => g.Name).ToList(),
+            CategorizationRules = (await _categorizationRules.GetAllAsync(rule => rule.UserId == userId,
+                noTracking: true, cancellationToken: cancellationToken))
+              .Select(rule => new CategorizationRuleJobDto
+              {
+                MerchantText = rule.MerchantText,
+                TransactionGroupName = groups.FirstOrDefault(group => group.Id == rule.TransactionGroupId)?.Name ?? string.Empty
+              })
+              .Where(rule => !string.IsNullOrEmpty(rule.TransactionGroupName))
+              .ToList(),
             UserId = result.UserId,
             CorrelationId = result.CorrelationId
           };

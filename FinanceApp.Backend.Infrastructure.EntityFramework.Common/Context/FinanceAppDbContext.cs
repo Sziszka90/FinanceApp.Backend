@@ -12,6 +12,7 @@ public abstract class FinanceAppDbContext : DbContext
   public DbSet<ExchangeRate> ExchangeRate => Set<ExchangeRate>();
   public DbSet<User> User => Set<User>();
   public DbSet<BankStatementPrompt> BankStatementPrompt => Set<BankStatementPrompt>();
+  public DbSet<CategorizationRule> CategorizationRule => Set<CategorizationRule>();
 
   protected FinanceAppDbContext(
     DbContextOptions options) : base(options)

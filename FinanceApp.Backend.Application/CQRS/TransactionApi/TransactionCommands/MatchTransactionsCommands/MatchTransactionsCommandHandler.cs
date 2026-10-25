@@ -3,6 +3,7 @@ using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstractions.CQRS;
 using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.TransactionApi.TransactionCommands.MatchTransactionsCommands;
@@ -13,6 +14,7 @@ public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactions
   private readonly IUserRepository _userRepository;
   private readonly ITransactionRepository _transactionRepository;
   private readonly ITransactionGroupRepository _transactionGroupRepository;
+  private readonly IRepository<CategorizationRule> _categorizationRules;
   private readonly IUnitOfWork _unitOfWork;
   private readonly ISignalRService _signalRService;
 
@@ -21,6 +23,7 @@ public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactions
     IUserRepository userRepository,
     ITransactionRepository transactionRepository,
     ITransactionGroupRepository transactionGroupRepository,
+    IRepository<CategorizationRule> categorizationRules,
     IUnitOfWork unitOfWork,
     ISignalRService signalRService)
   {
@@ -28,6 +31,7 @@ public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactions
     _userRepository = userRepository;
     _transactionRepository = transactionRepository;
     _transactionGroupRepository = transactionGroupRepository;
+    _categorizationRules = categorizationRules;
     _unitOfWork = unitOfWork;
     _signalRService = signalRService;
   }
@@ -45,6 +49,11 @@ public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactions
 
     var existingTransactionGroups = await _transactionGroupRepository.GetAllByUserIdAsync(user.Id, noTracking: false, cancellationToken: cancellationToken);
     var existingTransactions = await _transactionRepository.GetAllByUserIdAsync(user.Id, noTracking: false, cancellationToken: cancellationToken);
+    var categorizationRules = await _categorizationRules.GetAllAsync(rule => rule.UserId == user.Id,
+      noTracking: true, cancellationToken: cancellationToken) ?? [];
+    categorizationRules = categorizationRules
+      .OrderByDescending(rule => rule.MerchantText.Length)
+      .ToList();
 
     if (existingTransactions.Count == 0)
     {
@@ -69,10 +78,14 @@ public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactions
     foreach (var transaction in existingTransactions)
     {
       var matchedGroup = matchedTransactions.GetValueOrDefault(transaction.Name);
+      var rule = categorizationRules.FirstOrDefault(item =>
+        transaction.Name.Contains(item.MerchantText, StringComparison.OrdinalIgnoreCase));
+      var group = rule is null
+        ? existingTransactionGroups.FirstOrDefault(item => item.Name == matchedGroup)
+        : existingTransactionGroups.FirstOrDefault(item => item.Id == rule.TransactionGroupId);
 
-      if (matchedGroup != null)
+      if (group is not null)
       {
-        var group = existingTransactionGroups.FirstOrDefault(tg => tg.Name == matchedGroup);
         transaction.TransactionGroup = group;
       }
     }

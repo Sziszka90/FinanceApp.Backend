@@ -16,4 +16,9 @@ public class ExchangeRateSettings
   /// The API endpoint template for fetching historical exchange rates. Use {date} for YYYY-MM-DD.
   /// </summary>
   public string HistoricalEndpoint { get; set; } = string.Empty;
+
+  /// <summary>
+  /// The API endpoint template for a bounded historical rate range. Use {startDate} and {date}.
+  /// </summary>
+  public string HistoricalRangeEndpoint { get; set; } = string.Empty;
 }

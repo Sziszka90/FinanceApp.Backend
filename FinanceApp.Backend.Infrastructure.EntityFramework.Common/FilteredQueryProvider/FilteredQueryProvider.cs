@@ -25,13 +25,24 @@ public class FilteredQueryProvider : IFilteredQueryProvider
   /// <inheritdoc />
   public IQueryable<T> Query<T>() where T : BaseEntity
   {
-    var userEmail = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
-
     var set = _dbContext.Set<T>();
-
-    if (userEmail == null || !typeof(IUserOwned).IsAssignableFrom(typeof(T)))
+    if (!typeof(IUserOwned).IsAssignableFrom(typeof(T)))
     {
       return set;
+    }
+
+    var httpContext = _httpContextAccessor?.HttpContext;
+    if (httpContext is null)
+    {
+      // Background consumers have no HTTP identity; they must scope queries explicitly by owner ID.
+      return set;
+    }
+
+    var userEmail = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrWhiteSpace(userEmail))
+    {
+      // Fail closed for HTTP requests without an authenticated user claim.
+      return set.Where(_ => false);
     }
 
     var predicate = WhereUserEmail<T>(userEmail);
