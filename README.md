@@ -10,13 +10,16 @@ This project is a full-stack personal finance application designed to help users
 
 - Login, registration, password reset with JWT integration and email confirmation
 - User profile where users can set their preferred currency
+- User-managed merchant categorization rules and bank-specific PDF statement prompts
 - JWT-based authentication with token caching and invalidation, using HTTP-only cookies for security reasons
 - Separated tokens for password reset, login and email confirmation
 
 ✅ **Transactions**
 
-- Create, read, update, delete transactions with input validation
-- Import bank statement PDFs with Azure OpenAI extraction, backend reconciliation, and asynchronous transaction group matching through RabbitMQ and SignalR
+- Create, read, update, and delete transactions with input validation
+- Cursor-paginated transaction search with filters for name, date, type, and transaction group
+- Import bank statement PDFs with Azure OpenAI extraction, backend reconciliation, and asynchronous categorization through RabbitMQ and SignalR
+- Track PDF imports by correlation ID and query their queued, processing, completed, or failed status
 
 ✅ **Transaction Groups**
 
@@ -71,14 +74,14 @@ For detailed upcoming features and development progress, please check our [GitHu
 
 ## 💻 Tech Stack
 
-- **ASP.NET Core 8** - Web API framework
+- **ASP.NET Core 10** - Web API framework
 - **Mapperly** - Compile-time object-to-object mapping
 - **FluentValidation** - Input validation
 - **MediatR** - CQRS implementation
 - **JWT & HTTP Only Cookies** - Authentication & authorization
 - **Swagger/OpenAPI** - API documentation
 - **SignalR** - Push notifications
-- **Entity Framework Core** - ORM with Code-First migrations
+- **Entity Framework Core 10** - ORM with Code-First migrations
 - **Microsoft SQL Server** - Primary production database with full ACID compliance
 - **SQLite** - Lightweight database for development and testing environments
 - **Redis** - High-performance in-memory caching and session management
@@ -125,12 +128,14 @@ DELETE /api/v1/users/{id}                       # Delete user by ID (requires au
 
 ```http
 GET    /api/v1/transactions                 # Get all transactions (requires auth)
+GET    /api/v1/transactions/page            # Cursor-paginated transactions; accepts name, date, type, and group-name filters (requires auth)
 GET    /api/v1/transactions/{id}            # Get transaction by ID (requires auth)
 POST   /api/v1/transactions                 # Create new transaction (requires auth)
 PUT    /api/v1/transactions/{id}            # Update transaction (requires auth)
 DELETE /api/v1/transactions/{id}            # Delete transaction (requires auth)
 GET    /api/v1/transactions/summary         # Get transaction summary/analytics (requires auth)
 POST   /api/v1/transactions/import          # PDF upload; returns 202 with correlation ID (requires auth)
+GET    /api/v1/transactions/import/{correlationId}/status # Read PDF import status (requires auth)
 ```
 
 ### **Transaction Group Endpoints**
@@ -144,6 +149,17 @@ DELETE /api/v1/transactiongroups/{id}       # Delete transaction group (requires
 GET    /api/v1/transactiongroups/top        # Get top transaction groups (requires auth)
 ```
 
+### **Categorization Rule Endpoints**
+
+```http
+GET    /api/v1/categorizationrules          # Get the active user's rules (requires auth)
+POST   /api/v1/categorizationrules          # Create a merchant-to-group rule (requires auth)
+PUT    /api/v1/categorizationrules/{id}     # Update a rule (requires auth)
+DELETE /api/v1/categorizationrules/{id}     # Delete a rule (requires auth)
+```
+
+Rules match text in transaction descriptions during categorization. When multiple rules match, the longest matching merchant text takes precedence.
+
 ### **Wakeup Endpoints**
 
 ```http
@@ -152,9 +168,7 @@ POST   /api/v1/wakeup                       # Wakeup endpoint to wakeup cloud se
 
 ## 🧪 Testing and Quality
 
-All unit and integration tests are run automatically in the CI/CD pipeline.  
-Test coverage is checked in each build and is consistently above **80%**.
-Code quality is enforced using linting tools to ensure consistent style and catch potential errors.
+Unit and integration tests, coverage reports, and lint checks run in the CI/CD pipeline. Coverage varies by build; the generated report is the source of the current coverage figures.
 
 ## 🚀 Deployment
 
