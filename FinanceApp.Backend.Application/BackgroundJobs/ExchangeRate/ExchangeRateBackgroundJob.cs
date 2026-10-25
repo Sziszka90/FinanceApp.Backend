@@ -163,10 +163,14 @@ public class ExchangeRateBackgroundJob : BackgroundService
           ?? throw new InvalidOperationException("Exchange-rate refresh state is missing. Apply database migrations before starting the service.");
         var exchangeRateRepository = checkScope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
         var savedRates = await exchangeRateRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
+        var retryEmptyDatabaseOnStartup = savedRates.Count == 0
+          && state.NextAttemptAt.HasValue
+          && state.NextAttemptAt.Value > DateTimeOffset.UtcNow;
 
         if (state.Created != ExchangeRateRefreshState.MigrationSeedTimestamp
           && state.NextAttemptAt.HasValue
-          && (state.LastSuccessfulRefreshAt.HasValue || savedRates.Count == 0))
+          && (state.LastSuccessfulRefreshAt.HasValue || savedRates.Count == 0)
+          && !retryEmptyDatabaseOnStartup)
         {
           return;
         }
@@ -202,6 +206,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
         var savedRates = await exchangeRateRepository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
         var saveChanges = false;
         var lastSuccessfulRefreshAt = state.LastSuccessfulRefreshAt;
+        var now = DateTimeOffset.UtcNow;
 
         if (state.Created == ExchangeRateRefreshState.MigrationSeedTimestamp)
         {
@@ -221,7 +226,13 @@ public class ExchangeRateBackgroundJob : BackgroundService
             ?? (savedRates.Count > 0 ? savedRates.Max(rate => rate.ValidFrom) : null);
           state.NextAttemptAt = scheduleAnchor.HasValue
             ? scheduleAnchor.Value.Add(_refreshInterval)
-            : DateTimeOffset.UtcNow;
+            : now;
+          saveChanges = true;
+        }
+
+        if (savedRates.Count == 0 && state.NextAttemptAt > now)
+        {
+          state.NextAttemptAt = now;
           saveChanges = true;
         }
 
