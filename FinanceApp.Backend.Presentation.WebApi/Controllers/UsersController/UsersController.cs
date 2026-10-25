@@ -43,7 +43,10 @@ public class UsersController : ControllerBase
   {
     var result = await _mediator.Send(new ConfirmUserEmailCommand(id, token, cancellationToken));
     var frontendBaseUrl = _applicationUrls.FrontendBaseUrl.TrimEnd('/');
-    return this.RedirectToUrl(result, $"{frontendBaseUrl}/login", $"{frontendBaseUrl}/validation-failed");
+    return this.RedirectToUrl(
+      result,
+      $"{frontendBaseUrl}/login?emailConfirmed=true",
+      $"{frontendBaseUrl}/validation-failed");
   }
 
   [HttpPost("email-confirmation")]
