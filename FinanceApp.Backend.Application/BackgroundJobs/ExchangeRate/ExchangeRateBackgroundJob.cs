@@ -10,10 +10,10 @@ namespace FinanceApp.Backend.Application.BackgroundJobs.ExchangeRate;
 
 public class ExchangeRateBackgroundJob : BackgroundService
 {
-  private static readonly TimeSpan RefreshInterval = TimeSpan.FromDays(7);
-  private static readonly TimeSpan FailureRetryInterval = TimeSpan.FromDays(1);
-  private static readonly TimeSpan LockLeaseDuration = TimeSpan.FromMinutes(2);
-  private static readonly TimeSpan LockRetryDelay = TimeSpan.FromSeconds(30);
+  private static readonly TimeSpan _refreshInterval = TimeSpan.FromDays(7);
+  private static readonly TimeSpan _failureRetryInterval = TimeSpan.FromDays(1);
+  private static readonly TimeSpan _lockLeaseDuration = TimeSpan.FromMinutes(2);
+  private static readonly TimeSpan _lockRetryDelay = TimeSpan.FromSeconds(30);
 
   private readonly ILogger<ExchangeRateBackgroundJob> _logger;
   private readonly IServiceProvider _serviceProvider;
@@ -53,19 +53,19 @@ public class ExchangeRateBackgroundJob : BackgroundService
         IExchangeRateRefreshLease? lease;
         try
         {
-          lease = await _refreshLock.TryAcquireAsync(LockLeaseDuration, cancellationToken);
+          lease = await _refreshLock.TryAcquireAsync(_lockLeaseDuration, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-          _logger.LogError(ex, "Could not acquire the exchange-rate refresh lease; retrying in {RetryDelay}", LockRetryDelay);
-          await Task.Delay(LockRetryDelay, cancellationToken);
+          _logger.LogError(ex, "Could not acquire the exchange-rate refresh lease; retrying in {RetryDelay}", _lockRetryDelay);
+          await Task.Delay(_lockRetryDelay, cancellationToken);
           continue;
         }
 
         if (lease is null)
         {
           // Another replica owns the refresh. Re-read shared state shortly instead of starting a local weekly timer.
-          await Task.Delay(LockRetryDelay, cancellationToken);
+          await Task.Delay(_lockRetryDelay, cancellationToken);
           continue;
         }
 
@@ -82,7 +82,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
           catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
           {
             _logger.LogWarning("Lost the exchange-rate refresh lease; another replica may retry after the lease expires.");
-            await Task.Delay(LockRetryDelay, cancellationToken);
+            await Task.Delay(_lockRetryDelay, cancellationToken);
           }
           catch (Exception ex) when (ex is not OperationCanceledException)
           {
@@ -140,14 +140,14 @@ public class ExchangeRateBackgroundJob : BackgroundService
 
     if (state.LastSuccessfulRefreshAt.HasValue)
     {
-      return state.LastSuccessfulRefreshAt.Value.Add(RefreshInterval);
+      return state.LastSuccessfulRefreshAt.Value.Add(_refreshInterval);
     }
 
     var repository = scope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
     var savedRates = await repository.GetAllAsync(noTracking: true, cancellationToken: cancellationToken);
     return savedRates.Count == 0
       ? DateTimeOffset.UtcNow
-      : savedRates.Max(rate => rate.ValidFrom).Add(RefreshInterval);
+      : savedRates.Max(rate => rate.ValidFrom).Add(_refreshInterval);
   }
 
   private async Task RefreshIfDueAsync(IExchangeRateRefreshLease lease, CancellationToken cancellationToken)
@@ -185,7 +185,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
 
     var refreshedAt = DateTimeOffset.UtcNow;
     state.LastSuccessfulRefreshAt = refreshedAt;
-    state.NextAttemptAt = refreshedAt.Add(RefreshInterval);
+    state.NextAttemptAt = refreshedAt.Add(_refreshInterval);
     await exchangeRateRepository.BatchCreateExchangeRatesAsync(rates.Data, refreshCancellationToken);
     lease.ThrowIfLost();
     await unitOfWork.SaveChangesAsync(refreshCancellationToken);
@@ -213,7 +213,7 @@ public class ExchangeRateBackgroundJob : BackgroundService
       var state = await stateRepository.GetByIdAsync(ExchangeRateRefreshState.SingletonId, noTracking: false,
         cancellationToken: cancellationToken)
         ?? throw new InvalidOperationException("Exchange-rate refresh state is missing. Apply database migrations before starting the service.");
-      state.NextAttemptAt = DateTimeOffset.UtcNow.Add(FailureRetryInterval);
+      state.NextAttemptAt = DateTimeOffset.UtcNow.Add(_failureRetryInterval);
       await unitOfWork.SaveChangesAsync(cancellationToken);
     }
     catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)

@@ -6,7 +6,7 @@ namespace FinanceApp.Backend.Infrastructure.Cache;
 
 public sealed class RedisExchangeRateRefreshLock : IExchangeRateRefreshLock
 {
-  private static readonly TimeSpan RenewalInterval = TimeSpan.FromSeconds(30);
+  private static readonly TimeSpan _renewalInterval = TimeSpan.FromSeconds(30);
   private readonly IDatabase _database;
   private readonly string _lockKey;
 
@@ -23,7 +23,7 @@ public sealed class RedisExchangeRateRefreshLock : IExchangeRateRefreshLock
     cancellationToken.ThrowIfCancellationRequested();
     var ownerToken = Guid.NewGuid().ToString("N");
     var acquired = await _database.LockTakeAsync(_lockKey, ownerToken, leaseDuration);
-    return acquired ? new RedisExchangeRateRefreshLease(_database, _lockKey, ownerToken, leaseDuration, RenewalInterval) : null;
+    return acquired ? new RedisExchangeRateRefreshLease(_database, _lockKey, ownerToken, leaseDuration, _renewalInterval) : null;
   }
 }
 
