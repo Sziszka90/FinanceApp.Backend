@@ -39,7 +39,7 @@ internal sealed class FinanceAppKeyVaultSecretManager : KeyVaultSecretManager
     {
       ["cache-connection-string"] = "CacheSettings:ConnectionString",
       ["finance-app-db-connection-string"] = "ConnectionStrings:MsSql",
-      ["llm-processor-api-token"] = "LLMProcessorSettings:Token",
+      ["ai-analytics-api-token"] = "AIAnalyticsSettings:Token",
       ["openai-api-key"] = "OpenAISettings:ApiKey",
       ["rabbitmq-password"] = "RabbitMqSettings:Password",
       ["redis-password"] = "RedisSettings:Password",

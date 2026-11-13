@@ -1,5 +1,5 @@
 using System.Text.Json;
-using FinanceApp.Backend.Application.Dtos.LLMProcessorDtos;
+using FinanceApp.Backend.Application.Dtos.AIAnalyticsDtos;
 using FinanceApp.Backend.Application.Dtos.RabbitMQDtos;
 
 namespace FinanceApp.Backend.Testing.Unit.ClientTests;

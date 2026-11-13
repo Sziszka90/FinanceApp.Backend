@@ -27,7 +27,7 @@ This project is a full-stack personal finance application designed to help users
 
 ✅ **MCP endpoint**
 
-- Standardized MCP endpoint to call backend tools to provide data to user via LLMProcessor Service
+- Standardized MCP endpoint to call backend tools to provide data to users through the AI Analytics service
 
 ✅ **Currency Exchange**
 
@@ -196,7 +196,7 @@ The following Key Vault secret names are mapped into the existing application co
 | ---------------------------------- | ---------------------------------- |
 | `cache-connection-string`          | `CacheSettings:ConnectionString`   |
 | `finance-app-db-connection-string` | `ConnectionStrings:MsSql`          |
-| `llm-processor-api-token`          | `LLMProcessorSettings:Token`       |
+| `ai-analytics-api-token`          | `AIAnalyticsSettings:Token`       |
 | `openai-api-key`                   | `OpenAISettings:ApiKey`            |
 | `rabbitmq-password`                | `RabbitMqSettings:Password`        |
 | `redis-password`                   | `RedisSettings:Password`           |

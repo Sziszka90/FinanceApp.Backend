@@ -8,14 +8,14 @@ builder.AddProject(
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development");
 
 builder.AddExecutable(
-    name: "finance-app-llmprocessor",
+    name: "finance-app-aianalytics",
     command: "uv",
     args: new[]
     {
       "run", "--env-file", ".env.local", "--no-sync", "uvicorn",
       "main:app", "--host", "0.0.0.0", "--port", "8000"
     },
-    workingDirectory: "../../FinanceApp.LLMProcessor")
+    workingDirectory: "../../FinanceApp.AIAnalytics")
     .WithHttpEndpoint(port: 8000, targetPort: 8000, name: "http", isProxied: false);
 
 builder.AddExecutable(

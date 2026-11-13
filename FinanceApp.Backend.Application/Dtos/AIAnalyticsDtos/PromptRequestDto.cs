@@ -1,4 +1,4 @@
-namespace FinanceApp.Backend.Application.Dtos.LLMProcessorDtos;
+namespace FinanceApp.Backend.Application.Dtos.AIAnalyticsDtos;
 
 public class PromptRequestDto
 {

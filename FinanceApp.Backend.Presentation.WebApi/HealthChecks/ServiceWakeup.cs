@@ -9,16 +9,16 @@ public class ServiceWakeup
 {
   private readonly FinanceAppDbContext _dbContext;
   private readonly IDistributedCache _cache;
-  private readonly ILLMProcessorClient _llmProcessorClient;
+  private readonly IAIAnalyticsClient _aiAnalyticsClient;
 
   public ServiceWakeup(
     FinanceAppDbContext dbContext,
     IDistributedCache cache,
-    ILLMProcessorClient llmProcessorClient)
+    IAIAnalyticsClient aiAnalyticsClient)
   {
     _dbContext = dbContext;
     _cache = cache;
-    _llmProcessorClient = llmProcessorClient;
+    _aiAnalyticsClient = aiAnalyticsClient;
   }
 
   public async Task<bool> WakeupAsync()
@@ -79,7 +79,7 @@ public class ServiceWakeup
     {
       llmOk = await retryPolicy.ExecuteAsync(async () =>
       {
-        var response = await _llmProcessorClient.WakeupAsync();
+        var response = await _aiAnalyticsClient.WakeupAsync();
         return response.Data;
       });
     }

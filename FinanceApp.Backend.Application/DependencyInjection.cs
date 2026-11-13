@@ -77,11 +77,11 @@ public static class DependencyInjection
       client.DefaultRequestHeaders.Add("Accept", "application/json");
     });
 
-    services.AddHttpClient<ILLMProcessorClient, LLMProcessorClient>((sp, client) =>
+    services.AddHttpClient<IAIAnalyticsClient, AIAnalyticsClient>((sp, client) =>
     {
-      var llmProcessorSettings = sp.GetRequiredService<IOptions<LLMProcessorSettings>>().Value;
-      client.BaseAddress = new Uri(llmProcessorSettings.ApiUrl);
-      client.DefaultRequestHeaders.Add("Authorization", $"Bearer {llmProcessorSettings.Token}");
+      var aiAnalyticsSettings = sp.GetRequiredService<IOptions<AIAnalyticsSettings>>().Value;
+      client.BaseAddress = new Uri(aiAnalyticsSettings.ApiUrl);
+      client.DefaultRequestHeaders.Add("Authorization", $"Bearer {aiAnalyticsSettings.Token}");
       client.DefaultRequestHeaders.Add("Accept", "application/json");
     });
     return services;

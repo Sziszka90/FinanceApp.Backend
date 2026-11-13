@@ -71,8 +71,8 @@ public class MatchTransactionsCommandHandler : ICommandHandler<MatchTransactions
     if (!request.ResponseDto.Success || matchedTransactions is null || matchedTransactions.Count == 0)
     {
       var error = request.ResponseDto.Error ?? "Transaction matching failed.";
-      _logger.LogError("LLM Processor failed to match transactions: {Error}", error);
-      return Result.Failure<bool>(ApplicationError.LLMProcessorRequestError(error));
+      _logger.LogError("AI Analytics failed to match transactions: {Error}", error);
+      return Result.Failure<bool>(ApplicationError.AIAnalyticsRequestError(error));
     }
 
     foreach (var transaction in existingTransactions)

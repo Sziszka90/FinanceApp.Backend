@@ -145,7 +145,7 @@ public static class ApiExtensions
     var exchangeRateSection = builder.Configuration.GetSection("ExchangeRateSettings");
     var smtpSection = builder.Configuration.GetSection("SmtpSettings");
     var rabbitMqSection = builder.Configuration.GetSection("RabbitMqSettings");
-    var llmProcessorSection = builder.Configuration.GetSection("LLMProcessorSettings");
+    var aiAnalyticsSection = builder.Configuration.GetSection("AIAnalyticsSettings");
     var cacheSection = builder.Configuration.GetSection("CacheSettings");
     var applicationUrlsSection = builder.Configuration.GetSection("ApplicationUrls");
 
@@ -154,7 +154,7 @@ public static class ApiExtensions
     builder.Services.Configure<SmtpSettings>(smtpSection);
     builder.Services.Configure<RabbitMqSettings>(rabbitMqSection);
     builder.Services.Configure<CacheSettings>(cacheSection);
-    builder.Services.Configure<LLMProcessorSettings>(llmProcessorSection);
+    builder.Services.Configure<AIAnalyticsSettings>(aiAnalyticsSection);
     builder.Services.Configure<ApplicationUrlsSettings>(applicationUrlsSection);
 
     return builder;

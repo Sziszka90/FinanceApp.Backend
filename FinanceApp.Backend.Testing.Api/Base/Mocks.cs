@@ -122,10 +122,10 @@ public static class Mocks
     services.AddSingleton(exchangeRateServiceMock.Object);
   }
 
-  public static void RegisterLLMProcessorClientMock(this IServiceCollection services)
+  public static void RegisterAIAnalyticsClientMock(this IServiceCollection services)
   {
-    var llmProcessorClientMock = new Mock<ILLMProcessorClient>();
+    var aiAnalyticsClientMock = new Mock<IAIAnalyticsClient>();
 
-    services.AddSingleton(llmProcessorClientMock.Object);
+    services.AddSingleton(aiAnalyticsClientMock.Object);
   }
 }

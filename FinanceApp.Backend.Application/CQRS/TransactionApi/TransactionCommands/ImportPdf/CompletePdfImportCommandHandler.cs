@@ -97,7 +97,7 @@ public class CompletePdfImportCommandHandler : ICommandHandler<CompletePdfImport
         result.Error ?? "PDF extraction failed.", cancellationToken);
       await _signalR.SendToClientGroupMethodAsync(user.Email.ToString(), HubConstants.TRANSACTIONS_IMPORT_FAILED_NOTIFICATION,
         JsonSerializer.Serialize(new { correlationId = result.CorrelationId, reason = result.Error ?? "PDF extraction failed." }));
-      return Result.Failure<bool>(ApplicationError.LLMProcessorRequestError(result.Error ?? "PDF extraction failed."));
+      return Result.Failure<bool>(ApplicationError.AIAnalyticsRequestError(result.Error ?? "PDF extraction failed."));
     }
 
     var transactionsSaved = false;

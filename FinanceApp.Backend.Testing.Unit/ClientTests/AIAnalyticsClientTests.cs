@@ -8,7 +8,7 @@ using Moq.Protected;
 
 namespace FinanceApp.Backend.Testing.Unit.ClientTests;
 
-public class LLMProcessorClientTests : TestBase
+public class AIAnalyticsClientTests : TestBase
 {
   [Fact]
   public async Task WakeupAsync_PostsToWakeupEndpoint()
@@ -22,9 +22,9 @@ public class LLMProcessorClientTests : TestBase
       .Callback<HttpRequestMessage, CancellationToken>((request, _) => requestUri = request.RequestUri?.ToString())
       .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
-    var client = new LLMProcessorClient(
-      new Mock<ILogger<ILLMProcessorClient>>().Object,
-      new HttpClient(HttpMessageHandlerMock.Object) { BaseAddress = new Uri("https://api.llmprocessor.com/") });
+    var client = new AIAnalyticsClient(
+      new Mock<ILogger<IAIAnalyticsClient>>().Object,
+      new HttpClient(HttpMessageHandlerMock.Object) { BaseAddress = new Uri("https://api.aianalytics.com/") });
 
     // act
     var result = await client.WakeupAsync();

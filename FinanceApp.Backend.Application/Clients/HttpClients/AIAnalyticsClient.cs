@@ -5,10 +5,10 @@ using Microsoft.Extensions.Logging;
 
 namespace FinanceApp.Backend.Application.Clients;
 
-public class LLMProcessorClient : HttpClientBase<ILLMProcessorClient>, ILLMProcessorClient
+public class AIAnalyticsClient : HttpClientBase<IAIAnalyticsClient>, IAIAnalyticsClient
 {
-  public LLMProcessorClient(
-    ILogger<ILLMProcessorClient> logger,
+  public AIAnalyticsClient(
+    ILogger<IAIAnalyticsClient> logger,
     HttpClient httpClient) : base(logger, httpClient)
   { }
 

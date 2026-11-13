@@ -23,7 +23,7 @@ if command -v brew >/dev/null 2>&1; then
   fi
 fi
 
-echo "Starting Aspire AppHost (Backend, Frontend, and LLM Processor)..."
+echo "Starting Aspire AppHost (Backend, Frontend, and AI Analytics)..."
 export DOTNET_ENVIRONMENT=Development
 export ASPNETCORE_ENVIRONMENT=Development
 exec dotnet run --project "$PROJECT_PATH" -- "$@"

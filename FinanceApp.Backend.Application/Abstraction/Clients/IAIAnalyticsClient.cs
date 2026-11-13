@@ -2,10 +2,10 @@ using FinanceApp.Backend.Application.Models;
 
 namespace FinanceApp.Backend.Application.Abstraction.Clients;
 
-public interface ILLMProcessorClient
+public interface IAIAnalyticsClient
 {
   /// <summary>
-  /// Wakeup LLM Processor service.
+  /// Wakeup AI Analytics service.
   /// </summary>
   /// <returns>True if the service is awake, false otherwise.</returns>
   Task<Result<bool>> WakeupAsync();

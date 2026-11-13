@@ -91,8 +91,8 @@ public class ApplicationError
   public const string TRANSACTION_GROUP_IS_USED_MESSAGE = "Transaction group is used by transactions.";
   public const string TRANSACTION_GROUP_IS_USED_CODE = "TRANSACTION_GROUP_IS_USED";
 
-  public const string LLM_PROCESSOR_REQUEST_MESSAGE = "LLM Processor request error.";
-  public const string LLM_PROCESSOR_REQUEST_CODE = "LLM_PROCESSOR_REQUEST_ERROR";
+  public const string AI_ANALYTICS_REQUEST_MESSAGE = "AI Analytics request error.";
+  public const string AI_ANALYTICS_REQUEST_CODE = "AI_ANALYTICS_REQUEST_ERROR";
 
   public const string TOKEN_EXPIRED_MESSAGE = "Token is expired.";
   public const string TOKEN_EXPIRED_CODE = "TOKEN_EXPIRED";
@@ -430,12 +430,12 @@ public class ApplicationError
   }
 
   /// <summary>
-  /// Error during LLM Processor request
+  /// Error during AI Analytics request
   /// </summary>
   /// <returns>ApplicationError</returns>
-  public static ApplicationError LLMProcessorRequestError(string message)
+  public static ApplicationError AIAnalyticsRequestError(string message)
   {
-    return new ApplicationError(LLM_PROCESSOR_REQUEST_MESSAGE, LLM_PROCESSOR_REQUEST_CODE, new Dictionary<string, object>
+    return new ApplicationError(AI_ANALYTICS_REQUEST_MESSAGE, AI_ANALYTICS_REQUEST_CODE, new Dictionary<string, object>
     {
       { "message", message }
     });
