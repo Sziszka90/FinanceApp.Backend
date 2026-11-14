@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Asp.Versioning;
 using FinanceApp.Backend.Application.Abstraction.Services;
+using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Application.Dtos.AIAnalytics;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.DeleteTransaction;
@@ -26,11 +28,39 @@ public class TransactionsController : ControllerBase
 {
   private readonly IMediator _mediator;
   private readonly IPdfImportStatusStore _importStatuses;
+  private readonly IAIAnalyticsClient _aiAnalyticsClient;
 
-  public TransactionsController(IMediator mediator, IPdfImportStatusStore importStatuses)
+  public TransactionsController(IMediator mediator, IPdfImportStatusStore importStatuses, IAIAnalyticsClient aiAnalyticsClient)
   {
     _mediator = mediator;
     _importStatuses = importStatuses;
+    _aiAnalyticsClient = aiAnalyticsClient;
+  }
+
+  [HttpPost("monthly-insights")]
+  public async Task<ActionResult<MonthlyInsightsResponseDto>> GetMonthlyInsights(
+    [FromBody] MonthlyInsightsRequestDto request,
+    CancellationToken cancellationToken)
+  {
+    var authorization = Request.Headers["Authorization"].ToString();
+    var accessToken = authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+      ? authorization[7..].Trim()
+      : Request.Cookies["Token"];
+
+    if (string.IsNullOrWhiteSpace(accessToken))
+    {
+      return Unauthorized();
+    }
+
+    try
+    {
+      var response = await _aiAnalyticsClient.GenerateMonthlyInsightsAsync(request, accessToken, cancellationToken);
+      return Ok(response);
+    }
+    catch (HttpRequestException)
+    {
+      return StatusCode(StatusCodes.Status502BadGateway, new { message = "Monthly AI insights are temporarily unavailable." });
+    }
   }
 
   [HttpGet("summary")]

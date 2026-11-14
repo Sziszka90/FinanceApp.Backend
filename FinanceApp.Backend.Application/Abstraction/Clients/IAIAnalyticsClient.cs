@@ -1,4 +1,5 @@
 using FinanceApp.Backend.Application.Models;
+using FinanceApp.Backend.Application.Dtos.AIAnalytics;
 
 namespace FinanceApp.Backend.Application.Abstraction.Clients;
 
@@ -9,5 +10,10 @@ public interface IAIAnalyticsClient
   /// </summary>
   /// <returns>True if the service is awake, false otherwise.</returns>
   Task<Result<bool>> WakeupAsync();
+
+  Task<MonthlyInsightsResponseDto> GenerateMonthlyInsightsAsync(
+    MonthlyInsightsRequestDto request,
+    string userAccessToken,
+    CancellationToken cancellationToken);
 
 }

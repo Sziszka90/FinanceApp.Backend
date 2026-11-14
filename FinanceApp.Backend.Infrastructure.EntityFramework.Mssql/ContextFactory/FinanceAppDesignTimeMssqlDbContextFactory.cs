@@ -12,6 +12,8 @@ public class FinanceAppMssqlDbContextFactory : IDesignTimeDbContextFactory<Finan
     var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.Database.json", optional: false)
+    .AddJsonFile("appsettings.Database.Local.json", optional: true)
+    .AddEnvironmentVariables()
     .Build();
 
     var optionsBuilder = new DbContextOptionsBuilder<FinanceAppMssqlDbContext>();

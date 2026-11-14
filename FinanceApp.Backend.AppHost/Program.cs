@@ -16,12 +16,13 @@ builder.AddExecutable(
       "main:app", "--host", "0.0.0.0", "--port", "8000"
     },
     workingDirectory: "../../FinanceApp.AIAnalytics")
+    .WithEnvironment("MCP_API_BASE_URL", "http://localhost:65029/api/v1/mcp")
     .WithHttpEndpoint(port: 8000, targetPort: 8000, name: "http", isProxied: false);
 
 builder.AddExecutable(
     name: "finance-app-frontend",
     command: "npm",
-    args: new[] { "run", "start", "--", "--host", "0.0.0.0", "--port", "4200" },
+    args: new[] { "run", "start", "--", "--host", "0.0.0.0", "--port", "4200", "--poll", "1000" },
     workingDirectory: "../../FinanceApp.Frontend")
     .WithHttpEndpoint(port: 4200, targetPort: 4200, name: "http", isProxied: false);
 

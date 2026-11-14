@@ -7,7 +7,7 @@ namespace FinanceApp.Backend.Application.Clients.HttpClients;
 
 public abstract class HttpClientBase<T> : IHttpClientBase
 {
-  private readonly ILogger<T> _logger;
+  protected readonly ILogger<T> _logger;
   protected readonly HttpClient _httpClient;
   private readonly JsonSerializerOptions _options = new JsonSerializerOptions
   {

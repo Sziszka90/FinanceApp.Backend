@@ -75,7 +75,7 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
       if (_cacheReady && await _cache.GetAsync(cacheKey, cancellationToken) is byte[] ratesBytes)
       {
         var rates = System.Text.Json.JsonSerializer.Deserialize<List<ExchangeRate>>(ratesBytes);
-        var cached = SelectExactRate(rates, transactionDate, fromCurrency, toCurrency);
+        var cached = SelectRateOnOrBefore(rates, transactionDate, fromCurrency, toCurrency);
         if (cached is not null)
         {
           return Result.Success(cached);
@@ -90,7 +90,7 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
     using var scope = _scopeFactory.CreateScope();
     var repository = scope.ServiceProvider.GetRequiredService<IExchangeRateRepository>();
     var allRates = await repository.GetExchangeRatesAsync(noTracking: true, cancellationToken: cancellationToken);
-    var saved = SelectExactRate(allRates, transactionDate, fromCurrency, toCurrency);
+    var saved = SelectRateOnOrBefore(allRates, transactionDate, fromCurrency, toCurrency);
     if (saved is null)
     {
       try
@@ -149,13 +149,14 @@ public class ExchangeRateCacheManager : IExchangeRateCacheManager
     return Result.Success(saved);
   }
 
-  private static ExchangeRate? SelectExactRate(IEnumerable<ExchangeRate>? rates, DateTimeOffset transactionDate,
+  private static ExchangeRate? SelectRateOnOrBefore(IEnumerable<ExchangeRate>? rates, DateTimeOffset transactionDate,
     string fromCurrency, string toCurrency)
   {
     var postingDay = DateOnly.FromDateTime(transactionDate.Date);
     return rates?
       .Where(rate => rate.BaseCurrency == fromCurrency && rate.TargetCurrency == toCurrency && rate.Rate > 0 &&
-                     DateOnly.FromDateTime(rate.ValidFrom.UtcDateTime) == postingDay)
+                     DateOnly.FromDateTime(rate.ValidFrom.UtcDateTime) <= postingDay)
+      .OrderByDescending(rate => rate.ValidFrom)
       .FirstOrDefault();
   }
 }
