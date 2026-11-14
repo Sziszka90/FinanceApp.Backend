@@ -176,6 +176,23 @@ public class TransactionRepository : GenericRepository<Transaction>, ITransactio
     return await query.ToListAsync(cancellationToken);
   }
 
+  public async Task<List<Transaction>> GetTransactionsByDateRangeAsync(
+    Guid userId,
+    DateTimeOffset startDate,
+    DateTimeOffset endDateExclusive,
+    CancellationToken cancellationToken = default)
+  {
+    return await _dbContext.Transaction
+      .AsNoTracking()
+      .Include(transaction => transaction.TransactionGroup)
+      .Where(transaction => transaction.UserId == userId &&
+                            transaction.TransactionDate >= startDate &&
+                            transaction.TransactionDate < endDateExclusive)
+      .OrderBy(transaction => transaction.TransactionDate)
+      .ThenBy(transaction => transaction.Id)
+      .ToListAsync(cancellationToken);
+  }
+
   public async Task<List<Transaction>> GetTransactionsByTopTransactionGroups(
     DateTimeOffset startDate,
     DateTimeOffset endDate,

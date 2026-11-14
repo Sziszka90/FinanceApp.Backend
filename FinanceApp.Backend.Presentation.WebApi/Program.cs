@@ -4,7 +4,11 @@ using FinanceApp.Backend.Infrastructure;
 using FinanceApp.Backend.Presentation.WebApi.Extensions;
 using FinanceApp.Backend.Presentation.WebApi.HealthChecks;
 using FinanceApp.Backend.Presentation.WebApi.Middlewares;
+using FinanceApp.Backend.Presentation.WebApi.Mcp;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using ModelContextProtocol.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,9 @@ builder.SetupApi(builder.Configuration);
 builder.AddSwagger();
 
 builder.Services.AddApplication(builder.Configuration);
+builder.Services.AddMcpServer()
+    .WithHttpTransport(options => options.SessionMode = HttpServerSessionMode.Stateless)
+    .WithTools<FinanceMcpTools>();
 
 if (builder.Environment.IsTesting())
 {
@@ -75,6 +82,9 @@ app.MapPost("/api/v{version:apiVersion}/wakeup", async (IServiceProvider service
 app.MapHub<NotificationHub>("/notificationHub")
    .RequireAuthorization()
    .RequireCors("AllowAllOrigins");
+
+app.MapMcp("/api/v1/mcp")
+   .RequireAuthorization();
 
 app.Run();
 

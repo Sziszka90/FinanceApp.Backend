@@ -25,9 +25,12 @@ This project is a full-stack personal finance application designed to help users
 
 - Create, read, update, delete transaction groups with input validation
 
-✅ **MCP endpoint**
+✅ **MCP server**
 
-- Standardized MCP endpoint to call backend tools to provide data to users through the AI Analytics service
+- The Web API hosts the official Model Context Protocol C# SDK over Streamable HTTP at `/api/v1/mcp`.
+- MCP requests require the authenticated user's access token; tools resolve the current user from the request identity instead of accepting a caller-supplied user ID.
+- Available read-only tools: `get_top_transaction_groups` and `get_monthly_transaction_context`.
+- The monthly context tool returns selected-month transactions plus up to 12 preceding months, with amounts converted to the user's base currency.
 
 ✅ **Currency Exchange**
 
@@ -104,10 +107,10 @@ POST   /api/v1/token/validate               # Validate token
 POST   /api/v1/token/refresh                # Refresh token endpoint
 ```
 
-### **MCP Endpoints**
+### **MCP**
 
 ```http
-POST   /api/v1/mcp                          # MCP endpoint for tool call
+POST   /api/v1/mcp                          # Streamable HTTP MCP endpoint; the SDK handles protocol and tool discovery
 ```
 
 ### **User Management Endpoints**

@@ -15,6 +15,15 @@ public interface ITransactionRepository : IRepository<Transaction>
   Task<List<Transaction>> GetAllByUserIdAsync(Guid userId, bool noTracking = false, CancellationToken cancellationToken = default);
 
   /// <summary>
+  /// Retrieves a user's transactions in a half-open date range [startDate, endDateExclusive).
+  /// </summary>
+  Task<List<Transaction>> GetTransactionsByDateRangeAsync(
+    Guid userId,
+    DateTimeOffset startDate,
+    DateTimeOffset endDateExclusive,
+    CancellationToken cancellationToken = default);
+
+  /// <summary>
   /// Checks if a transaction group is used by any transaction.
   /// </summary>
   /// <param name="transactionGroupId"></param>
