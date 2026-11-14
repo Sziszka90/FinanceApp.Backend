@@ -32,6 +32,11 @@ This project is a full-stack personal finance application designed to help users
 - Available read-only tools: `get_top_transaction_groups` and `get_monthly_transaction_context`.
 - The monthly context tool returns selected-month transactions plus up to 12 preceding months, with amounts converted to the user's base currency.
 
+✅ **Monthly AI insights**
+
+- `POST /api/v1/transactions/monthly-insights` authenticates the user, calls AIAnalytics with the service token, and forwards the current user's access token for MCP authorization.
+- AIAnalytics discovers and calls the read-only monthly transaction tools, then returns up to three insight cards for the selected month.
+
 ✅ **Currency Exchange**
 
 - Frankfurter supplies current rates, which the background job saves at most once per seven days; Redis caches the saved snapshots
@@ -139,6 +144,7 @@ DELETE /api/v1/transactions/{id}            # Delete transaction (requires auth)
 GET    /api/v1/transactions/summary         # Get transaction summary/analytics (requires auth)
 POST   /api/v1/transactions/import          # PDF upload; returns 202 with correlation ID (requires auth)
 GET    /api/v1/transactions/import/{correlationId}/status # Read PDF import status (requires auth)
+POST   /api/v1/transactions/monthly-insights # Generate AI insights for a month (requires auth)
 ```
 
 ### **Transaction Group Endpoints**
