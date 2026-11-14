@@ -2,6 +2,7 @@ using FinanceApp.Backend.Application.Models;
 using FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetMonthlyTransactionContext;
 using FinanceApp.Backend.Domain.Entities;
 using FinanceApp.Backend.Domain.Enums;
+using Moq;
 
 namespace FinanceApp.Backend.Testing.Unit.TransactionTests.Queries;
 
