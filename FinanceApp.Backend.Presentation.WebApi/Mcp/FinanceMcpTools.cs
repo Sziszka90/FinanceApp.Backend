@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.Dtos.McpDtos;
-using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetTopTransactionGroups;
+using FinanceApp.Backend.Application.Dtos.TransactionGroupDtos;
 using FinanceApp.Backend.Application.TransactionApi.TransactionQueries.GetMonthlyTransactionContext;
+using FinanceApp.Backend.Application.TransactionGroupApi.TransactionGroupQueries.GetTopTransactionGroups;
 using MediatR;
 using ModelContextProtocol.Server;
 

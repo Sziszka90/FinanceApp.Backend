@@ -3,10 +3,10 @@ using FinanceApp.Backend.Application.Hubs;
 using FinanceApp.Backend.Infrastructure;
 using FinanceApp.Backend.Presentation.WebApi.Extensions;
 using FinanceApp.Backend.Presentation.WebApi.HealthChecks;
-using FinanceApp.Backend.Presentation.WebApi.Middlewares;
 using FinanceApp.Backend.Presentation.WebApi.Mcp;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using FinanceApp.Backend.Presentation.WebApi.Middlewares;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using ModelContextProtocol.AspNetCore;
 

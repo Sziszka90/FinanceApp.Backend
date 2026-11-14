@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Asp.Versioning;
-using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Abstraction.Clients;
+using FinanceApp.Backend.Application.Abstraction.Services;
 using FinanceApp.Backend.Application.Dtos.AIAnalytics;
 using FinanceApp.Backend.Application.Dtos.TransactionDtos;
 using FinanceApp.Backend.Application.TransactionApi.TransactionCommands.CreateTransaction;
