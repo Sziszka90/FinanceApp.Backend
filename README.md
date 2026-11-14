@@ -53,6 +53,21 @@ For detailed upcoming features and development progress, please check our [GitHu
 
 ## 🏗️ Architecture
 
+```mermaid
+flowchart TB
+    User[User] --> Frontend[Angular frontend]
+    Frontend -->|REST API and SignalR| Backend[ASP.NET Core backend]
+    Backend -->|Transactions and users| Database[(SQL Server)]
+    Backend -->|Cache and SignalR backplane| Redis[(Redis)]
+    Backend -->|PDF import and categorization jobs| Queue[RabbitMQ queues]
+    Queue --> AI[Python AIAnalytics service]
+    Backend -->|Monthly analytics request| AI
+    AI -->|PDF extraction and category suggestions| AzureOpenAI[Azure OpenAI]
+    AI -->|Authenticated MCP requests for monthly insights| Backend
+    AI -->|Insight cards| Backend
+    Backend --> Frontend
+```
+
 ### **Clean Architecture Principles**
 
 ```
